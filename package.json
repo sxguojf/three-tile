@@ -56,5 +56,8 @@
 	},
 	"dependencies": {
 		"three": "^0.152.2"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/"
 	}
 }
