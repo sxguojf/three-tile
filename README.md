@@ -10,14 +10,17 @@ three-tile 是一个使用 [threejs](https://threejs.org/)开发的轻量级三�
 
 -   three-tile 不是一个 GIS 框架，它并不提供图层管理、空间分析等 GIS 相关功能。正因为如此，它的核心可以做的很轻量级，能轻松集成到已有项目中。
 
-
 Source： https://github.com/sxguojf/three-tile-example
 
 Examples: https://sxguojf.github.io/three-tile-example
 
-![alt text](images/image.png)
+![alt text](images/image-3.png)
+
+![alt text](images/image-0.png)
 
 ![alt text](images/image-2.png)
+
+![alt text](images/image-4.png)
 
 ![alt text](images/image-1.png)
 
@@ -70,14 +73,17 @@ https://www.npmjs.com/package/three-tile
 和一般 threejs 应用一样，初始化 threejs 三维场景后，将地图模型加入场景即可完成地图的显示。
 
 使用按以下步骤：
+
 1. 初始化三维场景
 2. 定义地图数据源
 3. 创建地图模型
 4. 地图模型加入三维场景
 
 ### 3.1 初始化三维场景
-three-tile的三维场景初始化和threejs相同，按threejs的套路初始化场景、摄像机、控制器、灯光等即可。为了便于使用，three-tile 还提供一个 GLViewer 类，它封装了场景初始化过程，可直接使用它进行初始化。
-``` typescript
+
+three-tile 的三维场景初始化和 threejs 相同，按 threejs 的套路初始化场景、摄像机、控制器、灯光等即可。为了便于使用，three-tile 还提供一个 GLViewer 类，它封装了场景初始化过程，可直接使用它进行初始化。
+
+```typescript
 import * as tt from "three-tile";
 
 // 取得地图dom
@@ -88,13 +94,14 @@ const viewer = new tt.plugin.GLViewer(glContainer!);
 
 如果你熟悉 threejs，场景初始化最好自己写，跟普通 threejs 程序并无太大差异。以下部分需要注意：
 
--   为了使地图坐标系与一般人类理解一致，three-tile地图坐标方向采用东(x)北(y)上(z)方向，即地面在 x-y 平面上，海拔高度在 z 轴。而 threejs 一般平面在 xz 平面上，高度为 y 轴，所以初始化时需要使场景默认 up 指向 z 轴，可添加：Object3D.DEFAULT_UP.set(0, 0, 1) 即可。如果你的应用不能调整 up 值，可以将地图旋转-π/2° 完成。
+-   为了使地图坐标系与一般人类理解一致，three-tile 地图坐标方向采用东(x)北(y)上(z)方向，即地面在 x-y 平面上，海拔高度在 z 轴。而 threejs 一般平面在 xz 平面上，高度为 y 轴，所以初始化时需要使场景默认 up 指向 z 轴，可添加：Object3D.DEFAULT_UP.set(0, 0, 1) 即可。如果你的应用不能调整 up 值，可以将地图旋转-π/2° 完成。
 -   地图添加光照才能显示。一般至少要有一个环境光，另外最好加一个直射光以通过地形法向量增强凹凸感。
 -   场景控制器一般应用可使用 threejs 内置的 MapControls，其它控制器如 OrbitControls、FlyControls、PointerLockControls、TransformControls、FirstPersonControls 都能完美支持。
 
 ### 3.2 定义地图数据源
 
-three-tile内置了Mapbox、ArcGis、Bing、天地图、高德、腾讯等多个厂商的瓦片地图源，可直接调用，也可根据根据需要自行扩展。地图切片默认使用Google方案，地形瓦片支持MapBox的terrain-rgb和ArcGis的LERC格式。如MapBox数据源创建如下：
+three-tile 内置了 Mapbox、ArcGis、Bing、天地图、高德、腾讯等多个厂商的瓦片地图源，可直接调用，也可根据根据需要自行扩展。地图切片默认使用 Google 方案，地形瓦片支持 MapBox 的 terrain-rgb 和 ArcGis 的 LERC 格式。如 MapBox 数据源创建如下：
+
 ```typescript
 import * as tt from "three-tile";
 
@@ -116,16 +123,17 @@ export const mapBoxDemSource = new tt.plugin.MapBoxSource({
 	maxLevel: 15,
 });
 ```
+
 **注意：**
 
-1. 多数数据源需要申请token才能使用，请不要用我示例中的。
+1. 多数数据源需要申请 token 才能使用，请不要用我示例中的。
 2. 部分国外的地图无法访问，或是速度很慢，这个需要自己想办法，你们懂的。
 3. 国内地图使用“火星坐标系”，影像图与地形有可能无法套准。
-3. 地图数据使用，请遵循法律法规要求。
+4. 地图数据使用，请遵循法律法规要求。
 
 ### 3.2 地图创建
 
-使用 TileMap类的工厂方法 create() 创建地图，加入场景。
+使用 TileMap 类的工厂方法 create() 创建地图，加入场景。
 
 ```typescript
 import * as tt from "three-tile";
@@ -147,7 +155,8 @@ const map = tt.TileMap.create({
 // 将地图加入三维场景
 viewer.scene.add(map);
 ```
-高级开发者，可调用TileMap的构造函数创建地图，它提供更多的参数对地图进行控制，如你可以传入瓦片模型加载器，实现自定义瓦片模型建模过程。
+
+高级开发者，可调用 TileMap 的构造函数创建地图，它提供更多的参数对地图进行控制，如你可以传入瓦片模型加载器，实现自定义瓦片模型建模过程。
 
 ## 4. 约定和限制
 
@@ -159,12 +168,11 @@ viewer.scene.add(map);
 -   地图标注源：大部分国内厂商地图数据的地名、边界、道路有一定偏移，与地形无法完全匹配。
 -   地图 token：大部分厂商的地图数据需要申请开发 key 才能使用，three-tile 示例包含一些厂商的 token，访问的人多了厂商会封掉它们，使用者一定要自己申请（又不要钱）避免直接使用。
 
-
 更多使用方法见 example
 
 ## 5. 示例
 
-提供一个完整浏览器引入方式示例供测试，可不用web服务直接在文件系统下运行：
+提供一个完整浏览器引入方式示例供测试，可不用 web 服务直接在文件系统下运行：
 
 ```html
 <!DOCTYPE html>
@@ -199,7 +207,7 @@ viewer.scene.add(map);
 			console.log("three-tile start!");
 
 			// MapBoxToken 请更换为你自己申请的key
-			const MAPBOXKEY ="xxxxxxxxxx";
+			const MAPBOXKEY = "xxxxxxxxxx";
 
 			// mapbox影像数据源
 			const mapBoxImgSource = new tt.plugin.MapBoxSource({
@@ -260,5 +268,3 @@ viewer.scene.add(map);
 	</body>
 </html>
 ```
-
-
