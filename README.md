@@ -71,7 +71,7 @@ https://www.npmjs.com/package/three-tile
 4. 地图模型加入三维场景
 
 ### 3.1 初始化三维场景
-three-tile的三维场景初始化和threejs相同，按threejs的套路初始化场景、摄像机、控制器、灯光等即可。为了便于使用，three-tile 还提供一个 GLViewer 类，它封装了场景初始化过程，可直接使用它进行初始化。但如果你熟悉 threejs，最好自己写，跟普通 threejs 程序并无太大差异。
+three-tile的三维场景初始化和threejs相同，按threejs的套路初始化场景、摄像机、控制器、灯光等即可。为了便于使用，three-tile 还提供一个 GLViewer 类，它封装了场景初始化过程，可直接使用它进行初始化。
 ``` typescript
 import * as tt from "three-tile";
 
@@ -81,7 +81,7 @@ const glContainer = document.querySelector<HTMLElement>("#map");
 const viewer = new tt.plugin.GLViewer(glContainer!);
 ```
 
-自行创建场景需要以下部分需要注意：
+如果你熟悉 threejs，场景初始化最好自己写，跟普通 threejs 程序并无太大差异。以下部分需要注意：
 
 -   为了使地图坐标系与一般人类理解一致，three-tile地图坐标方向采用东(x)北(y)上(z)方向，即地面在 x-y 平面上，海拔高度在 z 轴。而 threejs 一般平面在 xz 平面上，高度为 y 轴，所以初始化时需要使场景默认 up 指向 z 轴，可添加：Object3D.DEFAULT_UP.set(0, 0, 1) 即可。如果你的应用不能调整 up 值，可以将地图旋转-π/2° 完成。
 -   地图添加光照才能显示。一般至少要有一个环境光，另外最好加一个直射光以通过地形法向量增强凹凸感。
@@ -142,9 +142,7 @@ const map = tt.TileMap.create({
 // 将地图加入三维场景
 viewer.scene.add(map);
 ```
-
-
-
+高级开发者，可调用TileMap的构造函数创建地图，它提供更多的参数对地图进行控制，如你可以传入瓦片模型加载器，实现自定义瓦片模型建模过程。
 
 ## 4. 约定和限制
 
@@ -155,7 +153,6 @@ viewer.scene.add(map);
 -   地图清晰度：清晰度与本框架无关，取决数据源精度。
 -   地图标注源：大部分国内厂商地图数据的地名、边界、道路有一定偏移，与地形无法完全匹配。
 -   地图 token：大部分厂商的地图数据需要申请开发 key 才能使用，three-tile 示例包含一些厂商的 token，访问的人多了厂商会封掉它们，使用者一定要自己申请（又不要钱）避免直接使用。
-
 
 
 更多使用方法见 example
