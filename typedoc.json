@@ -1,0 +1,8 @@
+// typedoc.json
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": [
+        "./src/three-tile.ts"
+    ],
+    "out": "docs"
+}

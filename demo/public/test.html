@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+		/>
+		<title>three-tile</title>
+	</head>
+	<style>
+		html,
+		body {
+			background-color: #333;
+			height: 100%;
+			width: 100%;
+			padding: 0;
+			margin: 0;
+			display: flex;
+		}
+		#map {
+			flex: 1;
+		}
+	</style>
+	<body>
+		<div id="map"></div>
+		<script src="./three.js"></script>
+		<script src="./three-tile/three-tile.umd.cjs"></script>
+		<script>
+			console.log("three-tile start!");
+
+			// MapBoxToken 请更换为你自己申请的key
+			const MAPBOXKEY =
+				"pk.eyJ1Ijoic2hhbmUwMjIwNzIiLCJhIjoiY2p5amF6YnFiMDB0YjNkcGU1ZWxoMWl0NiJ9.TsmgK5-HJKWOE-DscbNbTA";
+
+			// mapbox影像数据源
+			const mapBoxImgSource = new tt.plugin.MapBoxSource({
+				token: MAPBOXKEY,
+				dataType: "image",
+				style: "mapbox.satellite",
+			});
+			// mapbox地形数据源
+			const mapBoxDemSource = new tt.plugin.MapBoxSource({
+				token: MAPBOXKEY,
+				dataType: "terrain-rgb",
+				style: "mapbox.terrain-rgb",
+				maxLevel: 15,
+			});
+
+			// 创建地图
+			const map = tt.TileMap.create({
+				// 影像数据源
+				imgSource: mapBoxImgSource,
+				// 地形数据源
+				demSource: mapBoxDemSource,
+				// 地图投影中心经度
+				centralMeridian: 90,
+				// 最小缩放级别
+				minLevel: 2,
+				// 最大缩放级别
+				maxLevel: 18,
+			});
+
+			// 地图中心经纬度转为场景坐标
+			const center = map.geo2pos(new THREE.Vector3(108.942, 34.2855));
+			const container = document.querySelector("#map");
+			const viewer = new tt.plugin.GLViewer(
+				container,
+				new THREE.Vector3(center.x, center.y, 0),
+				new THREE.Vector3(center.x, center.y, 3e4),
+			);
+
+			viewer.scene.add(map);
+
+			// 添加地图坐标轴
+			const helper = new THREE.AxesHelper(1000);
+			helper.position.set(center.x, center.y, 1);
+			viewer.scene.add(helper);
+
+			// 动画漫游到3500km高空
+			(() => {
+				const timer = setInterval(() => {
+					const pos = viewer.camera.position;
+					pos.z -= 500;
+					pos.y -= 10;
+					if (pos.z < 100) {
+						clearInterval(timer);
+					}
+				}, 10);
+			})();
+		</script>
+	</body>
+</html>

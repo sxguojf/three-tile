@@ -1,0 +1,105 @@
+/**
+ *@description: utils functions
+ *@author: Guojf
+ *@date: 2023-04-06
+ */
+
+import { Box2, Vector2, Vector3 } from "three";
+import { ISource } from "../source";
+import { Tile } from "../tile";
+
+/**
+ * get bounds from rect
+ * @param rect
+ * @param imgSize
+ * @returns
+ */
+export function rect2ImageBounds(rect: Box2, imgSize: number) {
+	rect.translate(new Vector2(0.5, 0.5));
+	// left-top
+	const sx = Math.floor(rect.min.x * imgSize);
+	const sy = Math.floor(rect.min.y * imgSize);
+	// w and h
+	const sw = Math.floor((rect.max.x - rect.min.x) * imgSize);
+	const sh = Math.floor((rect.max.y - rect.min.y) * imgSize);
+	return { sx, sy, sw, sh };
+}
+
+/**
+ * image resize
+ * @param image source image
+ * @param size dest size
+ * @returns canvas
+ */
+export function resizeImage(image: HTMLImageElement, size: number) {
+	if (image.width <= size) {
+		return image;
+	}
+	// create a canvas
+	const canvas = document.createElement("canvas");
+	const context = canvas.getContext("2d")!;
+
+	// set the canvas size
+	canvas.width = size;
+	canvas.height = size;
+
+	// get scale size
+	const scaledSize = size - 2;
+
+	// draw
+	context.drawImage(image, 0, 0, image.width, image.height, 1, 1, scaledSize, scaledSize);
+
+	// draw bounds (skrit)
+	const imageData = context.getImageData(1, 1, scaledSize, scaledSize);
+	context.putImageData(imageData, 0, 0);
+
+	return canvas;
+}
+
+/**
+ * get url and rect for max level tile
+ * to load greater than max level from source,  had to load from max level.
+ * 因为瓦片数据并未覆盖所有级别瓦片，如MapBox地形瓦片最高只到15级，如果要显示18级以上瓦片，不能从17级瓦片中获取，只能从15级瓦片里截取一部分
+ * @param source
+ * @param tile
+ * @returns max tile url and rect in  in maxTile
+ */
+export function getSafeTileUrlAndRect(source: ISource, tile: Tile) {
+	if (tile.coord.z <= source.maxLevel) {
+		const url = source.getTileUrl(tile.coord.x, tile.coord.y, tile.coord.z);
+		return {
+			url,
+			rect: new Box2(new Vector2(-0.5, -0.5), new Vector2(0.5, 0.5)),
+		};
+	}
+	function getMaxLevelTileAndRect(tile: Tile, maxLevel: number) {
+		const center = new Vector3();
+		const size = new Vector2(1, 1);
+		// 循环找到最高级别瓦片，并取得瓦片中点相对于最高级别瓦片的中点和大小
+		while (tile.coord.z > maxLevel) {
+			// 瓦片中点转为相对本瓦片坐标（Mesh.positon为相对父瓦片坐标系中的坐标）
+			center.applyMatrix4(tile.matrix);
+			// 一级是上一级0.5倍大小
+			size.multiplyScalar(0.5);
+			if (tile.parent instanceof Tile) {
+				tile = tile.parent;
+			} else {
+				break;
+			}
+		}
+		// 因坐瓦片坐标与图像坐标系Y轴相反，所以取反
+		center.setY(-center.y);
+		const rect = new Box2().setFromCenterAndSize(new Vector2(center.x, center.y), size);
+		return { tile, rect };
+	}
+
+	// 取出数据源最大级别瓦片和当前瓦片在最大瓦片中的位置
+	const maxLevelTileAndBox = getMaxLevelTileAndRect(tile, source.maxLevel);
+	// 取得瓦片的url
+	const url = source.getTileUrl(
+		maxLevelTileAndBox.tile.coord.x,
+		maxLevelTileAndBox.tile.coord.y,
+		maxLevelTileAndBox.tile.coord.z,
+	);
+	return { url, rect: maxLevelTileAndBox.rect };
+}

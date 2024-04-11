@@ -1,0 +1,58 @@
+{
+	"name": "three-tile",
+	"private": false,
+	"version": "0.5.1",
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"main": "dist/three-tile.umd.cjs",
+	"module": "dist/three-tile.js",
+	"types": "./dist/three-tile.es.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/three-tile.js",
+			"require": "./dist/three-tile.umd.cjs",
+			"types": "./dist/three-tile.es.d.ts"
+		}
+	},
+	"description": "A lightweight tile map using threejs",
+	"license": "GPL-3.0",
+	"author": {
+		"name": "GuoJiangfeng",
+		"email": "hz_gjf@163.com"
+	},
+	"keywords": [
+		"three",
+		"gis",
+		"tile",
+		"map",
+		"3D",
+		"cesium"
+	],
+	"scripts": {
+		"dev": "vite --config vite.config.dev.ts",
+		"lib": "tsc && vite build  --config vite.config.lib.ts",
+		"demo": "tsc && vite build  --config vite.config.demo.ts",
+		"docs": "typedoc src --out ./docs",
+		"lint": "eslint --ext .tsx,.ts ./src ",
+		"fix": "eslint --ext .tsx,.ts ./src --fix"
+	},
+	"devDependencies": {
+		"@types/node": "^20.2.3",
+		"@types/offscreencanvas": "^2019.7.0",
+		"@types/three": "^0.152.1",
+		"@typescript-eslint/eslint-plugin": "^7.5.0",
+		"@typescript-eslint/parser": "^7.5.0",
+		"esbuild": "^0.20.2",
+		"eslint": "^9.0.0",
+		"typedoc": "^0.25.13",
+		"typescript": "^5.4.5",
+		"vite": "^5.2.8",
+		"vite-plugin-dts": "^3.8.1",
+		"vite-plugin-wasm": "^3.3.0"
+	},
+	"dependencies": {
+		"three": "^0.152.2"
+	}
+}
