@@ -4,7 +4,9 @@
 	"version": "0.5.1",
 	"type": "module",
 	"files": [
-		"dist"
+		"dist",
+		"images",
+		"docs"
 	],
 	"main": "dist/three-tile.umd.cjs",
 	"module": "dist/three-tile.js",
