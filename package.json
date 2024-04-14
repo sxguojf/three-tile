@@ -49,8 +49,7 @@
 		"typedoc": "^0.25.13",
 		"typescript": "^5.4.5",
 		"vite": "^5.2.8",
-		"vite-plugin-dts": "^3.8.1",
-		"vite-plugin-wasm": "^3.3.0"
+		"vite-plugin-dts": "^3.8.1"
 	},
 	"dependencies": {
 		"three": "^0.152.2"
