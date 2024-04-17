@@ -1,5 +1,5 @@
 /**
- *@description: RootTileClass
+ *@description: Root Tile Class
  *@author: Guojf
  *@date: 2023-04-05
  */
@@ -7,12 +7,13 @@
 import { Box3, Camera, Frustum, Matrix4, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { Tile } from ".";
+import { checkVisible } from "./checkVisible";
 
 const tempMat4 = new Matrix4();
 const frustum = new Frustum();
 
 /**
- * Root tile, it is a  QuadTree extends Tile.
+ * Root tile, It extends from Tile.
  * note: update() function is called on the scene update every frame it is rendered.
  */
 export class RootTile extends Tile {
@@ -89,8 +90,8 @@ export class RootTile extends Tile {
 
 	/**
 	 * Set whether allow tile data to update, default true.
-	 * true: auto load data on the scene update every frame it is rendered.
-	 * false: only update quad tree on render.
+	 * true: load data on the scene update every frame it is rendered.
+	 * false: do not load data, only update tile true.
 	 */
 	public set autoLoad(value: boolean) {
 		this._autoLoad = value;
@@ -122,13 +123,13 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * constructor
+	 * Constructor
 	 * @param loader tile data loader
 	 * @param level tile level, default:0
 	 * @param x tile X-coordinate, default:0
 	 * @param y tile y-coordinate, default:0
 	 */
-	public constructor(loader: ITileLoader, level: number = 0, x: number = 0, y: number = 0) {
+	public constructor(loader: ITileLoader, level = 0, x = 0, y = 0) {
 		super(level, x, y);
 		this._loader = loader;
 		this.matrixAutoUpdate = true;
@@ -136,26 +137,26 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * update the quadTree and tile data
+	 * Update the tile tree and tile data. It needs called on the scene update every frame.
 	 * @param camera
 	 */
 	public update(camera: Camera) {
-		// update quadTree
+		// update tile tree
 		if (this._updateTileTree(camera)) {
 			this._treeReadyCount = 0;
 		} else {
 			this._treeReadyCount = Math.min(this._treeReadyCount + 1, 100);
 		}
 
-		// update tile data when quadTree is steady
-		if (this.autoLoad && this._treeReadyCount > 2) {
+		// update tile data when tile tree steady
+		if (this.autoLoad && this._treeReadyCount > 3) {
 			this._updateTileData();
 		}
 		return this;
 	}
 
 	/**
-	 * reload data, Called to take effect after source is modified
+	 * Reload data, Called to take effect after source is modified
 	 */
 	public reload() {
 		this.dispose(true);
@@ -163,7 +164,7 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * update the tile tree use LOD
+	 * Update the tile tree use LOD
 	 * @param cameraWorldPosition positon of the camera
 	 * @returns  the tile tree has changed
 	 */
@@ -205,25 +206,23 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 *  update tileTree data.
-	 *  traverse the tiles to load data and update tiles visible.
+	 *  Update tileTree data.
+	 *  Traverse the tiles to load map data and update tiles visible.
 	 */
 	private _updateTileData() {
-		//  traverse the tiles
 		this.traverse((tile) => {
 			if (tile.isTile) {
-				// load data
+				// load tile data
 				tile._load(this.loader).then((check) => {
 					if (check) {
-						// && tile.loadState === "loaded"
-						const loaded = this._updateVisible();
+						const loaded = checkVisible(this);
 						if (loaded) {
 							// fire loaded all tile has loaded
 							this.dispatchEvent({ type: "loaded", tile });
 							console.log("ok");
 						}
 						// update z of map in view
-						this._updateVisibleZ();
+						this._updateVisibleHight();
 					}
 					// fire event of the tile loaded
 					this.dispatchEvent({ type: "tile-loaded", tile });
@@ -235,48 +234,9 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * update the tile visible when tile loaded
-	 * @returns all of tile has loaded?
+	 * Update the tiles height
 	 */
-	private _updateVisible() {
-		const leafLoaded = (tile: Tile): boolean => {
-			if (!tile.inFrustum) {
-				return true;
-			}
-			// is loaed when load state is loaded or not in frustum, if the tile is leaf
-			if (tile.isLeaf) {
-				return tile.loadState === "loaded";
-			}
-
-			// recursion to decide the tile has loaded, if the tile not is leaf
-			const loaded = tile.children.every((child) => leafLoaded(child));
-
-			// show leaf tile and free parent tile if all of tile has loade
-			if (loaded) {
-				tile.children.forEach((child) => {
-					if (child.inFrustum) {
-						if (child.isLeaf) {
-							child.isTemp = false;
-						} else {
-							// child.isTemp = true;
-							child.dispose(false);
-						}
-					}
-				});
-			}
-			// console.log(loaded);
-
-			return loaded;
-		};
-
-		//console.log("------------");
-		return leafLoaded(this);
-	}
-
-	/**
-	 * update the tiles height
-	 */
-	private _updateVisibleZ() {
+	private _updateVisibleHight() {
 		let sumZ = 0,
 			count = 0;
 		this.maxZ = 0;

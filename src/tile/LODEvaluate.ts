@@ -1,5 +1,5 @@
 /**
- *@description: LOD
+ *@description: LOD evaluate
  *@author: Guojf
  *@date: 2023-04-05
  */
@@ -38,7 +38,7 @@ export enum LODAction {
 }
 
 /**
- * get LOD action
+ * Tile LOD evaluate
  * @param tile
  * @param camera
  * @param maxLevel
@@ -46,7 +46,7 @@ export enum LODAction {
  * @param threshold
  * @returns action
  */
-export function LOD(tile: Tile, camera: Camera, minLevel: number, maxLevel: number, threshold: number): LODAction {
+export function evaluate(tile: Tile, camera: Camera, minLevel: number, maxLevel: number, threshold: number): LODAction {
 	const factor = 1.02;
 	if (tile.coord.z > minLevel && tile.index === 0 && tile.parent?.isTile) {
 		const dist = _getDistRatio(tile.parent, camera);

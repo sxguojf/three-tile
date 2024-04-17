@@ -88,13 +88,11 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			const controlsPosition = new Vector3(2108.6251495800407, 4064.1558637058156, 0);
 			flyTo(targetPosition, controlsPosition);
 		},
-
 		toSchool: () => {
-			const targetPosition = new Vector3(4082.8048722195954, 5741.659532031964, 0.5669018675969298);
-			const controlsPosition = new Vector3(4082.881226619693, 5741.233895683455, -8.233075338228967e-17);
+			const targetPosition = new Vector3(4082.8093451257946, 5741.944970088485, 0.7902206445906863);
+			const controlsPosition = new Vector3(4082.9522902367175, 5741.148122418343, -8.27047699764849e-17);
 			flyTo(targetPosition, controlsPosition);
 		},
-
 		showCameraInfo: () => {
 			const cameraPos = viewer.camera.position;
 			const targetPos = viewer.controls.target;

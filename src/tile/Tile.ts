@@ -16,7 +16,7 @@ import {
 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { creatChildrenTile } from "./tileCreator";
-import { LODAction, LOD } from "./tileLOD";
+import { LODAction, evaluate } from "./LODEvaluate";
 
 // default geometry of tile
 const defaultGeometry = new PlaneGeometry();
@@ -131,7 +131,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	 * @param y tile X-coordinate, default:0
 	 * * @param z tile level, default:0
 	 */
-	public constructor(x: number = 0, y: number = 0, z: number = 0) {
+	public constructor(x = 0, y = 0, z = 0) {
 		super(defaultGeometry, [defaultMaterial]);
 		this.coord = { x, y, z };
 		this.name = `Tile ${z}-${x}-${y}`;
@@ -171,8 +171,8 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	 */
 	protected _lod(camera: Camera, minLevel: number, maxLevel: number, threshold: number, isWGS: boolean) {
 		let newTiles: Tile[] = [];
-		// get LOD action
-		const action = LOD(this, camera, minLevel, maxLevel, threshold);
+		// evaluate LOD
+		const action = evaluate(this, camera, minLevel, maxLevel, threshold);
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
@@ -229,10 +229,10 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * recursion tile tree to find loaded parent (hide when parent showing)
+	 * Recursion to find loaded parent (hide when parent showing)
 	 * @returns loaded parent or null
 	 */
-	public hasLoadedParent(): this | null {
+	private _getLoadedParent(): this | null {
 		const parent = this.parent;
 		if (!parent || !parent.isTile) {
 			return null;
@@ -240,7 +240,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		if (parent.loadState === "loaded") {
 			return parent;
 		}
-		return parent.hasLoadedParent();
+		return parent._getLoadedParent();
 	}
 
 	/**
@@ -256,7 +256,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 
 		this._loadState = "loaded";
 
-		this._updateZ();
+		this._updateHeight();
 
 		// save the material.wireframe, rest when showing
 		this.material.forEach((mat) => {
@@ -267,7 +267,14 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 
 		if (this.isLeaf) {
 			// hide when parent has loaded
-			this.isTemp = this.hasLoadedParent() != null;
+			this.isTemp = this._getLoadedParent() != null;
+			// const paretn = this._getLoadedParent();
+			// if (paretn) {
+			// 	// update visible when parent loaded
+			// 	this._updateVisible(paretn);
+			// } else {
+			// 	this.isTemp = true;
+			// }
 		} else if (this._toLoad) {
 			// dispos children after parent loaded
 			this.isTemp = false;
@@ -282,7 +289,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	// update height
-	private _updateZ() {
+	private _updateHeight() {
 		this.geometry.computeBoundingBox();
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
