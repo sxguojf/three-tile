@@ -40,7 +40,7 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			const controlsPosition = new Vector3(2170.1276394330216, 4386.431762895977, -3.919158283214042e-16);
 			flyTo(targetPosition, controlsPosition);
 		},
-		toZmlm: () => {
+		toQomolangma: () => {
 			const targetPosition = new Vector3(-350.7904484068778, 3251.925523809779, 7.669686324170913);
 			const controlsPosition = new Vector3(-340.03129805321583, 3242.083776300395, 4.1232869364468783e-16);
 			flyTo(targetPosition, controlsPosition);
@@ -67,7 +67,7 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			flyTo(targetPosition, controlsPosition);
 		},
 
-		toWululu: () => {
+		toUluru: () => {
 			const targetPosition = new Vector3(4566.196382565265, -2918.2956143138167, 1.0185954608768784);
 			const controlsPosition = new Vector3(4567.893912842968, -2918.3165288349187, 6.544176126806917e-18);
 			flyTo(targetPosition, controlsPosition);
@@ -117,22 +117,22 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 		},
 	};
 
-	const folder = gui.addFolder("摄像机控制");
+	const folder = gui.addFolder("Camera position");
 
-	folder.add(vm, "restCamera").name("摄像机复位");
-	folder.add(vm, "showCameraInfo").name("摄像机姿态输出到控制台");
-	folder.add(vm, "toHome").name("Home");
-	folder.add(vm, "toSchool").name("School");
-	folder.add(vm, "toBeiJing").name("北京");
-	folder.add(vm, "toYanan").name("延安");
-	folder.add(vm, "toZmlm").name("珠穆朗玛峰");
-	folder.add(vm, "toTaiBai").name("太白山");
-	folder.add(vm, "toHuaShan").name("华山");
-	folder.add(vm, "toHuangShan").name("黄山");
-	folder.add(vm, "toTaiShan").name("泰山");
-	folder.add(vm, "toFuji").name("富士山");
-	folder.add(vm, "toWululu").name("乌鲁鲁");
-	folder.add(vm, "toNewyork").name("纽约");
+	folder.add(vm, "restCamera").name("Reset");
+	folder.add(vm, "showCameraInfo");
+	folder.add(vm, "toHome");
+	folder.add(vm, "toSchool");
+	folder.add(vm, "toBeiJing");
+	folder.add(vm, "toYanan");
+	folder.add(vm, "toQomolangma");
+	folder.add(vm, "toTaiBai");
+	folder.add(vm, "toHuaShan");
+	folder.add(vm, "toHuangShan");
+	folder.add(vm, "toTaiShan");
+	folder.add(vm, "toFuji");
+	folder.add(vm, "toUluru");
+	folder.add(vm, "toNewyork");
 	folder.add(vm, "cameraHelper");
 	// folder.add(helper.children[0].position, "Z", 0, 1e6);
 };

@@ -20,9 +20,9 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 
 	viewer.scene.background = vm.skybox;
 
-	const folder = gui.addFolder("环境设置").close();
-	folder.add(viewer.ambLight, "intensity", 0, 1, 0.1).name("环境光强度");
-	folder.add(viewer.dirLight, "intensity", 0, 1, 0.1).name("直射光强度");
+	const folder = gui.addFolder("Environeent").close();
+	folder.add(viewer.ambLight, "intensity", 0, 1, 0.1).name("Ambient intensity");
+	folder.add(viewer.dirLight, "intensity", 0, 1, 0.1).name("Directional intensity");
 
 	// THREE.NoToneMapping
 	// THREE.LinearToneMapping
@@ -38,11 +38,11 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			ACESFilmicToneMapping: 4,
 		})
 		.name("HDR");
-	folder.add(viewer.renderer, "toneMappingExposure", 0, 2).name("HDR曝光系数");
+	folder.add(viewer.renderer, "toneMappingExposure", 0, 2);
 
 	folder
 		.add(vm, "skyVisible")
-		.name("白云")
+		.name("sky")
 		.onChange((value: boolean) => {
 			if (value) {
 				viewer.scene.background = vm.skybox;
@@ -56,7 +56,7 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 
 	folder
 		.addColor(vm, "skyColor")
-		.name("天空及雾颜色")
+		.name("Sky and fog color")
 		.listen()
 		.onChange((value: Color) => {
 			viewer.scene.background = value;
@@ -70,13 +70,13 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 
 	const bk = viewer.scene.getObjectByName("background");
 	if (bk) {
-		folder.add(viewer, "fogFactor", 0, 10, 0.001).listen().name("能见度系数");
-		folder.add(bk, "visible").name("地图背景图");
+		folder.add(viewer, "fogFactor", 0, 10, 0.001).listen();
+		folder.add(bk, "visible").name("background image");
 	}
 
 	const fakeEarth = viewer.scene.getObjectByName("fakeearth");
 	if (fakeEarth) {
-		folder.add(fakeEarth, "isMesh").name("地球遮罩");
+		folder.add(fakeEarth, "isMesh").name("Global mask");
 	}
 
 	return gui;

@@ -160,43 +160,43 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 	};
 
 	// 数据源
-	const folder = gui.addFolder("地图数据源").close();
+	const folder = gui.addFolder("Map Data Source").close();
 	// 影像数据源
-	const imgFolder = folder.addFolder("影像数据");
-	imgFolder.add(vm, "setMapBox").name("MapBox影像+天地图标注");
+	const imgFolder = folder.addFolder("Image data");
+	imgFolder.add(vm, "setMapBox").name("MapBox+天地图标注");
 	imgFolder.add(vm, "setZkxt").name("中科星图");
-	imgFolder.add(vm, "setBing").name("微软影像(有偏移)");
-	imgFolder.add(vm, "setGoogle").name("Google影像");
-	imgFolder.add(vm, "setGoogleP").name("Google地形");
-	imgFolder.add(vm, "setArcGis").name("ArcGis影像");
-	imgFolder.add(vm, "setArcGisHillShader").name("ArcGis山影+中科星图标注");
-	imgFolder.add(vm, "setMapTiler").name("MapTiler影像+中科星图标注");
-	imgFolder.add(vm, "setStadia").name("Stadis影像");
-	imgFolder.add(vm, "setGeoq").name("GeoQ地图");
+	imgFolder.add(vm, "setBing").name("Bing(有偏移)");
+	imgFolder.add(vm, "setGoogle").name("Google Image");
+	imgFolder.add(vm, "setGoogleP").name("Google terrain");
+	imgFolder.add(vm, "setArcGis").name("ArcGis");
+	imgFolder.add(vm, "setArcGisHillShader").name("ArcGisHillShader+中科星图标注");
+	imgFolder.add(vm, "setMapTiler").name("MapTiler+中科星图标注");
+	imgFolder.add(vm, "setStadia").name("Stadis");
+	imgFolder.add(vm, "setGeoq").name("GeoQ");
 	imgFolder.add(vm, "setGD").name("高德(大偏移)");
 	imgFolder.add(vm, "setTencent").name("腾讯(大偏移)");
 	imgFolder.add(vm, "setTdt_w").name("天地图");
-	imgFolder.add(vm, "setTdt_c").name("天地图(经纬度投影)");
 	imgFolder.add(vm, "setOpentopomap").name("OpenTopoMap");
+	imgFolder.add(vm, "setTdt_c").name("天地图(经纬度投影)");
 
 	// 地形数据源
-	const demFolder = folder.addFolder("地形数据");
-	demFolder.add(vm, "setDemNull").name("无地形");
-	demFolder.add(vm, "setMapBoxDem").name("Mapbox地形(maxLevel=15)");
-	demFolder.add(vm, "setMapTilerDem").name("MapTiler地形(maxLevel=12)");
+	const demFolder = folder.addFolder("Terrain data");
+	demFolder.add(vm, "setDemNull").name("None(plane)");
+	demFolder.add(vm, "setMapBoxDem").name("Mapbox terrain(maxLevel=15)");
+	demFolder.add(vm, "setMapTilerDem").name("MapTiler terrain(maxLevel=12)");
 	demFolder.add(vm, "setZkXtDem").name("中科星图(maxLevel=10)");
 	// demFolder.add(vm, "setTdt_qm").name("天地图QuantizedMesh");
-	demFolder.add(vm, "setArcgisLerc").name("ArcGis地形LERC(maxLevel=13)");
+	demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
 
 	// 测试数据
-	const testFolder = folder.addFolder("测试数据");
-	testFolder.add(vm, "setTileTest").name("MapBox影像+测试瓦片");
-	testFolder.add(vm, "setMapBoxDemTest").name("MapBox地形+测试瓦片");
-	testFolder.add(vm, "setMapTilerDemTest").name("MapTiler地形+测试瓦片");
-	testFolder.add(vm, "setZkxtDemTest").name("中科星图地形+测试瓦片");
-	testFolder.add(vm, "setLogoTest").name("Logo水印测试");
-	testFolder.add(vm, "setTileWire").name("Wireframe地形网格测试");
-	testFolder.add(vm, "setTileNormal").name("法向量测试");
+	const testFolder = folder.addFolder("Test data");
+	testFolder.add(vm, "setTileTest").name("MapBoxImage+debug");
+	testFolder.add(vm, "setMapBoxDemTest").name("MapBoxTerrain+debug");
+	testFolder.add(vm, "setMapTilerDemTest").name("MapTilerTerrain+debug");
+	testFolder.add(vm, "setZkxtDemTest").name("中科星图Terrain+debug");
+	testFolder.add(vm, "setLogoTest").name("Logo test");
+	testFolder.add(vm, "setTileWire").name("Wireframe terrain");
+	testFolder.add(vm, "setTileNormal").name("Normal terrain");
 
 	return gui;
 };
