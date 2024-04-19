@@ -166,8 +166,8 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 	imgFolder.add(vm, "setMapBox").name("MapBox+天地图标注");
 	imgFolder.add(vm, "setZkxt").name("中科星图");
 	imgFolder.add(vm, "setBing").name("Bing(有偏移)");
-	imgFolder.add(vm, "setGoogle").name("Google Image");
-	imgFolder.add(vm, "setGoogleP").name("Google terrain");
+	imgFolder.add(vm, "setGoogle").name("Google image");
+	imgFolder.add(vm, "setGoogleP").name("Google terrain image");
 	imgFolder.add(vm, "setArcGis").name("ArcGis");
 	imgFolder.add(vm, "setArcGisHillShader").name("ArcGisHillShader+中科星图标注");
 	imgFolder.add(vm, "setMapTiler").name("MapTiler+中科星图标注");
