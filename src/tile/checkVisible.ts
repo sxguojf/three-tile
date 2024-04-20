@@ -1,33 +1,37 @@
 import { Tile } from "./Tile";
 
 export function checkVisible(tile: Tile): boolean {
+	const leafs: Tile[] = [];
+	tile.traverse((child) => leafs.push(child));
+	const loaded = !leafs.filter((child) => child.isLeafInFrustum).some((child) => child.loadState != "loaded");
+	if (loaded) {
+		leafs.forEach((child) => {
+			if (child.isLeaf) {
+				child.isTemp = false;
+			} else {
+				child.dispose(false);
+			}
+		});
+	}
+	return loaded;
+}
+
+export function checkVisible1(tile: Tile): boolean {
 	if (!tile.inFrustum) {
 		return true;
 	}
-	// is loaed when load state is loaded or not in frustum, if the tile is leaf
 	if (tile.isLeaf) {
 		return tile.loadState === "loaded";
 	}
-
-	// recursion to decide the tile has loaded, if the tile not is leaf
 	const loaded = tile.children.every((child) => checkVisible(child));
-
-	// show leaf tile and free parent tile if all of tile has loade
 	if (loaded) {
-		tile.children.forEach((child) => {
-			if (child.inFrustum) {
-				if (child.isLeaf) {
-					child.isTemp = false;
-				}
-				// else {
-				// 	// child.isTemp = true;
-				// 	child.dispose(false);
-				// }
-			}
-		});
 		tile.dispose(false);
+		tile.children
+			.filter((child) => child.inFrustum)
+			.forEach((child) => {
+				child.isTemp = child.isLeaf;
+			});
+	} else {
 	}
-	// console.log(loaded);
-
 	return loaded;
 }

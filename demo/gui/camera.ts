@@ -45,7 +45,7 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			const controlsPosition = new Vector3(-340.03129805321583, 3242.083776300395, 4.1232869364468783e-16);
 			flyTo(targetPosition, controlsPosition);
 		},
-		toTaiBai: () => {
+		toTaiBaiShan: () => {
 			const targetPosition = new Vector3(1982.800201813011, 4032.091565236495, 6.048197106233053);
 			const controlsPosition = new Vector3(1977.132544440199, 4026.222479546381, 3.1481138177319502e-18);
 			flyTo(targetPosition, controlsPosition);
@@ -124,7 +124,7 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 	folder.add(vm, "toBeiJing");
 	folder.add(vm, "toYanan");
 	folder.add(vm, "toQomolangma");
-	folder.add(vm, "toTaiBai");
+	folder.add(vm, "toTaiBaiShan");
 	folder.add(vm, "toHuaShan");
 	folder.add(vm, "toHuangShan");
 	folder.add(vm, "toTaiShan");

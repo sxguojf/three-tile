@@ -6,3 +6,4 @@
 
 export * from "./Tile";
 export * from "./RootTile";
+export * from "./checkVisible";

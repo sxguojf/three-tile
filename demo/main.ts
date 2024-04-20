@@ -36,7 +36,7 @@ function createMap() {
 function initViewer(map: tt.TileMap, dom: HTMLElement) {
 	// 地图中心经纬度
 	// const centerGeo = new Vector3(108.942, 34.2855, 0);
-	const centerGeo = new Vector3(90, 30, 0);
+	const centerGeo = new Vector3(110, 30, 0);
 	// 经纬度转为世界坐标
 	const centerPos = map.localToWorld(map.geo2pos(centerGeo));
 	// 初始化三维场景

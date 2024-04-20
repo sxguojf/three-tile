@@ -17,6 +17,7 @@ import {
 import { ITileLoader } from "../loader/ITileLoaders";
 import { creatChildrenTile } from "./tileCreator";
 import { LODAction, evaluate } from "./LODEvaluate";
+import { checkVisible } from "./checkVisible";
 
 // default geometry of tile
 const defaultGeometry = new PlaneGeometry();
@@ -111,13 +112,21 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		return this.inFrustum && this.isLeaf;
 	}
 
+	private _isTemp = false;
 	/** set the tile to temp*/
 	public set isTemp(temp: boolean) {
+		this._isTemp = temp;
 		this.material.forEach((mat) => {
 			if ("wireframe" in mat) {
 				mat.wireframe = temp || mat.userData.wireframe;
 			}
 		});
+		if (!temp) {
+			const parent = this._getLoadedParent();
+			if (parent && parent.loadState === "loaded") {
+				// debugger;
+			}
+		}
 	}
 
 	/** is tile leaf?  */
@@ -140,7 +149,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * Override Obejct3D.traverse, change the callback param to "this"
+	 * Override Obejct3D.traverse, change the callback param type to "this"
 	 * @param callback callback
 	 */
 	public traverse(callback: (object: this) => void): void {
@@ -180,6 +189,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
+				// parent.children.forEach((child) => (child._toLoad = false));
 			}
 		}
 
@@ -189,17 +199,16 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	/**
 	 * load tile data
 	 * @param loader data loader
-	 * @returns update visible of tiles ?
+	 * @returns Promise<void>
 	 */
-	protected _load(loader: ITileLoader): Promise<boolean> {
+	protected _load(loader: ITileLoader): Promise<void> {
 		if (!this._needsLoad) {
-			return Promise.resolve(false);
+			return Promise.resolve();
 		}
-
-		// reset the downloading controller
+		// Reset the abortC controller
 		this._abortController = new AbortController();
 		this._loadState = "loading";
-		// load tile data
+		// Load tile data
 		return new Promise((resolve, _reject) => {
 			loader.load(
 				this,
@@ -214,18 +223,17 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	 * @param err error message
 	 * @returns
 	 */
-	private _onError(err: any): boolean {
+	private _onError(err: any) {
 		this._toLoad = false;
 		if (err.name === "AbortError") {
 			// download abort, loadeState has seted empty
 			console.assert(this._loadState === "empty");
-			console.log(err.message);
+			// console.log(err.message, this.name);
 		} else {
 			// download fail, set loadState to loaded to prevent reload
 			this._loadState = "loaded";
 			console.error(err.message || err.type || err);
 		}
-		return false;
 	}
 
 	/**
@@ -237,26 +245,17 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		if (!parent || !parent.isTile) {
 			return null;
 		}
-		if (parent.loadState === "loaded") {
+		if (parent.loadState === "loaded" && !parent._isTemp) {
 			return parent;
 		}
 		return parent._getLoadedParent();
 	}
 
 	/**
-	 * callback function on loaded
+	 * Tile loaded callback
 	 */
-	private _onLoad(): boolean {
-		if (this.loadState === "empty") {
-			return false;
-		}
-		if (!this.inFrustum) {
-			debugger;
-		}
-
+	private _onLoad() {
 		this._loadState = "loaded";
-
-		this._updateHeight();
 
 		// save the material.wireframe, rest when showing
 		this.material.forEach((mat) => {
@@ -264,28 +263,25 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 				mat.userData.wireframe = mat.wireframe;
 			}
 		});
+		this._updateHeight();
 
-		if (this.isLeaf) {
-			// hide when parent has loaded
-			this.isTemp = this._getLoadedParent() != null;
-			// const paretn = this._getLoadedParent();
-			// if (paretn) {
-			// 	// update visible when parent loaded
-			// 	this._updateVisible(paretn);
-			// } else {
-			// 	this.isTemp = true;
-			// }
-		} else if (this._toLoad) {
-			// dispos children after parent loaded
-			this.isTemp = false;
+		if (!this.isLeaf && this._toLoad) {
 			this.children.forEach((child) => child.dispose(true));
 			this.clear();
-		} else {
-			this.dispose(false);
 		}
+
+		this.isTemp = this._getLoadedParent() != null;
+
 		this._toLoad = false;
 
-		return true;
+		const loadedParent = this._getLoadedParent();
+		if (loadedParent && loadedParent._getLoadedParent()) {
+			console.log("----------------------------------------------");
+			debugger;
+		}
+		if (loadedParent) {
+			checkVisible(loadedParent);
+		}
 	}
 
 	// update height
@@ -329,6 +325,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		this.abortLoad();
 		this._loadState = "empty";
 		this.isTemp = true;
+		this._toLoad = false;
 		// dispose material
 		if (this.material[0] != defaultMaterial) {
 			this.material.forEach((mat) => mat.dispose());

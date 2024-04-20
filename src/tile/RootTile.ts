@@ -5,9 +5,8 @@
  */
 
 import { Box3, Camera, Frustum, Matrix4, Vector3 } from "three";
+import { Tile } from "./Tile";
 import { ITileLoader } from "../loader/ITileLoaders";
-import { Tile } from ".";
-import { checkVisible } from "./checkVisible";
 
 const tempMat4 = new Matrix4();
 const frustum = new Frustum();
@@ -149,7 +148,7 @@ export class RootTile extends Tile {
 		}
 
 		// update tile data when tile tree steady
-		if (this.autoLoad && this._treeReadyCount > 3) {
+		if (this.autoLoad && this._treeReadyCount > 10) {
 			this._updateTileData();
 		}
 		return this;
@@ -207,20 +206,13 @@ export class RootTile extends Tile {
 
 	/**
 	 *  Update tileTree data.
-	 *  Traverse the tiles to load map data and update tiles visible.
 	 */
 	private _updateTileData() {
 		this.traverse((tile) => {
 			if (tile.isTile) {
 				// load tile data
-				tile._load(this.loader).then((check) => {
-					if (check) {
-						const loaded = checkVisible(this);
-						if (loaded) {
-							// fire loaded all tile has loaded
-							this.dispatchEvent({ type: "loaded", tile });
-							console.log("ok");
-						}
+				tile._load(this.loader).then(() => {
+					if (tile.loadState === "loaded") {
 						// update z of map in view
 						this._updateVisibleHight();
 					}
