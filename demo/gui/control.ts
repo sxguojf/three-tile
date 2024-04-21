@@ -18,14 +18,5 @@ export const createControlGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.T
 	folder.add(map.rootTile, "visible").name("Map visible");
 	folder.add(map, "dispose");
 
-	const vm = {
-		check: () => {
-			const loaded = tt.checkVisible(map.rootTile);
-			console.log(loaded);
-		},
-	};
-
-	folder.add(vm, "check").name("Check visible");
-
 	return gui;
 };

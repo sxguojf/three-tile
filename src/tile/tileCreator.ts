@@ -22,12 +22,12 @@ function createTile(x: number, y: number, level: number, position: Vector3, scal
  * @returns tiles
  */
 export function creatChildrenTile(parent: Tile, isWGS = false) {
-	if (parent.isLeaf) {
+	if (parent.isTile) {
 		const level = parent.coord.z + 1;
 		const x = parent.coord.x * 2;
 		const z = 0;
 		const p = 1 / 4;
-		// 2 childdren tile at level 0 when GWS projection
+		// Tow childdren at level 0 when GWS projection
 		if (parent.coord.z === 0 && isWGS) {
 			const y = parent.coord.y;
 			const scale = new Vector3(0.5, 1.0, 1.0);

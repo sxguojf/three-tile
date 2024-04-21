@@ -164,7 +164,7 @@ export class RootTile extends Tile {
 
 	/**
 	 * Update the tile tree use LOD
-	 * @param cameraWorldPosition positon of the camera
+	 * @param camera  camera
 	 * @returns  the tile tree has changed
 	 */
 	private _updateTileTree(camera: Camera) {
@@ -215,9 +215,9 @@ export class RootTile extends Tile {
 					if (tile.loadState === "loaded") {
 						// update z of map in view
 						this._updateVisibleHight();
+						// fire event of the tile loaded
+						this.dispatchEvent({ type: "tile-loaded", tile });
 					}
-					// fire event of the tile loaded
-					this.dispatchEvent({ type: "tile-loaded", tile });
 				});
 			}
 		});

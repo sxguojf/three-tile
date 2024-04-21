@@ -17,7 +17,6 @@ import {
 import { ITileLoader } from "../loader/ITileLoaders";
 import { creatChildrenTile } from "./tileCreator";
 import { LODAction, evaluate } from "./LODEvaluate";
-import { checkVisible } from "./checkVisible";
 
 // default geometry of tile
 const defaultGeometry = new PlaneGeometry();
@@ -114,7 +113,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 
 	private _isTemp = false;
 	/** set the tile to temp*/
-	public set isTemp(temp: boolean) {
+	private set isTemp(temp: boolean) {
 		this._isTemp = temp;
 		this.material.forEach((mat) => {
 			if ("wireframe" in mat) {
@@ -251,6 +250,22 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		return parent._getLoadedParent();
 	}
 
+	private _checkVisible(): boolean {
+		const leafs: Tile[] = [];
+		this.traverse((child) => leafs.push(child));
+		const loaded = !leafs.filter((child) => child.isLeafInFrustum).some((child) => child.loadState != "loaded");
+		if (loaded) {
+			leafs.forEach((child) => {
+				if (child.isLeaf) {
+					child.isTemp = false;
+				} else {
+					child.dispose(false);
+				}
+			});
+		}
+		return loaded;
+	}
+
 	/**
 	 * Tile loaded callback
 	 */
@@ -274,14 +289,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 
 		this._toLoad = false;
 
-		const loadedParent = this._getLoadedParent();
-		if (loadedParent && loadedParent._getLoadedParent()) {
-			console.log("----------------------------------------------");
-			debugger;
-		}
-		if (loadedParent) {
-			checkVisible(loadedParent);
-		}
+		this._getLoadedParent()?._checkVisible();
 	}
 
 	// update height
@@ -321,7 +329,6 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	private _dispose() {
-		// abort...
 		this.abortLoad();
 		this._loadState = "empty";
 		this.isTemp = true;
