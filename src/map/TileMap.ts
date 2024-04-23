@@ -13,6 +13,9 @@ import { ProjMCT } from "./ProjMCT";
 import { IProjection, Projection, ProjectionType } from "./Projection";
 import { getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
 
+// 地图投影中心经度类型
+type ProjectCenterLongitude = 0 | 90 | -90;
+
 /**
  * Type of map create parameters
  * 地图创建参数
@@ -22,7 +25,7 @@ export type MapParams = {
 	demSource?: ISource; //高程数据源, terrain source
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
-	centralMeridian?: 0 | 90 | -90; //投影中心经度, map centralMeridian longitude
+	centralMeridian?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
 };
 
 /**
@@ -34,7 +37,7 @@ export type MapContructParams = {
 	rootTile?: RootTile; //根瓦片, root Tile
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
-	centralMeridian?: 0 | 90 | -90; //投影中心经度, map centralMeridian longitude
+	centralMeridian?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
 };
 
 /**
@@ -125,20 +128,20 @@ export class TileMap extends Mesh {
 		this.rootTile.autoLoad = value;
 	}
 
-	private _autoAdjustZ = false;
+	private _autoAdjustMapZ = false;
 	/**
 	 * Get whether to adjust z of map automatically.
 	 * 取得是否自动根据视野内地形高度调整地图Z坐标
 	 */
-	public get autoAdjustZ() {
-		return this._autoAdjustZ;
+	public get autoAdjustMapZ() {
+		return this._autoAdjustMapZ;
 	}
 	/**
 	 * Set whether to adjust z of map automatically.
 	 * 设置是否自动调整地图Z坐标，如果设置为true，将在每帧渲染中将地图Z坐标调整可视区域瓦片的平均高度
 	 */
-	public set autoAdjustZ(value) {
-		this._autoAdjustZ = value;
+	public set autoAdjustMapZ(value) {
+		this._autoAdjustMapZ = value;
 	}
 
 	/**
@@ -345,7 +348,7 @@ export class TileMap extends Mesh {
 	 * Map mesh constructor
 	 *
 	 * 地图模型构造函数
-	 * @param params 地图构造参数 {@link MapContructParams}     *
+	 * @param params 地图构造参数 {@link MapContructParams}
 	 * @example
 	 * ``` typescript
 	 *  const imgSource = [Source.mapBoxImgSource, new tt.TestSource()];
@@ -359,13 +362,13 @@ export class TileMap extends Mesh {
 
 		this.loader = params.loader;
 
-		this.rootTile = params.rootTile || new RootTile(this.loader);
-		this.rootTile.minLevel = params.minLevel || 0;
-		this.rootTile.maxLevel = params.maxLevel || 18;
+		this.rootTile = params.rootTile ?? new RootTile(this.loader);
+		this.rootTile.minLevel = params.minLevel ?? 0;
+		this.rootTile.maxLevel = params.maxLevel ?? 18;
 
-		this.projection = Projection.createFromSource(this.loader.imgSource[0] || "3857");
+		this.projection = Projection.createFromSource(this.loader.imgSource[0]);
 		// this._setMapProjection();
-		this.centralMeridian = params.centralMeridian || 0;
+		this.centralMeridian = params.centralMeridian ?? 0;
 
 		this._setTileCoordConvert();
 
@@ -442,7 +445,7 @@ export class TileMap extends Mesh {
 		this.rootTile.castShadow = this.castShadow;
 
 		// 动态调整地图高度
-		if (this.autoAdjustZ) {
+		if (this.autoAdjustMapZ) {
 			this.position.setZ((this.position.z - this.avgZInView / 100) / 1.03);
 		}
 

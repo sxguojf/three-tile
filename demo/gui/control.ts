@@ -5,7 +5,7 @@ export const createControlGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.T
 	const folder = gui.addFolder("Map control").close();
 	folder.add(map.scale, "z", 1, 10, 0.1).name("Hight scale").listen();
 	folder.add(map.position, "z", -5, 1, 0.01).name("Map Z").listen().listen();
-	folder.add(map, "autoAdjustZ").name("Auto map Z");
+	folder.add(map, "autoAdjustMapZ").name("Auto map Z");
 	folder.add(viewer.controls.target, "z", -1, 1, 0.01).name("Control Z").listen();
 	folder
 		.add(viewer.controls, "maxPolarAngle", 0, Math.PI / 2, 0.1)
