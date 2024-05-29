@@ -87,12 +87,13 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	private _inFrustum = false;
-	/** tile in frustum? */
+
+	/** is tile in frustum? */
 	public get inFrustum() {
 		return this._inFrustum;
 	}
 
-	/** set the tile in frustum */
+	/** set tile is in frustum */
 	protected set inFrustum(value) {
 		if (this._inFrustum != value) {
 			this._inFrustum = value;
@@ -106,12 +107,13 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		}
 	}
 
-	/** is the tile  leaf in frustum ? */
+	/** is leaf in frustum ? */
 	public get isLeafInFrustum() {
 		return this.inFrustum && this.isLeaf;
 	}
 
 	private _isTemp = false;
+
 	/** set the tile to temp*/
 	private set isTemp(temp: boolean) {
 		this._isTemp = temp;
@@ -128,7 +130,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		}
 	}
 
-	/** is tile leaf?  */
+	/** is leaf?  */
 	public get isLeaf() {
 		return this.children.length === 0;
 	}
@@ -158,7 +160,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		});
 	}
 	/**
-	 * Override mesh.raycast，only when tile has loaded
+	 * Override mesh.raycast，only called when tile has loaded
 	 * @param raycaster
 	 * @param intersects
 	 */
@@ -196,7 +198,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * load tile data
+	 * load data
 	 * @param loader data loader
 	 * @returns Promise<void>
 	 */
@@ -220,7 +222,6 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	/**
 	 * callback function when error. (include abort)
 	 * @param err error message
-	 * @returns
 	 */
 	private _onError(err: any) {
 		this._toLoad = false;
@@ -267,7 +268,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * Tile loaded callback
+	 * tile loaded callback
 	 */
 	private _onLoad() {
 		this._loadState = "loaded";
@@ -309,7 +310,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 
 	/**
 	 * free the tile
-	 * @param removeChildren 是否移除子瓦片
+	 * @param removeChildren remove children?
 	 */
 	public dispose(removeChildren: boolean) {
 		if (this.loadState != "empty") {

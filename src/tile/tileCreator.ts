@@ -16,7 +16,7 @@ function createTile(x: number, y: number, level: number, position: Vector3, scal
 }
 
 /**
- * create children tile
+ * create children tiles
  * @param parent parent tile
  * @param isWGS  is WGS projection
  * @returns tiles

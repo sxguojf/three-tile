@@ -12,7 +12,7 @@ const tempMat4 = new Matrix4();
 const frustum = new Frustum();
 
 /**
- * Root tile, It extends from Tile.
+ * Root tile, inherit of Tile.
  * note: update() function is called on the scene update every frame it is rendered.
  */
 export class RootTile extends Tile {
@@ -22,13 +22,13 @@ export class RootTile extends Tile {
 	private _minLevel = 0;
 
 	/**
-	 * Get the map minLevel
+	 * Get minLevel of the map
 	 */
 	public get minLevel() {
 		return this._minLevel;
 	}
 	/**
-	 * Set the map minLevel,
+	 * Set minLevel of the map,
 	 */
 	public set minLevel(value) {
 		this._minLevel = value;
@@ -36,13 +36,13 @@ export class RootTile extends Tile {
 
 	private _maxLevel = 19;
 	/**
-	 * Get the map maxLevel
+	 * Get maxLevel of the map
 	 */
 	public get maxLevel() {
 		return this._maxLevel;
 	}
 	/**
-	 * Set the map maxLevel
+	 * Set  maxLevel of the map
 	 */
 	public set maxLevel(value) {
 		this._maxLevel = value;
@@ -50,13 +50,13 @@ export class RootTile extends Tile {
 
 	private _LODThreshold = 1;
 	/**
-	 * Get the map LOD threshold
+	 * Get LOD threshold
 	 */
 	public get LODThreshold() {
 		return this._LODThreshold;
 	}
 	/**
-	 * Set the map LOD threshold
+	 * Set LOD threshold
 	 */
 	public set LODThreshold(value) {
 		this._LODThreshold = value;
@@ -68,13 +68,13 @@ export class RootTile extends Tile {
 	public isWGS = false;
 
 	/**
-	 * Get the tile loader
+	 * Get tile loader
 	 */
 	public get loader(): ITileLoader {
 		return this._loader;
 	}
 	/**
-	 * Set the tile loader
+	 * Set tile loader
 	 */
 	public set loader(value: ITileLoader) {
 		this._loader = value;
@@ -105,13 +105,13 @@ export class RootTile extends Tile {
 	);
 
 	/**
-	 * Get the renderer cache size scale. (0.5-2.5，default: 0.6)
+	 * Get renderer cache size scale. (0.5-2.5，default: 0.6)
 	 */
 	public get viewerbufferSize() {
 		return this._vierwerBufferSize;
 	}
 	/**
-	 * Get the renderer cache size. (0.5-2.5，default: 0.6)
+	 * Get renderer cache size. (0.5-2.5，default: 0.6)
 	 */
 	public set viewerbufferSize(value) {
 		this._vierwerBufferSize = Math.min(Math.max(value, 0.5), 2.5);
@@ -136,7 +136,7 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * Update the tile tree and tile data. It needs called on the scene update every frame.
+	 * Update tile tree and tile data. It needs called on the scene update every frame.
 	 * @param camera
 	 */
 	public update(camera: Camera) {
@@ -155,7 +155,7 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * Reload data, Called to take effect after source is modified
+	 * Reload data, Called to take effect after source has changed
 	 */
 	public reload() {
 		this.dispose(true);
@@ -163,7 +163,7 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * Update the tile tree use LOD
+	 * Update tile tree use LOD
 	 * @param camera  camera
 	 * @returns  the tile tree has changed
 	 */
@@ -205,7 +205,7 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 *  Update tileTree data.
+	 *  Update tileTree data
 	 */
 	private _updateTileData() {
 		this.traverse((tile) => {
@@ -226,7 +226,7 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * Update the tiles height
+	 * Update height of tiles in view
 	 */
 	private _updateVisibleHight() {
 		let sumZ = 0,
