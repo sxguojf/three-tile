@@ -383,7 +383,21 @@ export class TileMap extends Mesh {
 
 	private _setTileCoordConvert() {
 		const _this = this;
+
+		function xyz2lonlat(x: number, y: number, z: number) {
+			const lon = (x / Math.pow(2, z)) * 360 - 180;
+			const n = Math.PI - (2 * Math.PI * y) / Math.pow(2, z);
+			const lat = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+			return { lon, lat };
+		}
+
 		function tileCorrdConvert(x: number, y: number, z: number) {
+			// todo: 判断xyz是否在bounds内
+			// 1. xyz转经纬度
+			// 2. 判断是否在bounds内
+			const lonlat = xyz2lonlat(x, y, z);
+			console.log(x, y, z, lonlat);
+
 			const n = Math.pow(2, z);
 			let newx = x + Math.round((n / 360) * _this.centralMeridian);
 			if (newx >= n) {
@@ -392,17 +406,6 @@ export class TileMap extends Mesh {
 				newx += n;
 			}
 
-			// todo: 判断瓦片坐标是否在有效范围
-			// 瓦片坐标转投影坐标
-			// const n = Math.pow(2, z);
-			// const px =
-			//     ((newx + 0.5) * this.projection.mapWidth) / n -
-			//     this.projection.mapWidth / 2;
-			// const py =
-			//     ((n - y - 0.5) * this.projection.mapHeight) / n +
-			//     this.projection.mapHeight / 2;
-			// const geo = this.pos2geo(new Vector3(px, py, 0));
-
 			return { x: newx, y, z };
 		}
 
@@ -410,17 +413,6 @@ export class TileMap extends Mesh {
 			if (!source.onGetUrl) {
 				source.onGetUrl = tileCorrdConvert;
 			}
-			// const nw = this.projection.project(
-			//     source.bounds[0],
-			//     source.bounds[1],
-			//     this.centralMeridian
-			// );
-			// const se = this.projection.project(
-			//     source.bounds[2],
-			//     source.bounds[3],
-			//     this.centralMeridian
-			// );
-			//source.projBounds = [nw.x, nw.y, se.x, se.y];
 		});
 		if (this.loader.demSource) {
 			this.loader.demSource.onGetUrl = tileCorrdConvert;

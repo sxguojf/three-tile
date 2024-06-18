@@ -1,14 +1,14 @@
-/** Project ID */
-type ProjectionType = "3857" | "4326";
-
 import { ColorSpace } from "three";
 
 /**
  * a callback function for conver tile x/y/z to url
  */
-export interface SourceUrl {
+export interface SourceUrlFunc {
 	(x: number, y: number, z: number): string | undefined;
 }
+
+/** Project ID */
+type ProjectionType = "3857" | "4326";
 
 /**
  * Source interface
@@ -24,7 +24,7 @@ export interface ISource {
 	opacity: number; // display opacity
 	bounds: [number, number, number, number]; // data bounds, not yet completed.
 
-	getTileUrl: SourceUrl; // get url from  xyz
+	getTileUrl: SourceUrlFunc; // get url from  xyz
 	onGetUrl?: (x: number, y: number, z: number) => { x: number; y: number; z: number }; // get new xyz from orgin xyz
 }
 
@@ -40,7 +40,7 @@ export type SourceOptions = {
 	colorSpace?: ColorSpace;
 	opacity?: number;
 	bounds?: [number, number, number, number];
-	url?: SourceUrl | string;
+	url?: SourceUrlFunc | string;
 	subdomains?: string[] | string;
 	[name: string]: any;
 };
@@ -60,6 +60,7 @@ export class BaseSource implements ISource {
 	public colorSpace: ColorSpace = "srgb";
 	public opacity: number = 1.0;
 	public bounds: [number, number, number, number] = [-180, 85.05112877980659, 180, -85.05112877980659];
+
 	[name: string]: any;
 
 	/**
@@ -83,7 +84,7 @@ export class BaseSource implements ISource {
 	}
 
 	/**
-	 * get url from tile coordinate, public
+	 * get url from tile coordinate, public，called by TileLoader
 	 * @param x
 	 * @param y
 	 * @param z
