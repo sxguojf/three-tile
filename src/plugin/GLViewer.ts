@@ -90,7 +90,8 @@ export class GLViewer extends EventDispatcher<Event> {
 		});
 		renderer.debug.checkShaderErrors = true;
 		// renderer.shadowMap.enabled = true;
-		renderer.toneMapping = 0;
+		// renderer.toneMapping = 3;
+		// renderer.toneMappingExposure = 2;
 
 		renderer.sortObjects = true;
 		renderer.setPixelRatio(window.devicePixelRatio);
@@ -149,12 +150,12 @@ export class GLViewer extends EventDispatcher<Event> {
 	}
 
 	private _createAmbLight() {
-		const ambLight = new AmbientLight(0xffffff, 0.5);
+		const ambLight = new AmbientLight(0xffffff, 1.5);
 		return ambLight;
 	}
 
 	private _createDirLight() {
-		const dirLight = new DirectionalLight(0xffffff, 0.5);
+		const dirLight = new DirectionalLight(0xffffff, 1.5);
 		dirLight.target.position.copy(this.controls.target);
 		dirLight.position.set(-1e3, -2e3, 1e4);
 		return dirLight;

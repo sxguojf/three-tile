@@ -51,7 +51,7 @@
 		"vite-plugin-dts": "^3.8.1"
 	},
 	"dependencies": {
-		"three": "^0.152.2"
+		"three": "^0.165.0"
 	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"

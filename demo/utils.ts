@@ -1,4 +1,4 @@
-import { Color, Mesh, MeshBasicMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader, Vector3 } from "three";
+import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader, Vector3 } from "three";
 import * as tt from "../src";
 import { FakeEarth } from "../src/plugin/fakeEarth";
 
@@ -36,7 +36,7 @@ export function createFakeEarth(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 export function createMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const backGround = new Mesh(
 		new PlaneGeometry(),
-		new MeshBasicMaterial({
+		new MeshLambertMaterial({
 			map: new TextureLoader().load(
 				"../assets/image/tile0.png",
 				(texture) => (texture.colorSpace = SRGBColorSpace),

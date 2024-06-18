@@ -21,8 +21,8 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 	viewer.scene.background = vm.skybox;
 
 	const folder = gui.addFolder("Environeent").close();
-	folder.add(viewer.ambLight, "intensity", 0, 1, 0.1).name("Ambient intensity");
-	folder.add(viewer.dirLight, "intensity", 0, 1, 0.1).name("Directional intensity");
+	folder.add(viewer.ambLight, "intensity", 0, 5, 0.1).name("Ambient intensity");
+	folder.add(viewer.dirLight, "intensity", 0, 5, 0.1).name("Directional intensity");
 
 	// THREE.NoToneMapping
 	// THREE.LinearToneMapping
@@ -38,7 +38,7 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			ACESFilmicToneMapping: 4,
 		})
 		.name("HDR");
-	folder.add(viewer.renderer, "toneMappingExposure", 0, 2);
+	folder.add(viewer.renderer, "toneMappingExposure", 0, 5);
 
 	folder
 		.add(vm, "skyVisible")
