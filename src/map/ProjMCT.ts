@@ -22,12 +22,8 @@ export class ProjMCT extends Projection implements IProjection {
 	 * @returns projected coordinates
 	 */
 	public project(lon: number, lat: number, centralMeridian: number) {
-		const R = EarthRad;
-		let x = (((lon - centralMeridian) * Math.PI) / 180) * R;
-		if (x > this.mapWidth / 2) {
-			x = x - this.mapWidth;
-		}
-		const y = Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 180 / 2)) * R;
+		let x = (((lon - centralMeridian) * Math.PI) / 180) * EarthRad;
+		const y = Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 180 / 2)) * EarthRad;
 
 		return { x, y };
 	}
@@ -40,9 +36,8 @@ export class ProjMCT extends Projection implements IProjection {
 	 */
 
 	public unProject(x: number, y: number, centralMeridian: number) {
-		const R = EarthRad;
-		const lon = (((x / R / Math.PI) * 180 + centralMeridian + 540) % 360) - 180;
-		const lat = ((Math.atan(Math.exp(y / R)) * 2 - Math.PI / 2) * 180) / Math.PI;
+		const lon = (((x / EarthRad / Math.PI) * 180 + centralMeridian + 540) % 360) - 180;
+		const lat = ((Math.atan(Math.exp(y / EarthRad)) * 2 - Math.PI / 2) * 180) / Math.PI;
 
 		return { lat, lon };
 	}
