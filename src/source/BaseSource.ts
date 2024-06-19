@@ -30,13 +30,13 @@ export interface ISource {
 	getTileUrl: (x: number, y: number, z: number) => string | undefined;
 	/**
 	 *  A function called on get url, can be used to convert orgin xyz to new xyz
-	 *
+	 *  Dot overwrite it!!!
 	 * @param x x coordinate
 	 * @param y y coordinate
 	 * @param z z coordinate
 	 * @returns new x/y/z coordinate
 	 */
-	onGetUrl?: (x: number, y: number, z: number) => { x: number; y: number; z: number };
+	_onGetUrl?: (x: number, y: number, z: number) => { x: number; y: number; z: number };
 }
 
 /**
@@ -79,9 +79,9 @@ export class BaseSource implements ISource {
 	public bounds: [number, number, number, number] = [-180, 85.05112877980659, 180, -85.05112877980659];
 
 	/**
-	 * Get url callback function, overwrite it to convt orgin xyz to new xzy
+	 * Get url callback function, it to convt orgin xyz to new xzy
 	 */
-	public onGetUrl?: ((x: number, y: number, z: number) => { x: number; y: number; z: number }) | undefined;
+	public _onGetUrl?: ((x: number, y: number, z: number) => { x: number; y: number; z: number }) | undefined;
 
 	/**
 	 * constructor
@@ -105,7 +105,7 @@ export class BaseSource implements ISource {
 			const index = Math.floor(Math.random() * subLen);
 			this.s = this.subdomains[index];
 		}
-		const coord = this.onGetUrl ? this.onGetUrl(x, y, z) : { x, y, z };
+		const coord = this._onGetUrl ? this._onGetUrl(x, y, z) : { x, y, z };
 		if (coord) {
 			return this.getUrl(coord.x, coord.y, coord.z);
 		} else {

@@ -410,12 +410,12 @@ export class TileMap extends Mesh {
 		}
 
 		this.loader.imgSource.forEach((source) => {
-			if (!source.onGetUrl) {
-				source.onGetUrl = tileCorrdConvert;
+			if (!source._onGetUrl) {
+				source._onGetUrl = tileCorrdConvert;
 			}
 		});
 		if (this.loader.demSource) {
-			this.loader.demSource.onGetUrl = tileCorrdConvert;
+			this.loader.demSource._onGetUrl = tileCorrdConvert;
 		}
 	}
 
