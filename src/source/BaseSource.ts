@@ -1,12 +1,3 @@
-import { ColorSpace } from "three";
-
-/**
- * a callback function for conver tile x/y/z to url
- */
-export interface SourceUrlFunc {
-	(x: number, y: number, z: number): string | undefined;
-}
-
 /** Project ID */
 type ProjectionType = "3857" | "4326";
 
@@ -15,35 +6,62 @@ type ProjectionType = "3857" | "4326";
  * all source implements ISource get url from x/y/z coordinate to url
  */
 export interface ISource {
-	dataType: string; // a string identifies the source data type, it requires the support of the loader.
-	attribution: string; // source attribution, it allows you to display attribution data
-	minLevel: number; // data min level
-	maxLevel: number; // data max level
-	projection: ProjectionType; // data projection
-	colorSpace: ColorSpace; // color space (threejs)
-	opacity: number; // display opacity
-	bounds: [number, number, number, number]; // data bounds, not yet completed.
-
-	getTileUrl: SourceUrlFunc; // get url from  xyz
-	onGetUrl?: (x: number, y: number, z: number) => { x: number; y: number; z: number }; // get new xyz from orgin xyz
+	/** A string identifies the source data type, it requires the support of the loader. */
+	dataType: string;
+	/** Source attribution info, it allows you to display attribution*/
+	attribution: string;
+	/** Data max level */
+	minLevel: number;
+	/** Data min level */
+	maxLevel: number;
+	/** Data projection */
+	projection: ProjectionType;
+	/** Display opacity */
+	opacity: number;
+	/* Data bounds, not yet completed */
+	bounds: [number, number, number, number];
+	/**
+	 * Get tile url from x/y/z coordinate
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 * @param z z coordinate
+	 * @returns tile url
+	 */
+	getTileUrl: (x: number, y: number, z: number) => string | undefined;
+	/**
+	 *  A function called on get url, can be used to convert orgin xyz to new xyz
+	 *
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 * @param z z coordinate
+	 * @returns new x/y/z coordinate
+	 */
+	onGetUrl?: (x: number, y: number, z: number) => { x: number; y: number; z: number };
 }
 
 /**
  * source construtor params type
  */
-export type SourceOptions = {
+export interface SourceOptions {
+	/** A string identifies the source data type, it requires the support of the loader. */
 	dataType?: string;
+	/** Source attribution info, it allows you to display attribution*/
 	attribution?: string;
+	/** Data max level */
 	minLevel?: number;
+	/** Data min level */
 	maxLevel?: number;
-	projection?: string;
-	colorSpace?: ColorSpace;
+	/** Data projection */
+	projection?: ProjectionType;
+	/** Display opacity */
 	opacity?: number;
+	/* Data bounds, not yet completed */
 	bounds?: [number, number, number, number];
-	url?: SourceUrlFunc | string;
+	/** Data Url template */
+	url?: string;
+	/** Url subdomains array or string */
 	subdomains?: string[] | string;
-	[name: string]: any;
-};
+}
 
 /**
  * base source class, custom source can inherit from it
@@ -57,14 +75,11 @@ export class BaseSource implements ISource {
 	public url = "";
 	protected subdomains: string[] | string = [];
 	protected s: string = "";
-	public colorSpace: ColorSpace = "srgb";
 	public opacity: number = 1.0;
 	public bounds: [number, number, number, number] = [-180, 85.05112877980659, 180, -85.05112877980659];
 
-	[name: string]: any;
-
 	/**
-	 * get url callback function, overwrite it to convt orgin xyz to new xzy
+	 * Get url callback function, overwrite it to convt orgin xyz to new xzy
 	 */
 	public onGetUrl?: ((x: number, y: number, z: number) => { x: number; y: number; z: number }) | undefined;
 
@@ -73,18 +88,11 @@ export class BaseSource implements ISource {
 	 * @param options
 	 */
 	constructor(options?: SourceOptions) {
-		if (options) {
-			Object.assign(this, options);
-			if (options.url instanceof Function) {
-				this.getUrl = options.url;
-			} else {
-				this.url = options.url || "";
-			}
-		}
+		Object.assign(this, options);
 	}
 
 	/**
-	 * get url from tile coordinate, public，called by TileLoader
+	 * Get url from tile coordinate, public，called by TileLoader
 	 * @param x
 	 * @param y
 	 * @param z
@@ -106,18 +114,15 @@ export class BaseSource implements ISource {
 	}
 
 	/**
-	 * get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
+	 * Get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
 	 * @param x
 	 * @param y
 	 * @param z
 	 * @returns url
 	 */
 	protected getUrl(x: number, y: number, z: number): string | undefined {
-		if (this.url) {
-			const obj = Object.assign({}, this, { x, y, z });
-			return strTemplate(this.url, obj);
-		}
-		return undefined;
+		const obj = Object.assign({}, this, { x, y, z });
+		return strTemplate(this.url, obj);
 	}
 
 	/**
