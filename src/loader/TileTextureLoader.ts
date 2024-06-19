@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Box2, Texture } from "three";
+import { Box2, Texture, SRGBColorSpace } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ImageLoaderEx } from "./ImageLoaerEx";
@@ -40,7 +40,7 @@ export class TileTextureLoader {
 		}
 
 		const texture = new Texture(new Image());
-		texture.colorSpace = source.colorSpace;
+		texture.colorSpace = SRGBColorSpace;
 		this.loader.load(
 			url,
 			// onLoad
