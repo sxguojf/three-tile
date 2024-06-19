@@ -6,7 +6,7 @@
 
 import { Projection, IProjection } from "./Projection";
 
-const EarthRad = 6378; //Earth's radius(km)
+export const EarthRad = 6378; //Earth's radius(km)
 
 export class ProjMCT extends Projection implements IProjection {
 	public readonly ID = "3857"; // projeciton ID
