@@ -30,13 +30,14 @@ export interface ISource {
 	getTileUrl: (x: number, y: number, z: number) => string | undefined;
 	/**
 	 *  A function called on get url, can be used to convert orgin xyz to new xyz
-	 *  Dot overwrite it!!!
+	 *  Do not overwrite it!!!
 	 * @param x x coordinate
 	 * @param y y coordinate
 	 * @param z z coordinate
 	 * @returns new x/y/z coordinate
 	 */
-	_onGetUrl?: (x: number, y: number, z: number) => { x: number; y: number; z: number };
+	_onGetUrl?: (x: number, y: number, z: number) => { x: number; y: number; z: number } | undefined;
+	_ProjectionBounds?: [number, number, number, number];
 }
 
 /**
@@ -76,11 +77,8 @@ export class BaseSource implements ISource {
 	protected subdomains: string[] | string = [];
 	protected s: string = "";
 	public opacity: number = 1.0;
-	public bounds: [number, number, number, number] = [-180, 85.05112877980659, 180, -85.05112877980659];
-
-	/**
-	 * Get url callback function, it to convt orgin xyz to new xzy
-	 */
+	// public bounds: [number, number, number, number] = [60, 10, 140, 60];
+	public bounds: [number, number, number, number] = [-180, -90, 180, 90];
 	public _onGetUrl?: ((x: number, y: number, z: number) => { x: number; y: number; z: number }) | undefined;
 
 	/**

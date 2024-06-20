@@ -384,23 +384,25 @@ export class TileMap extends Mesh {
 	private _setTileCoordConvert() {
 		const _this = this;
 
-		// tile coord to lonlat
-		function xyz2lonlat(x: number, y: number, z: number) {
-			// 瓦片中心坐标转投影坐标
+		// // tile coord to lonlat
+		// function XYZ2lonlat(x: number, y: number, z: number) {
+		// 	const w = _this.projection.mapWidth;
+		// 	const h = _this.projection.mapHeight / 2;
+		// 	const px = (x / Math.pow(2, z)) * w - w / 2;
+		// 	const py = h - (y / Math.pow(2, z)) * h * 2;
+		// 	return _this.projection.unProject(px, py, _this.centralMeridian);
+		// }
+
+		function XYZ2proj(x: number, y: number, z: number) {
 			const w = _this.projection.mapWidth;
 			const h = _this.projection.mapHeight / 2;
-			const px = ((x + 0.5) / Math.pow(2, z)) * w - w / 2;
-			const py = h - ((y + 0.5) / Math.pow(2, z)) * h * 2;
-			return _this.projection.unProject(px, py, 0);
+			const px = (x / Math.pow(2, z)) * w - w / 2;
+			const py = h - (y / Math.pow(2, z)) * h * 2;
+			return { x: px, y: py };
 		}
 
-		function tileCorrdConvert(x: number, y: number, z: number) {
-			// todo: 判断xyz是否在bounds内
-			// 1. xyz转经纬度
-			// 2. 判断是否在bounds内
-			const lonlat = xyz2lonlat(x, y, z);
-			console.log(x, y, z, lonlat);
-
+		// tile coord to projection coord
+		function toPorjXYZ(x: number, y: number, z: number) {
 			const n = Math.pow(2, z);
 			let newx = x + Math.round((n / 360) * _this.centralMeridian);
 			if (newx >= n) {
@@ -408,17 +410,58 @@ export class TileMap extends Mesh {
 			} else if (newx < 0) {
 				newx += n;
 			}
-
 			return { x: newx, y, z };
+		}
+
+		function getPorjBounds(bounds: [number, number, number, number]) {
+			const p1 = _this._projection.project(bounds[0], bounds[1], 0);
+			const p2 = _this._projection.project(bounds[2], bounds[3], 0);
+			return {
+				minX: Math.min(p1.x, p2.x),
+				minY: Math.min(p1.y, p2.y),
+				maxX: Math.max(p1.x, p2.x),
+				maxY: Math.max(p1.y, p2.y),
+			};
 		}
 
 		this.loader.imgSource.forEach((source) => {
 			if (!source._onGetUrl) {
-				source._onGetUrl = tileCorrdConvert;
+				source._onGetUrl = (x: number, y: number, z: number) => {
+					const pxyz = toPorjXYZ(x, y, z);
+					const bounds = getPorjBounds(source.bounds);
+					const offset = 0.9;
+					const xyzMin = XYZ2proj(pxyz.x + offset, pxyz.y - offset, z);
+					const xyzMax = XYZ2proj(pxyz.x - offset, pxyz.y + offset, z);
+					if (
+						xyzMin.x < bounds.minX ||
+						xyzMax.x > bounds.maxX ||
+						xyzMin.y < bounds.minY ||
+						xyzMax.y > bounds.maxY
+					) {
+						return undefined;
+					}
+					return pxyz;
+				};
 			}
 		});
 		if (this.loader.demSource) {
-			this.loader.demSource._onGetUrl = tileCorrdConvert;
+			const source = this.loader.demSource;
+			this.loader.demSource._onGetUrl = (x: number, y: number, z: number) => {
+				const pxyz = toPorjXYZ(x, y, z);
+				const bounds = getPorjBounds(source.bounds);
+				const offset = 0.5;
+				const xyzMin = XYZ2proj(pxyz.x + offset, pxyz.y + offset, z);
+				const xyzMax = XYZ2proj(pxyz.x + offset, pxyz.y + offset, z);
+				if (
+					xyzMin.x < bounds.minX ||
+					xyzMax.x > bounds.maxX ||
+					xyzMin.y < bounds.minY ||
+					xyzMax.y > bounds.maxY
+				) {
+					return undefined;
+				}
+				return pxyz;
+			};
 		}
 	}
 

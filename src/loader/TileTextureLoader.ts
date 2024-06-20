@@ -11,7 +11,8 @@ import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndRect, rect2ImageBounds } from "./util";
 
-const emptyexture = new Texture();
+// empty image
+const emptyexture = new Texture(new Image(1, 1));
 
 /**
  * texture loader
