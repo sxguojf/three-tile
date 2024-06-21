@@ -36,8 +36,8 @@ export interface ISource {
 	 * @param z z coordinate
 	 * @returns new x/y/z coordinate
 	 */
-	_onGetUrl?: (x: number, y: number, z: number) => { x: number; y: number; z: number } | undefined;
-	_ProjectionBounds?: [number, number, number, number];
+	_XYZPreset?: (x: number, y: number, z: number) => { x: number; y: number; z: number } | undefined;
+	_ProjectionBounds?: { minX: number; minY: number; maxX: number; maxY: number } | undefined;
 }
 
 /**
@@ -77,9 +77,9 @@ export class BaseSource implements ISource {
 	protected subdomains: string[] | string = [];
 	protected s: string = "";
 	public opacity: number = 1.0;
-	// public bounds: [number, number, number, number] = [60, 10, 140, 60];
-	public bounds: [number, number, number, number] = [-180, -90, 180, 90];
-	public _onGetUrl?: ((x: number, y: number, z: number) => { x: number; y: number; z: number }) | undefined;
+	public bounds: [number, number, number, number] = [60, 10, 140, 60];
+	// public bounds: [number, number, number, number] = [-180, -90, 180, 90];
+	public _XYZPreset?: ((x: number, y: number, z: number) => { x: number; y: number; z: number }) | undefined;
 
 	/**
 	 * constructor
@@ -103,7 +103,7 @@ export class BaseSource implements ISource {
 			const index = Math.floor(Math.random() * subLen);
 			this.s = this.subdomains[index];
 		}
-		const coord = this._onGetUrl ? this._onGetUrl(x, y, z) : { x, y, z };
+		const coord = this._XYZPreset ? this._XYZPreset(x, y, z) : { x, y, z };
 		if (coord) {
 			return this.getUrl(coord.x, coord.y, coord.z);
 		} else {

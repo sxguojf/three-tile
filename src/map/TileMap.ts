@@ -235,17 +235,17 @@ export class TileMap extends Mesh {
 	 * Get the map projection object
 	 * 设置地图投影对象
 	 */
-	private set projection(value: IProjection) {
+	private set projection(proj: IProjection) {
 		// 调整根瓦片大小
-		this.rootTile.scale.set(value.mapWidth, value.mapHeight, value.mapDepth);
-		if (value.ID != this.projection.ID) {
-			this.rootTile.isWGS = value.isWGS;
-			this._projection = value;
+		this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
+		if (proj.ID != this.projection.ID) {
+			this.rootTile.isWGS = proj.isWGS;
+			this._projection = proj;
 			this.reload();
-			console.log("Map Projection Changed:", value.ID);
+			console.log("Map Projection Changed:", proj.ID);
 			this.dispatchEvent({
 				type: "projection-changed",
-				projection: value,
+				projection: proj,
 			});
 		}
 	}
@@ -266,7 +266,7 @@ export class TileMap extends Mesh {
 		this.loader.imgSource = Array.isArray(value) ? value : [value];
 
 		this._setMapProjection();
-		this._setTileCoordConvert();
+		this._tileXYZPreset();
 
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
@@ -285,7 +285,7 @@ export class TileMap extends Mesh {
 	 */
 	public set demSource(value: ISource | undefined) {
 		this.loader.demSource = value;
-		this._setTileCoordConvert();
+		this._tileXYZPreset();
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -370,7 +370,7 @@ export class TileMap extends Mesh {
 		// this._setMapProjection();
 		this.centralMeridian = params.centralMeridian ?? 0;
 
-		this._setTileCoordConvert();
+		this._tileXYZPreset();
 
 		this._attachEvent();
 
@@ -381,17 +381,8 @@ export class TileMap extends Mesh {
 		this.rootTile.updateMatrixWorld();
 	}
 
-	private _setTileCoordConvert() {
+	private _tileXYZPreset() {
 		const _this = this;
-
-		// // tile coord to lonlat
-		// function XYZ2lonlat(x: number, y: number, z: number) {
-		// 	const w = _this.projection.mapWidth;
-		// 	const h = _this.projection.mapHeight / 2;
-		// 	const px = (x / Math.pow(2, z)) * w - w / 2;
-		// 	const py = h - (y / Math.pow(2, z)) * h * 2;
-		// 	return _this.projection.unProject(px, py, _this.centralMeridian);
-		// }
 
 		function XYZ2proj(x: number, y: number, z: number) {
 			const w = _this.projection.mapWidth;
@@ -424,43 +415,33 @@ export class TileMap extends Mesh {
 			};
 		}
 
+		const preset = (source: ISource, x: number, y: number, z: number) => {
+			let bounds = source._ProjectionBounds;
+			if (!bounds) {
+				bounds = getPorjBounds(source.bounds);
+				source._ProjectionBounds = bounds;
+			}
+			const pxyz = toPorjXYZ(x, y, z);
+			const offset = 0.9;
+			const xyzMin = XYZ2proj(pxyz.x + offset, pxyz.y - offset, z);
+			const xyzMax = XYZ2proj(pxyz.x - offset, pxyz.y + offset, z);
+			if (xyzMin.x < bounds.minX || xyzMax.x > bounds.maxX || xyzMin.y < bounds.minY || xyzMax.y > bounds.maxY) {
+				return undefined;
+			}
+			return pxyz;
+		};
+
 		this.loader.imgSource.forEach((source) => {
-			if (!source._onGetUrl) {
-				source._onGetUrl = (x: number, y: number, z: number) => {
-					const pxyz = toPorjXYZ(x, y, z);
-					const bounds = getPorjBounds(source.bounds);
-					const offset = 0.9;
-					const xyzMin = XYZ2proj(pxyz.x + offset, pxyz.y - offset, z);
-					const xyzMax = XYZ2proj(pxyz.x - offset, pxyz.y + offset, z);
-					if (
-						xyzMin.x < bounds.minX ||
-						xyzMax.x > bounds.maxX ||
-						xyzMin.y < bounds.minY ||
-						xyzMax.y > bounds.maxY
-					) {
-						return undefined;
-					}
-					return pxyz;
+			if (!source._XYZPreset) {
+				source._XYZPreset = (x: number, y: number, z: number) => {
+					return preset(source, x, y, z);
 				};
 			}
 		});
 		if (this.loader.demSource) {
 			const source = this.loader.demSource;
-			this.loader.demSource._onGetUrl = (x: number, y: number, z: number) => {
-				const pxyz = toPorjXYZ(x, y, z);
-				const bounds = getPorjBounds(source.bounds);
-				const offset = 0.5;
-				const xyzMin = XYZ2proj(pxyz.x + offset, pxyz.y + offset, z);
-				const xyzMax = XYZ2proj(pxyz.x + offset, pxyz.y + offset, z);
-				if (
-					xyzMin.x < bounds.minX ||
-					xyzMax.x > bounds.maxX ||
-					xyzMin.y < bounds.minY ||
-					xyzMax.y > bounds.maxY
-				) {
-					return undefined;
-				}
-				return pxyz;
+			this.loader.demSource._XYZPreset = (x: number, y: number, z: number) => {
+				return preset(source, x, y, z);
 			};
 		}
 	}

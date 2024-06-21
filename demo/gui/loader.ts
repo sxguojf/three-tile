@@ -24,9 +24,9 @@ export const createLoaderGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	folder.add(map, "autoLoad", 0.5, 4, 0.01).name("Auto load");
 	folder.add(map, "reload");
 
-	folder.add(vm, "lon90").name("亚洲(地图中心经度90°)");
-	folder.add(vm, "lon0").name("欧洲(地图中心经度0°)");
-	folder.add(vm, "lon_90").name("美洲(地图中心经度-90°)");
+	folder.add(vm, "lon90").name("Asia(MapCenterLon: 90°)");
+	folder.add(vm, "lon0").name("Europe(MapCenterLon: 0°)");
+	folder.add(vm, "lon_90").name("America(MapCenterLon: -90°)");
 
 	return gui;
 };
