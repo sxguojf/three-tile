@@ -36,7 +36,8 @@
 		"dev": "vite --config vite.config.dev.ts",
 		"lib": "tsc && vite build  --config vite.config.lib.ts",
 		"demo": "tsc && vite build  --config vite.config.demo.ts",
-		"docs": "typedoc src --out ./docs"
+		"docs": "typedoc src --out ./docs",
+		"test": "vitest"
 	},
 	"devDependencies": {
 		"@types/node": "^20.2.3",
@@ -45,10 +46,12 @@
 		"@typescript-eslint/eslint-plugin": "^7.5.0",
 		"@typescript-eslint/parser": "^7.5.0",
 		"esbuild": "^0.20.2",
+		"jsdom": "^24.1.0",
 		"typedoc": "^0.25.13",
 		"typescript": "^5.4.5",
 		"vite": "^5.2.8",
-		"vite-plugin-dts": "^3.8.1"
+		"vite-plugin-dts": "^3.8.1",
+		"vitest": "^1.6.0"
 	},
 	"dependencies": {
 		"three": "^0.165.0"
