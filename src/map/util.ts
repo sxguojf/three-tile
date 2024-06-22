@@ -62,3 +62,79 @@ export function getLocalInfoFromScreen(camera: Camera, map: TileMap, pointer: Ve
 	ray.setFromCamera(pointer, camera);
 	return getLocalInfoFromRay(map, ray);
 }
+
+export function attachEvent(tileMap: TileMap) {
+	const loadingManager = tileMap.loader.manager;
+	// 添加瓦片加载事件
+	loadingManager.onStart = (_url, itemsLoaded, itemsTotal) => {
+		tileMap.dispatchEvent({
+			type: "loading-start",
+			itemsLoaded,
+			itemsTotal,
+		});
+	};
+	loadingManager.onError = (url) => {
+		tileMap.dispatchEvent({ type: "loading-error", url });
+	};
+	loadingManager.onLoad = () => {
+		tileMap.dispatchEvent({ type: "loading-complete" });
+	};
+	loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
+		tileMap.dispatchEvent({
+			type: "loading-progress",
+			url,
+			itemsLoaded,
+			itemsTotal,
+		});
+	};
+
+	// 瓦片创建完成事件
+	tileMap.rootTile.addEventListener("tile-created", (evt) => {
+		tileMap.dispatchEvent({ type: "tile-created", tile: evt.tile });
+	});
+	// 瓦片加载完成事件
+	tileMap.rootTile.addEventListener("tile-loaded", (evt) => {
+		tileMap.dispatchEvent({ type: "tile-loaded", tile: evt.tile });
+	});
+
+	// 瓦片全部加载完成事件
+	tileMap.rootTile.addEventListener("loaded", () => {
+		tileMap.dispatchEvent({ type: "loaded" });
+	});
+
+	return tileMap;
+}
+
+export function getTileCount(tileMap: TileMap) {
+	let total = 0,
+		visible = 0,
+		maxLevle = 0,
+		leaf = 0;
+
+	tileMap.rootTile.traverse((tile) => {
+		if (tile.isTile) {
+			total++;
+			tile.isLeafInFrustum && visible++;
+			tile.isLeaf && leaf++;
+			maxLevle = Math.max(maxLevle, tile.coord.z);
+		}
+	});
+	return { total, visible, leaf, maxLevle };
+}
+
+export function getAttributions(tileMap: TileMap) {
+	const attributions: string[] = [];
+	let imgSource = tileMap.imgSource;
+	if (!Array.isArray(imgSource)) {
+		imgSource = [imgSource];
+	}
+	imgSource.forEach((source) => {
+		const attr = source.attribution;
+		attr && attributions.push(attr);
+	});
+	if (tileMap.demSource) {
+		const attr = tileMap.demSource.attribution;
+		attr && attributions.push(attr);
+	}
+	return Array.from(new Set(attributions));
+}
