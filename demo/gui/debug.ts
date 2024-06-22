@@ -44,7 +44,7 @@ export function updateDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 				2,
 			);
 
-			const tileTree = JSON.stringify(map.getTileCount(), null, 2);
+			const tileTree = JSON.stringify(map.tileCount, null, 2);
 			const memory = JSON.stringify(viewer.renderer.info.memory, null, 2);
 			const info = `<b>Tiles:</b> ${tileTree}
 <b>Elevation:</b> ${elevation}
