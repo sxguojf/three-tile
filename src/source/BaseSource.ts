@@ -15,11 +15,13 @@ export interface ISource {
 	/** Data min level */
 	maxLevel: number;
 	/** Data projection */
-	projection: ProjectionType;
+	projectionID: ProjectionType;
 	/** Display opacity */
 	opacity: number;
 	/* Data bounds, not yet completed */
 	bounds: [number, number, number, number];
+
+	getTileUrl: (x: number, y: number, z: number) => string | undefined;
 	/**
 	 * Get tile url from x/y/z coordinate
 	 * @param x x coordinate
@@ -27,17 +29,17 @@ export interface ISource {
 	 * @param z z coordinate
 	 * @returns tile url
 	 */
-	getTileUrl: (x: number, y: number, z: number) => string | undefined;
-	/**
-	 *  A function called on get url, can be used to convert orgin xyz to new xyz
-	 *  Do not overwrite it!!!
-	 * @param x x coordinate
-	 * @param y y coordinate
-	 * @param z z coordinate
-	 * @returns new x/y/z coordinate
-	 */
-	_XYZPreset?: (x: number, y: number, z: number) => { x: number; y: number; z: number } | undefined;
-	_ProjectionBounds?: { minX: number; minY: number; maxX: number; maxY: number } | undefined;
+	// getTileUrl: (x: number, y: number, z: number) => string | undefined;
+	// /**
+	//  *  A function called on get url, can be used to convert orgin xyz to new xyz
+	//  *  Do not overwrite it!!!
+	//  * @param x x coordinate
+	//  * @param y y coordinate
+	//  * @param z z coordinate
+	//  * @returns new x/y/z coordinate
+	//  */
+	// _XYZPreset?: (x: number, y: number, z: number) => { x: number; y: number; z: number } | undefined;
+	// _ProjectionBounds?: { minX: number; minY: number; maxX: number; maxY: number } | undefined;
 }
 
 /**
@@ -53,7 +55,7 @@ export interface SourceOptions {
 	/** Data min level */
 	maxLevel?: number;
 	/** Data projection */
-	projection?: ProjectionType;
+	projectionID?: ProjectionType;
 	/** Display opacity */
 	opacity?: number;
 	/* Data bounds, not yet completed */
@@ -72,7 +74,7 @@ export class BaseSource implements ISource {
 	public attribution = "ThreeTile";
 	public minLevel = 0;
 	public maxLevel = 19;
-	public projection: ProjectionType = "3857";
+	public projectionID: ProjectionType = "3857";
 	public url = "";
 	protected subdomains: string[] | string = [];
 	protected s: string = "";
@@ -103,12 +105,7 @@ export class BaseSource implements ISource {
 			const index = Math.floor(Math.random() * subLen);
 			this.s = this.subdomains[index];
 		}
-		const coord = this._XYZPreset ? this._XYZPreset(x, y, z) : { x, y, z };
-		if (coord) {
-			return this.getUrl(coord.x, coord.y, coord.z);
-		} else {
-			return undefined;
-		}
+		return this.getUrl(x, y, z);
 	}
 
 	/**
