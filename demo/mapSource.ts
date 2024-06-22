@@ -120,7 +120,7 @@ export const tdtIboSource_w = new TDTSource({
 export const tdtImgSource_c = new TDTSource({
 	token: TDTKEY,
 	style: "img_c",
-	projection: "4326",
+	projectionID: "4326",
 });
 
 // Bing
