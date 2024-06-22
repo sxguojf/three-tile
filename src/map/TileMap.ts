@@ -5,13 +5,12 @@
  */
 
 import { Camera, Clock, Mesh, Vector2, Vector3 } from "three";
-import { TileLoader } from "../loader";
-import { ITileLoader } from "../loader/ITileLoaders";
+import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { RootTile } from "../tile/RootTile";
-import { ProjMCT } from "./ProjMCT";
-import { IProjection, Projection, ProjectionType } from "./Projection";
-import { getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
+import { SourceAgent } from "./SourceAgent";
+import { IProjection, ProjMCT, ProjectFactory } from "./projection";
+import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld, getTileCount } from "./util";
 
 // 地图投影中心经度类型
 type ProjectCenterLongitude = 0 | 90 | -90;
@@ -200,13 +199,13 @@ export class TileMap extends Mesh {
 		return this.rootTile.avgZ;
 	}
 
-	private _centralMeridian = 0;
+	// private _centralMeridian = 0;
 	/**
 	 * Get central Meridian latidute
 	 * 取得子午线经度
 	 */
 	public get centralMeridian() {
-		return this._centralMeridian;
+		return this.projection.centralMeridian;
 	}
 
 	/**
@@ -217,11 +216,11 @@ export class TileMap extends Mesh {
 		if (value != 0 && this.rootTile.minLevel < 1) {
 			console.warn(`Map centralMeridian is ${this.centralMeridian}, minLevel must > 0`);
 		}
-		this._centralMeridian = value;
+		this.projection.centralMeridian = value;
 		this.reload();
 	}
 
-	private _projection: IProjection = new ProjMCT();
+	private _projection: IProjection = new ProjMCT(0);
 
 	/**
 	 * Set the map projection object
@@ -236,6 +235,8 @@ export class TileMap extends Mesh {
 	 * 设置地图投影对象
 	 */
 	private set projection(proj: IProjection) {
+		const imgSources = Array.isArray(this.imgSource) ? this.imgSource : [this.imgSource];
+		imgSources.forEach((source) => (source.projection = this.projection));
 		// 调整根瓦片大小
 		this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
 		if (proj.ID != this.projection.ID) {
@@ -250,12 +251,15 @@ export class TileMap extends Mesh {
 		}
 	}
 
+	private _imgSource: SourceAgent[] = [];
+
 	/**
 	 * Get the image data source object
 	 * 取得影像数据源
 	 */
-	public get imgSource() {
-		return this.loader.imgSource;
+	public get imgSource(): SourceAgent[] {
+		// return this.loader.imgSource;
+		return this._imgSource;
 	}
 
 	/**
@@ -263,20 +267,31 @@ export class TileMap extends Mesh {
 	 * 设置影像数据源
 	 */
 	public set imgSource(value: ISource | ISource[]) {
-		this.loader.imgSource = Array.isArray(value) ? value : [value];
+		const sources = Array.isArray(value) ? value : [value];
+		//用代理替换原数据源
+		const agentSource = sources.map((source) => {
+			if (source instanceof SourceAgent) {
+				return source;
+			} else {
+				const agent = new SourceAgent(source, this.projection);
+				return agent;
+			}
+		});
 
-		this._setMapProjection();
-		this._tileXYZPreset();
+		this._imgSource = agentSource;
+		this.loader.imgSource = agentSource;
 
 		this.dispatchEvent({ type: "source-changed", source: value });
+		this.projection = ProjectFactory.createFromID(agentSource[0]?.projectionID);
 	}
 
+	private _demSource: SourceAgent | undefined;
 	/**
 	 * Get the terrain data source
 	 * 设置地形数据源
 	 */
 	public get demSource() {
-		return this.loader.demSource;
+		return this._demSource;
 	}
 
 	/**
@@ -284,8 +299,13 @@ export class TileMap extends Mesh {
 	 * 取得地形数据源
 	 */
 	public set demSource(value: ISource | undefined) {
-		this.loader.demSource = value;
-		this._tileXYZPreset();
+		if (value) {
+			this._demSource = new SourceAgent(value, this.projection);
+			this.loader.demSource = this._demSource;
+			// this._demSource.projection.centralMeridian = this.centralMeridian;
+		}
+
+		// this._tileXYZPreset();
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -327,21 +347,23 @@ export class TileMap extends Mesh {
        ```
      */
 	public static create(params: MapParams) {
-		let imgSource = params.imgSource;
-		if (!Array.isArray(imgSource)) {
-			imgSource = [imgSource];
-		}
-
-		const loader = new TileLoader(imgSource, params.demSource);
-
+		const loader = new TileLoader();
 		const rootTile = new RootTile(loader, 0, 0, 0);
-		return new TileMap({
+		const map = new TileMap({
 			loader,
 			rootTile,
 			centralMeridian: params.centralMeridian,
 			minLevel: params.minLevel,
 			maxLevel: params.maxLevel,
 		});
+		map.imgSource = params.imgSource;
+		map.demSource = params.demSource;
+		map.projection.centralMeridian = params.centralMeridian ?? 0;
+
+		map.updateMatrix();
+		map.updateMatrixWorld();
+
+		return map;
 	}
 
 	/**
@@ -364,15 +386,15 @@ export class TileMap extends Mesh {
 
 		this.rootTile = params.rootTile ?? new RootTile(this.loader);
 		this.rootTile.minLevel = params.minLevel ?? 0;
-		this.rootTile.maxLevel = params.maxLevel ?? 18;
+		this.rootTile.maxLevel = params.maxLevel ?? 19;
 
-		this.projection = Projection.createFromSource(this.loader.imgSource[0]);
+		//this.projection = ProjectFactory.createFromSource(this.loader.imgSource[0]);
 		// this._setMapProjection();
-		this.centralMeridian = params.centralMeridian ?? 0;
+		//this.centralMeridian = params.centralMeridian ?? 0;
 
-		this._tileXYZPreset();
+		// this._tileXYZPreset();
 
-		this._attachEvent();
+		attachEvent(this);
 
 		this.add(this.rootTile);
 
@@ -381,78 +403,13 @@ export class TileMap extends Mesh {
 		this.rootTile.updateMatrixWorld();
 	}
 
-	private _tileXYZPreset() {
-		const _this = this;
-
-		function XYZ2proj(x: number, y: number, z: number) {
-			const w = _this.projection.mapWidth;
-			const h = _this.projection.mapHeight / 2;
-			const px = (x / Math.pow(2, z)) * w - w / 2;
-			const py = h - (y / Math.pow(2, z)) * h * 2;
-			return { x: px, y: py };
-		}
-
-		// tile coord to projection coord
-		function toPorjXYZ(x: number, y: number, z: number) {
-			const n = Math.pow(2, z);
-			let newx = x + Math.round((n / 360) * _this.centralMeridian);
-			if (newx >= n) {
-				newx -= n;
-			} else if (newx < 0) {
-				newx += n;
-			}
-			return { x: newx, y, z };
-		}
-
-		function getPorjBounds(bounds: [number, number, number, number]) {
-			const p1 = _this._projection.project(bounds[0], bounds[1], 0);
-			const p2 = _this._projection.project(bounds[2], bounds[3], 0);
-			return {
-				minX: Math.min(p1.x, p2.x),
-				minY: Math.min(p1.y, p2.y),
-				maxX: Math.max(p1.x, p2.x),
-				maxY: Math.max(p1.y, p2.y),
-			};
-		}
-
-		const preset = (source: ISource, x: number, y: number, z: number) => {
-			let bounds = source._ProjectionBounds;
-			if (!bounds) {
-				bounds = getPorjBounds(source.bounds);
-				source._ProjectionBounds = bounds;
-			}
-			const pxyz = toPorjXYZ(x, y, z);
-			const offset = 0.9;
-			const xyzMin = XYZ2proj(pxyz.x + offset, pxyz.y - offset, z);
-			const xyzMax = XYZ2proj(pxyz.x - offset, pxyz.y + offset, z);
-			if (xyzMin.x < bounds.minX || xyzMax.x > bounds.maxX || xyzMin.y < bounds.minY || xyzMax.y > bounds.maxY) {
-				return undefined;
-			}
-			return pxyz;
-		};
-
-		this.loader.imgSource.forEach((source) => {
-			if (!source._XYZPreset) {
-				source._XYZPreset = (x: number, y: number, z: number) => {
-					return preset(source, x, y, z);
-				};
-			}
-		});
-		if (this.loader.demSource) {
-			const source = this.loader.demSource;
-			this.loader.demSource._XYZPreset = (x: number, y: number, z: number) => {
-				return preset(source, x, y, z);
-			};
-		}
-	}
-
-	private _setMapProjection() {
-		// 修改数据源时需要根据数据源定义的投影改变地图投影
-		const projID = this.loader.imgSource[0].projection as ProjectionType;
-		if (this.projection.ID != projID) {
-			this.projection = Projection.createFromID(projID);
-		}
-	}
+	// private _setMapProjection() {
+	// 	// 修改数据源时需要根据数据源定义的投影改变地图投影
+	// 	const projID = this.loader.imgSource[0].projectionID as ProjectionType;
+	// 	if (this.projection.ID != projID) {
+	// 		this.projection = ProjectFactory.createFromID(projID);
+	// 	}
+	// }
 
 	/**
 	 * Update the map, It is automatically called after mesh adding a scene
@@ -494,35 +451,13 @@ export class TileMap extends Mesh {
 	}
 
 	/**
-	 * Get map data attributions information
-	 * 取得地图数据归属版权信息
-	 * @returns Attributions 版权信息数组
-	 */
-	public get attributions() {
-		const attributions: string[] = [];
-		let imgSource = this.imgSource;
-		if (!Array.isArray(imgSource)) {
-			imgSource = [imgSource];
-		}
-		imgSource.forEach((source) => {
-			const attr = source.attribution;
-			attr && attributions.push(attr);
-		});
-		if (this.demSource) {
-			const attr = this.demSource.attribution;
-			attr && attributions.push(attr);
-		}
-		return Array.from(new Set(attributions));
-	}
-
-	/**
 	 * Geo coordinates converted to model coordinates
 	 * 地理坐标转换为地图模型坐标
 	 * @param geo 地理坐标（经纬度）
 	 * @returns 模型坐标
 	 */
 	public geo2pos(geo: Vector3) {
-		const pos = this._projection.project(geo.x, geo.y, this.centralMeridian);
+		const pos = this.projection.project(geo.x, geo.y);
 		return new Vector3(pos.x, pos.y, geo.z);
 	}
 
@@ -533,7 +468,7 @@ export class TileMap extends Mesh {
 	 * @returns 地理坐标（经纬度）
 	 */
 	public pos2geo(pos: Vector3) {
-		const position = this._projection.unProject(pos.x, pos.y, this.centralMeridian);
+		const position = this.projection.unProject(pos.x, pos.y);
 		return new Vector3(position.lon, position.lat, pos.z);
 	}
 
@@ -570,69 +505,19 @@ export class TileMap extends Mesh {
 	}
 
 	/**
-	 * Get map tiles statistics to debug
-	 * @returns 取得瓦片统计信息，用于调试性能
+	 * Get map data attributions information
+	 * 取得地图数据归属版权信息
+	 * @returns Attributions 版权信息数组
 	 */
-	public getTileCount() {
-		let total = 0,
-			visible = 0,
-			maxLevle = 0,
-			leaf = 0;
-
-		this.rootTile.traverse((tile) => {
-			if (tile.isTile) {
-				total++;
-				tile.isLeafInFrustum && visible++;
-				tile.isLeaf && leaf++;
-				maxLevle = Math.max(maxLevle, tile.coord.z);
-			}
-		});
-		return { total, visible, leaf, maxLevle };
+	public get attributions() {
+		return getAttributions(this);
 	}
 
 	/**
-	 * Listen tile event.
-	 * 监听瓦片数据加载等事件，并将事件挂接到TileMap上以方便使用
+	 * Get map tiles statistics to debug
+	 * @returns 取得瓦片统计信息，用于调试性能
 	 */
-	private _attachEvent() {
-		const loadingManager = this.loader.manager;
-		// 添加瓦片加载事件
-		loadingManager.onStart = (_url, itemsLoaded, itemsTotal) => {
-			this.dispatchEvent({
-				type: "loading-start",
-				itemsLoaded,
-				itemsTotal,
-			});
-		};
-		loadingManager.onError = (url) => {
-			this.dispatchEvent({ type: "loading-error", url });
-		};
-		loadingManager.onLoad = () => {
-			this.dispatchEvent({ type: "loading-complete" });
-		};
-		loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-			this.dispatchEvent({
-				type: "loading-progress",
-				url,
-				itemsLoaded,
-				itemsTotal,
-			});
-		};
-
-		// 瓦片创建完成事件
-		this.rootTile.addEventListener("tile-created", (evt) => {
-			this.dispatchEvent({ type: "tile-created", tile: evt.tile });
-		});
-		// 瓦片加载完成事件
-		this.rootTile.addEventListener("tile-loaded", (evt) => {
-			this.dispatchEvent({ type: "tile-loaded", tile: evt.tile });
-		});
-
-		// 瓦片全部加载完成事件
-		this.rootTile.addEventListener("loaded", () => {
-			this.dispatchEvent({ type: "loaded" });
-		});
-
-		return this;
+	public get tileCount() {
+		return getTileCount(this);
 	}
 }
