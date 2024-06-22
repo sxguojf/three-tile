@@ -11,9 +11,6 @@ import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndRect, rect2ImageBounds } from "./util";
 
-// empty image
-const emptyexture = new Texture(new Image(1, 1));
-
 /**
  * texture loader
  */
@@ -37,7 +34,7 @@ export class TileTextureLoader {
 
 		if (!url) {
 			setTimeout(onLoad);
-			return emptyexture;
+			return new Texture(new Image(1, 1));
 		}
 
 		const texture = new Texture(new Image());
