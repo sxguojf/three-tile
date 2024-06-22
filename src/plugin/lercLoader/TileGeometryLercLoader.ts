@@ -2,16 +2,16 @@ import { Box2, BufferGeometry, Loader, PlaneGeometry } from "three";
 
 import {
 	FileLoaderEx,
-	ISource,
 	ITileGeometryLoader,
 	LoaderFactory,
-	Tile,
-	TileGridGeometry,
 	getSafeTileUrlAndRect,
 	rect2ImageBounds,
-} from "../..";
+} from "../../loader";
 
+import { ISource } from "../../source";
+import { Tile } from "../../tile";
 import * as Lerc from "./lercDecode/LercDecode.es";
+import { TileGridGeometry } from "../../geometry";
 
 Lerc.load({ locateFile: () => new URL("./lercDecode/lerc-wasm.wasm", import.meta.url).href });
 

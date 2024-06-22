@@ -46,8 +46,6 @@ export function createMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap)
 	);
 	backGround.renderOrder = -1;
 	backGround.name = "background";
-
-	// backGround.renderOrder = -1;
 	backGround.applyMatrix4(map.rootTile.matrix);
 
 	// 当logarithmicDepthBuffer=true时，调整多边形偏移无效，所以直接调整背景Z坐标

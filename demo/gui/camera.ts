@@ -41,8 +41,8 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			flyTo(targetPosition, controlsPosition);
 		},
 		toQomolangma: () => {
-			const targetPosition = new Vector3(-350.7904484068778, 3251.925523809779, 7.669686324170913);
-			const controlsPosition = new Vector3(-340.03129805321583, 3242.083776300395, 4.1232869364468783e-16);
+			const targetPosition = new Vector3(-355.53948097364827, 3243.3575887456013, 8.632029116020062);
+			const controlsPosition = new Vector3(-339.6053242829197, 3245.922621415272, 3.5013277444405166e-15);
 			flyTo(targetPosition, controlsPosition);
 		},
 		toTaiBaiShan: () => {

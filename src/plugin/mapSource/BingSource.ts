@@ -31,12 +31,6 @@ export class BingSource extends BaseSource {
 	public getUrl(x: number, y: number, z: number): string {
 		const key = quadKey(z, x, y);
 		return `https://t${this.s}.dynamic.tiles.ditu.live.com/comp/ch/${key}?mkt=${this.mkt}&ur=CN&it=${this.style}&n=z&og=804&cstl=vb`;
-		// return `https://ecn.${this.s}.tiles.virtualearth.net/tiles/${this.style}${key}.jpeg?g=7234`;
-		// https://ecn.t0.tiles.virtualearth.net/tiles/a123131332300233.jpeg?n=z&g=14037
-		// return `http://ecn.t3.tiles.virtualearth.net/tiles/a${key}.jpeg?g=1`;
-		// return `https://dynamic.t0.tiles.ditu.live.com/comp/ch/${key}?it=G,VE,BX,L,LA&mkt=zh-cn,syr&n=z&og=111&ur=CN`;
-		// return `https://ecn.t0.tiles.virtualearth.net/tiles/${this.style}${key}.jpeg?g=7234`;
-		// return `http://ecn.t3.tiles.virtualearth.net/tiles/a${key}.jpeg?g=1`;
 	}
 }
 
