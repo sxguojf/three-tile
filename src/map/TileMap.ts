@@ -20,6 +20,8 @@ type ProjectCenterLongitude = 0 | 90 | -90;
  * 地图创建参数
  */
 export type MapParams = {
+	loader?: ITileLoader; //地图加载器, map data loader
+	rootTile?: RootTile; //根瓦片, root Tile
 	imgSource: ISource[] | ISource; //影像数据源, image source
 	demSource?: ISource; //高程数据源, terrain source
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
@@ -27,17 +29,17 @@ export type MapParams = {
 	centralMeridian?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
 };
 
-/**
- * Type of map constructor parameters
- * 地图构造函数参数
- */
-export type MapContructParams = {
-	loader: ITileLoader; //地图加载器, map data loader
-	rootTile?: RootTile; //根瓦片, root Tile
-	minLevel?: number; //最小缩放级别, maximum zoom level of the map
-	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
-	centralMeridian?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
-};
+// /**
+//  * Type of map constructor parameters
+//  * 地图构造函数参数
+//  */
+// export type MapContructParams = {
+// 	loader: ITileLoader; //地图加载器, map data loader
+// 	rootTile?: RootTile; //根瓦片, root Tile
+// 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
+// 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
+// 	centralMeridian?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
+// };
 
 /**
  * Map Mesh
@@ -347,69 +349,55 @@ export class TileMap extends Mesh {
        ```
      */
 	public static create(params: MapParams) {
-		const loader = new TileLoader();
-		const rootTile = new RootTile(loader, 0, 0, 0);
-		const map = new TileMap({
-			loader,
-			rootTile,
-			centralMeridian: params.centralMeridian,
-			minLevel: params.minLevel,
-			maxLevel: params.maxLevel,
-		});
-		map.imgSource = params.imgSource;
-		map.demSource = params.demSource;
-		map.projection.centralMeridian = params.centralMeridian ?? 0;
-
-		map.updateMatrix();
-		map.updateMatrixWorld();
-
-		return map;
+		return new TileMap(params);
 	}
 
 	/**
 	 * Map mesh constructor
 	 *
 	 * 地图模型构造函数
-	 * @param params 地图构造参数 {@link MapContructParams}
+	 * @param params 地图参数 {@link MapParams}
 	 * @example
 	 * ``` typescript
-	 *  const imgSource = [Source.mapBoxImgSource, new tt.TestSource()];
-	 *  const demSource = Source.mapBoxDemSource;
-	 *  const loader = new tt.TileLoader(imgSource, demSource, 2, 18);
-	 *  const map = new TileMap({ loader, centralMeridian: 90 });
+	
+	  const map = new TileMap({
+	  		// 加载器
+			loader: new TileLoader(),
+            // 影像数据源
+            imgSource: [Source.mapBoxImgSource, new TestSource()],
+            // 高程数据源
+            demSource: source.mapBoxDemSource,
+            // 地图投影中心经度
+            centralMeridian: 90,
+            // 最小缩放级别
+            minLevel: 1,
+            // 最大缩放级别
+            maxLevel: 18,
+        });;
 	 * ```
 	 */
-	public constructor(params: MapContructParams) {
+	public constructor(params: MapParams) {
 		super();
 
-		this.loader = params.loader;
-
+		this.loader = params.loader ?? new TileLoader();
 		this.rootTile = params.rootTile ?? new RootTile(this.loader);
 		this.rootTile.minLevel = params.minLevel ?? 0;
 		this.rootTile.maxLevel = params.maxLevel ?? 19;
 
-		//this.projection = ProjectFactory.createFromSource(this.loader.imgSource[0]);
-		// this._setMapProjection();
-		//this.centralMeridian = params.centralMeridian ?? 0;
+		this.imgSource = params.imgSource;
+		this.demSource = params.demSource;
+		this.centralMeridian = params.centralMeridian ?? 0;
 
-		// this._tileXYZPreset();
-
+		// 绑定事件
 		attachEvent(this);
 
+		// 模型加入地图
 		this.add(this.rootTile);
 
 		// 更新地图模型矩阵
 		this.rootTile.updateMatrix();
 		this.rootTile.updateMatrixWorld();
 	}
-
-	// private _setMapProjection() {
-	// 	// 修改数据源时需要根据数据源定义的投影改变地图投影
-	// 	const projID = this.loader.imgSource[0].projectionID as ProjectionType;
-	// 	if (this.projection.ID != projID) {
-	// 		this.projection = ProjectFactory.createFromID(projID);
-	// 	}
-	// }
 
 	/**
 	 * Update the map, It is automatically called after mesh adding a scene
