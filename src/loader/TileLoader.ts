@@ -24,7 +24,7 @@ export class TileLoader extends Loader implements ITileLoader {
 		CacheEx.size = value;
 	}
 
-	private _imgSource!: ISource[];
+	private _imgSource: ISource[] = [];
 	/** get image source */
 	public get imgSource(): ISource[] {
 		return this._imgSource;
@@ -46,13 +46,11 @@ export class TileLoader extends Loader implements ITileLoader {
 
 	/**
 	 * constructor
-	 * @param imgSource image dataSource
-	 * @param demSource dem dataSource
 	 */
-	constructor(imgSource?: ISource[], demSource?: ISource) {
+	constructor() {
 		super(LoaderFactory.manager);
-		this.imgSource = imgSource || [BaseSource.create({ dataType: "test" })];
-		this.demSource = demSource;
+		// this.imgSource = imgSource || [BaseSource.create({ dataType: "test" })];
+		// this.demSource = demSource;
 	}
 
 	/**
