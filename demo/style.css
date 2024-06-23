@@ -159,3 +159,7 @@ button:focus-visible {
 	width: 380px;
 	text-align: right;
 }
+
+.lil-gui.autoPlace {
+	max-height: 96%;
+}
