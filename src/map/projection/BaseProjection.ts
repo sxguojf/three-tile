@@ -22,15 +22,12 @@ export abstract class Projection implements IProjection {
 	public get centralMeridian(): number {
 		return this._centralMeridian;
 	}
-	public set centralMeridian(value: number) {
-		this._centralMeridian = value;
-	}
 
 	public constructor(centerLon: number = 0) {
 		this._centralMeridian = centerLon;
 	}
 
-	public getProjTileX(x: number, z: number) {
+	public getTileXWithCenterLon(x: number, z: number) {
 		const n = Math.pow(2, z);
 		let newx = x + Math.round((n / 360) * this._centralMeridian);
 		if (newx >= n) {
@@ -52,7 +49,7 @@ export abstract class Projection implements IProjection {
 		};
 	}
 
-	public tileXYZ2proj(x: number, y: number, z: number) {
+	public getXYZproj(x: number, y: number, z: number) {
 		const w = this.mapWidth;
 		const h = this.mapHeight / 2;
 		const px = (x / Math.pow(2, z)) * w - w / 2;

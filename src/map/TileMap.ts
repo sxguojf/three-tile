@@ -8,7 +8,7 @@ import { Camera, Clock, Mesh, Vector2, Vector3 } from "three";
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { RootTile } from "../tile/RootTile";
-import { SourceAgent } from "./SourceAgent";
+import { SourceWithProjection } from "./SourceWithProjection";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld, getTileCount } from "./util";
 
@@ -28,18 +28,6 @@ export type MapParams = {
 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
 	centralMeridian?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
 };
-
-// /**
-//  * Type of map constructor parameters
-//  * 地图构造函数参数
-//  */
-// export type MapContructParams = {
-// 	loader: ITileLoader; //地图加载器, map data loader
-// 	rootTile?: RootTile; //根瓦片, root Tile
-// 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
-// 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
-// 	centralMeridian?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
-// };
 
 /**
  * Map Mesh
@@ -215,11 +203,13 @@ export class TileMap extends Mesh {
 	 * 设置子午线经度，子午线经度决定了地图的投影中心经度，可设置为-90，0，90
 	 */
 	public set centralMeridian(value) {
-		if (value != 0 && this.rootTile.minLevel < 1) {
-			console.warn(`Map centralMeridian is ${this.centralMeridian}, minLevel must > 0`);
+		if (this.projection.centralMeridian !== value) {
+			if (value != 0 && this.rootTile.minLevel < 1) {
+				console.warn(`Map centralMeridian is ${this.centralMeridian}, minLevel must > 0`);
+			}
+			this.projection = ProjectFactory.createFromID(this.projection.ID, value);
+			this.reload();
 		}
-		this.projection.centralMeridian = value;
-		this.reload();
 	}
 
 	private _projection: IProjection = new ProjMCT(0);
@@ -237,13 +227,15 @@ export class TileMap extends Mesh {
 	 * 设置地图投影对象
 	 */
 	private set projection(proj: IProjection) {
-		const imgSources = Array.isArray(this.imgSource) ? this.imgSource : [this.imgSource];
-		imgSources.forEach((source) => (source.projection = this.projection));
+		this._projection = proj;
 		// 调整根瓦片大小
 		this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
-		if (proj.ID != this.projection.ID) {
-			this.rootTile.isWGS = proj.isWGS;
-			this._projection = proj;
+		this.rootTile.isWGS = proj.isWGS;
+		this.imgSource.forEach((source) => (source.projection = this.projection));
+		if (this.demSource) {
+			this.demSource.projection = this.projection;
+		}
+		if (proj.ID != this.projection.ID && proj.centralMeridian != this.centralMeridian) {
 			this.reload();
 			console.log("Map Projection Changed:", proj.ID);
 			this.dispatchEvent({
@@ -253,14 +245,13 @@ export class TileMap extends Mesh {
 		}
 	}
 
-	private _imgSource: SourceAgent[] = [];
+	private _imgSource: SourceWithProjection[] = [];
 
 	/**
 	 * Get the image data source object
 	 * 取得影像数据源
 	 */
-	public get imgSource(): SourceAgent[] {
-		// return this.loader.imgSource;
+	public get imgSource(): SourceWithProjection[] {
 		return this._imgSource;
 	}
 
@@ -270,12 +261,20 @@ export class TileMap extends Mesh {
 	 */
 	public set imgSource(value: ISource | ISource[]) {
 		const sources = Array.isArray(value) ? value : [value];
+
+		if (sources.length === 0) {
+			throw new Error("imgSource can not be empty");
+		}
+
+		// 将第一个影像层的投影设置为地图投影
+		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.centralMeridian);
+
 		//用代理替换原数据源
 		const agentSource = sources.map((source) => {
-			if (source instanceof SourceAgent) {
+			if (source instanceof SourceWithProjection) {
 				return source;
 			} else {
-				const agent = new SourceAgent(source, this.projection);
+				const agent = new SourceWithProjection(source, this.projection);
 				return agent;
 			}
 		});
@@ -284,15 +283,14 @@ export class TileMap extends Mesh {
 		this.loader.imgSource = agentSource;
 
 		this.dispatchEvent({ type: "source-changed", source: value });
-		this.projection = ProjectFactory.createFromID(agentSource[0]?.projectionID);
 	}
 
-	private _demSource: SourceAgent | undefined;
+	private _demSource: SourceWithProjection | undefined;
 	/**
 	 * Get the terrain data source
 	 * 设置地形数据源
 	 */
-	public get demSource() {
+	public get demSource(): SourceWithProjection | undefined {
 		return this._demSource;
 	}
 
@@ -302,7 +300,7 @@ export class TileMap extends Mesh {
 	 */
 	public set demSource(value: ISource | undefined) {
 		if (value) {
-			this._demSource = new SourceAgent(value, this.projection);
+			this._demSource = new SourceWithProjection(value, this.projection);
 			this.loader.demSource = this._demSource;
 			// this._demSource.projection.centralMeridian = this.centralMeridian;
 		}
@@ -381,9 +379,8 @@ export class TileMap extends Mesh {
 
 		this.loader = params.loader ?? new TileLoader();
 		this.rootTile = params.rootTile ?? new RootTile(this.loader);
-		this.rootTile.minLevel = params.minLevel ?? 0;
-		this.rootTile.maxLevel = params.maxLevel ?? 19;
-
+		this.minLevel = params.minLevel ?? 0;
+		this.maxLevel = params.maxLevel ?? 19;
 		this.imgSource = params.imgSource;
 		this.demSource = params.demSource;
 		this.centralMeridian = params.centralMeridian ?? 0;
@@ -397,6 +394,9 @@ export class TileMap extends Mesh {
 		// 更新地图模型矩阵
 		this.rootTile.updateMatrix();
 		this.rootTile.updateMatrixWorld();
+
+		// this.updateMatrix();
+		// this.updateMatrixWorld();
 	}
 
 	/**

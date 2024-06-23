@@ -9,14 +9,14 @@ export const ProjectFactory = {
 	 * @param id projeciton ID, default: "3857"
 	 * @returns IProjection instance
 	 */
-	createFromID: (id: ProjectionType = "3857") => {
+	createFromID: (id: ProjectionType = "3857", centralMeridian: number) => {
 		let proj: IProjection;
 		switch (id) {
 			case "3857":
-				proj = new ProjMCT();
+				proj = new ProjMCT(centralMeridian);
 				break;
 			case "4326":
-				proj = new ProjWGS();
+				proj = new ProjWGS(centralMeridian);
 				break;
 			default:
 				throw new Error(`Projection ID: ${id} is not supported.`);

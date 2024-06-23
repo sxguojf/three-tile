@@ -11,10 +11,12 @@ import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndRect, rect2ImageBounds } from "./util";
 
+const EMPTYIMAGE = new Texture(new Image(1, 1));
 /**
  * texture loader
  */
 export class TileTextureLoader {
+	// image loader
 	private loader = new ImageLoaderEx(LoaderFactory.manager);
 	/**
 	 * load the tile texture
@@ -34,7 +36,7 @@ export class TileTextureLoader {
 
 		if (!url) {
 			setTimeout(onLoad);
-			return new Texture(new Image(1, 1));
+			return EMPTYIMAGE;
 		}
 
 		const texture = new Texture(new Image());
@@ -43,6 +45,7 @@ export class TileTextureLoader {
 			url,
 			// onLoad
 			(image) => {
+				// if the tile level is greater than max level, clip the max level parent of this tile image
 				if (tile.coord.z > source.maxLevel) {
 					texture.image = getSubImageFromRect(image, rect);
 				} else {

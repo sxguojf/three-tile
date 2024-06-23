@@ -2,7 +2,7 @@ import { BaseSource, ISource } from "../source";
 import { IProjection } from "./projection/IProjection";
 
 /**
- * 使用代理模式解耦
+ * 使用代理模式将数据源和投影解耦
  *
  * 地图数据源应该是一个非常简单对象，它主要用来描述瓦片数据的url规则，并保存瓦片元数据，不应该包含太多的逻辑。
  *
@@ -22,7 +22,7 @@ import { IProjection } from "./projection/IProjection";
  * 2. 判断请求的瓦片是否在数据源经纬度有效范围内
  *
  */
-export class SourceAgent extends BaseSource {
+export class SourceWithProjection extends BaseSource {
 	private _source: ISource;
 
 	// _XYZPreset?: (x: number, y: number, z: number) => { x: number; y: number; z: number } | undefined;
@@ -34,21 +34,43 @@ export class SourceAgent extends BaseSource {
 	}
 	public set projection(value: IProjection) {
 		this._projection = value;
+		this._bounds = this._getBounds();
 	}
 
-	// private _bounds: {
-	// 	maxX: number;
-	// 	maxY: number;
-	// 	minX: number;
-	// 	minY: number;
-	// };
+	private _bounds: {
+		maxX: number;
+		maxY: number;
+		minX: number;
+		minY: number;
+	};
+
+	private _getBounds() {
+		console.log(
+			this.attribution,
+			this.dataType,
+			this.projection.getPorjBounds(this._source.bounds),
+			this._projection.centralMeridian,
+		);
+		return this.projection.getPorjBounds(this._source.bounds);
+	}
+
+	private _getTileBounds(x: number, y: number, z: number, s: number = 1) {
+		const p1 = this.projection.getXYZproj(x, y, z);
+		const p2 = this.projection.getXYZproj(x + s, y + s, z);
+		return {
+			minX: Math.min(p1.x, p2.x),
+			minY: Math.min(p1.y, p2.y),
+			maxX: Math.max(p1.x, p2.x),
+			maxY: Math.max(p1.y, p2.y),
+		};
+	}
 
 	constructor(source: ISource, projection: IProjection) {
 		super();
 		Object.assign(this, source);
 		this._source = source;
 		this._projection = projection;
-		// this._bounds = projection.getPorjBounds(source.bounds);
+		this._bounds = this._getBounds();
 	}
 
 	public getUrl(x: number, y: number, z: number): string | undefined {
@@ -60,6 +82,25 @@ export class SourceAgent extends BaseSource {
 		} else if (newx < 0) {
 			newx += n;
 		}
+
+		// 判断请求的瓦片是否在数据源经纬度有效范围内
+		const s = 0.9;
+		const bounds = this._bounds;
+		const tileBounds = this._getTileBounds(x, y, z, s);
+
+		if (x === 3 && y === 1 && z === 2) {
+			console.log(tileBounds, bounds);
+		}
+
+		if (
+			tileBounds.maxX < bounds.minX ||
+			tileBounds.minX > bounds.maxX ||
+			tileBounds.maxY < bounds.minY ||
+			tileBounds.minY > bounds.maxY
+		) {
+			return undefined;
+		}
+
 		return this._source.getTileUrl(newx, y, z);
 	}
 }

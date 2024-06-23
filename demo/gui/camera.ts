@@ -1,4 +1,4 @@
-import { CameraHelper, Vector3 } from "three";
+import { Vector3 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../../src";
@@ -19,10 +19,6 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			.chain(new Tween(cameraPos).to(targetPosition))
 			.start();
 	};
-
-	const helper = new CameraHelper(viewer.camera.clone());
-	helper.visible = false;
-	viewer.scene.add(helper);
 
 	const vm = {
 		restCamera: () => {
@@ -93,7 +89,7 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			const controlsPosition = new Vector3(4082.9522902367175, 5741.148122418343, -8.27047699764849e-17);
 			flyTo(targetPosition, controlsPosition);
 		},
-		showCameraInfo: () => {
+		CameraInfoToConsole: () => {
 			const cameraPos = viewer.camera.position;
 			const targetPos = viewer.controls.target;
 			const code = `
@@ -109,16 +105,12 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			console.log("-----------------------------------------------------------------------------------------");
 			console.log("Code has copide to clipboard");
 		},
-
-		cameraHelper: () => {
-			helper.camera.copy(viewer.camera);
-		},
 	};
 
 	const folder = gui.addFolder("Camera position");
 
 	folder.add(vm, "restCamera").name("Reset");
-	folder.add(vm, "showCameraInfo");
+	folder.add(vm, "CameraInfoToConsole");
 	folder.add(vm, "toHome");
 	folder.add(vm, "toSchool");
 	folder.add(vm, "toBeiJing");
@@ -131,6 +123,4 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 	folder.add(vm, "toFuji");
 	folder.add(vm, "toUluru");
 	folder.add(vm, "toNewyork");
-	folder.add(vm, "cameraHelper");
-	// folder.add(helper.children[0].position, "Z", 0, 1e6);
 };
