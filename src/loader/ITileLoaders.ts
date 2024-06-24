@@ -16,7 +16,14 @@ export interface ITileLoader {
 	imgSource: ISource[];
 	demSource: ISource | undefined;
 	cacheSize: number;
-	load(tile: Tile, onLoad: () => void, onError: (err: any) => void): void;
+	load(
+		tile: Tile,
+		onLoad: () => void,
+		onError: (err: any) => void,
+	): {
+		geometry: BufferGeometry;
+		material: Material[];
+	};
 }
 
 /**  Material loader interface */

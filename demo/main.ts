@@ -1,8 +1,8 @@
-import { AxesHelper, Vector3 } from "three";
+import { Vector3 } from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
-import * as source from "./mapSource";
 import * as gui from "./gui";
+import * as source from "./mapSource";
 import { cameraHeightLimit, createFakeEarth, createMapBackground } from "./utils";
 
 console.log(`three-tile V${tt.version}, ${tt.author.name}`);
@@ -14,13 +14,13 @@ function createMap() {
 	// 地形数据源
 	const demSource = source.arcGisDemSource;
 
-	// 工厂方法创建
+	// 创建地图对象
 	return tt.TileMap.create({
 		// 影像数据源
 		imgSource: imgSource,
 		// 高程数据源
 		demSource: demSource,
-		// 地图投影中心经度
+		// 地图投影中央经线经度
 		lon0: 90,
 		// 最小缩放级别
 		minLevel: 2,
@@ -45,14 +45,15 @@ function initViewer(map: tt.TileMap, dom: HTMLElement) {
 	// 地图添加到场景
 	viewer.scene.add(map);
 
-	const helper = new AxesHelper(6e4);
-	viewer.scene.add(helper);
+	// const helper = new AxesHelper(6e4);
+	// viewer.scene.add(helper);
 
 	return viewer;
 }
 
 // 初始化GUI
 function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+	// 添加状态指示器
 	gui.addStats(viewer);
 	// 初始化配置项
 	gui.initGui(viewer, map);
@@ -76,7 +77,7 @@ function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 	tween.to(viewer.camera.position.clone().setZ(h)).start();
 }
 
-(function init() {
+addEventListener("load", () => {
 	// 创建地图
 	const map = createMap();
 
@@ -88,6 +89,9 @@ function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 	}
 	const viewer = initViewer(map, mapDom);
 
+	// 创建gui
+	initGui(viewer, map);
+
 	// 每帧更新TWEEN
 	viewer.addEventListener("update", () => TWEEN.update());
 
@@ -97,12 +101,9 @@ function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 	// 添加伪地球遮罩
 	map.add(createFakeEarth(viewer, map));
 
-	// 创建gui
-	initGui(viewer, map);
-
 	// 防止摄像机钻到地面以下
 	cameraHeightLimit(viewer, map);
 
 	// 动画漫游到4000km高空
 	flyTo(viewer, 4000);
-})();
+});

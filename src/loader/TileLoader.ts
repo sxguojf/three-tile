@@ -5,11 +5,11 @@
  */
 
 import { BufferGeometry, Loader, Material, PlaneGeometry } from "three";
-import { ISource, BaseSource } from "../source";
+import { ISource } from "../source";
 import { Tile } from "../tile";
+import { CacheEx } from "./CacheEx";
 import { ITileLoader } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
-import { CacheEx } from "./CacheEx";
 
 /**
  * tile loader

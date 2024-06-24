@@ -1,5 +1,4 @@
 import { BaseSource, ISource } from "../source";
-import { ProjectFactory } from "./projection";
 import { IProjection } from "./projection/IProjection";
 
 /**
@@ -26,31 +25,21 @@ import { IProjection } from "./projection/IProjection";
 export class SourceWithProjection extends BaseSource {
 	private _source: ISource;
 
-	private _projection: IProjection;
+	private _projection!: IProjection;
 	public get projection(): IProjection {
 		return this._projection;
 	}
 	public set projection(value: IProjection) {
 		this._projection = value;
-		this._bounds = this._getBounds();
+		this._bounds = this.projection.getPorjBounds(this._source.bounds);
 	}
 
-	private _bounds: {
+	private _bounds!: {
 		maxX: number;
 		maxY: number;
 		minX: number;
 		minY: number;
 	};
-
-	private _getBounds() {
-		console.log(
-			this.attribution,
-			this.dataType,
-			this.projection.getPorjBounds(this._source.bounds),
-			this._projection.lon0,
-		);
-		return this.projection.getPorjBounds(this._source.bounds);
-	}
 
 	private _getTileBounds(x: number, y: number, z: number, s: number = 1) {
 		const p1 = this.projection.getTileXYZproj(x, y, z);
@@ -67,8 +56,7 @@ export class SourceWithProjection extends BaseSource {
 		super();
 		Object.assign(this, source);
 		this._source = source;
-		this._projection = projection;
-		this._bounds = this._getBounds();
+		this.projection = projection;
 	}
 
 	public getUrl(x: number, y: number, z: number): string | undefined {

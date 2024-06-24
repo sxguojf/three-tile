@@ -18,28 +18,10 @@ export interface ISource {
 	projectionID: ProjectionType;
 	/** Display opacity */
 	opacity: number;
-	/* Data bounds, not yet completed */
+	/* Data bounds in lonlat, Only be loaded inside the lonlats*/
 	bounds: [number, number, number, number];
-
+	/** get url from xyz */
 	getTileUrl: (x: number, y: number, z: number) => string | undefined;
-	/**
-	 * Get tile url from x/y/z coordinate
-	 * @param x x coordinate
-	 * @param y y coordinate
-	 * @param z z coordinate
-	 * @returns tile url
-	 */
-	// getTileUrl: (x: number, y: number, z: number) => string | undefined;
-	// /**
-	//  *  A function called on get url, can be used to convert orgin xyz to new xyz
-	//  *  Do not overwrite it!!!
-	//  * @param x x coordinate
-	//  * @param y y coordinate
-	//  * @param z z coordinate
-	//  * @returns new x/y/z coordinate
-	//  */
-	// _XYZPreset?: (x: number, y: number, z: number) => { x: number; y: number; z: number } | undefined;
-	// _ProjectionBounds?: { minX: number; minY: number; maxX: number; maxY: number } | undefined;
 }
 
 /**
@@ -58,7 +40,7 @@ export interface SourceOptions {
 	projectionID?: ProjectionType;
 	/** Display opacity */
 	opacity?: number;
-	/* Data bounds, not yet completed */
+	/* Data bounds， */
 	bounds?: [number, number, number, number];
 	/** Data Url template */
 	url?: string;
@@ -79,8 +61,8 @@ export class BaseSource implements ISource {
 	protected subdomains: string[] | string = [];
 	protected s: string = "";
 	public opacity: number = 1.0;
-	public bounds: [number, number, number, number] = [60, 10, 140, 60];
-	// public bounds: [number, number, number, number] = [-180, -85.05112877980659, 180, 85.05112877980659];
+	// public bounds: [number, number, number, number] = [60, 10, 140, 60];
+	public bounds: [number, number, number, number] = [-180, -85.05112877980659, 180, 85.05112877980659];
 	public _XYZPreset?: ((x: number, y: number, z: number) => { x: number; y: number; z: number }) | undefined;
 
 	/**
