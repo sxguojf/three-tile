@@ -47,7 +47,7 @@ export class SourceWithProjection extends BaseSource {
 			this.attribution,
 			this.dataType,
 			this.projection.getPorjBounds(this._source.bounds),
-			this._projection.centralMeridian,
+			this._projection.lon0,
 		);
 		return this.projection.getPorjBounds(this._source.bounds);
 	}
@@ -74,7 +74,7 @@ export class SourceWithProjection extends BaseSource {
 	public getUrl(x: number, y: number, z: number): string | undefined {
 		// 计算投影后的xyz
 		const n = Math.pow(2, z);
-		let newx = x + Math.round((n / 360) * this.projection.centralMeridian);
+		let newx = x + Math.round((n / 360) * this.projection.lon0);
 		if (newx >= n) {
 			newx -= n;
 		} else if (newx < 0) {

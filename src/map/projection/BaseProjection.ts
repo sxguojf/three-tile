@@ -18,17 +18,17 @@ export abstract class Projection implements IProjection {
 	abstract project(lon: number, lat: number): { x: number; y: number };
 	abstract unProject(x: number, y: number): { lon: number; lat: number };
 
-	private _centralMeridian: number = 0;
+	private _lon0: number = 0;
 	/** 中央经线 */
-	public get centralMeridian(): number {
-		return this._centralMeridian;
+	public get lon0(): number {
+		return this._lon0;
 	}
 	/**
 	 * 构造函数
 	 * @param centerLon 中央经线
 	 */
 	public constructor(centerLon: number = 0) {
-		this._centralMeridian = centerLon;
+		this._lon0 = centerLon;
 	}
 
 	/**
@@ -39,7 +39,7 @@ export abstract class Projection implements IProjection {
 	 */
 	public getTileXWithCenterLon(x: number, z: number) {
 		const n = Math.pow(2, z);
-		let newx = x + Math.round((n / 360) * this._centralMeridian);
+		let newx = x + Math.round((n / 360) * this._lon0);
 		if (newx >= n) {
 			newx -= n;
 		} else if (newx < 0) {

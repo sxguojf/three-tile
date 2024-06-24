@@ -4,15 +4,15 @@ import * as tt from "../../src";
 export const createLoaderGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
 		lon90: () => {
-			map.centralMeridian = 90;
+			map.lon0 = 90;
 			viewer.controls.reset();
 		},
 		lon0: () => {
-			map.centralMeridian = 0;
+			map.lon0 = 0;
 			viewer.controls.reset();
 		},
 		lon_90: () => {
-			map.centralMeridian = -90;
+			map.lon0 = -90;
 			viewer.controls.reset();
 		},
 	};

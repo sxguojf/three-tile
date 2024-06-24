@@ -10,7 +10,7 @@ export interface IProjection {
 	readonly mapWidth: number; // W-E scale
 	readonly mapHeight: number; // N-S scale
 	readonly mapDepth: number; // height scale
-	readonly centralMeridian: number; // central meridian
+	readonly lon0: number; // central meridian
 	isWGS: boolean; // is WGS projection?
 
 	project(lon: number, lat: number): { x: number; y: number };

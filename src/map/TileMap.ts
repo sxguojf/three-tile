@@ -26,7 +26,7 @@ export type MapParams = {
 	demSource?: ISource; //高程数据源, terrain source
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
-	centralMeridian?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
+	lon0?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
 };
 
 /**
@@ -189,23 +189,22 @@ export class TileMap extends Mesh {
 		return this.rootTile.avgZ;
 	}
 
-	// private _centralMeridian = 0;
 	/**
 	 * Get central Meridian latidute
-	 * 取得子午线经度
+	 * 取得中央子午线经度
 	 */
-	public get centralMeridian() {
-		return this.projection.centralMeridian;
+	public get lon0() {
+		return this.projection.lon0;
 	}
 
 	/**
 	 * Set central Meridian latidute, default:0
-	 * 设置子午线经度，子午线经度决定了地图的投影中心经度，可设置为-90，0，90
+	 * 设置中央子午线经度，中央子午线决定了地图的投影中心经度，可设置为-90，0，90
 	 */
-	public set centralMeridian(value) {
-		if (this.projection.centralMeridian !== value) {
+	public set lon0(value) {
+		if (this.projection.lon0 !== value) {
 			if (value != 0 && this.rootTile.minLevel < 1) {
-				console.warn(`Map centralMeridian is ${this.centralMeridian}, minLevel must > 0`);
+				console.warn(`Map centralMeridian is ${this.lon0}, minLevel must > 0`);
 			}
 			this.projection = ProjectFactory.createFromID(this.projection.ID, value);
 			this.reload();
@@ -235,7 +234,7 @@ export class TileMap extends Mesh {
 		if (this.demSource) {
 			this.demSource.projection = this.projection;
 		}
-		if (proj.ID != this.projection.ID && proj.centralMeridian != this.centralMeridian) {
+		if (proj.ID != this.projection.ID && proj.lon0 != this.lon0) {
 			this.reload();
 			console.log("Map Projection Changed:", proj.ID);
 			this.dispatchEvent({
@@ -267,7 +266,7 @@ export class TileMap extends Mesh {
 		}
 
 		// 将第一个影像层的投影设置为地图投影
-		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.centralMeridian);
+		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
 
 		//用代理替换原数据源
 		const agentSource = sources.map((source) => {
@@ -302,10 +301,8 @@ export class TileMap extends Mesh {
 		if (value) {
 			this._demSource = new SourceWithProjection(value, this.projection);
 			this.loader.demSource = this._demSource;
-			// this._demSource.projection.centralMeridian = this.centralMeridian;
 		}
 
-		// this._tileXYZPreset();
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -338,7 +335,7 @@ export class TileMap extends Mesh {
             // 高程数据源
             demSource: source.mapBoxDemSource,
             // 地图投影中心经度
-            centralMeridian: 90,
+            lon0: 90,
             // 最小缩放级别
             minLevel: 1,
             // 最大缩放级别
@@ -366,7 +363,7 @@ export class TileMap extends Mesh {
             // 高程数据源
             demSource: source.mapBoxDemSource,
             // 地图投影中心经度
-            centralMeridian: 90,
+            lon0: 90,
             // 最小缩放级别
             minLevel: 1,
             // 最大缩放级别
@@ -383,7 +380,7 @@ export class TileMap extends Mesh {
 		this.maxLevel = params.maxLevel ?? 19;
 		this.imgSource = params.imgSource;
 		this.demSource = params.demSource;
-		this.centralMeridian = params.centralMeridian ?? 0;
+		this.lon0 = params.lon0 ?? 0;
 
 		// 绑定事件
 		attachEvent(this);
@@ -394,9 +391,6 @@ export class TileMap extends Mesh {
 		// 更新地图模型矩阵
 		this.rootTile.updateMatrix();
 		this.rootTile.updateMatrixWorld();
-
-		// this.updateMatrix();
-		// this.updateMatrixWorld();
 	}
 
 	/**
@@ -495,7 +489,7 @@ export class TileMap extends Mesh {
 	/**
 	 * Get map data attributions information
 	 * 取得地图数据归属版权信息
-	 * @returns Attributions 版权信息数组
+	 * @returns Attributions 版权信息字符串数组
 	 */
 	public get attributions() {
 		return getAttributions(this);

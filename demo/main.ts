@@ -21,7 +21,7 @@ function createMap() {
 		// 高程数据源
 		demSource: demSource,
 		// 地图投影中心经度
-		centralMeridian: 90,
+		lon0: 90,
 		// 最小缩放级别
 		minLevel: 2,
 		// 最大缩放级别
