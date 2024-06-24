@@ -21,7 +21,6 @@ export function updateDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 					z: viewer.camera.position.z.toFixed(2),
 					near: viewer.camera.near.toFixed(3),
 					far: viewer.camera.far.toFixed(3),
-					alt: viewer.camera.position.clone().projectOnVector(map.up).z.toFixed(3),
 				},
 				null,
 				2,

@@ -24,15 +24,13 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 	folder.add(viewer.ambLight, "intensity", 0, 5, 0.1).name("Ambient intensity");
 	folder.add(viewer.dirLight, "intensity", 0, 5, 0.1).name("Directional intensity");
 
-	folder
-		.add(viewer.renderer, "toneMapping", {
-			NoToneMapping: 0,
-			LinearToneMapping: 1,
-			ReinhardToneMapping: 2,
-			CineonToneMapping: 3,
-			ACESFilmicToneMapping: 4,
-		})
-		.name("HDR");
+	folder.add(viewer.renderer, "toneMapping", {
+		NoToneMapping: 0,
+		LinearToneMapping: 1,
+		ReinhardToneMapping: 2,
+		CineonToneMapping: 3,
+		ACESFilmicToneMapping: 4,
+	});
 	folder.add(viewer.renderer, "toneMappingExposure", 0, 5);
 
 	folder
