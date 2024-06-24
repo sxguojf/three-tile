@@ -1,4 +1,4 @@
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source/TileSource";
 
 type Style = "img" | "cia" | "terrain_rgb";
 export type ZKXTSourceOptions = SourceOptions & {
@@ -10,7 +10,7 @@ export type ZKXTSourceOptions = SourceOptions & {
 /**
  * ZhongkeXingTu datasource
  */
-export class ZKXTSource extends BaseSource {
+export class ZKXTSource extends TileSource {
 	public readonly attribution = "中科星图[GS(2022)3995号]";
 	public token: string = "";
 	public style: Style = "img";

@@ -1,6 +1,6 @@
 // type Style = "img_w" | "cia_w" | "cva_w" | "ibo_w" | "ter_w" | "vec_w";
 
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 type Style = "img_w" | "cia_w" | "cva_w" | "ibo_w" | "ter_w" | "vec_w" | "cta_w" | "img_c" | "cia_c";
 
@@ -12,7 +12,7 @@ export type TDTSourceOptins = SourceOptions & {
 /**
  * TianDiTu datasource
  */
-export class TDTSource extends BaseSource {
+export class TDTSource extends TileSource {
 	public dataType: string = "image";
 	public attribution = "天地图[GS(2023)336号]";
 	public token: string = "";

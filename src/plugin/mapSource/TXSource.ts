@@ -1,13 +1,13 @@
 // type Style = "img_w" | "cia_w" | "cva_w" | "ibo_w" | "ter_w" | "vec_w";
 
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 export type TXSourceOptins = SourceOptions & {
 	style?: string;
 };
 
 /** Tencent datasource */
-export class TXSource extends BaseSource {
+export class TXSource extends TileSource {
 	public dataType = "image";
 	public style: string = "sateTiles";
 	public attribution = "腾讯[GS(2023)1号]";

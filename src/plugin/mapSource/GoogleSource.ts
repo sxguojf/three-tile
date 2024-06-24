@@ -1,4 +1,4 @@
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 /**
     m 标准路线图 lyrs=m
@@ -15,7 +15,7 @@ export type GoogleSourceOptions = SourceOptions & { style?: Style };
 /**
  * Google datasource, can not uese in CN
  */
-export class GoogleSource extends BaseSource {
+export class GoogleSource extends TileSource {
 	public dataType = "image";
 	public attribution = "Google";
 	public maxLevel = 20;

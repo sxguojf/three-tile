@@ -1,5 +1,7 @@
 import { MeshBasicMaterial, Texture as CanvasTexture } from "three";
-import { ISource, ITileMaterialLoader, Tile } from "../..";
+import { ISource } from "../../source";
+import { ITileMaterialLoader } from "../../loader";
+import { Tile } from "../../tile";
 
 /**
  * LOGO tile Material loader

@@ -1,9 +1,9 @@
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 /**
  * Baidu datasource
  */
-export class BaiduSource extends BaseSource {
+export class BaiduSource extends TileSource {
 	public dataType: string = "image";
 	public attribution = "百度[GS(2021)6026号]";
 	public style: string;

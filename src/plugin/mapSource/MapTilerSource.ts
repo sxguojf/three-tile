@@ -1,4 +1,4 @@
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 export type MapTilerSourceOptins = SourceOptions & {
 	style?: string;
@@ -9,7 +9,7 @@ export type MapTilerSourceOptins = SourceOptions & {
 /**
  * MapTiler data source
  */
-export class MapTilerSource extends BaseSource {
+export class MapTilerSource extends TileSource {
 	public attribution = "MapTiler";
 	public token: string = "get_your_own_key_QmavnBrQwNGsQ8YvPzZg";
 	public format: string = "jpg";

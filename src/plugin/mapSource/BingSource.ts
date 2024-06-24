@@ -1,4 +1,4 @@
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 /**
 - A：卫星图像图层（Aerial）。
@@ -16,7 +16,7 @@ export type BingSourceOptions = SourceOptions & { style?: string };
 /**
  * Bing datasource
  */
-export class BingSource extends BaseSource {
+export class BingSource extends TileSource {
 	public dataType: string = "image";
 	public attribution = "Bing[GS(2021)1731号]";
 	public style: string = "A";

@@ -1,5 +1,7 @@
 import { Color, Material, MeshBasicMaterial } from "three";
-import { ISource, ITileMaterialLoader, Tile } from "../..";
+import { ISource } from "../../source";
+import { ITileMaterialLoader } from "../../loader";
+import { Tile } from "../../tile";
 
 /**
  * Wireframe material loader

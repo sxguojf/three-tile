@@ -1,11 +1,11 @@
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 export type GeoqSourceOptions = SourceOptions & { style?: string };
 
 /**
  * Geoq datasource
  */
-export class GeoqSource extends BaseSource {
+export class GeoqSource extends TileSource {
 	public dataType = "image";
 	public maxLevel = 16;
 	public attribution = "GeoQ[GS(2019)758号]";

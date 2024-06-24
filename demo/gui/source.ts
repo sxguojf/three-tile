@@ -1,7 +1,7 @@
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import * as tt from "../../src";
 import * as MapSource from "../mapSource";
-import { BaseSource } from "../../src";
+import { TileSource } from "../../src";
 
 export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 	const vm = {
@@ -57,7 +57,7 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 			map.reload();
 		},
 		setTdt_qm: () => {
-			const dem = tt.BaseSource.create({
+			const dem = tt.TileSource.create({
 				dataType: "quantized-mesh",
 				// url: "https://t0.tianditu.gov.cn/mapservice/swdx?T=elv_c&x={x}&y={y}&l={z}&tk=eba82bdad37844f02de970c9cefed234",
 				// url: "https://t0.tianditu.gov.cn/DataServer?T=ter_w&x={x}&y={y}&l={z}&tk=tk=eba82bdad37844f02de970c9cefed234",
@@ -86,7 +86,7 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 		},
 
 		setOpentopomap: () => {
-			map.imgSource = BaseSource.create({
+			map.imgSource = TileSource.create({
 				subdomains: "abc",
 				url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
 			});
@@ -136,7 +136,7 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 		setLogoTest: () => {
 			map.imgSource = [
 				MapSource.mapBoxImgSource,
-				tt.BaseSource.create({
+				tt.TileSource.create({
 					dataType: "logo",
 					attribution: "This is a logo",
 					opacity: 0.8,
@@ -145,13 +145,13 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 			map.reload();
 		},
 		setTileWire: () => {
-			map.imgSource = [tt.BaseSource.create({ dataType: "wireframe", opacity: 0.3 })];
+			map.imgSource = [tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
 
 			map.reload();
 		},
 		setTileNormal: () => {
 			map.imgSource = [
-				tt.BaseSource.create({ dataType: "normal" }),
+				tt.TileSource.create({ dataType: "normal" }),
 				MapSource.tdtCiaSource_w,
 				MapSource.testSource,
 			];

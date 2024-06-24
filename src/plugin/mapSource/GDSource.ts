@@ -1,4 +1,4 @@
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 /**  6卫星（st），7简图（st rd），8详图（不透明rd，透明图st）*/
 type Style = "6" | "7" | "8";
@@ -7,7 +7,7 @@ export type GDSourceOptions = SourceOptions & { style?: Style };
 /**
  * GaoDe datasource
  */
-export class GDSource extends BaseSource {
+export class GDSource extends TileSource {
 	public dataType = "image";
 	public attribution = "高德[GS(2021)6375号]";
 	public style: Style = "8";

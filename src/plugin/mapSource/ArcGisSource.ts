@@ -1,10 +1,10 @@
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 export type ArcGisSourceOptions = SourceOptions & { style?: string };
 /**
  *  ArcGis datasource
  */
-export class ArcGisSource extends BaseSource {
+export class ArcGisSource extends TileSource {
 	public dataType: string = "image";
 	public attribution = "ArcGIS";
 	public style = "World_Imagery";
@@ -18,7 +18,7 @@ export class ArcGisSource extends BaseSource {
 /**
  * ArcGis terrain datasource
  */
-export class ArcGisDemSource extends BaseSource {
+export class ArcGisDemSource extends TileSource {
 	public dataType: string = "lerc";
 	public attribution = "ArcGIS";
 	public maxLevel = 13;

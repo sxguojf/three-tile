@@ -1,4 +1,4 @@
-import { BaseSource, SourceOptions } from "../../source/BaseSource";
+import { TileSource, SourceOptions } from "../../source";
 
 export type MapBoxSourceOptions = SourceOptions & {
 	style?: string;
@@ -8,7 +8,7 @@ export type MapBoxSourceOptions = SourceOptions & {
 /**
  * MapBox datasource
  */
-export class MapBoxSource extends BaseSource {
+export class MapBoxSource extends TileSource {
 	protected token: string = "";
 	protected format: string = "webp";
 	protected style: string = "mapbox.satellite";

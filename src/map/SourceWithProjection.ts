@@ -1,4 +1,4 @@
-import { BaseSource, ISource } from "../source";
+import { TileSource, ISource } from "../source";
 import { IProjection } from "./projection/IProjection";
 
 /**
@@ -22,7 +22,7 @@ import { IProjection } from "./projection/IProjection";
  * 2. 判断请求的瓦片是否在数据源经纬度有效范围内
  *
  */
-export class SourceWithProjection extends BaseSource {
+export class SourceWithProjection extends TileSource {
 	private _source: ISource;
 
 	private _projection!: IProjection;
@@ -72,7 +72,7 @@ export class SourceWithProjection extends BaseSource {
 		// 判断请求的瓦片是否在数据源经纬度有效范围内
 		const s = 0.9;
 		const bounds = this._bounds;
-		const tileBounds = this._getTileBounds(x, y, z, s);
+		const tileBounds = this._getTileBounds(newx, y, z, s);
 
 		if (
 			tileBounds.maxX < bounds.minX ||
