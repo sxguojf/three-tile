@@ -1,12 +1,9 @@
-import { Vector3 } from "three";
+import { AxesHelper, Vector3 } from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as source from "./mapSource";
 import * as gui from "./gui";
 import { cameraHeightLimit, createFakeEarth, createMapBackground } from "./utils";
-
-// 加载Arcgis-lerc格式数据加载器，用于支持Arcgis地形瓦片
-import "../src/plugin/lercLoader";
 
 console.log(`three-tile V${tt.version}, ${tt.author.name}`);
 
@@ -47,6 +44,10 @@ function initViewer(map: tt.TileMap, dom: HTMLElement) {
 	);
 	// 地图添加到场景
 	viewer.scene.add(map);
+
+	const helper = new AxesHelper(6e4);
+	viewer.scene.add(helper);
+
 	return viewer;
 }
 
@@ -92,8 +93,10 @@ function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 
 	// 添加地图背景图
 	map.add(createMapBackground(viewer, map));
+
 	// 添加伪地球遮罩
 	map.add(createFakeEarth(viewer, map));
+
 	// 创建gui
 	initGui(viewer, map);
 
