@@ -69,8 +69,10 @@ export abstract class Projection implements IProjection {
 	 * @returns 投影坐标
 	 */
 	public getPorjBounds(bounds: [number, number, number, number]) {
-		const p1 = this.project(bounds[0], bounds[1]);
-		const p2 = this.project(bounds[2], bounds[3]);
+		const p1 = this.project(bounds[0] + this.lon0, bounds[1]);
+		const p2 = this.project(bounds[2] + this.lon0, bounds[3]);
+		// const p1 = this.project(bounds[0], bounds[1]);
+		// const p2 = this.project(bounds[2], bounds[3]);
 		return {
 			minX: Math.min(p1.x, p2.x),
 			minY: Math.min(p1.y, p2.y),

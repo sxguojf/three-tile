@@ -37,7 +37,7 @@ export class ProjMCT extends Projection implements IProjection {
 	 */
 
 	public unProject(x: number, y: number) {
-		const lon = (((x / EarthRad / Math.PI) * 180 + this.lon0 + 540) % 360) - 180;
+		const lon = (((x / EarthRad / Math.PI) * 180 + this.lon0 + 180) % 360) - 180;
 		const lat = ((Math.atan(Math.exp(y / EarthRad)) * 2 - Math.PI / 2) * 180) / Math.PI;
 
 		return { lat, lon };
