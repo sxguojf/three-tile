@@ -23,7 +23,7 @@ export class ProjMCT extends Projection implements IProjection {
 	 * @returns projected coordinates
 	 */
 	public project(lon: number, lat: number) {
-		let x = (((lon - this.centralMeridian) * Math.PI) / 180) * EarthRad;
+		let x = (lon - this.centralMeridian) * (Math.PI / 180) * EarthRad;
 		const y = Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 180 / 2)) * EarthRad;
 
 		return { x, y };

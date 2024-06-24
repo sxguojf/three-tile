@@ -32,23 +32,43 @@ test("WEB墨卡托投影", () => {
 });
 
 test("WEB墨卡托投影-中心经度", () => {
-	const mct = new ProjMCT(0);
-
 	for (let lon = -180; lon <= 180; lon++) {
-		mct.centralMeridian = lon;
+		const mct = new ProjMCT(lon);
 		const pos4 = mct.project(lon, 0);
 		expect(pos4.x).toBeCloseTo(0, 0);
 	}
 
-	mct.centralMeridian = 90;
+	let mct = new ProjMCT(90);
 	const pos1 = mct.project(-180 + 90, 0);
-	mct.centralMeridian = 0;
+	mct = new ProjMCT(0);
 	const pos2 = mct.project(-180, 0);
 	expect(pos1.x).toBeCloseTo(pos2.x);
 
-	mct.centralMeridian = 90;
+	mct = new ProjMCT(90);
 	const pos3 = mct.project(180 + 90, 0);
-	mct.centralMeridian = 0;
+	mct = new ProjMCT(0);
 	const pos4 = mct.project(180, 0);
 	expect(pos3.x).toBeCloseTo(pos4.x);
+});
+
+test("proj1", () => {
+	const mct1 = new ProjMCT(90);
+	for (let lon = -180; lon <= 180; lon += 11.25) {
+		const pos1 = mct1.project(lon + 90, 0);
+		console.log(lon + 90, pos1.x);
+	}
+	console.log();
+
+	for (let x = 0; x <= 16; x++) {
+		const pos1 = mct1.getTileXYZproj(x, 0, 4);
+		console.log(x, pos1.x);
+	}
+
+	const pos1 = mct1.project(-90, 0);
+	const pos2 = mct1.getTileXYZproj(0, 0, 0);
+	expect(pos1.x).toBeCloseTo(pos2.x);
+
+	const pos3 = mct1.project(270, 0);
+	const pos4 = mct1.getTileXYZproj(16, 0, 4);
+	expect(pos3.x).toBeCloseTo(pos4.x, 1);
 });

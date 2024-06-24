@@ -1,4 +1,5 @@
 import { BaseSource, ISource } from "../source";
+import { ProjectFactory } from "./projection";
 import { IProjection } from "./projection/IProjection";
 
 /**
@@ -24,9 +25,6 @@ import { IProjection } from "./projection/IProjection";
  */
 export class SourceWithProjection extends BaseSource {
 	private _source: ISource;
-
-	// _XYZPreset?: (x: number, y: number, z: number) => { x: number; y: number; z: number } | undefined;
-	// _ProjectionBounds?: { minX: number; minY: number; maxX: number; maxY: number } | undefined;
 
 	private _projection: IProjection;
 	public get projection(): IProjection {
@@ -55,8 +53,8 @@ export class SourceWithProjection extends BaseSource {
 	}
 
 	private _getTileBounds(x: number, y: number, z: number, s: number = 1) {
-		const p1 = this.projection.getXYZproj(x, y, z);
-		const p2 = this.projection.getXYZproj(x + s, y + s, z);
+		const p1 = this.projection.getTileXYZproj(x, y, z);
+		const p2 = this.projection.getTileXYZproj(x + s, y + s, z);
 		return {
 			minX: Math.min(p1.x, p2.x),
 			minY: Math.min(p1.y, p2.y),
@@ -88,10 +86,6 @@ export class SourceWithProjection extends BaseSource {
 		const bounds = this._bounds;
 		const tileBounds = this._getTileBounds(x, y, z, s);
 
-		if (x === 3 && y === 1 && z === 2) {
-			console.log(tileBounds, bounds);
-		}
-
 		if (
 			tileBounds.maxX < bounds.minX ||
 			tileBounds.minX > bounds.maxX ||
@@ -104,34 +98,3 @@ export class SourceWithProjection extends BaseSource {
 		return this._source.getTileUrl(newx, y, z);
 	}
 }
-
-// private _tileXYZPreset() {
-// 	const preset = (source: ISource, x: number, y: number, z: number) => {
-// 		let bounds = source._ProjectionBounds;
-// 		if (!bounds) {
-// 			bounds = this.projection.getPorjBounds(source.bounds);
-// 			source._ProjectionBounds = bounds;
-// 		}
-// 		const offset = 0.9;
-// 		const xyzMin = this.projection.tileXYZ2proj(x + offset, y - offset, z);
-// 		const xyzMax = this.projection.tileXYZ2proj(x - offset, y + offset, z);
-// 		if (xyzMin.x < bounds.minX || xyzMax.x > bounds.maxX || xyzMin.y < bounds.minY || xyzMax.y > bounds.maxY) {
-// 			return undefined;
-// 		}
-// 		return { x: this.projection.getProjTileX(x, z), y, z };
-// 	};
-
-// 	this.loader.imgSource.forEach((source) => {
-// 		if (!source._XYZPreset) {
-// 			source._XYZPreset = (x: number, y: number, z: number) => {
-// 				return preset(source, x, y, z);
-// 			};
-// 		}
-// 	});
-// 	if (this.loader.demSource) {
-// 		const source = this.loader.demSource;
-// 		this.loader.demSource._XYZPreset = (x: number, y: number, z: number) => {
-// 			return preset(source, x, y, z);
-// 		};
-// 	}
-// }
