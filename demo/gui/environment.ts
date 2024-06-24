@@ -24,11 +24,6 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 	folder.add(viewer.ambLight, "intensity", 0, 5, 0.1).name("Ambient intensity");
 	folder.add(viewer.dirLight, "intensity", 0, 5, 0.1).name("Directional intensity");
 
-	// THREE.NoToneMapping
-	// THREE.LinearToneMapping
-	// THREE.ReinhardToneMapping
-	// THREE.CineonToneMapping
-	// THREE.ACESFilmicToneMapping
 	folder
 		.add(viewer.renderer, "toneMapping", {
 			NoToneMapping: 0,

@@ -89,9 +89,6 @@ addEventListener("load", () => {
 	}
 	const viewer = initViewer(map, mapDom);
 
-	// 创建gui
-	initGui(viewer, map);
-
 	// 每帧更新TWEEN
 	viewer.addEventListener("update", () => TWEEN.update());
 
@@ -103,6 +100,9 @@ addEventListener("load", () => {
 
 	// 防止摄像机钻到地面以下
 	cameraHeightLimit(viewer, map);
+
+	// 创建gui
+	initGui(viewer, map);
 
 	// 动画漫游到4000km高空
 	flyTo(viewer, 4000);
