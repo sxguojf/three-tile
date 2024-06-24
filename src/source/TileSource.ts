@@ -1,28 +1,4 @@
-/** Project ID */
-type ProjectionType = "3857" | "4326";
-
-/**
- * Source interface
- * all source implements ISource get url from x/y/z coordinate to url
- */
-export interface ISource {
-	/** A string identifies the source data type, it requires the support of the loader. */
-	dataType: string;
-	/** Source attribution info, it allows you to display attribution*/
-	attribution: string;
-	/** Data max level */
-	minLevel: number;
-	/** Data min level */
-	maxLevel: number;
-	/** Data projection */
-	projectionID: ProjectionType;
-	/** Display opacity */
-	opacity: number;
-	/* Data bounds in lonlat, Only be loaded inside the lonlats*/
-	bounds: [number, number, number, number];
-	/** get url from xyz */
-	getTileUrl: (x: number, y: number, z: number) => string | undefined;
-}
+import { ProjectionType, ISource } from "./ISource";
 
 /**
  * source construtor params type
@@ -51,7 +27,7 @@ export interface SourceOptions {
 /**
  * base source class, custom source can inherit from it
  */
-export class BaseSource implements ISource {
+export class TileSource implements ISource {
 	public dataType = "image";
 	public attribution = "ThreeTile";
 	public minLevel = 0;
@@ -108,7 +84,7 @@ export class BaseSource implements ISource {
 	 * @returns ISource
 	 */
 	public static create(options: SourceOptions) {
-		return new BaseSource(options);
+		return new TileSource(options);
 	}
 }
 
