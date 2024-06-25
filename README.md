@@ -1,18 +1,18 @@
-# **three-tile V0.5**
+# **three-tile V0.6**
 
-<p align='right'>hz_gjf@163.com  SXMB</p>
+<p align='right'>hz_gjf@163.com</p>
 
 ## 1 简介
 
 three-tile 是一个使用 [threejs](https://threejs.org/)开发的轻量级三维瓦片地图库，具有使用简单、资源占用少等优点，适用于给基于 threejs 开发应用增加三维地图。
 
--   three-tile 本质上是一个动态 LOD 模型，核心代码与地图是无关的，适用范围并不仅限于地图，但最典型的应用还是三维地图。
+注意：这不是Cesium，也不是Mapbox-gl，跟这些三维GIS框架没有一毛钱关系！
 
--   three-tile 不是一个 GIS 框架，它并不提供图层管理、空间分析等 GIS 相关功能。正因为如此，它的核心可以做的很轻量级，能轻松集成到已有项目中。
-
-Source： https://github.com/sxguojf/three-tile-example
+Source: https://github.com/sxguojf/three-tile
 
 Examples: https://sxguojf.github.io/three-tile-example
+
+Examples Source： https://github.com/sxguojf/three-tile-example
 
 ![alt text](images/image-3.png)
 
@@ -64,8 +64,6 @@ npm i three-tile -S
 yarn add three-tile -S
 ```
 
-https://www.npmjs.com/package/three-tile
-
 ---
 
 ## 3 使用
@@ -94,7 +92,7 @@ const viewer = new tt.plugin.GLViewer(glContainer!);
 
 如果你熟悉 threejs，场景初始化最好自己写，跟普通 threejs 程序并无太大差异。以下部分需要注意：
 
--   为了使地图坐标系与一般人类理解一致，three-tile 地图坐标方向采用东(x)北(y)上(z)方向，即地面在 x-y 平面上，海拔高度在 z 轴。而 threejs 一般平面在 xz 平面上，高度为 y 轴，所以初始化时需要使场景默认 up 指向 z 轴，可添加：Object3D.DEFAULT_UP.set(0, 0, 1) 即可。如果你的应用不能调整 up 值，可以将地图旋转-π/2° 完成。
+-   为了使地图坐标系与一般人类理解一致，three-tile 地图坐标方向采用东(x)北(y)上(z)方向，即地面在 x-y 平面上，海拔高度在 z 轴。而 threejs 一般平面在 xz 平面上，高度为 y 轴，所以初始化时需要使场景默认 up 指向 z 轴，可添加：Object3D.DEFAULT_UP.set(0, 0, 1) 即可。如果你的应用不能调整 up 值，可以将地图旋转-π/2° 完成。（一些朋友表示不适应，后期可能根据反馈调整）
 -   地图添加光照才能显示。一般至少要有一个环境光，另外最好加一个直射光以通过地形法向量增强凹凸感。
 -   场景控制器一般应用可使用 threejs 内置的 MapControls，其它控制器如 OrbitControls、FlyControls、PointerLockControls、TransformControls、FirstPersonControls 都能完美支持。
 
@@ -144,8 +142,8 @@ const map = tt.TileMap.create({
 	imgSource: mapBoxImgSource,
 	// 地形数据源
 	demSource: mapBoxDemSource,
-	// 地图投影中心经度
-	centralMeridian: 90,
+	// 地图投影中央子午线经度
+	lon0: 90,
 	// 最小缩放级别
 	minLevel: 2,
 	// 最大缩放级别
@@ -156,7 +154,7 @@ const map = tt.TileMap.create({
 viewer.scene.add(map);
 ```
 
-高级开发者，可调用 TileMap 的构造函数创建地图，它提供更多的参数对地图进行控制，如你可以传入瓦片模型加载器，实现自定义瓦片模型建模过程。
+也可调用 TileMap 的构造函数创建地图。
 
 ## 4. 约定和限制
 
@@ -229,8 +227,8 @@ viewer.scene.add(map);
 				imgSource: mapBoxImgSource,
 				// 地形数据源
 				demSource: mapBoxDemSource,
-				// 地图投影中心经度
-				centralMeridian: 90,
+				// 地图投影中央子午线经度
+				lon0: 90,
 				// 最小缩放级别
 				minLevel: 2,
 				// 最大缩放级别
@@ -246,12 +244,7 @@ viewer.scene.add(map);
 				new THREE.Vector3(center.x, center.y, 3e4),
 			);
 
-			viewer.scene.add(map);
-
-			// 添加地图坐标轴
-			const helper = new THREE.AxesHelper(1000);
-			helper.position.set(center.x, center.y, 1);
-			viewer.scene.add(helper);
+			viewer.scene.add(map);			
 
 			// 动画漫游到3500km高空
 			(() => {

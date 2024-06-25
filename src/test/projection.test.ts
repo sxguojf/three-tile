@@ -55,7 +55,7 @@ test("墨卡托投影-带中央经线", () => {
 
 test("瓦片坐标投影变换", () => {
 	const mct1 = new ProjMCT(90);
-	for (let lon = -180; lon <= 180; lon += 22.5) {
+	for (let lon = -90; lon <= -90 + 360; lon += 22.5) {
 		const pos1 = mct1.project(lon, 0);
 		console.log(lon, pos1.x);
 	}
