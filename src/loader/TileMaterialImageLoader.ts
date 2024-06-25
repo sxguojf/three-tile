@@ -10,6 +10,7 @@ import { Tile } from "../tile";
 import { ITileMaterialLoader } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
 import { TileTextureLoader } from "./TileTextureLoader";
+import { TileMaterial } from "../material";
 
 /**
  * image material loader
@@ -51,9 +52,7 @@ class TileMaterialImageLoader implements ITileMaterialLoader {
 	}
 
 	public createMaterial() {
-		return new MeshLambertMaterial({
-			transparent: true,
-		});
+		return new TileMaterial();
 	}
 }
 
