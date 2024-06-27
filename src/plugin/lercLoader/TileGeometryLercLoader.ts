@@ -13,7 +13,14 @@ import { Tile } from "../../tile";
 import * as Lerc from "./lercDecode/LercDecode.es";
 import { TileGridGeometry } from "../../geometry";
 
-Lerc.load({ locateFile: () => new URL("./lercDecode/lerc-wasm.wasm", import.meta.url).href });
+// Lerc.load({
+// 	locateFile: (fn, dir) => {
+// 		// const url = new URL("./lercDecode/lerc-wasm.wasm", import.meta.url).href;
+// 		const url = new URL(`../../assets/${fn}`, import.meta.url).href;
+// 		console.log(dir, fn, url);
+// 		return url;
+// 	},
+// });
 
 const emptyGeometry = new BufferGeometry();
 /**
@@ -123,8 +130,9 @@ function arrayClip(
 }
 
 /**
- * 双线性插值缩小数组
- * 1、该函数用于计算地形几何体地形高度，线性插值放大没有意义，只会徒增顶点数量
+ * 双线性插值缩小数组，
+ * todo: 可直接取临近点
+ * 1、该函数用于计算地形几何体地形高度，线性插值放大没有意义，只会徒增计算量
  * 2、双线性也没有必要，最临近即可
  * @param buffer
  * @param bufferWidth
