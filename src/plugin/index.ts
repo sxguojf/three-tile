@@ -13,7 +13,7 @@ import "./normalLoder";
 //  wireframe material loader
 import "./wireframeLoader";
 // lerc geometry loader
-// import "./lercLoader";
+import "./lercLoader";
 
 // vierwer
 export * from "./GLViewer";
