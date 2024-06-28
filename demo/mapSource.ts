@@ -1,16 +1,15 @@
 import * as tt from "../src";
 import {
-	MapBoxSource,
-	ArcGisDemSource,
 	ArcGisSource,
 	BingSource,
 	GDSource,
 	GoogleSource,
+	MapBoxSource,
 	MapTilerSource,
+	StadiaSource,
 	TDTSource,
 	TXSource,
 	ZKXTSource,
-	StadiaSource,
 } from "../src/plugin";
 
 // import * as tt from "../dist/three-tile";
