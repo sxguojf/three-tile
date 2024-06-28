@@ -64,20 +64,22 @@ export function createMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap)
  * @param map
  */
 export function cameraHeightLimit(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+	const dv = map.localToWorld(new Vector3(0, 0, 1)).multiplyScalar(0.001);
+	// 取得摄像机距地高度，检测点位于摄像机正前方0.1km
+	const getZ = () => {
+		// 取得摄像机前100米的高度
+		const checkPoint = viewer.camera.localToWorld(new Vector3(0, -0.1, 0));
+		const info = map.getLocalInfoFromWorld(checkPoint);
+		if (info) {
+			return map.worldToLocal(checkPoint).z - info.point.z;
+		} else {
+			return 10;
+		}
+	};
+
 	viewer.controls.addEventListener("change", () => {
-		// 取得摄像机距地高度，检测点位于摄像机正前方0.1km
-		const getZ = () => {
-			const checkPoint = viewer.camera.localToWorld(new Vector3(0, 0, -0.1));
-			const info = map.getLocalInfoFromWorld(checkPoint);
-			if (info) {
-				return map.worldToLocal(checkPoint).z - info.point.z;
-			} else {
-				return 10;
-			}
-		};
 		// 如果检测点距地面高度较小，调整摄像机高度
 		while (getZ() < 0.1) {
-			const dv = map.up.clone().multiplyScalar(0.001);
 			viewer.camera.position.add(dv);
 		}
 	});

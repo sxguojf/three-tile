@@ -8,8 +8,6 @@ import { Camera, Intersection, Raycaster, Vector2, Vector3 } from "three";
 import { Tile } from "../tile";
 import { TileMap } from "./TileMap";
 
-const downVec3 = new Vector3(0, 0, -1);
-
 /**
  * ground location inifo type
  */
@@ -44,8 +42,9 @@ export function getLocalInfoFromRay(map: TileMap, ray: Raycaster) {
  * @returns ground info
  */
 export function getLocalInfoFromWorld(map: TileMap, worldPosition: Vector3) {
+	const downVec3 = new Vector3(0, -1, 0);
 	// // 原点（高空10km）
-	const origin = new Vector3(worldPosition.x, worldPosition.y, 10);
+	const origin = new Vector3(worldPosition.x, 10, worldPosition.z);
 	// 从原点垂直地面向下做一条射线
 	const ray = new Raycaster(origin, downVec3);
 	return getLocalInfoFromRay(map, ray);

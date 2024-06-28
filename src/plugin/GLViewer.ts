@@ -24,7 +24,7 @@ import {
 import { MapControls } from "three/examples/jsm/controls/MapControls";
 
 // three-tile x-axis points East, y-axis points north, z-axis points up, different from threejs default, so changes Glodal Object UP point to (0,0,1).
-Object3D.DEFAULT_UP.set(0, 0, 1);
+// Object3D.DEFAULT_UP.set(0, 0, 1);
 
 /**
  * threejs scene viewer initialize class
@@ -56,13 +56,13 @@ export class GLViewer extends EventDispatcher<Event> {
 		return this.container.clientHeight;
 	}
 
-	constructor(dom: HTMLElement, centerPositon = new Vector3(0, 3e3, 0), cameraPosition = new Vector3(0, -1e3, 1e4)) {
+	constructor(dom: HTMLElement) {
 		super();
 		this.container = dom;
 		this.renderer = this._createRenderer();
 		this.scene = this._createScene();
-		this.camera = this._createCamera(cameraPosition);
-		this.controls = this._createControls(centerPositon, this.camera, dom);
+		this.camera = this._createCamera();
+		this.controls = this._createControls(this.camera, dom);
 		this.ambLight = this._createAmbLight();
 		this.scene.add(this.ambLight);
 		this.dirLight = this._createDirLight();
@@ -70,7 +70,7 @@ export class GLViewer extends EventDispatcher<Event> {
 		this.container.appendChild(this.renderer.domElement);
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
-		this.animate();
+		// this.animate();
 	}
 
 	private _createScene() {
@@ -95,21 +95,22 @@ export class GLViewer extends EventDispatcher<Event> {
 
 		renderer.sortObjects = true;
 		renderer.setPixelRatio(window.devicePixelRatio);
+		renderer.setAnimationLoop(this.animate.bind(this));
 		return renderer;
 	}
 
-	private _createCamera(cameraPosition: Vector3) {
+	private _createCamera() {
 		const camera = new PerspectiveCamera(70, 1, 0.1, 50000);
-		camera.position.copy(cameraPosition);
+		camera.position.set(0, 10000, 0);
 		return camera;
 	}
 
-	private _createControls(centerPositon: Vector3, camera: Camera, domElement: HTMLElement) {
+	private _createControls(camera: Camera, domElement: HTMLElement) {
 		const controls = new MapControls(camera, domElement);
-		controls.target.copy(centerPositon);
+		controls.screenSpacePanning = false;
 		controls.minDistance = 0.1;
 		controls.maxDistance = 30000;
-		controls.maxPolarAngle = 1.1;
+		// controls.maxPolarAngle = 1.2;
 		controls.enableDamping = true;
 		controls.keyPanSpeed = 5;
 
@@ -145,7 +146,6 @@ export class GLViewer extends EventDispatcher<Event> {
 			// set max polar from dist
 			controls.maxPolarAngle = Math.min(Math.pow(10000, 4) / Math.pow(dist, 4), 1.1);
 		});
-		controls.saveState();
 		return controls;
 	}
 
@@ -176,6 +176,6 @@ export class GLViewer extends EventDispatcher<Event> {
 		this.renderer.render(this.scene, this.camera);
 
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
-		requestAnimationFrame(this.animate.bind(this));
+		// requestAnimationFrame(this.animate.bind(this));
 	}
 }

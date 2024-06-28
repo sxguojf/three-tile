@@ -7,6 +7,15 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 		skyColor: new Color(0xdbf0ff),
 		skyVisible: true,
 		skybox: new CubeTextureLoader()
+			// .setPath("../assets/image/skybox2/")
+			// .load([
+			// 	"skybox_nx.jpg",
+			// 	"skybox_px.jpg",
+			// 	"skybox_ny.jpg",
+			// 	"skybox_py.jpg",
+			// 	"skybox_nz.jpg",
+			// 	"skybox_pz.jpg",
+			// ]),
 			.setPath("../assets/image/skybox/")
 			.load([
 				"skybox_nx.png",

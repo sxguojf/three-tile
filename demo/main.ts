@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { AxesHelper, Vector3 } from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
@@ -33,20 +33,22 @@ function createMap() {
 function initViewer(map: tt.TileMap, dom: HTMLElement) {
 	// 地图中心经纬度
 	// const centerGeo = new Vector3(108.942, 34.2855, 0);
-	const centerGeo = new Vector3(110, 30, 0);
+	const centerGeo = new Vector3(100, 30, 0);
 	// 经纬度转为世界坐标
 	const centerPos = map.localToWorld(map.geo2pos(centerGeo));
 	// 初始化三维场景
-	const viewer = new tt.plugin.GLViewer(
-		dom, // 地图容器
-		centerPos, // 地图中心坐标
-		centerPos.clone().add(new Vector3(0, -4000, 30000)), // 摄像机坐标
-	);
+	const viewer = new tt.plugin.GLViewer(dom);
+	// 设置地图中心位置
+	viewer.controls.target.copy(centerPos);
+	// 设置摄像机位置
+	viewer.camera.position.set(centerPos.x, 30000, centerPos.z + 4000);
 	// 地图添加到场景
 	viewer.scene.add(map);
 
-	// const helper = new AxesHelper(6e4);
-	// viewer.scene.add(helper);
+	// 坐标轴
+	const helper = new AxesHelper(6e4);
+	helper.position.copy(centerPos);
+	viewer.scene.add(helper);
 
 	return viewer;
 }
@@ -74,7 +76,7 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 // 动画漫游到h高度
 function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 	const tween = new Tween(viewer.camera.position);
-	tween.to(viewer.camera.position.clone().setZ(h)).start();
+	tween.to(viewer.camera.position.clone().setY(h)).start();
 }
 
 addEventListener("load", () => {

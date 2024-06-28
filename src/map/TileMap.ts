@@ -117,20 +117,20 @@ export class TileMap extends Mesh {
 		this.rootTile.autoLoad = value;
 	}
 
-	private _autoAdjustMapZ = false;
+	private _autoPosition = false;
 	/**
 	 * Get whether to adjust z of map automatically.
-	 * 取得是否自动根据视野内地形高度调整地图Z坐标
+	 * 取得是否自动根据视野内地形高度调整地图坐标
 	 */
-	public get autoAdjustMapZ() {
-		return this._autoAdjustMapZ;
+	public get autoPosition() {
+		return this._autoPosition;
 	}
 	/**
 	 * Set whether to adjust z of map automatically.
-	 * 设置是否自动调整地图Z坐标，如果设置为true，将在每帧渲染中将地图Z坐标调整可视区域瓦片的平均高度
+	 * 设置是否自动调整地图坐标，如果设置为true，将在每帧渲染中将地图坐标调整可视区域瓦片的平均高度
 	 */
-	public set autoAdjustMapZ(value) {
-		this._autoAdjustMapZ = value;
+	public set autoPosition(value) {
+		this._autoPosition = value;
 	}
 
 	/**
@@ -373,7 +373,7 @@ export class TileMap extends Mesh {
 	 */
 	public constructor(params: MapParams) {
 		super();
-
+		this.up.set(0, 0, 1);
 		this.loader = params.loader ?? new TileLoader();
 		this.rootTile = params.rootTile ?? new RootTile(this.loader);
 		this.minLevel = params.minLevel ?? 0;
@@ -391,6 +391,7 @@ export class TileMap extends Mesh {
 		// 更新地图模型矩阵
 		this.rootTile.updateMatrix();
 		this.rootTile.updateMatrixWorld();
+		this.rotateX(-Math.PI / 2);
 	}
 
 	/**
@@ -403,8 +404,8 @@ export class TileMap extends Mesh {
 		this.rootTile.castShadow = this.castShadow;
 
 		// 动态调整地图高度
-		if (this.autoAdjustMapZ) {
-			this.position.setZ((this.position.z - this.avgZInView / 100) / 1.03);
+		if (this.autoPosition) {
+			this.position.setY((this.position.y - this.avgZInView / 100) / 1.03);
 		}
 
 		// 更新瓦片树
@@ -433,7 +434,7 @@ export class TileMap extends Mesh {
 	}
 
 	/**
-	 * Geo coordinates converted to model coordinates
+	 * Geo coordinates converted to map model coordinates
 	 * 地理坐标转换为地图模型坐标
 	 * @param geo 地理坐标（经纬度）
 	 * @returns 模型坐标
@@ -444,8 +445,8 @@ export class TileMap extends Mesh {
 	}
 
 	/**
-	 * Model coordinates converted to coordinates geo
-	 * 模型坐标转换为地理坐标
+	 * Map model coordinates converted to coordinates geo
+	 * 地图模型坐标转换为地理坐标
 	 * @param pos 模型坐标
 	 * @returns 地理坐标（经纬度）
 	 */
