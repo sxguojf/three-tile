@@ -13,7 +13,7 @@ import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndRect, rect2ImageBounds } from "./util";
 
-const emptyGeometry = new BufferGeometry();
+const EmptyGeometry = new BufferGeometry();
 /**
  * Mapbox-RGB geometry loader
  */
@@ -40,7 +40,7 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 
 		if (!url) {
 			setTimeout(onLoad);
-			return emptyGeometry;
+			return EmptyGeometry;
 		}
 
 		const geometry = this._load(tile, url, rect, onLoad, onError);
@@ -53,7 +53,7 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 		let tileSize = tile.coord.z * 3;
 		tileSize = Math.min(Math.max(tileSize, 2), 48);
 
-		const geometry = new TileGridGeometry();
+		const geometry = this.createGeometry();
 		this.imageLoader.load(
 			url,
 			// onLoad
@@ -69,6 +69,10 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 			tile.abortSignal,
 		);
 		return geometry;
+	}
+
+	protected createGeometry() {
+		return new TileGridGeometry();
 	}
 }
 
