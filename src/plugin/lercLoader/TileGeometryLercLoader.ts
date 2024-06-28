@@ -84,11 +84,11 @@ export class TileGeometryLercLoader extends Loader implements ITileGeometryLoade
 	}
 
 	private async decode(buffer: ArrayBuffer) {
-		if (!Lerc.isLoaded()) {
-			console.log("load Lerc decoder");
-			await Lerc.load();
-		}
-
+		// if (!Lerc.isLoaded()) {
+		// 	console.log("load Lerc decoder");
+		// 	await Lerc.load({ locateFile: (path, _scriptDir) => `/src/plugin/lercLoader/lercDecode/${path}` });
+		// }
+		await Lerc.load();
 		const pixelBlock = Lerc.decode(buffer);
 		const { height, width, pixels } = pixelBlock;
 		const dem = new Float32Array(height * width);

@@ -12,7 +12,7 @@ function createMap() {
 	// 影像数据源
 	const imgSource = [source.arcGisSource, source.arcGisCiaSource]; //, source.tdtCiaSource_w
 	// 地形数据源
-	const demSource = source.arcGisDemSource;
+	const demSource = source.mapBoxDemSource;
 
 	// 创建地图对象
 	return tt.TileMap.create({
