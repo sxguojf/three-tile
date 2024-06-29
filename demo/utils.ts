@@ -64,7 +64,7 @@ export function createMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap)
  * @param map
  */
 export function cameraHeightLimit(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
-	const dv = map.localToWorld(new Vector3(0, 0, 1)).multiplyScalar(0.001);
+	const dv = map.localToWorld(map.up.clone()).multiplyScalar(0.001);
 	// 取得摄像机距地高度，检测点位于摄像机正前方0.1km
 	const getZ = () => {
 		// 取得摄像机前100米的高度

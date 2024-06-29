@@ -391,7 +391,7 @@ export class TileMap extends Mesh {
 		// 更新地图模型矩阵
 		this.rootTile.updateMatrix();
 		this.rootTile.updateMatrixWorld();
-		this.rotateX(-Math.PI / 2);
+		// this.rotateX(-Math.PI / 2);
 	}
 
 	/**
@@ -405,7 +405,11 @@ export class TileMap extends Mesh {
 
 		// 动态调整地图高度
 		if (this.autoPosition) {
-			this.position.setY((this.position.y - this.avgZInView / 100) / 1.03);
+			// 平均海拔高度向量
+			const hv = this.localToWorld(this.up.clone().multiplyScalar(this.avgZInView));
+			// 当前地图高度与平均海拔高度之差，每次移动0.01km
+			const dv = this.position.clone().add(hv).multiplyScalar(0.01);
+			this.position.sub(dv);
 		}
 
 		// 更新瓦片树
@@ -420,7 +424,6 @@ export class TileMap extends Mesh {
 	 */
 	public reload() {
 		this.rootTile.dispose(true);
-		this.position.setZ(0);
 	}
 
 	/**
