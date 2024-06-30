@@ -1,9 +1,9 @@
-import { AxesHelper, Vector3 } from "three";
+import { AxesHelper, Mesh, MeshStandardMaterial, RingGeometry, TextureLoader, Vector3 } from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
-import { cameraHeightLimit, createFakeEarth, createMapBackground } from "./utils";
+import { addFakeEarth, addMapBackground, cameraHeightLimit } from "./utils";
 
 console.log(`three-tile V${tt.version}, ${tt.author.name}`);
 
@@ -15,7 +15,7 @@ function createMap() {
 	const demSource = source.mapBoxDemSource;
 
 	// 创建地图对象
-	const map = tt.TileMap.create({
+	const map = new tt.TileMap({
 		// 影像数据源
 		imgSource: imgSource,
 		// 高程数据源
@@ -34,11 +34,11 @@ function createMap() {
 }
 
 // 初始化三维场景
-function initViewer(map: tt.TileMap, id: string) {
+function initViewer(id: string, map: tt.TileMap) {
 	// 地图中心坐标(经度，纬度，高度)
 	const centerGeo = new Vector3(110, 30, 0);
 	// 摄像坐标(经度，纬度，高度)
-	const camersGeo = new Vector3(110, -10, 30000);
+	const camersGeo = new Vector3(110, 0, 10000);
 	// 地图中心转为世界坐标
 	const centerPostion = map.localToWorld(map.geo2pos(centerGeo));
 	// 摄像机转为世界坐标
@@ -52,6 +52,8 @@ function initViewer(map: tt.TileMap, id: string) {
 	const helper = new AxesHelper(6e4);
 	helper.position.copy(centerPostion);
 	viewer.scene.add(helper);
+
+	addTestModel(viewer, centerPostion);
 
 	return viewer;
 }
@@ -71,7 +73,7 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	// 显示调试信息
 	gui.showDebug(map, viewer);
 	// 显示罗盘
-	gui.addCompass(viewer);
+	gui.showCompass(viewer);
 
 	// 显示鼠标点击的瓦片信息-调试
 	gui.showClickedTile(viewer, map);
@@ -80,31 +82,46 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 // 动画漫游到h高度（修改摄像机坐标）
 function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 	const tween = new Tween(viewer.camera.position);
-	tween.to(viewer.camera.position.clone().setY(h)).start();
+	const to = viewer.camera.position.clone().setY(h);
+	tween.to(to).start().onComplete(viewer.controls.saveState);
 }
 
-addEventListener("load", () => {
+function addTestModel(viewer: tt.plugin.GLViewer, position: Vector3) {
+	const mat = new MeshStandardMaterial({
+		color: "#90EE90",
+		map: new TextureLoader().load("./assets/image/test.jpg"),
+	});
+
+	const geo = new RingGeometry(100, 200);
+	const mesh = new Mesh(geo, mat);
+	mesh.position.copy(position);
+	viewer.scene.add(mesh);
+}
+
+function main() {
 	// 创建地图
 	const map = createMap();
 
 	// 创建视图
-	const viewer = initViewer(map, "#map");
+	const viewer = initViewer("#map", map);
 
 	// 每帧更新TWEEN
 	viewer.addEventListener("update", () => TWEEN.update());
 
 	// 添加地图背景图
-	map.add(createMapBackground(viewer, map));
+	addMapBackground(viewer, map);
 
 	// 添加伪地球遮罩
-	map.add(createFakeEarth(viewer, map));
+	addFakeEarth(viewer, map);
 
-	// 防止摄像机钻到地面以下
+	// 限制摄像机高度防止钻到地面以下
 	cameraHeightLimit(viewer, map);
 
 	// 创建gui
 	initGui(viewer, map);
 
-	// 动画漫游到4000km高空
-	flyTo(viewer, 4000);
-});
+	// 摄像机动画移动到3000km高空
+	flyTo(viewer, 3000);
+}
+
+addEventListener("load", main);

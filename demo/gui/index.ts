@@ -9,7 +9,7 @@ import { createEnvironmentGui } from "./environment";
 import { createLoaderGui } from "./loader";
 import { createSourceGui } from "./source";
 export { showDebug } from "./debug";
-export { addCompass } from "./compass";
+export { showCompass } from "./compass";
 
 export function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const gui = new GUI();

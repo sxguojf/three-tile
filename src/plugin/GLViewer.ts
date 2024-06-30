@@ -124,15 +124,15 @@ export class GLViewer extends EventDispatcher<Event> {
 			// dist of camera to controls
 			const dist = Math.max(this.controls.getDistance(), 0.1);
 
-			// set zoom speed from dist
+			// set zoom speed on dist
 			controls.zoomSpeed = Math.max(Math.log(dist), 1.8);
 
-			// set far and near from dist/polar
+			// set far and near on dist/polar
 			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 50000);
 			this.camera.near = this.camera.far / 1000;
 			this.camera.updateProjectionMatrix();
 
-			// set fog density from dist/polar
+			// set fog density on dist/polar
 			if (this.scene.fog instanceof FogExp2) {
 				this.scene.fog.density = (polar / (dist + 5)) * this.fogFactor * 0.25;
 			}
@@ -146,7 +146,7 @@ export class GLViewer extends EventDispatcher<Event> {
 				controls.maxAzimuthAngle = Infinity;
 			}
 
-			// limit the max polar from dist
+			// limit the max polar on dist
 			controls.maxPolarAngle = Math.min(Math.pow(10000, 4) / Math.pow(dist, 4), 1.3);
 		});
 		return controls;

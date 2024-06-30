@@ -11,10 +11,11 @@ import { FakeEarth } from "../src/plugin/fakeEarth";
  * @param map  地图
  * @returns 地球遮罩模型
  */
-export function createFakeEarth(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+export function addFakeEarth(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const fakeEarth = new FakeEarth(viewer.scene.fog?.color || new Color(0));
 	fakeEarth.name = "fakeearth";
 	fakeEarth.applyMatrix4(map.rootTile.matrix);
+	map.add(fakeEarth);
 
 	viewer.controls.addEventListener("change", () => {
 		// 地图距摄像机较远时再显示遮罩
@@ -33,7 +34,7 @@ export function createFakeEarth(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
  * @param map 地图
  * @returns 背景图模型
  */
-export function createMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+export function addMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const backGround = new Mesh(
 		new PlaneGeometry(),
 		new MeshLambertMaterial({
@@ -47,6 +48,7 @@ export function createMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap)
 	backGround.renderOrder = -1;
 	backGround.name = "background";
 	backGround.applyMatrix4(map.rootTile.matrix);
+	map.add(backGround);
 
 	// 当logarithmicDepthBuffer=true时，调整多边形偏移无效，所以直接调整背景Z坐标
 	viewer.controls.addEventListener("change", () => {

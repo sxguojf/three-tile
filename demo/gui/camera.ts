@@ -107,11 +107,11 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			const cameraGeo = getGeo(viewer.camera.getWorldPosition(new Vector3()));
 			const targetGeo = getGeo(viewer.controls.target);
 			const code = `
-		()=>{
-				const g1 = new Vector3(${cameraGeo.x},${cameraGeo.y},${cameraGeo.z})
-				const g2 = new Vector3(${targetGeo.x},${targetGeo.y},${targetGeo.z})
-				flyToGeo(g1,g2);
-		}
+()=>{
+	const camera = new Vector3(${cameraGeo.x},${cameraGeo.y},${cameraGeo.z})
+	const center = new Vector3(${targetGeo.x},${targetGeo.y},${targetGeo.z})
+	flyToGeo(camera,center);
+}
 			`;
 			navigator.clipboard.writeText(code);
 			console.log("-----------------------------------------------------------------------------------------");
