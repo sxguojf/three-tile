@@ -69,5 +69,7 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 		folder.add(fakeEarth, "isMesh").name("Global mask");
 	}
 
+	folder.add(viewer.renderer.shadowMap, "enabled");
+
 	return gui;
 };

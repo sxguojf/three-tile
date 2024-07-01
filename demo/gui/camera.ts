@@ -6,17 +6,17 @@ import * as tt from "../../src";
 export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	/**
 	 * 飞行到某世界坐标
-	 * @param newCameraPos 目标摄像机世界坐标
-	 * @param newcenterPos 目标地图中心坐标
+	 * @param cameraPos 目标摄像机世界坐标
+	 * @param centerPos 目标地图中心坐标
 	 */
-	const flyToPos = (newCameraPos: Vector3, newcenterPos: Vector3) => {
-		viewer.controls.target.copy(newcenterPos);
-		const cameraPos = viewer.camera.position;
-		new TWEEN.Tween(cameraPos)
+	const flyToPos = (cameraPos: Vector3, centerPos: Vector3) => {
+		viewer.controls.target.copy(centerPos);
+		const start = viewer.camera.position;
+		new TWEEN.Tween(start)
 			// 先到10000km高空
 			.to({ y: 10000, z: 0 }, 500)
 			// 再到目标位置
-			.chain(new Tween(cameraPos).to(newCameraPos))
+			.chain(new Tween(start).to(cameraPos))
 			.start();
 	};
 
@@ -26,9 +26,9 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	 * @param newcenterGeo 目标地图中心经纬度坐标
 	 */
 	const flyToGeo = (newCameraGeo: Vector3, newcenterGeo: Vector3) => {
-		const targetPosition = getPos(newCameraGeo);
-		const controlsPosition = getPos(newcenterGeo);
-		flyToPos(targetPosition, controlsPosition);
+		const cameraPosition = getPos(newCameraGeo);
+		const centerPosition = getPos(newcenterGeo);
+		flyToPos(cameraPosition, centerPosition);
 	};
 
 	const getGeo = (pos: Vector3) => {
