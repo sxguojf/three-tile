@@ -6,9 +6,11 @@
 
 import {
 	AmbientLight,
+	CameraHelper,
 	Clock,
 	Color,
 	DirectionalLight,
+	DirectionalLightHelper,
 	Event,
 	EventDispatcher,
 	FogExp2,
@@ -147,7 +149,7 @@ export class GLViewer extends EventDispatcher<Event> {
 			}
 
 			// limit the max polar on dist
-			controls.maxPolarAngle = Math.min(Math.pow(10000, 4) / Math.pow(dist, 4), 1.3);
+			// controls.maxPolarAngle = Math.min(Math.pow(10000, 4) / Math.pow(dist, 4), 1.3);
 		});
 		return controls;
 	}
@@ -159,8 +161,7 @@ export class GLViewer extends EventDispatcher<Event> {
 
 	private _createDirLight() {
 		const dirLight = new DirectionalLight(0xffffff, 1.5);
-		dirLight.target.position.copy(this.controls.target);
-		dirLight.position.set(-1e3, -2e3, 1e4);
+		dirLight.position.set(-1e3, 1e4, -2e3);
 		return dirLight;
 	}
 

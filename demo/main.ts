@@ -1,4 +1,15 @@
-import { AxesHelper, Mesh, MeshStandardMaterial, RingGeometry, TextureLoader, Vector3 } from "three";
+import {
+	AxesHelper,
+	BoxGeometry,
+	CameraHelper,
+	DirectionalLight,
+	DirectionalLightHelper,
+	Mesh,
+	MeshStandardMaterial,
+	RingGeometry,
+	TextureLoader,
+	Vector3,
+} from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
@@ -53,6 +64,15 @@ function initViewer(id: string, map: tt.TileMap) {
 	helper.position.copy(centerPostion);
 	viewer.scene.add(helper);
 
+	const dirLight = new DirectionalLight(0xffffff, 1);
+	dirLight.position.copy(cameraPosition);
+	dirLight.target.position.copy(centerPostion);
+	dirLight.castShadow = true;
+	viewer.scene.add(dirLight);
+	viewer.scene.add(new CameraHelper(dirLight.shadow.camera));
+
+	map.receiveShadow = true;
+
 	addTestModel(viewer, centerPostion);
 
 	return viewer;
@@ -88,19 +108,24 @@ function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 
 function addTestModel(viewer: tt.plugin.GLViewer, position: Vector3) {
 	const mat = new MeshStandardMaterial({
-		color: "#90EE90",
 		map: new TextureLoader().load("./assets/image/test.jpg"),
 	});
 
-	const geo = new RingGeometry(100, 200);
+	const geo = new BoxGeometry(100, 100, 100);
+	geo.translate(0, 50, 0);
 	const mesh = new Mesh(geo, mat);
 	mesh.position.copy(position);
 	viewer.scene.add(mesh);
+
+	setTimeout(() => {
+		console.log(mat.map);
+	}, 1000);
 }
 
 function main() {
 	// 创建地图
 	const map = createMap();
+	map.receiveShadow = true;
 
 	// 创建视图
 	const viewer = initViewer("#map", map);
