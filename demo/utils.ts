@@ -38,10 +38,7 @@ export function addMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const backGround = new Mesh(
 		new PlaneGeometry(),
 		new MeshLambertMaterial({
-			map: new TextureLoader().load(
-				"../assets/image/tile0.png",
-				(texture) => (texture.colorSpace = SRGBColorSpace),
-			),
+			map: new TextureLoader().load("./image/tile0.png", (texture) => (texture.colorSpace = SRGBColorSpace)),
 			transparent: true,
 		}),
 	);

@@ -1,16 +1,4 @@
-import {
-	AxesHelper,
-	BoxGeometry,
-	CameraHelper,
-	DirectionalLight,
-	DirectionalLightHelper,
-	Mesh,
-	MeshStandardMaterial,
-	PCFSoftShadowMap,
-	RingGeometry,
-	TextureLoader,
-	Vector3,
-} from "three";
+import { AxesHelper, BoxGeometry, Mesh, MeshStandardMaterial, TextureLoader, Vector3 } from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
@@ -60,10 +48,10 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 地图添加到场景
 	viewer.scene.add(map);
 
-	map.castShadow = true;
-	map.receiveShadow = true;
-	viewer.renderer.shadowMap.enabled = true;
-	viewer.renderer.shadowMap.type = PCFSoftShadowMap;
+	// map.castShadow = true;
+	// map.receiveShadow = true;
+	// viewer.renderer.shadowMap.enabled = true;
+	// viewer.renderer.shadowMap.type = PCFSoftShadowMap;
 	// viewer.dirLight.shadow.camera.position.set(0, 10000000, 0);
 	// viewer.dirLight.shadow.camera.far = 100000;
 	// viewer.dirLight.shadow.camera.left = -1000;
@@ -113,7 +101,7 @@ function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 
 function addTestModel(viewer: tt.plugin.GLViewer, position: Vector3) {
 	const mat = new MeshStandardMaterial({
-		map: new TextureLoader().load("./assets/image/test.jpg"),
+		map: new TextureLoader().load("./image/test.jpg"),
 	});
 
 	const geo = new BoxGeometry(100, 100, 100);

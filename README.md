@@ -227,15 +227,15 @@ type MapParams = {
 
 ### 4.3 TileMap 主要方法
 
-| 名称                                                     | 参数                             | 返回                                                         | 功能                                                   |
-| -------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| geo2pos(geo: Vector3)                                    | geo: 地理坐标（经纬度）          | Vector3：模型局地坐标                                        | 地理坐标转地图模型坐标                                 |
-| pos2geo(pos: Vector3)                                    | pos: 模型坐标                    | Vector3：地理坐标（经度、纬度、高度）                        | 地图模型坐标转地理坐标                                 |
+| 名称                                                     | 参数                             | 返回                                                                                                         | 功能                                                   |
+| -------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| geo2pos(geo: Vector3)                                    | geo: 地理坐标（经纬度）          | Vector3：模型局地坐标                                                                                        | 地理坐标转地图模型坐标                                 |
+| pos2geo(pos: Vector3)                                    | pos: 模型坐标                    | Vector3：地理坐标（经度、纬度、高度）                                                                        | 地图模型坐标转地理坐标                                 |
 | getLocalInfoFromGeo(geo: Vector3)                        | geo: 地理坐标（经纬度）          | LocationInfo：它继承于THREE.Intersection，除了交点信息，增加了location属性，包含地理坐标（经度、纬度、高度） | 通过射线法获取指定地理坐标的地面信息（法向量、高度等） |
 | getLocalInfoFromWorld(pos: Vector3)                      | pos: 世界坐标                    | LocationInfo：它继承于THREE.Intersection，除了交点信息，增加了location属性，包含地理坐标（经度、纬度、高度） | 通过射线法获取指定世界坐标的地面信息（法向量、高度等） |
 | getLocalInfoFromScreen(camera: Camera, pointer: Vector2) | camera: 摄像机 ,pointer:屏幕坐标 | LocationInfo：它继承于THREE.Intersection，除了交点信息，增加了location属性，包含地理坐标（经度、纬度、高度） | 通过射线法获取指定屏幕坐标的地面信息（法向量、高度等） |
-| reload()                                                 |                                  | void                                                         | 重新加载地图，在改变地图数据源后调用它才能生效         |
-| static create(params: MapParams)                         | params:地图构建参数              | TileMap：瓦片地图对象                                        | 静态工厂函数，与构造函数功能参数相同                   |
+| reload()                                                 |                                  | void                                                                                                         | 重新加载地图，在改变地图数据源后调用它才能生效         |
+| static create(params: MapParams)                         | params:地图构建参数              | TileMap：瓦片地图对象                                                                                        | 静态工厂函数，与构造函数功能参数相同                   |
 
 ### 4.4 TileMap 事件
 
@@ -292,15 +292,19 @@ type MapParams = {
 			flex: 1;
 		}
 	</style>
+
+	<script src="./three.js"></script>
+	<script src="./three-tile/three-tile.umd.cjs"></script>
+
 	<body>
 		<div id="map"></div>
-		<script src="./three.js"></script>
-		<script src="./three-tile/three-tile.umd.cjs"></script>
+
 		<script>
 			console.log("three-tile start!");
 
 			// MapBoxToken 请更换为你自己申请的key
-			const MAPBOXKEY = "xxxxxxxxxx";
+			const MAPBOXKEY =
+				"pk.eyJ1Ijoic2hhbmUwMjIwNzIiLCJhIjoiY2p5amF6YnFiMDB0YjNkcGU1ZWxoMWl0NiJ9.TsmgK5-HJKWOE-DscbNbTA";
 
 			// mapbox影像数据源
 			const mapBoxImgSource = new tt.plugin.MapBoxSource({
@@ -316,36 +320,36 @@ type MapParams = {
 				maxLevel: 15,
 			});
 
-			// 创建地图对象
-            const map = new tt.TileMap({
-                // 影像数据源
-                imgSource: imgSource,
-                // 高程数据源
-                demSource: demSource,
-                // 地图投影中央经线经度
-                lon0: 90,
-                // 最小缩放级别
-                minLevel: 2,
-                // 最大缩放级别
-                maxLevel: 20,
-            });
-
-            // 地图旋转到xz平面
-            map.rotateX(-Math.PI / 2);
+			// 创建地图
+			const map = tt.TileMap.create({
+				// 影像数据源
+				imgSource: mapBoxImgSource,
+				// 地形数据源
+				demSource: mapBoxDemSource,
+				// 地图投影中心经度
+				lon0: 90,
+				// 最小缩放级别
+				minLevel: 2,
+				// 最大缩放级别
+				maxLevel: 18,
+			});
+			// 地图旋转到xz平面
+			map.rotateX(-Math.PI / 2);
 
 			// 地图中心坐标(经度，纬度，高度)
-            const centerGeo = new Vector3(110, 30, 0);
-            // 摄像坐标(经度，纬度，高度)
-            const camersGeo = new Vector3(110, 0, 10000);
-            // 地图中心转为世界坐标
-            const centerPostion = map.localToWorld(map.geo2pos(centerGeo));
-            // 摄像机转为世界坐标
-            const cameraPosition = map.localToWorld(map.geo2pos(camersGeo));
-            // 初始化场景
-            const viewer = new tt.plugin.GLViewer("#map", { centerPostion, cameraPosition });
-            // 地图添加到场景
-            viewer.scene.add(map);
+			const centerGeo = new THREE.Vector3(110, 30, 0);
+			// 摄像坐标(经度，纬度，高度)
+			const camersGeo = new THREE.Vector3(110, 0, 10000);
+			// 地图中心转为世界坐标
+			const centerPostion = map.localToWorld(map.geo2pos(centerGeo));
+			// 摄像机转为世界坐标
+			const cameraPosition = map.localToWorld(map.geo2pos(camersGeo));
+			// 初始化场景
+			const viewer = new tt.plugin.GLViewer("#map", { centerPostion, cameraPosition });
+			// 地图添加到场景
+			viewer.scene.add(map);
 		</script>
 	</body>
 </html>
+
 ```

@@ -3,7 +3,6 @@ import { Box2 } from 'three';
 import { BufferGeometry } from 'three';
 import { Camera } from 'three';
 import { Color } from 'three';
-import { ColorSpace } from 'three';
 import { DirectionalLight } from 'three';
 import { Event as Event_2 } from 'three';
 import { EventDispatcher } from 'three';
@@ -13,7 +12,9 @@ import { LoadingManager } from 'three';
 import { MapControls } from 'three/examples/jsm/controls/MapControls';
 import { Material } from 'three';
 import { Mesh } from 'three';
-import type { NormalBufferAttributes } from 'three';
+import { MeshLambertMaterial } from 'three';
+import { MeshLambertMaterialParameters } from 'three';
+import { NormalBufferAttributes } from 'three';
 import { PerspectiveCamera } from 'three';
 import { PlaneGeometry } from 'three';
 import { Raycaster } from 'three';
@@ -24,7 +25,10 @@ import { Vector2 } from 'three';
 import { Vector3 } from 'three';
 import { WebGLRenderer } from 'three';
 
-declare class ArcGisDemSource extends BaseSource {
+/**
+ * ArcGis terrain datasource
+ */
+declare class ArcGisDemSource extends TileSource {
     dataType: string;
     attribution: string;
     maxLevel: number;
@@ -32,7 +36,10 @@ declare class ArcGisDemSource extends BaseSource {
     constructor(options?: SourceOptions);
 }
 
-declare class ArcGisSource extends BaseSource {
+/**
+ *  ArcGis datasource
+ */
+declare class ArcGisSource extends TileSource {
     dataType: string;
     attribution: string;
     style: string;
@@ -50,59 +57,9 @@ export declare const author: {
 };
 
 /**
- * base source class, custom source can inherit from it
+ * Bing datasource
  */
-export declare class BaseSource implements ISource {
-    dataType: string;
-    attribution: string;
-    minLevel: number;
-    maxLevel: number;
-    projection: ProjectionType_2;
-    url: string;
-    protected subdomains: string[] | string;
-    protected s: string;
-    colorSpace: ColorSpace;
-    opacity: number;
-    bounds: [number, number, number, number];
-    [name: string]: any;
-    /**
-     * get url callback function, overwrite it to convt orgin xyz to new xzy
-     */
-    onGetUrl?: ((x: number, y: number, z: number) => {
-        x: number;
-        y: number;
-        z: number;
-    }) | undefined;
-    /**
-     * constructor
-     * @param options
-     */
-    constructor(options?: SourceOptions);
-    /**
-     * get url from tile coordinate, public
-     * @param x
-     * @param y
-     * @param z
-     * @returns url
-     */
-    getTileUrl(x: number, y: number, z: number): string | undefined;
-    /**
-     * get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
-     * @param x
-     * @param y
-     * @param z
-     * @returns url
-     */
-    protected getUrl(x: number, y: number, z: number): string | undefined;
-    /**
-     * source factory function, create source directly through factoy functions.
-     * @param options
-     * @returns ISource
-     */
-    static create(options: SourceOptions): BaseSource;
-}
-
-declare class BingSource extends BaseSource {
+declare class BingSource extends TileSource {
     dataType: string;
     attribution: string;
     style: string;
@@ -137,6 +94,9 @@ declare class EarthMaskMaterial extends ShaderMaterial {
     });
 }
 
+/**
+ * A Earth ball mask
+ */
 declare class FakeEarth extends Mesh<BufferGeometry, EarthMaskMaterial> {
     get bkColor(): Color;
     set bkColor(value: Color);
@@ -155,7 +115,10 @@ export declare class FileLoaderEx extends Loader {
     setMimeType(value: string): this;
 }
 
-declare class GDSource extends BaseSource {
+/**
+ * GaoDe datasource
+ */
+declare class GDSource extends TileSource {
     dataType: string;
     attribution: string;
     style: Style;
@@ -166,10 +129,13 @@ declare class GDSource extends BaseSource {
 }
 
 declare type GDSourceOptions = SourceOptions & {
-    style?: string;
+    style?: Style;
 };
 
-declare class GeoqSource extends BaseSource {
+/**
+ * Geoq datasource
+ */
+declare class GeoqSource extends TileSource {
     dataType: string;
     maxLevel: number;
     attribution: string;
@@ -212,7 +178,10 @@ declare class GLViewer extends EventDispatcher<Event_2> {
     set fogFactor(value: number);
     get width(): number;
     get height(): number;
-    constructor(dom: HTMLElement, centerPositon?: Vector3, cameraPosition?: Vector3);
+    constructor(container: HTMLElement | string, options?: {
+        centerPostion: Vector3;
+        cameraPosition: Vector3;
+    });
     private _createScene;
     private _createRenderer;
     private _createCamera;
@@ -223,7 +192,10 @@ declare class GLViewer extends EventDispatcher<Event_2> {
     private animate;
 }
 
-declare class GoogleSource extends BaseSource {
+/**
+ * Google datasource, can not uese in CN
+ */
+declare class GoogleSource extends TileSource {
     dataType: string;
     attribution: string;
     maxLevel: number;
@@ -263,19 +235,31 @@ export declare class ImageLoaderEx extends Loader {
 /**
  * Porjection interface
  */
-export declare interface IProjection {
-    ID: ProjectionType;
-    mapWidth: number;
-    mapHeight: number;
-    mapDepth: number;
+declare interface IProjection {
+    readonly ID: ProjectionType_2;
+    readonly mapWidth: number;
+    readonly mapHeight: number;
+    readonly mapDepth: number;
+    readonly lon0: number;
     isWGS: boolean;
-    project(lon: number, lat: number, centralMeridian: number): {
+    project(lon: number, lat: number): {
         x: number;
         y: number;
     };
-    unProject(x: number, y: number, centralMeridian: number): {
+    unProject(x: number, y: number): {
         lon: number;
         lat: number;
+    };
+    getTileXWithCenterLon(x: number, z: number): number;
+    getPorjBounds(bounds: [number, number, number, number]): {
+        maxX: number;
+        maxY: number;
+        minX: number;
+        minY: number;
+    };
+    getTileXYZproj(x: number, y: number, z: number): {
+        x: number;
+        y: number;
     };
 }
 
@@ -284,20 +268,21 @@ export declare interface IProjection {
  * all source implements ISource get url from x/y/z coordinate to url
  */
 export declare interface ISource {
+    /** A string identifies the source data type, it requires the support of the loader. */
     dataType: string;
+    /** Source attribution info, it allows you to display attribution*/
     attribution: string;
+    /** Data max level */
     minLevel: number;
+    /** Data min level */
     maxLevel: number;
-    projection: ProjectionType_2;
-    colorSpace: ColorSpace;
+    /** Data projection */
+    projectionID: ProjectionType;
+    /** Display opacity */
     opacity: number;
     bounds: [number, number, number, number];
-    getTileUrl: SourceUrl;
-    onGetUrl?: (x: number, y: number, z: number) => {
-        x: number;
-        y: number;
-        z: number;
-    };
+    /** get url from xyz */
+    getTileUrl: (x: number, y: number, z: number) => string | undefined;
 }
 
 /** geometry loader interface */
@@ -314,7 +299,10 @@ export declare interface ITileLoader {
     imgSource: ISource[];
     demSource: ISource | undefined;
     cacheSize: number;
-    load(tile: Tile, onLoad: () => void, onError: (err: any) => void): void;
+    load(tile: Tile, onLoad: () => void, onError: (err: any) => void): {
+        geometry: BufferGeometry;
+        material: Material[];
+    };
 }
 
 /**  Material loader interface */
@@ -326,33 +314,33 @@ export declare interface ITileMaterialLoader {
 /**
  * factory for loader
  */
-export declare class LoaderFactory {
-    static manager: LoadingManager;
-    private static demLoaderMap;
-    private static imgLoaderMap;
+export declare const LoaderFactory: {
+    manager: LoadingManager;
+    demLoaderMap: Map<string, ITileGeometryLoader>;
+    imgLoaderMap: Map<string, ITileMaterialLoader>;
     /**
      * register material loader
      * @param loader material loader
      */
-    static registerMaterialLoader(loader: ITileMaterialLoader): void;
+    registerMaterialLoader(loader: ITileMaterialLoader): void;
     /**
      * register geometry loader
      * @param loader geometry loader
      */
-    static registerGeometryLoader(loader: ITileGeometryLoader): void;
+    registerGeometryLoader(loader: ITileGeometryLoader): void;
     /**
      * get material loader from datasource
      * @param source datasource
      * @returns material loader
      */
-    static getMaterialLoader(source: ISource): ITileMaterialLoader;
+    getMaterialLoader(source: ISource): ITileMaterialLoader;
     /**
      * get geometry loader from datasource
      * @param source datasouce
      * @returns geometry loader
      */
-    static getGeometryLoader(source: ISource): ITileGeometryLoader;
-}
+    getGeometryLoader(source: ISource): ITileGeometryLoader;
+};
 
 /**
  * state of tile data
@@ -366,7 +354,10 @@ declare interface LocationInfo extends Intersection {
     location: Vector3;
 }
 
-declare class MapBoxSource extends BaseSource {
+/**
+ * MapBox datasource
+ */
+declare class MapBoxSource extends TileSource {
     protected token: string;
     protected format: string;
     protected style: string;
@@ -382,30 +373,23 @@ declare type MapBoxSourceOptions = SourceOptions & {
 };
 
 /**
- * Type of map constructor parameters
- * 地图构造函数参数
- */
-export declare type MapContructParams = {
-    loader: ITileLoader;
-    rootTile?: RootTile;
-    minLevel?: number;
-    maxLevel?: number;
-    centralMeridian?: 0 | 90 | -90;
-};
-
-/**
  * Type of map create parameters
  * 地图创建参数
  */
 export declare type MapParams = {
+    loader?: ITileLoader;
+    rootTile?: RootTile;
     imgSource: ISource[] | ISource;
     demSource?: ISource;
     minLevel?: number;
     maxLevel?: number;
-    centralMeridian?: 0 | 90 | -90;
+    lon0?: ProjectCenterLongitude;
 };
 
-declare class MapTilerSource extends BaseSource {
+/**
+ * MapTiler data source
+ */
+declare class MapTilerSource extends TileSource {
     attribution: string;
     token: string;
     format: string;
@@ -451,73 +435,12 @@ declare namespace plugin {
 }
 export { plugin }
 
-/**
- * abstruct projection base class
- */
-export declare abstract class Projection {
-    isWGS: boolean;
-    /**
-     * create projection object from projection ID
-     *
-     * @param id projeciton ID, default: "3857"
-     * @returns IProjection instance
-     */
-    static createFromID(id?: ProjectionType): IProjection;
-    /**
-     * create projection object from map source
-     * @param source map source
-     * @returns IProjection instance
-     */
-    static createFromSource(source: ISource): IProjection;
-}
+declare type ProjectCenterLongitude = 0 | 90 | -90;
 
+/** Project ID */
 export declare type ProjectionType = "3857" | "4326";
 
 declare type ProjectionType_2 = "3857" | "4326";
-
-export declare class ProjMCT extends Projection implements IProjection {
-    readonly ID = "3857";
-    readonly isWGS = false;
-    mapWidth: number;
-    mapHeight: number;
-    mapDepth: number;
-    /**
-     * Latitude and longitude to projected coordinates
-     * @param lon longitude
-     * @param lat Latitude
-     * @returns projected coordinates
-     */
-    project(lon: number, lat: number, centralMeridian: number): {
-        x: number;
-        y: number;
-    };
-    /**
-     * Projected coordinates to latitude and longitude
-     * @param x projection x
-     * @param y projection y
-     * @returns latitude and longitude
-     */
-    unProject(x: number, y: number, centralMeridian: number): {
-        lat: number;
-        lon: number;
-    };
-}
-
-export declare class ProjWGS extends Projection implements IProjection {
-    readonly ID = "4326";
-    readonly isWGS = true;
-    mapWidth: number;
-    mapHeight: number;
-    mapDepth: number;
-    project(lon: number, lat: number, centralMeridian: number): {
-        x: number;
-        y: number;
-    };
-    unProject(x: number, y: number, centralMeridian: number): {
-        lon: number;
-        lat: number;
-    };
-}
 
 /**
  * get bounds from rect
@@ -541,7 +464,7 @@ export declare function rect2ImageBounds(rect: Box2, imgSize: number): {
 export declare function resizeImage(image: HTMLImageElement, size: number): HTMLImageElement | HTMLCanvasElement;
 
 /**
- * Root tile, it is a  QuadTree extends Tile.
+ * Root tile, inherit of Tile.
  * note: update() function is called on the scene update every frame it is rendered.
  */
 export declare class RootTile extends Tile {
@@ -550,29 +473,29 @@ export declare class RootTile extends Tile {
     private _loader;
     private _minLevel;
     /**
-     * Get the map minLevel
+     * Get minLevel of the map
      */
     get minLevel(): number;
     /**
-     * Set the map minLevel,
+     * Set minLevel of the map,
      */
     set minLevel(value: number);
     private _maxLevel;
     /**
-     * Get the map maxLevel
+     * Get maxLevel of the map
      */
     get maxLevel(): number;
     /**
-     * Set the map maxLevel
+     * Set  maxLevel of the map
      */
     set maxLevel(value: number);
     private _LODThreshold;
     /**
-     * Get the map LOD threshold
+     * Get LOD threshold
      */
     get LODThreshold(): number;
     /**
-     * Set the map LOD threshold
+     * Set LOD threshold
      */
     set LODThreshold(value: number);
     /**
@@ -580,11 +503,11 @@ export declare class RootTile extends Tile {
      */
     isWGS: boolean;
     /**
-     * Get the tile loader
+     * Get tile loader
      */
     get loader(): ITileLoader;
     /**
-     * Set the tile loader
+     * Set tile loader
      */
     set loader(value: ITileLoader);
     /**
@@ -593,22 +516,22 @@ export declare class RootTile extends Tile {
     get autoLoad(): boolean;
     /**
      * Set whether allow tile data to update, default true.
-     * true: auto load data on the scene update every frame it is rendered.
-     * false: only update quad tree on render.
+     * true: load data on the scene update every frame it is rendered.
+     * false: do not load data, only update tile true.
      */
     set autoLoad(value: boolean);
     private _vierwerBufferSize;
     private _tileBox;
     /**
-     * Get the renderer cache size scale. (0.5-2.5，default: 0.6)
+     * Get renderer cache size scale. (0.5-2.5，default: 0.6)
      */
     get viewerbufferSize(): number;
     /**
-     * Get the renderer cache size. (0.5-2.5，default: 0.6)
+     * Get renderer cache size. (0.5-2.5，default: 0.6)
      */
     set viewerbufferSize(value: number);
     /**
-     * constructor
+     * Constructor
      * @param loader tile data loader
      * @param level tile level, default:0
      * @param x tile X-coordinate, default:0
@@ -616,67 +539,95 @@ export declare class RootTile extends Tile {
      */
     constructor(loader: ITileLoader, level?: number, x?: number, y?: number);
     /**
-     * update the quadTree and tile data
+     * Update tile tree and tile data. It needs called on the scene update every frame.
      * @param camera
      */
     update(camera: Camera): this;
     /**
-     * reload data, Called to take effect after source is modified
+     * Reload data, Called to take effect after source has changed
      */
     reload(): this;
     /**
-     * update the tile tree use LOD
-     * @param cameraWorldPosition positon of the camera
+     * Update tile tree use LOD
+     * @param camera  camera
      * @returns  the tile tree has changed
      */
     private _updateTileTree;
     /**
-     *  update tileTree data.
-     *  traverse the tiles to load data and update tiles visible.
+     *  Update tileTree data
      */
     private _updateTileData;
     /**
-     * update the tile visible when tile loaded
-     * @returns all of tile has loaded?
+     * Update height of tiles in view
      */
-    private _updateVisible;
-    /**
-     * update the tiles height
-     */
-    private _updateVisibleZ;
+    private _updateVisibleHight;
 }
 
 /**
  * source construtor params type
  */
-export declare type SourceOptions = {
+export declare interface SourceOptions {
+    /** A string identifies the source data type, it requires the support of the loader. */
     dataType?: string;
+    /** Source attribution info, it allows you to display attribution*/
     attribution?: string;
+    /** Data max level */
     minLevel?: number;
+    /** Data min level */
     maxLevel?: number;
-    projection?: string;
-    colorSpace?: ColorSpace;
+    /** Data projection */
+    projectionID?: ProjectionType;
+    /** Display opacity */
     opacity?: number;
     bounds?: [number, number, number, number];
-    url?: SourceUrl | string;
+    /** Data Url template */
+    url?: string;
+    /** Url subdomains array or string */
     subdomains?: string[] | string;
-    [name: string]: any;
-};
-
-/**
- * a callback function for conver tile x/y/z to url
- */
-export declare interface SourceUrl {
-    (x: number, y: number, z: number): string | undefined;
 }
 
-declare class StadiaSource extends BaseSource {
+/**
+ * 使用代理模式将数据源和投影解耦
+ *
+ * 地图数据源应该是一个非常简单对象，它主要用来描述瓦片数据的url规则，并保存瓦片元数据，不应该包含太多的逻辑。
+ *
+ * 但是，由于有地图投影的存在，瓦片xyz规则需要进行一定转换，特别是three-tile存在一个地图投影中心经度的参数，瓦片的xyz更加复杂。
+ *
+ * 通常情况，将地图投影对象直接传入数据源，并通过投影对象计算瓦片规则，但是这样数据源类对投影类产生依赖，并且逻辑上数据源不应该知道投影，违反了单一职责原则。
+ *
+ * 尝试在数据源创建时，给数据源注入瓦片转换规则能够解决，但不够优雅。所以增加了数据源代理。
+ *
+ * 基本数据源仍为简单对象，在数据源传入地图时，给数据源套上一层代理，代理对象里完成瓦片xyz转换规则，然后再交给原数据源生成url。
+ *
+ */
+/**
+ * 地图数据源代理，增加投影功能
+ * 1. 增加根据投影中心经度，调整瓦片xyz
+ * 2. 判断请求的瓦片是否在数据源经纬度有效范围内
+ *
+ */
+declare class SourceWithProjection extends TileSource {
+    private _source;
+    private _projection;
+    get projection(): IProjection;
+    set projection(value: IProjection);
+    private _bounds;
+    private _getTileBounds;
+    constructor(source: ISource, projection: IProjection);
+    getUrl(x: number, y: number, z: number): string | undefined;
+}
+
+/**
+ * Stadia data source
+ */
+declare class StadiaSource extends TileSource {
     dataType: string;
     attribution: string;
     url: string;
     constructor(options?: SourceOptions);
 }
 
+/**  6卫星（st），7简图（st rd），8详图（不透明rd，透明图st）*/
 declare type Style = "6" | "7" | "8";
 
 /**
@@ -690,17 +641,14 @@ declare type Style = "6" | "7" | "8";
  */
 declare type Style_2 = "s" | "m" | "r" | "y" | "h" | "t" | "p";
 
-/**
- * 瓦片样式
- */
 declare type Style_3 = "img_w" | "cia_w" | "cva_w" | "ibo_w" | "ter_w" | "vec_w" | "cta_w" | "img_c" | "cia_c";
 
-/**
- * 瓦片样式
- */
 declare type Style_4 = "img" | "cia" | "terrain_rgb";
 
-declare class TDTSource extends BaseSource {
+/**
+ * TianDiTu datasource
+ */
+declare class TDTSource extends TileSource {
     dataType: string;
     attribution: string;
     token: string;
@@ -747,15 +695,16 @@ export declare class Tile extends Mesh<BufferGeometry, Material[]> {
     /** needs to load? */
     private get _needsLoad();
     private _inFrustum;
-    /** tile in frustum? */
+    /** is tile in frustum? */
     get inFrustum(): boolean;
-    /** set the tile in frustum */
+    /** set tile is in frustum */
     protected set inFrustum(value: boolean);
-    /** is the tile  leaf in frustum ? */
+    /** is leaf in frustum ? */
     get isLeafInFrustum(): boolean;
+    private _isTemp;
     /** set the tile to temp*/
-    set isTemp(temp: boolean);
-    /** is tile leaf?  */
+    private set isTemp(value);
+    /** is leaf?  */
     get isLeaf(): boolean;
     /**
      * constructor
@@ -765,12 +714,12 @@ export declare class Tile extends Mesh<BufferGeometry, Material[]> {
      */
     constructor(x?: number, y?: number, z?: number);
     /**
-     * Override Obejct3D.traverse, change the callback param to "this"
+     * Override Obejct3D.traverse, change the callback param type to "this"
      * @param callback callback
      */
     traverse(callback: (object: this) => void): void;
     /**
-     * Override mesh.raycast，only when tile has loaded
+     * Override mesh.raycast，only called when tile has loaded
      * @param raycaster
      * @param intersects
      */
@@ -786,34 +735,34 @@ export declare class Tile extends Mesh<BufferGeometry, Material[]> {
      */
     protected _lod(camera: Camera, minLevel: number, maxLevel: number, threshold: number, isWGS: boolean): Tile[];
     /**
-     * load tile data
+     * load data
      * @param loader data loader
-     * @returns update visible of tiles ?
+     * @returns Promise<void>
      */
-    protected _load(loader: ITileLoader): Promise<boolean>;
+    protected _load(loader: ITileLoader): Promise<void>;
     /**
      * callback function when error. (include abort)
      * @param err error message
-     * @returns
      */
     private _onError;
     /**
-     * recursion tile tree to find loaded parent (hide when parent showing)
+     * Recursion to find loaded parent (hide when parent showing)
      * @returns loaded parent or null
      */
-    hasLoadedParent(): this | null;
+    private _getLoadedParent;
+    private _checkVisible;
     /**
-     * callback function on loaded
+     * tile loaded callback
      */
     private _onLoad;
-    private _updateZ;
+    private _updateHeight;
     /**
      * abort download
      */
     abortLoad(): void;
     /**
      * free the tile
-     * @param removeChildren 是否移除子瓦片
+     * @param removeChildren remove children?
      */
     dispose(removeChildren: boolean): this;
     private _dispose;
@@ -869,10 +818,8 @@ export declare class TileLoader extends Loader implements ITileLoader {
     set demSource(value: ISource | undefined);
     /**
      * constructor
-     * @param imgSource image dataSource
-     * @param demSource dem dataSource
      */
-    constructor(imgSource?: ISource[], demSource?: ISource);
+    constructor();
     /**
      * load material and geometry data
      * @param tile tile to load
@@ -967,17 +914,17 @@ export declare class TileMap extends Mesh {
      * 设置是否在每帧渲染时按需更新瓦片数据
      */
     set autoLoad(value: boolean);
-    private _autoAdjustZ;
+    private _autoPosition;
     /**
      * Get whether to adjust z of map automatically.
-     * 取得是否自动根据视野内地形高度调整地图Z坐标
+     * 取得是否自动根据视野内地形高度调整地图坐标
      */
-    get autoAdjustZ(): boolean;
+    get autoPosition(): boolean;
     /**
      * Set whether to adjust z of map automatically.
-     * 设置是否自动调整地图Z坐标，如果设置为true，将在每帧渲染中将地图Z坐标调整可视区域瓦片的平均高度
+     * 设置是否自动调整地图坐标，如果设置为true，将在每帧渲染中将地图坐标调整可视区域瓦片的平均高度
      */
-    set autoAdjustZ(value: boolean);
+    set autoPosition(value: boolean);
     /**
      * Get the number of  download cache files.
      * 取得瓦片下载缓存文件数量。
@@ -1014,17 +961,16 @@ export declare class TileMap extends Mesh {
      * 取得可视范围内瓦片的平均高度
      */
     get avgZInView(): number;
-    private _centralMeridian;
     /**
      * Get central Meridian latidute
-     * 取得子午线经度
+     * 取得中央子午线经度
      */
-    get centralMeridian(): number;
+    get lon0(): number;
     /**
      * Set central Meridian latidute, default:0
-     * 设置子午线经度，子午线经度决定了地图的投影中心经度，可设置为-90，0，90
+     * 设置中央子午线经度，中央子午线决定了地图的投影中心经度，可设置为-90，0，90
      */
-    set centralMeridian(value: number);
+    set lon0(value: number);
     private _projection;
     /**
      * Set the map projection object
@@ -1036,21 +982,23 @@ export declare class TileMap extends Mesh {
      * 设置地图投影对象
      */
     private set projection(value);
+    private _imgSource;
     /**
      * Get the image data source object
      * 取得影像数据源
      */
-    get imgSource(): ISource | ISource[];
+    get imgSource(): SourceWithProjection[];
     /**
      * Set the image data source object
      * 设置影像数据源
      */
     set imgSource(value: ISource | ISource[]);
+    private _demSource;
     /**
      * Get the terrain data source
      * 设置地形数据源
      */
-    get demSource(): ISource | undefined;
+    get demSource(): SourceWithProjection | undefined;
     /**
      * Set the terrain data source
      * 取得地形数据源
@@ -1079,7 +1027,7 @@ export declare class TileMap extends Mesh {
      // 高程数据源
      demSource: source.mapBoxDemSource,
      // 地图投影中心经度
-     centralMeridian: 90,
+     lon0: 90,
      // 最小缩放级别
      minLevel: 1,
      // 最大缩放级别
@@ -1092,18 +1040,27 @@ export declare class TileMap extends Mesh {
      * Map mesh constructor
      *
      * 地图模型构造函数
-     * @param params 地图构造参数 {@link MapContructParams}     *
+     * @param params 地图参数 {@link MapParams}
      * @example
      * ``` typescript
-     *  const imgSource = [Source.mapBoxImgSource, new tt.TestSource()];
-     *  const demSource = Source.mapBoxDemSource;
-     *  const loader = new tt.TileLoader(imgSource, demSource, 2, 18);
-     *  const map = new TileMap({ loader, centralMeridian: 90 });
+
+     const map = new TileMap({
+     // 加载器
+     loader: new TileLoader(),
+     // 影像数据源
+     imgSource: [Source.mapBoxImgSource, new TestSource()],
+     // 高程数据源
+     demSource: source.mapBoxDemSource,
+     // 地图投影中心经度
+     lon0: 90,
+     // 最小缩放级别
+     minLevel: 1,
+     // 最大缩放级别
+     maxLevel: 18,
+     });;
      * ```
      */
-    constructor(params: MapContructParams);
-    private _setTileCoordConvert;
-    private _setMapProjection;
+    constructor(params: MapParams);
     /**
      * Update the map, It is automatically called after mesh adding a scene
      * 模型更新回调函数，地图加入场景后会在每帧更新时被调用，该函数调用根瓦片实现瓦片树更新和数据加载
@@ -1122,21 +1079,15 @@ export declare class TileMap extends Mesh {
      */
     dispose(): void;
     /**
-     * Get map data attributions information
-     * 取得地图数据归属版权信息
-     * @returns Attributions 版权信息数组
-     */
-    get attributions(): string[];
-    /**
-     * Geo coordinates converted to model coordinates
+     * Geo coordinates converted to map model coordinates
      * 地理坐标转换为地图模型坐标
      * @param geo 地理坐标（经纬度）
      * @returns 模型坐标
      */
     geo2pos(geo: Vector3): Vector3;
     /**
-     * Model coordinates converted to coordinates geo
-     * 模型坐标转换为地理坐标
+     * Map model coordinates converted to coordinates geo
+     * 地图模型坐标转换为地理坐标
      * @param pos 模型坐标
      * @returns 地理坐标（经纬度）
      */
@@ -1164,37 +1115,25 @@ export declare class TileMap extends Mesh {
      */
     getLocalInfoFromScreen(camera: Camera, pointer: Vector2): LocationInfo | undefined;
     /**
+     * Get map data attributions information
+     * 取得地图数据归属版权信息
+     * @returns Attributions 版权信息字符串数组
+     */
+    get attributions(): string[];
+    /**
      * Get map tiles statistics to debug
      * @returns 取得瓦片统计信息，用于调试性能
      */
-    getTileCount(): {
+    get tileCount(): {
         total: number;
         visible: number;
         leaf: number;
         maxLevle: number;
     };
-    /**
-     * Listen tile event.
-     * 监听瓦片数据加载等事件，并将事件挂接到TileMap上以方便使用
-     */
-    private _attachEvent;
 }
 
-/**
- * Tile shade, include multiple textures and pixel to Z
- */
-export declare class TileMaterial extends ShaderMaterial {
-    constructor(parameters: TileMaterialParameters);
-    dispose(): void;
-    defineProperty(propertyName: string): void;
-}
-
-export declare interface TileMaterialParameters {
-    map?: Texture | null | undefined;
-    map1?: Texture | null | undefined;
-    transparent?: boolean;
-    wireframe?: boolean;
-    diffuse?: Color;
+export declare class TileMaterial extends MeshLambertMaterial {
+    constructor(params?: MeshLambertMaterialParameters);
 }
 
 /**
@@ -1203,6 +1142,49 @@ export declare interface TileMaterialParameters {
 export declare abstract class TileSimpleGeometry extends PlaneGeometry {
     protected build(dem: ArrayLike<number>, tileSize: number): void;
     setData(dem: ArrayLike<number>, tileSize: number): this;
+}
+
+/**
+ * base source class, custom source can inherit from it
+ */
+export declare class TileSource implements ISource {
+    dataType: string;
+    attribution: string;
+    minLevel: number;
+    maxLevel: number;
+    projectionID: ProjectionType;
+    url: string;
+    protected subdomains: string[] | string;
+    protected s: string;
+    opacity: number;
+    bounds: [number, number, number, number];
+    /**
+     * constructor
+     * @param options
+     */
+    constructor(options?: SourceOptions);
+    /**
+     * Get url from tile coordinate, public，called by TileLoader
+     * @param x
+     * @param y
+     * @param z
+     * @returns url
+     */
+    getTileUrl(x: number, y: number, z: number): string | undefined;
+    /**
+     * Get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
+     * @param x
+     * @param y
+     * @param z
+     * @returns url
+     */
+    protected getUrl(x: number, y: number, z: number): string | undefined;
+    /**
+     * source factory function, create source directly through factoy functions.
+     * @param options
+     * @returns ISource
+     */
+    static create(options: SourceOptions): TileSource;
 }
 
 /**
@@ -1220,7 +1202,8 @@ export declare class TileTextureLoader {
     load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: ErrorEvent | DOMException | Event) => void): Texture;
 }
 
-declare class TXSource extends BaseSource {
+/** Tencent datasource */
+declare class TXSource extends TileSource {
     dataType: string;
     style: string;
     attribution: string;
@@ -1236,7 +1219,10 @@ declare type TXSourceOptins = SourceOptions & {
 
 export declare const version: string;
 
-declare class ZKXTSource extends BaseSource {
+/**
+ * ZhongkeXingTu datasource
+ */
+declare class ZKXTSource extends TileSource {
     readonly attribution = "\u4E2D\u79D1\u661F\u56FE[GS(2022)3995\u53F7]";
     token: string;
     style: Style_4;

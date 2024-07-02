@@ -1,111 +1,115 @@
-import { Vector3 as p, PlaneGeometry as Z, MeshBasicMaterial as K, Mesh as le, Matrix4 as mt, Frustum as pt, Box3 as Ee, ShaderMaterial as Fe, UniformsUtils as Ue, ShaderLib as ft, Color as X, MathUtils as H, Float32BufferAttribute as ne, Loader as q, LoadingManager as gt, Vector2 as x, Box2 as Ae, Texture as de, MeshLambertMaterial as yt, BufferGeometry as vt, Raycaster as Ze, Clock as Be, CanvasTexture as bt, MeshNormalMaterial as _t, EventDispatcher as Ne, MOUSE as k, TOUCH as U, Quaternion as Pe, Spherical as De, Object3D as xt, Scene as wt, FogExp2 as Ce, WebGLRenderer as Tt, PerspectiveCamera as Lt, AmbientLight as St, DirectionalLight as Mt, UniformsLib as Et } from "three";
-const At = "three-tile", Pt = "0.5.0", Dt = "module", Ct = [
-  "dist"
-], jt = "dist/three-tile.umd.cjs", Ot = "dist/three-tile.js", It = "./dist/three-tile.es.d.ts", zt = {
+import { Vector3 as m, PlaneGeometry as G, MeshBasicMaterial as J, Mesh as be, Matrix4 as jt, Frustum as At, Box3 as Ye, MeshLambertMaterial as Dt, FrontSide as It, MathUtils as H, Float32BufferAttribute as ue, Loader as re, LoadingManager as Ot, Vector2 as T, Box2 as Ge, Texture as we, SRGBColorSpace as Ct, BufferGeometry as zt, Raycaster as Je, Clock as et, CanvasTexture as kt, MeshNormalMaterial as Rt, Color as xe, Ray as Ft, Plane as Nt, EventDispatcher as tt, MOUSE as N, TOUCH as Y, Quaternion as Ze, Spherical as Ue, Scene as Bt, FogExp2 as We, WebGLRenderer as Yt, PerspectiveCamera as Gt, AmbientLight as Zt, DirectionalLight as Ut, ShaderMaterial as Wt, UniformsUtils as Ht, UniformsLib as Xt } from "three";
+const Kt = "three-tile", $t = "0.6.1", Vt = "module", qt = [
+  "dist",
+  "images",
+  "docs"
+], Qt = "dist/three-tile.umd.cjs", Jt = "dist/three-tile.js", eo = "./dist/three-tile.es.d.ts", to = {
   ".": {
     import: "./dist/three-tile.js",
     require: "./dist/three-tile.umd.cjs",
     types: "./dist/three-tile.es.d.ts"
   }
-}, kt = "A lightweight tile map using threejs", Rt = "GPL V3", Ft = {
+}, oo = "A lightweight tile map using threejs", so = "GPL-3.0", io = {
   name: "GuoJiangfeng",
   email: "hz_gjf@163.com"
-}, Ut = [
+}, ro = [
   "three",
   "gis",
   "tile",
   "map",
   "3D",
   "cesium"
-], Zt = {
+], no = {
   dev: "vite --config vite.config.dev.ts",
   lib: "tsc && vite build  --config vite.config.lib.ts",
   demo: "tsc && vite build  --config vite.config.demo.ts",
   docs: "typedoc src --out ./docs",
-  lint: "eslint --ext .tsx,.ts ./src ",
-  fix: "eslint --ext .tsx,.ts ./src --fix"
-}, Bt = {
+  test: "vitest"
+}, ao = {
   "@types/node": "^20.2.3",
   "@types/offscreencanvas": "^2019.7.0",
   "@types/three": "^0.152.1",
   "@typescript-eslint/eslint-plugin": "^7.5.0",
   "@typescript-eslint/parser": "^7.5.0",
-  eslint: "^8.57.0",
-  typedoc: "^0.23.23",
-  typescript: "^5.0.4",
-  vite: "^4.0.0",
-  "vite-plugin-dts": "^2.3.0",
-  "vite-plugin-wasm": "^3.3.0"
-}, Nt = {
-  esbuild: "^0.18.20",
-  three: "^0.152.2"
-}, Ge = {
-  name: At,
+  esbuild: "^0.20.2",
+  jsdom: "^24.1.0",
+  typedoc: "^0.25.13",
+  typescript: "^5.4.5",
+  vite: "^5.2.8",
+  "vite-plugin-dts": "^3.8.1",
+  vitest: "^1.6.0"
+}, co = {
+  three: "^0.165.0"
+}, lo = {
+  registry: "https://registry.npmjs.org/"
+}, ot = {
+  name: Kt,
   private: !1,
-  version: Pt,
-  type: Dt,
-  files: Ct,
-  main: jt,
-  module: Ot,
-  types: It,
-  exports: zt,
-  description: kt,
-  license: Rt,
-  author: Ft,
-  keywords: Ut,
-  scripts: Zt,
-  devDependencies: Bt,
-  dependencies: Nt
+  version: $t,
+  type: Vt,
+  files: qt,
+  main: Qt,
+  module: Jt,
+  types: eo,
+  exports: to,
+  description: oo,
+  license: so,
+  author: io,
+  keywords: ro,
+  scripts: no,
+  devDependencies: ao,
+  dependencies: co,
+  publishConfig: lo
 };
-function G(s, e, r, t, n) {
-  const o = new Q(s, e, r);
-  return o.position.copy(t), o.scale.copy(n), o;
+function W(r, e, o, t, i) {
+  const n = new ne(r, e, o);
+  return n.position.copy(t), n.scale.copy(i), n;
 }
-function Gt(s, e = !1) {
-  if (s.isLeaf) {
-    const r = s.coord.z + 1, t = s.coord.x * 2, n = 0, o = 1 / 4;
-    if (s.coord.z === 0 && e) {
-      const a = s.coord.y, c = new p(0.5, 1, 1);
-      s.add(G(t, a, r, new p(-o, 0, n), c)), s.add(G(t + 1, a, r, new p(o, 0, n), c));
+function ho(r, e = !1) {
+  if (r.isTile) {
+    const o = r.coord.z + 1, t = r.coord.x * 2, i = 0, n = 1 / 4;
+    if (r.coord.z === 0 && e) {
+      const a = r.coord.y, c = new m(0.5, 1, 1);
+      r.add(W(t, a, o, new m(-n, 0, i), c)), r.add(W(t + 1, a, o, new m(n, 0, i), c));
     } else {
-      const a = s.coord.y * 2, c = new p(0.5, 0.5, 1);
-      s.add(G(t, a + 1, r, new p(-o, -o, n), c)), s.add(G(t + 1, a + 1, r, new p(o, -o, n), c)), s.add(G(t, a, r, new p(-o, o, n), c)), s.add(G(t + 1, a, r, new p(o, o, n), c));
+      const a = r.coord.y * 2, c = new m(0.5, 0.5, 1);
+      r.add(W(t, a + 1, o, new m(-n, -n, i), c)), r.add(W(t + 1, a + 1, o, new m(n, -n, i), c)), r.add(W(t, a, o, new m(-n, n, i), c)), r.add(W(t + 1, a, o, new m(n, n, i), c));
     }
-    s.traverse((a) => {
-      a.updateMatrix(), a.updateMatrixWorld(), a.receiveShadow = s.receiveShadow, a.castShadow = s.castShadow;
+    r.traverse((a) => {
+      a.updateMatrix(), a.updateMatrixWorld(), a.receiveShadow = r.receiveShadow, a.castShadow = r.castShadow;
     });
   }
-  return s.children;
+  return r.children;
 }
-const Yt = new p();
-function Wt(s, e, r) {
-  const t = s.position.clone().setZ(r).applyMatrix4(s.matrixWorld);
+const uo = new m();
+function mo(r, e, o) {
+  const t = r.position.clone().setZ(o).applyMatrix4(r.matrixWorld);
   return e.distanceTo(t);
 }
-function Ht(s) {
-  const e = new p(-0.5, -0.5, 0).applyMatrix4(s.matrixWorld), r = new p(0.5, 0.5, 0).applyMatrix4(s.matrixWorld);
-  return e.sub(r).length();
+function po(r) {
+  const e = new m(-0.5, -0.5, 0).applyMatrix4(r.matrixWorld), o = new m(0.5, 0.5, 0).applyMatrix4(r.matrixWorld);
+  return e.sub(o).length();
 }
-function je(s, e) {
-  const r = e.getWorldPosition(Yt), t = Wt(s, r, s.avgZ), n = Ht(s), o = t / n;
-  return Math.log10(o) * 5 + 0.5;
+function He(r, e) {
+  const o = e.getWorldPosition(uo), t = mo(r, o, r.avgZ), i = po(r), n = t / i;
+  return Math.log10(n) * 5 + 0.5;
 }
-var ce = /* @__PURE__ */ ((s) => (s[s.none = 0] = "none", s[s.create = 1] = "create", s[s.remove = 2] = "remove", s))(ce || {});
-function Kt(s, e, r, t, n) {
-  if (s.coord.z > r && s.index === 0 && s.parent?.isTile) {
-    const a = je(s.parent, e);
-    if (s.coord.z > t || a > n * 1.02)
+var ye = /* @__PURE__ */ ((r) => (r[r.none = 0] = "none", r[r.create = 1] = "create", r[r.remove = 2] = "remove", r))(ye || {});
+function fo(r, e, o, t, i) {
+  if (r.coord.z > o && r.index === 0 && r.parent?.isTile) {
+    const a = He(r.parent, e);
+    if (r.coord.z > t || a > i * 1.02)
       return 2;
   }
-  if (s.coord.z < t && s.isLeafInFrustum) {
-    const a = je(s, e);
-    if (s.userData.dist = a, s.coord.z < r || a < n / 1.02)
+  if (r.coord.z < t && r.isLeafInFrustum) {
+    const a = He(r, e);
+    if (r.userData.dist = a, r.coord.z < o || a < i / 1.02)
       return 1;
   }
   return 0;
 }
-const ie = new Z(), oe = new K({ color: 16711680 });
-class Q extends le {
+const me = new G(), pe = new J({ color: 16711680 });
+class ne extends be {
   /** coordinate of tile */
   coord;
   /** is a tile? */
@@ -143,25 +147,29 @@ class Q extends le {
     return this.inFrustum && this._toLoad && this.loadState === "empty";
   }
   _inFrustum = !1;
-  /** tile in frustum? */
+  /** is tile in frustum? */
   get inFrustum() {
     return this._inFrustum;
   }
-  /** set the tile in frustum */
+  /** set tile is in frustum */
   set inFrustum(e) {
     this._inFrustum != e && (this._inFrustum = e, e ? this._toLoad = this.isLeaf : this.dispose(!0));
   }
-  /** is the tile  leaf in frustum ? */
+  /** is leaf in frustum ? */
   get isLeafInFrustum() {
     return this.inFrustum && this.isLeaf;
   }
+  _isTemp = !1;
   /** set the tile to temp*/
   set isTemp(e) {
-    this.material.forEach((r) => {
-      "wireframe" in r && (r.wireframe = e || r.userData.wireframe);
-    });
+    if (this._isTemp = e, this.material.forEach((o) => {
+      "wireframe" in o && (o.wireframe = e || o.userData.wireframe);
+    }), !e) {
+      const o = this._getLoadedParent();
+      o && o.loadState;
+    }
   }
-  /** is tile leaf?  */
+  /** is leaf?  */
   get isLeaf() {
     return this.children.length === 0;
   }
@@ -171,25 +179,25 @@ class Q extends le {
    * @param y tile X-coordinate, default:0
    * * @param z tile level, default:0
    */
-  constructor(e = 0, r = 0, t = 0) {
-    super(ie, [oe]), this.coord = { x: e, y: r, z: t }, this.name = `Tile ${t}-${e}-${r}`, this.matrixAutoUpdate = !1, this.matrixWorldAutoUpdate = !1;
+  constructor(e = 0, o = 0, t = 0) {
+    super(me, [pe]), this.coord = { x: e, y: o, z: t }, this.name = `Tile ${t}-${e}-${o}`, this.matrixAutoUpdate = !1, this.matrixWorldAutoUpdate = !1;
   }
   /**
-   * Override Obejct3D.traverse, change the callback param to "this"
+   * Override Obejct3D.traverse, change the callback param type to "this"
    * @param callback callback
    */
   traverse(e) {
-    e(this), this.children.forEach((r) => {
-      r.traverse(e);
+    e(this), this.children.forEach((o) => {
+      o.traverse(e);
     });
   }
   /**
-   * Override mesh.raycast，only when tile has loaded
+   * Override mesh.raycast，only called when tile has loaded
    * @param raycaster
    * @param intersects
    */
-  raycast(e, r) {
-    this.loadState === "loaded" && super.raycast(e, r);
+  raycast(e, o) {
+    this.loadState === "loaded" && super.raycast(e, o);
   }
   /**
    * Level Of Details
@@ -200,61 +208,64 @@ class Q extends le {
    * @param isWGS is WGS projection?
    * @returns new tiles
    */
-  _lod(e, r, t, n, o) {
+  _lod(e, o, t, i, n) {
     let a = [];
-    const c = Kt(this, e, r, t, n);
-    if (c === ce.create)
-      a = Gt(this, o), this._toLoad = !1;
-    else if (c === ce.remove) {
-      const l = this.parent;
-      l?.isTile && (l._toLoad = !0);
+    const c = fo(this, e, o, t, i);
+    if (c === ye.create)
+      a = ho(this, n), this._toLoad = !1;
+    else if (c === ye.remove) {
+      const d = this.parent;
+      d?.isTile && (d._toLoad = !0);
     }
     return a;
   }
   /**
-   * load tile data
+   * load data
    * @param loader data loader
-   * @returns update visible of tiles ?
+   * @returns Promise<void>
    */
   _load(e) {
-    return this._needsLoad ? (this._abortController = new AbortController(), this._loadState = "loading", new Promise((r, t) => {
+    return this._needsLoad ? (this._abortController = new AbortController(), this._loadState = "loading", new Promise((o, t) => {
       e.load(
         this,
-        () => r(this._onLoad()),
-        (n) => r(this._onError(n))
+        () => o(this._onLoad()),
+        (i) => o(this._onError(i))
       );
-    })) : Promise.resolve(!1);
+    })) : Promise.resolve();
   }
   /**
    * callback function when error. (include abort)
    * @param err error message
-   * @returns
    */
   _onError(e) {
-    return this._toLoad = !1, e.name === "AbortError" ? (console.assert(this._loadState === "empty"), console.log(e.message)) : (this._loadState = "loaded", console.error(e.message || e.type || e)), !1;
+    this._toLoad = !1, e.name === "AbortError" ? console.assert(this._loadState === "empty") : (this._loadState = "loaded", console.error(e.message || e.type || e));
   }
   /**
-   * recursion tile tree to find loaded parent (hide when parent showing)
+   * Recursion to find loaded parent (hide when parent showing)
    * @returns loaded parent or null
    */
-  hasLoadedParent() {
+  _getLoadedParent() {
     const e = this.parent;
-    return !e || !e.isTile ? null : e.loadState === "loaded" ? e : e.hasLoadedParent();
+    return !e || !e.isTile ? null : e.loadState === "loaded" && !e._isTemp ? e : e._getLoadedParent();
+  }
+  _checkVisible() {
+    const e = [];
+    this.traverse((t) => e.push(t));
+    const o = !e.filter((t) => t.isLeafInFrustum).some((t) => t.loadState != "loaded");
+    return o && e.forEach((t) => {
+      t.isLeaf ? t.isTemp = !1 : t.dispose(!1);
+    }), o;
   }
   /**
-   * callback function on loaded
+   * tile loaded callback
    */
   _onLoad() {
-    if (this.loadState === "empty")
-      return !1;
-    if (!this.inFrustum)
-      debugger;
-    return this._loadState = "loaded", this._updateZ(), this.material.forEach((e) => {
+    this._loadState = "loaded", this.material.forEach((e) => {
       "wireframe" in e && (e.userData.wireframe = e.wireframe);
-    }), this.isLeaf ? this.isTemp = this.hasLoadedParent() != null : this._toLoad ? (this.isTemp = !1, this.children.forEach((e) => e.dispose(!0)), this.clear()) : this.dispose(!1), this._toLoad = !1, !0;
+    }), this._updateHeight(), !this.isLeaf && this._toLoad && (this.children.forEach((e) => e.dispose(!0)), this.clear()), this.isTemp = this._getLoadedParent() != null, this._toLoad = !1, this._getLoadedParent()?._checkVisible();
   }
   // update height
-  _updateZ() {
+  _updateHeight() {
     this.geometry.computeBoundingBox(), this.maxZ = this.geometry.boundingBox?.max.z || 0, this.minZ = this.geometry.boundingBox?.min.z || 0, this.avgZ = (this.maxZ + this.minZ) / 2;
   }
   /**
@@ -265,57 +276,57 @@ class Q extends le {
   }
   /**
    * free the tile
-   * @param removeChildren 是否移除子瓦片
+   * @param removeChildren remove children?
    */
   dispose(e) {
-    return this.loadState != "empty" && this._dispose(), e && (this.children.forEach((r) => {
-      r.dispose(e), r.clear();
+    return this.loadState != "empty" && this._dispose(), e && (this.children.forEach((o) => {
+      o.dispose(e), o.clear();
     }), this.clear()), this;
   }
   _dispose() {
-    this.abortLoad(), this._loadState = "empty", this.isTemp = !0, this.material[0] != oe && (this.material.forEach((e) => e.dispose()), this.material = [oe]), this.geometry != ie && (this.geometry.dispose(), this.geometry.groups = [], this.geometry = ie), this.dispatchEvent({ type: "dispose" });
+    this.abortLoad(), this._loadState = "empty", this.isTemp = !0, this._toLoad = !1, this.material[0] != pe && (this.material.forEach((e) => e.dispose()), this.material = [pe]), this.geometry != me && (this.geometry.dispose(), this.geometry.groups = [], this.geometry = me), this.dispatchEvent({ type: "dispose" });
   }
 }
-const $t = new mt(), Oe = new pt();
-class Ie extends Q {
+const go = new jt(), Xe = new At();
+class yo extends ne {
   _treeReadyCount = 0;
   _autoLoad = !0;
   _loader;
   _minLevel = 0;
   /**
-   * Get the map minLevel
+   * Get minLevel of the map
    */
   get minLevel() {
     return this._minLevel;
   }
   /**
-   * Set the map minLevel,
+   * Set minLevel of the map,
    */
   set minLevel(e) {
     this._minLevel = e;
   }
   _maxLevel = 19;
   /**
-   * Get the map maxLevel
+   * Get maxLevel of the map
    */
   get maxLevel() {
     return this._maxLevel;
   }
   /**
-   * Set the map maxLevel
+   * Set  maxLevel of the map
    */
   set maxLevel(e) {
     this._maxLevel = e;
   }
   _LODThreshold = 1;
   /**
-   * Get the map LOD threshold
+   * Get LOD threshold
    */
   get LODThreshold() {
     return this._LODThreshold;
   }
   /**
-   * Set the map LOD threshold
+   * Set LOD threshold
    */
   set LODThreshold(e) {
     this._LODThreshold = e;
@@ -325,13 +336,13 @@ class Ie extends Q {
    */
   isWGS = !1;
   /**
-   * Get the tile loader
+   * Get tile loader
    */
   get loader() {
     return this._loader;
   }
   /**
-   * Set the tile loader
+   * Set tile loader
    */
   set loader(e) {
     this._loader = e;
@@ -344,337 +355,140 @@ class Ie extends Q {
   }
   /**
    * Set whether allow tile data to update, default true.
-   * true: auto load data on the scene update every frame it is rendered.
-   * false: only update quad tree on render.
+   * true: load data on the scene update every frame it is rendered.
+   * false: do not load data, only update tile true.
    */
   set autoLoad(e) {
     this._autoLoad = e;
   }
   _vierwerBufferSize = 0.6;
   // tile bounds, used to decide the tile in frustum, it greater than tile size to cache
-  _tileBox = new Ee(
-    new p(-this.viewerbufferSize, -this.viewerbufferSize, 0),
-    new p(this.viewerbufferSize, this.viewerbufferSize, 10)
+  _tileBox = new Ye(
+    new m(-this.viewerbufferSize, -this.viewerbufferSize, 0),
+    new m(this.viewerbufferSize, this.viewerbufferSize, 10)
   );
   /**
-   * Get the renderer cache size scale. (0.5-2.5，default: 0.6)
+   * Get renderer cache size scale. (0.5-2.5，default: 0.6)
    */
   get viewerbufferSize() {
     return this._vierwerBufferSize;
   }
   /**
-   * Get the renderer cache size. (0.5-2.5，default: 0.6)
+   * Get renderer cache size. (0.5-2.5，default: 0.6)
    */
   set viewerbufferSize(e) {
-    this._vierwerBufferSize = Math.min(Math.max(e, 0.5), 2.5), this._tileBox = new Ee(
-      new p(-this.viewerbufferSize, -this.viewerbufferSize, 0),
-      new p(this.viewerbufferSize, this.viewerbufferSize, 9)
+    this._vierwerBufferSize = Math.min(Math.max(e, 0.5), 2.5), this._tileBox = new Ye(
+      new m(-this.viewerbufferSize, -this.viewerbufferSize, 0),
+      new m(this.viewerbufferSize, this.viewerbufferSize, 9)
     );
   }
   /**
-   * constructor
+   * Constructor
    * @param loader tile data loader
    * @param level tile level, default:0
    * @param x tile X-coordinate, default:0
    * @param y tile y-coordinate, default:0
    */
-  constructor(e, r = 0, t = 0, n = 0) {
-    super(r, t, n), this._loader = e, this.matrixAutoUpdate = !0, this.matrixWorldAutoUpdate = !0;
+  constructor(e, o = 0, t = 0, i = 0) {
+    super(o, t, i), this._loader = e, this.matrixAutoUpdate = !0, this.matrixWorldAutoUpdate = !0;
   }
   /**
-   * update the quadTree and tile data
+   * Update tile tree and tile data. It needs called on the scene update every frame.
    * @param camera
    */
   update(e) {
-    return this._updateTileTree(e) ? this._treeReadyCount = 0 : this._treeReadyCount = Math.min(this._treeReadyCount + 1, 100), this.autoLoad && this._treeReadyCount > 2 && this._updateTileData(), this;
+    return this._updateTileTree(e) ? this._treeReadyCount = 0 : this._treeReadyCount = Math.min(this._treeReadyCount + 1, 100), this.autoLoad && this._treeReadyCount > 10 && this._updateTileData(), this;
   }
   /**
-   * reload data, Called to take effect after source is modified
+   * Reload data, Called to take effect after source has changed
    */
   reload() {
     return this.dispose(!0), this;
   }
   /**
-   * update the tile tree use LOD
-   * @param cameraWorldPosition positon of the camera
+   * Update tile tree use LOD
+   * @param camera  camera
    * @returns  the tile tree has changed
    */
   _updateTileTree(e) {
-    let r = !1;
-    return Oe.setFromProjectionMatrix($t.multiplyMatrices(e.projectionMatrix, e.matrixWorldInverse)), this.traverse((t) => {
+    let o = !1;
+    return Xe.setFromProjectionMatrix(go.multiplyMatrices(e.projectionMatrix, e.matrixWorldInverse)), this.traverse((t) => {
       if (t.isTile) {
-        t.geometry.computeBoundingBox(), t.geometry.computeBoundingSphere(), t.inFrustum = Oe.intersectsBox(this._tileBox.clone().applyMatrix4(t.matrixWorld));
-        const n = t._lod(e, this.minLevel, this.maxLevel, this.LODThreshold, this.isWGS);
-        n.forEach((o) => {
-          this.dispatchEvent({ type: "tile-created", tile: o });
-        }), n.length > 0 && (r = !0);
+        t.geometry.computeBoundingBox(), t.geometry.computeBoundingSphere(), t.inFrustum = Xe.intersectsBox(this._tileBox.clone().applyMatrix4(t.matrixWorld));
+        const i = t._lod(e, this.minLevel, this.maxLevel, this.LODThreshold, this.isWGS);
+        i.forEach((n) => {
+          this.dispatchEvent({ type: "tile-created", tile: n });
+        }), i.length > 0 && (o = !0);
       }
-    }), r;
+    }), o;
   }
   /**
-   *  update tileTree data.
-   *  traverse the tiles to load data and update tiles visible.
+   *  Update tileTree data
    */
   _updateTileData() {
     return this.traverse((e) => {
-      e.isTile && e._load(this.loader).then((r) => {
-        r && (this._updateVisible() && (this.dispatchEvent({ type: "loaded", tile: e }), console.log("ok")), this._updateVisibleZ()), this.dispatchEvent({ type: "tile-loaded", tile: e });
+      e.isTile && e._load(this.loader).then(() => {
+        e.loadState === "loaded" && (this._updateVisibleHight(), this.dispatchEvent({ type: "tile-loaded", tile: e }));
       });
     }), this;
   }
   /**
-   * update the tile visible when tile loaded
-   * @returns all of tile has loaded?
+   * Update height of tiles in view
    */
-  _updateVisible() {
-    const e = (r) => {
-      if (!r.inFrustum)
-        return !0;
-      if (r.isLeaf)
-        return r.loadState === "loaded";
-      const t = r.children.every((n) => e(n));
-      return t && r.children.forEach((n) => {
-        n.inFrustum && (n.isLeaf ? n.isTemp = !1 : n.dispose(!1));
-      }), t;
-    };
-    return e(this);
-  }
-  /**
-   * update the tiles height
-   */
-  _updateVisibleZ() {
-    let e = 0, r = 0;
+  _updateVisibleHight() {
+    let e = 0, o = 0;
     this.maxZ = 0, this.minZ = 9e3, this.traverse((t) => {
-      t.isTile && t.isLeafInFrustum && t.loadState === "loaded" && (this.maxZ = Math.max(this.maxZ, t.maxZ), this.minZ = Math.min(this.minZ, t.minZ), e += t.avgZ, r++);
-    }), r > 0 && (this.avgZ = e / r);
+      t.isTile && t.isLeafInFrustum && t.loadState === "loaded" && (this.maxZ = Math.max(this.maxZ, t.maxZ), this.minZ = Math.min(this.minZ, t.minZ), e += t.avgZ, o++);
+    }), o > 0 && (this.avgZ = e / o);
   }
 }
-const Vt = `\r
-// #define LAMBERT\r
-\r
-uniform vec3 diffuse;\r
-uniform vec3 emissive;\r
-uniform float opacity;\r
-\r
-uniform sampler2D map;\r
-uniform sampler2D map1;\r
-\r
-varying vec2 vUv;\r
-\r
-#include <common>\r
-#include <packing>\r
-#include <dithering_pars_fragment>\r
-#include <color_pars_fragment>\r
-#include <uv_pars_fragment>\r
-#include <map_pars_fragment>\r
-#include <alphamap_pars_fragment>\r
-#include <alphatest_pars_fragment>\r
-#include <aomap_pars_fragment>\r
-#include <lightmap_pars_fragment>\r
-#include <emissivemap_pars_fragment>\r
-#include <envmap_common_pars_fragment>\r
-#include <envmap_pars_fragment>\r
-#include <fog_pars_fragment>\r
-#include <bsdfs>\r
-#include <lights_pars_begin>\r
-#include <normal_pars_fragment>\r
-#include <lights_lambert_pars_fragment>\r
-#include <shadowmap_pars_fragment>\r
-#include <bumpmap_pars_fragment>\r
-#include <normalmap_pars_fragment>\r
-#include <specularmap_pars_fragment>\r
-#include <logdepthbuf_pars_fragment>\r
-#include <clipping_planes_pars_fragment>\r
-\r
-void main() {\r
-\r
-	#include <clipping_planes_fragment>\r
-\r
-	vec4 diffuseColor = vec4( diffuse, opacity );\r
-	ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );\r
-	vec3 totalEmissiveRadiance = emissive;\r
-\r
-	#include <logdepthbuf_fragment>\r
-	#include <map_fragment>\r
-	#include <color_fragment>\r
-	#include <alphamap_fragment>\r
-	\r
-	\r
-	#include <alphatest_fragment>\r
-	#include <specularmap_fragment>\r
-	#include <normal_fragment_begin>\r
-	#include <normal_fragment_maps>\r
-	#include <emissivemap_fragment>\r
-\r
-\r
-	// 增加多图层混合\r
-    diffuseColor *= texture2D( map, vUv );\r
-	vec4 map1Color = texture2D(map1, vUv);\r
-	diffuseColor.rgb = diffuseColor.rgb * (1.0 - map1Color.a) + map1Color.rgb * map1Color.a;\r
-    diffuseColor.a = opacity;\r
-    \r
-	// 未加载纹理图片时显示白色（网格）\r
-	vec2 size = vec2(textureSize(map, 0));\r
-	if(size.x<2.0){\r
-		diffuseColor = vec4(1.0, 1.0, 1.0, 0.3);		\r
-	}\r
-\r
-	// accumulation\r
-	#include <lights_lambert_fragment>\r
-	#include <lights_fragment_begin>\r
-	#include <lights_fragment_maps>\r
-	#include <lights_fragment_end>\r
-\r
-	// modulation\r
-	// #include <aomap_fragment>\r
-\r
-\r
-\r
-	vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;\r
-\r
-	#include <envmap_fragment>\r
-	#include <output_fragment>\r
-	#include <tonemapping_fragment>\r
-	#include <encodings_fragment>\r
-	#include <fog_fragment>\r
-	#include <premultiplied_alpha_fragment>\r
-	#include <dithering_fragment>\r
-\r
-}`, Xt = `\r
-#define LAMBERT\r
-\r
-varying vec3 vViewPosition;\r
-varying vec2 vUv;\r
-\r
-#include <common>\r
-#include <uv_pars_vertex>\r
-#include <displacementmap_pars_vertex>\r
-#include <envmap_pars_vertex>\r
-#include <color_pars_vertex>\r
-#include <fog_pars_vertex>\r
-#include <normal_pars_vertex>\r
-#include <morphtarget_pars_vertex>\r
-#include <skinning_pars_vertex>\r
-#include <shadowmap_pars_vertex>\r
-#include <logdepthbuf_pars_vertex>\r
-#include <clipping_planes_pars_vertex>\r
-\r
-void main() {\r
-\r
-	#include <uv_vertex>\r
-\r
-	vUv = vec3( uv, 1 ).xy;\r
-\r
-	#include <color_vertex>\r
-	#include <morphcolor_vertex>\r
-\r
-	#include <beginnormal_vertex>\r
-	#include <morphnormal_vertex>\r
-	#include <skinbase_vertex>\r
-	#include <skinnormal_vertex>\r
-	#include <defaultnormal_vertex>\r
-	#include <normal_vertex>\r
-\r
-	#include <begin_vertex>\r
-	#include <morphtarget_vertex>\r
-	#include <skinning_vertex>\r
-	#include <displacementmap_vertex>\r
-\r
-	// 增加dem数据\r
-	#ifdef USE_DISPLACEMENTMAP\r
-		vec4 heightColor = texture2D(displacementMap, vUv);\r
-		// mapBox高程\r
-		float h = ((heightColor.r * 255.0 * 65536.0 + heightColor.g * 255.0 * 256.0 + heightColor.b * 255.0) * 0.1)*heightColor.a - 10000.0;\r
-		transformed += normalize( objectNormal ) * h / 1000.0;\r
-	#endif\r
-\r
-\r
-	#include <project_vertex>\r
-	#include <logdepthbuf_vertex>\r
-	#include <clipping_planes_vertex>\r
-\r
-	vViewPosition = - mvPosition.xyz;\r
-\r
-	#include <worldpos_vertex>\r
-	#include <envmap_vertex>\r
-	#include <shadowmap_vertex>\r
-	#include <fog_vertex>\r
-\r
-}`;
-class Ur extends Fe {
-  constructor(e) {
-    super({
-      uniforms: Ue.merge([
-        ft.lambert.uniforms,
-        {
-          map1: { value: null },
-          diffuse: { value: new X(16777215) }
-        }
-      ]),
-      vertexShader: Xt,
-      fragmentShader: Vt,
-      lights: !0,
-      transparent: e.transparent || !0,
-      wireframe: e.wireframe || !1,
-      fog: !0
-    }), this.uniforms.map.value = e.map, this.uniforms.map1.value = e.map1, this.defineProperty("map1"), this.defineProperty("diffuse"), this.defineProperty("opacity");
-  }
-  dispose() {
-    this.uniforms.map.value?.dispose(), this.uniforms.map1.value?.dispose(), super.dispose();
-  }
-  defineProperty(e) {
-    Object.defineProperty(this, e, {
-      get: function() {
-        return this.uniforms[e].value;
-      },
-      set: function(r) {
-        this.uniforms[e].value = r;
-      }
-    });
+class bo extends Dt {
+  constructor(e = { transparent: !0, side: It }) {
+    super(e);
   }
 }
-class Zr extends Z {
-  build(e, r) {
-    this.dispose(), this.copy(new Z(1, 1, r - 1, r - 1));
+class us extends G {
+  build(e, o) {
+    this.dispose(), this.copy(new G(1, 1, o - 1, o - 1));
     const t = this.getAttribute("position");
-    for (let n = 0; n < t.count; n++)
-      t.setZ(n, e[n]);
+    for (let i = 0; i < t.count; i++)
+      t.setZ(i, e[i]);
   }
-  setData(e, r) {
-    if (e.length != r * r)
+  setData(e, o) {
+    if (e.length != o * o)
       throw "DEM array size error!";
-    return this.build(e, r), this.computeBoundingBox(), this.computeBoundingSphere(), this.computeVertexNormals(), this;
+    return this.build(e, o), this.computeBoundingBox(), this.computeBoundingSphere(), this.computeVertexNormals(), this;
   }
 }
-class qt extends Z {
+class wo extends G {
   _min = 1 / 0;
   /**
    * buile
    * @param dem 2d array of dem
    * @param tileSize tile size
    */
-  build(e, r) {
+  build(e, o) {
     this.dispose();
-    const t = 1, n = 1, o = r - 1, a = r - 1, c = t / 2, l = n / 2;
-    let h = Math.floor(o), d = Math.floor(a);
-    const L = t / h, v = n / d;
-    h += 2, d += 2;
-    const f = h + 1, M = d + 1, T = [], A = [], C = [], j = [];
-    let O = 0;
+    const t = 1, i = 1, n = o - 1, a = o - 1, c = t / 2, d = i / 2;
+    let h = Math.floor(n), u = Math.floor(a);
+    const v = t / h, w = i / u;
+    h += 2, u += 2;
+    const b = h + 1, M = u + 1, E = [], O = [], C = [], z = [];
+    let A = 0;
     this._min = Math.min(...Array.from(e));
-    for (let g = 0; g < M; g++)
-      for (let m = 0; m < f; m++) {
-        let P = (m - 1) * L - c, R = (g - 1) * v - l, D = (m - 1) / (h - 2), S = 1 - (g - 1) / (d - 2);
-        P = H.clamp(P, -0.5, 0.5), R = H.clamp(R, -0.5, 0.5), D = H.clamp(D, 0, 1), S = H.clamp(S, 0, 1);
-        let F = 0;
-        g === 0 || g === M - 1 || m === 0 || m === f - 1 ? F = this._min - 0.1 : (F = e[O], O++), A.push(P, -R, F), C.push(0, 0, 1), j.push(D, S);
+    for (let x = 0; x < M; x++)
+      for (let y = 0; y < b; y++) {
+        let D = (y - 1) * v - c, g = (x - 1) * w - d, j = (y - 1) / (h - 2), I = 1 - (x - 1) / (u - 2);
+        D = H.clamp(D, -0.5, 0.5), g = H.clamp(g, -0.5, 0.5), j = H.clamp(j, 0, 1), I = H.clamp(I, 0, 1);
+        let X = 0;
+        x === 0 || x === M - 1 || y === 0 || y === b - 1 ? X = this._min - 0.1 : (X = e[A], A++), O.push(D, -g, X), C.push(0, 0, 1), z.push(j, I);
       }
-    for (let g = 0; g < d; g++)
-      for (let m = 0; m < h; m++) {
-        const P = m + f * g, R = m + f * (g + 1), D = m + 1 + f * (g + 1), S = m + 1 + f * g;
-        T.push(P, R, S), T.push(R, D, S);
+    for (let x = 0; x < u; x++)
+      for (let y = 0; y < h; y++) {
+        const D = y + b * x, g = y + b * (x + 1), j = y + 1 + b * (x + 1), I = y + 1 + b * x;
+        E.push(D, g, I), E.push(g, j, I);
       }
-    return this.setIndex(T), this.setAttribute("position", new ne(A, 3)), this.setAttribute("normal", new ne(C, 3)), this.setAttribute("uv", new ne(j, 2)), this;
+    return this.setIndex(E), this.setAttribute("position", new ue(O, 3)), this.setAttribute("normal", new ue(C, 3)), this.setAttribute("uv", new ue(z, 2)), this;
   }
   /**
    * set the tile dem data
@@ -682,39 +496,39 @@ class qt extends Z {
    * @param tileSize dem size
    * @returns this
    */
-  setData(e, r) {
-    if (e.length != r * r)
+  setData(e, o) {
+    if (e.length != o * o)
       throw "DEM array size error!";
-    return this.build(e, r), this.computeBoundingBox(), this.computeBoundingSphere(), this.computeVertexNormals(), this;
+    return this.build(e, o), this.computeBoundingBox(), this.computeBoundingSphere(), this.computeVertexNormals(), this;
   }
   // set normal on edge(skirt)
   // 瓦片边缘法向量计算比较复杂，需要根据相邻瓦片高程计算，暂未实现
   // 考虑使用Mapbox Terrain-DEM v1格式地形 https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-dem-v1/
   computeVertexNormals() {
     super.computeVertexNormals();
-    const e = this.index, r = this.getAttribute("position"), t = this.getAttribute("normal"), n = new p(), o = new p(), a = new p(), c = new p(0, 0, 1);
-    function l(h) {
+    const e = this.index, o = this.getAttribute("position"), t = this.getAttribute("normal"), i = new m(), n = new m(), a = new m(), c = new m(0, 0, 1);
+    function d(h) {
       return t.setXYZ(h, c.x, c.y, c.z);
     }
     if (e)
-      for (let h = 0, d = e.count; h < d; h += 3) {
-        const L = e.getX(h + 0), v = e.getX(h + 1), f = e.getX(h + 2);
-        n.fromBufferAttribute(r, L), o.fromBufferAttribute(r, v), a.fromBufferAttribute(r, f), (n.z < this._min || o.z < this._min || a.z < this._min) && (l(L), l(v), l(f));
+      for (let h = 0, u = e.count; h < u; h += 3) {
+        const v = e.getX(h + 0), w = e.getX(h + 1), b = e.getX(h + 2);
+        i.fromBufferAttribute(o, v), n.fromBufferAttribute(o, w), a.fromBufferAttribute(o, b), (i.z < this._min || n.z < this._min || a.z < this._min) && (d(v), d(w), d(b));
       }
     t.needsUpdate = !0;
   }
 }
-class V {
+class ie {
   static enabled = !0;
   static size = 500;
   static files = /* @__PURE__ */ new Map();
-  static add(e, r) {
+  static add(e, o) {
     if (!this.enabled || this.files.has(e))
       return;
-    this.files.set(e, r);
-    const t = Array.from(this.files.keys()), n = this.files.size - this.size;
-    for (let o = 0; o < n; o++)
-      this.remove(t[o]);
+    this.files.set(e, o);
+    const t = Array.from(this.files.keys()), i = this.files.size - this.size;
+    for (let n = 0; n < i; n++)
+      this.remove(t[n]);
     console.assert(this.files.size <= this.size);
   }
   static get(e) {
@@ -728,26 +542,26 @@ class V {
     this.files.clear();
   }
 }
-class Qt extends Error {
+class xo extends Error {
   response;
-  constructor(e, r) {
-    super(e), this.response = r;
+  constructor(e, o) {
+    super(e), this.response = o;
   }
 }
-class Jt extends q {
+class To extends re {
   mimeType;
   responseType;
   constructor(e) {
     super(e);
   }
-  load(e, r, t, n, o) {
+  load(e, o, t, i, n) {
     this.path !== void 0 && (e = this.path + e), e = this.manager.resolveURL(e);
-    const a = V.get(e);
+    const a = ie.get(e);
     if (a)
       return this.manager.itemStart(e), setTimeout(() => {
-        r && r(a), this.manager.itemEnd(e);
+        o && o(a), this.manager.itemEnd(e);
       }), a;
-    if (o?.aborted) {
+    if (n?.aborted) {
       console.log("aborted befor load");
       return;
     }
@@ -755,37 +569,37 @@ class Jt extends q {
       headers: new Headers(this.requestHeader),
       credentials: this.withCredentials ? "include" : "same-origin",
       // An abort controller could be added within a future PR
-      signal: o
-    }), l = this.mimeType, h = this.responseType;
-    fetch(c).then((d) => {
-      if (d.status === 200 || d.status === 0)
-        return d.status === 0 && console.warn("THREE.FileLoader: HTTP Status 0 received."), d;
-      throw new Qt(
-        `fetch for "${d.url}" responded with ${d.status}: ${d.statusText}`,
-        d
+      signal: n
+    }), d = this.mimeType, h = this.responseType;
+    fetch(c).then((u) => {
+      if (u.status === 200 || u.status === 0)
+        return u.status === 0 && console.warn("THREE.FileLoader: HTTP Status 0 received."), u;
+      throw new xo(
+        `fetch for "${u.url}" responded with ${u.status}: ${u.statusText}`,
+        u
       );
-    }).then((d) => {
+    }).then((u) => {
       switch (h) {
         case "arraybuffer":
-          return d.arrayBuffer();
+          return u.arrayBuffer();
         case "blob":
-          return d.blob();
+          return u.blob();
         case "document":
-          return d.text().then((L) => new DOMParser().parseFromString(L, l));
+          return u.text().then((v) => new DOMParser().parseFromString(v, d));
         case "json":
-          return d.json();
+          return u.json();
         default:
-          if (l === void 0)
-            return d.text();
+          if (d === void 0)
+            return u.text();
           {
-            const v = /charset="?([^;"\s]*)"?/i.exec(l), f = v && v[1] ? v[1].toLowerCase() : void 0, M = new TextDecoder(f);
-            return d.arrayBuffer().then((T) => M.decode(T));
+            const w = /charset="?([^;"\s]*)"?/i.exec(d), b = w && w[1] ? w[1].toLowerCase() : void 0, M = new TextDecoder(b);
+            return u.arrayBuffer().then((E) => M.decode(E));
           }
       }
-    }).then((d) => {
-      V.add(e, d), r && r(d);
-    }).catch((d) => {
-      n && n(d), d.name != "AbortError" && this.manager.itemError(e);
+    }).then((u) => {
+      ie.add(e, u), o && o(u);
+    }).catch((u) => {
+      i && i(u), u.name != "AbortError" && this.manager.itemError(e);
     }).finally(() => {
       this.manager.itemEnd(e);
     }), this.manager.itemStart(e);
@@ -797,52 +611,51 @@ class Jt extends q {
     return this.mimeType = e, this;
   }
 }
-class _ {
-  static manager = new gt();
+const L = {
+  manager: new Ot(),
   // dict of dem loader
-  static demLoaderMap = /* @__PURE__ */ new Map();
+  demLoaderMap: /* @__PURE__ */ new Map(),
   // dict of img loader
-  static imgLoaderMap = /* @__PURE__ */ new Map();
+  imgLoaderMap: /* @__PURE__ */ new Map(),
   /**
    * register material loader
    * @param loader material loader
    */
-  static registerMaterialLoader(e) {
-    _.imgLoaderMap.set(e.dataType, e), console.log(`* Register imageLoader: ${e.dataType}`);
-  }
+  registerMaterialLoader(r) {
+    L.imgLoaderMap.set(r.dataType, r), console.log(`* Register imageLoader: ${r.dataType}`);
+  },
   /**
    * register geometry loader
    * @param loader geometry loader
    */
-  static registerGeometryLoader(e) {
-    _.demLoaderMap.set(e.dataType, e), console.log(`* Register terrainLoader: ${e.dataType}`);
-  }
+  registerGeometryLoader(r) {
+    L.demLoaderMap.set(r.dataType, r), console.log(`* Register terrainLoader: ${r.dataType}`);
+  },
   /**
    * get material loader from datasource
    * @param source datasource
    * @returns material loader
    */
-  static getMaterialLoader(e) {
-    const r = _.imgLoaderMap.get(e.dataType);
-    if (r)
-      return r;
-    throw `Source dataType "${e.dataType}" is not support!`;
-  }
+  getMaterialLoader(r) {
+    const e = L.imgLoaderMap.get(r.dataType);
+    if (e)
+      return e;
+    throw `Source dataType "${r.dataType}" is not support!`;
+  },
   /**
    * get geometry loader from datasource
    * @param source datasouce
    * @returns geometry loader
    */
-  static getGeometryLoader(e) {
-    const r = _.demLoaderMap.get(e.dataType);
-    if (r)
-      return r;
-    throw `Source dataType "${e.dataType}" is not support!`;
+  getGeometryLoader(r) {
+    const e = L.demLoaderMap.get(r.dataType);
+    if (e)
+      return e;
+    throw `Source dataType "${r.dataType}" is not support!`;
   }
-}
-const er = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-class Ye extends q {
-  loader = new Jt(_.manager);
+}, Lo = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+class st extends re {
+  loader = new To(L.manager);
   constructor(e) {
     super(e), this.loader.setResponseType("blob");
   }
@@ -855,142 +668,71 @@ class Ye extends q {
    * @param abortSignal signal of abort loading
    * @returns image
    */
-  load(e, r, t, n, o) {
-    const a = new Image(), c = (d) => {
-      h(), r && r(a);
-    }, l = (d) => {
-      h(), n && n(d), a.src = er;
+  load(e, o, t, i, n) {
+    const a = new Image(), c = (u) => {
+      h(), o && o(a);
+    }, d = (u) => {
+      h(), i && i(u), a.src = Lo;
     }, h = () => {
-      a.removeEventListener("load", c, !1), a.removeEventListener("error", l, !1);
+      a.removeEventListener("load", c, !1), a.removeEventListener("error", d, !1);
     };
-    return a.addEventListener("load", c, !1), a.addEventListener("error", l, !1), this.crossOrigin, this.requestHeader, this.loader.load(
+    return a.addEventListener("load", c, !1), a.addEventListener("error", d, !1), this.crossOrigin, this.requestHeader, this.loader.load(
       e,
-      (d) => {
-        r && (a.src = URL.createObjectURL(d));
+      (u) => {
+        o && (a.src = URL.createObjectURL(u));
       },
       t,
-      n,
-      o
+      i,
+      n
     ), a;
   }
 }
-function We(s, e) {
-  s.translate(new x(0.5, 0.5));
-  const r = Math.floor(s.min.x * e), t = Math.floor(s.min.y * e), n = Math.floor((s.max.x - s.min.x) * e), o = Math.floor((s.max.y - s.min.y) * e);
-  return { sx: r, sy: t, sw: n, sh: o };
+function it(r, e) {
+  r.translate(new T(0.5, 0.5));
+  const o = Math.floor(r.min.x * e), t = Math.floor(r.min.y * e), i = Math.floor((r.max.x - r.min.x) * e), n = Math.floor((r.max.y - r.min.y) * e);
+  return { sx: o, sy: t, sw: i, sh: n };
 }
-function Br(s, e) {
-  if (s.width <= e)
-    return s;
-  const r = document.createElement("canvas"), t = r.getContext("2d");
-  r.width = e, r.height = e;
-  const n = e - 2;
-  t.drawImage(s, 0, 0, s.width, s.height, 1, 1, n, n);
-  const o = t.getImageData(1, 1, n, n);
-  return t.putImageData(o, 0, 0), r;
+function ms(r, e) {
+  if (r.width <= e)
+    return r;
+  const o = document.createElement("canvas"), t = o.getContext("2d");
+  o.width = e, o.height = e;
+  const i = e - 2;
+  t.drawImage(r, 0, 0, r.width, r.height, 1, 1, i, i);
+  const n = t.getImageData(1, 1, i, i);
+  return t.putImageData(n, 0, 0), o;
 }
-function He(s, e) {
-  if (e.coord.z <= s.maxLevel)
+function rt(r, e) {
+  if (e.coord.z <= r.maxLevel)
     return {
-      url: s.getTileUrl(e.coord.x, e.coord.y, e.coord.z),
-      rect: new Ae(new x(-0.5, -0.5), new x(0.5, 0.5))
+      url: r.getTileUrl(e.coord.x, e.coord.y, e.coord.z),
+      rect: new Ge(new T(-0.5, -0.5), new T(0.5, 0.5))
     };
-  function r(o, a) {
-    const c = new p(), l = new x(1, 1);
-    for (; o.coord.z > a && (c.applyMatrix4(o.matrix), l.multiplyScalar(0.5), o.parent instanceof Q); )
-      o = o.parent;
+  function o(n, a) {
+    const c = new m(), d = new T(1, 1);
+    for (; n.coord.z > a && (c.applyMatrix4(n.matrix), d.multiplyScalar(0.5), n.parent instanceof ne); )
+      n = n.parent;
     c.setY(-c.y);
-    const h = new Ae().setFromCenterAndSize(new x(c.x, c.y), l);
-    return { tile: o, rect: h };
+    const h = new Ge().setFromCenterAndSize(new T(c.x, c.y), d);
+    return { tile: n, rect: h };
   }
-  const t = r(e, s.maxLevel);
-  return { url: s.getTileUrl(
+  const t = o(e, r.maxLevel);
+  return { url: r.getTileUrl(
     t.tile.coord.x,
     t.tile.coord.y,
     t.tile.coord.z
   ), rect: t.rect };
 }
-class w {
-  dataType = "image";
-  attribution = "ThreeTile";
-  minLevel = 0;
-  maxLevel = 19;
-  projection = "3857";
-  url = "";
-  subdomains = [];
-  s = "";
-  colorSpace = "srgb";
-  opacity = 1;
-  bounds = [-180, 85.05112877980659, 180, -85.05112877980659];
-  /**
-   * get url callback function, overwrite it to convt orgin xyz to new xzy
-   */
-  onGetUrl;
-  /**
-   * constructor
-   * @param options
-   */
-  constructor(e) {
-    e && (Object.assign(this, e), e.url instanceof Function ? this.getUrl = e.url : this.url = e.url || "");
-  }
-  /**
-   * get url from tile coordinate, public
-   * @param x
-   * @param y
-   * @param z
-   * @returns url
-   */
-  getTileUrl(e, r, t) {
-    const n = this.subdomains.length;
-    if (n > 0) {
-      const a = Math.floor(Math.random() * n);
-      this.s = this.subdomains[a];
-    }
-    const o = this.onGetUrl ? this.onGetUrl(e, r, t) : { x: e, y: r, z: t };
-    if (o)
-      return this.getUrl(o.x, o.y, o.z);
-  }
-  /**
-   * get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
-   * @param x
-   * @param y
-   * @param z
-   * @returns url
-   */
-  getUrl(e, r, t) {
-    if (this.url) {
-      const n = Object.assign({}, this, { x: e, y: r, z: t });
-      return tr(this.url, n);
-    }
-  }
-  /**
-   * source factory function, create source directly through factoy functions.
-   * @param options
-   * @returns ISource
-   */
-  static create(e) {
-    return new w(e);
-  }
-}
-function tr(s, e) {
-  const r = /\{ *([\w_ -]+) *\}/g;
-  return s.replace(r, (t, n) => {
-    let o = e[n];
-    if (o === void 0)
-      throw new Error(`source url template error, No value provided for variable: ${t}`);
-    return typeof o == "function" && (o = o(e)), o;
-  });
-}
-class rr extends q {
+class vo extends re {
   /** get loader cache size of file  */
   get cacheSize() {
-    return V.size;
+    return ie.size;
   }
   /** set loader cache size of file  */
   set cacheSize(e) {
-    V.size = e;
+    ie.size = e;
   }
-  _imgSource;
+  _imgSource = [];
   /** get image source */
   get imgSource() {
     return this._imgSource;
@@ -1010,11 +752,9 @@ class rr extends q {
   }
   /**
    * constructor
-   * @param imgSource image dataSource
-   * @param demSource dem dataSource
    */
-  constructor(e, r) {
-    super(_.manager), this.imgSource = e || [w.create({ dataType: "test" })], this.demSource = r;
+  constructor() {
+    super(L.manager);
   }
   /**
    * load material and geometry data
@@ -1022,31 +762,31 @@ class rr extends q {
    * @param onLoad callback on data loaded
    * @returns geometry, material(s)
    */
-  load(e, r, t) {
+  load(e, o, t) {
     if (this.imgSource.length === 0)
       throw new Error("imgSource can not be empty");
-    const n = () => {
-      if (o && a) {
-        for (let h = 0; h < l.length; h++)
+    const i = () => {
+      if (n && a) {
+        for (let h = 0; h < d.length; h++)
           c.addGroup(0, 1 / 0, h);
-        r();
+        o();
       }
     };
-    let o = !1, a = !1;
+    let n = !1, a = !1;
     const c = this.loadGeometry(
       e,
       () => {
-        o = !0, n();
+        n = !0, i();
       },
       t
-    ), l = this.loadMaterial(
+    ), d = this.loadMaterial(
       e,
       () => {
-        a = !0, n();
+        a = !0, i();
       },
       t
     );
-    return e.geometry = c, e.material = l, { geometry: c, material: l };
+    return e.geometry = c, e.material = d, { geometry: c, material: d };
   }
   /**
    * load geometry
@@ -1055,9 +795,9 @@ class rr extends q {
    * @param onError error callback
    * @returns geometry
    */
-  loadGeometry(e, r, t) {
-    let n;
-    return this.demSource ? n = _.getGeometryLoader(this.demSource).load(this.demSource, e, r, t) : (n = new Z(), setTimeout(r)), n;
+  loadGeometry(e, o, t) {
+    let i;
+    return this.demSource ? i = L.getGeometryLoader(this.demSource).load(this.demSource, e, o, t) : (i = new G(), setTimeout(o)), i;
   }
   /**
    * load material
@@ -1066,24 +806,25 @@ class rr extends q {
    * @param onError error callback
    * @returns material
    */
-  loadMaterial(e, r, t) {
-    const n = this.imgSource.map((o) => {
-      const c = _.getMaterialLoader(o).load(
-        o,
+  loadMaterial(e, o, t) {
+    const i = this.imgSource.map((n) => {
+      const c = L.getMaterialLoader(n).load(
+        n,
         e,
         () => {
-          c.userData.loaded = !0, n.every((l) => l.userData.loaded) && r();
+          c.userData.loaded = !0, i.every((d) => d.userData.loaded) && o();
         },
         t
       );
       return c;
     });
-    return n;
+    return i;
   }
 }
-const nr = new de();
-class ir {
-  loader = new Ye(_.manager);
+const So = new we(new Image(1, 1));
+class _o {
+  // image loader
+  loader = new st(L.manager);
   /**
    * load the tile texture
    * @param tile tile to load
@@ -1091,60 +832,58 @@ class ir {
    * @param onLoad callback
    * @returns texture
    */
-  load(e, r, t, n) {
-    const { url: o, rect: a } = He(e, r);
-    if (!o)
-      return setTimeout(t), nr;
-    const c = new de(new Image());
-    return c.colorSpace = e.colorSpace, this.loader.load(
-      o,
+  load(e, o, t, i) {
+    const { url: n, rect: a } = rt(e, o);
+    if (!n)
+      return setTimeout(t), So;
+    const c = new we(new Image());
+    return c.colorSpace = Ct, this.loader.load(
+      n,
       // onLoad
-      (l) => {
-        r.coord.z > e.maxLevel ? c.image = or(l, a) : c.image = l, c.needsUpdate = !0, t();
+      (d) => {
+        o.coord.z > e.maxLevel ? c.image = Eo(d, a) : c.image = d, c.needsUpdate = !0, t();
       },
       // onProgress
       void 0,
       // onError
-      n,
-      r.abortSignal
+      i,
+      o.abortSignal
     ), c;
   }
 }
-function or(s, e) {
-  const r = s.width, t = new OffscreenCanvas(r, r), n = t.getContext("2d"), { sx: o, sy: a, sw: c, sh: l } = We(e, s.width);
-  return n.drawImage(s, o, a, c, l, 0, 0, r, r), t;
+function Eo(r, e) {
+  const o = r.width, t = new OffscreenCanvas(o, o), i = t.getContext("2d"), { sx: n, sy: a, sw: c, sh: d } = it(e, r.width);
+  return i.drawImage(r, n, a, c, d, 0, 0, o, o), t;
 }
-class sr {
+class Mo {
   dataType = "image";
-  load(e, r, t, n) {
-    const o = (h) => {
-      const d = h.target;
-      d.map?.image instanceof ImageBitmap && d.map.image.close(), d.map?.dispose(), d.removeEventListener("dispose", o);
+  load(e, o, t, i) {
+    const n = (h) => {
+      const u = h.target;
+      u.map?.image instanceof ImageBitmap && u.map.image.close(), u.map?.dispose(), u.removeEventListener("dispose", n);
     }, a = this.createMaterial();
-    a.opacity = e.opacity, a.addEventListener("dispose", o);
-    const l = new ir().load(
+    a.opacity = e.opacity, a.addEventListener("dispose", n);
+    const d = new _o().load(
       e,
-      r,
+      o,
       () => {
-        a.map = l, l.needsUpdate = !0, t();
+        a.map = d, d.needsUpdate = !0, t();
       },
       (h) => {
-        n(h);
+        i(h);
       }
     );
     return a;
   }
   createMaterial() {
-    return new yt({
-      transparent: !0
-    });
+    return new bo();
   }
 }
-_.registerMaterialLoader(new sr());
-const ar = new vt();
-class cr extends q {
+L.registerMaterialLoader(new Mo());
+const Po = new zt();
+class jo extends re {
   dataType = "terrain-rgb";
-  imageLoader = new Ye(_.manager);
+  imageLoader = new st(L.manager);
   /**
    * load tile's data from source
    * @param source
@@ -1153,85 +892,202 @@ class cr extends q {
    * @param onError
    * @returns
    */
-  load(e, r, t, n) {
-    if (r.coord.z < 8)
-      return setTimeout(t), new Z();
-    const { url: o, rect: a } = He(e, r);
-    return o ? this._load(r, o, a, t, n) : (setTimeout(t), ar);
+  load(e, o, t, i) {
+    if (o.coord.z < 8)
+      return setTimeout(t), new G();
+    const { url: n, rect: a } = rt(e, o);
+    return n ? this._load(o, n, a, t, i) : (setTimeout(t), Po);
   }
-  _load(e, r, t, n, o) {
+  _load(e, o, t, i, n) {
     let a = e.coord.z * 3;
     a = Math.min(Math.max(a, 2), 48);
-    const c = new qt();
+    const c = this.createGeometry();
     return this.imageLoader.load(
-      r,
+      o,
       // onLoad
-      (l) => {
-        const { data: h, size: d } = ur(l, a, t);
-        c.setData(dr(h), d), n();
+      (d) => {
+        const { data: h, size: u } = Io(d, a, t);
+        c.setData(Do(h), u), i();
       },
       // onProgress
       void 0,
       // onError
-      o,
+      n,
       e.abortSignal
     ), c;
   }
+  createGeometry() {
+    return new wo();
+  }
 }
-function lr(s, e) {
-  const r = s[e * 4], t = s[e * 4 + 1], n = s[e * 4 + 2];
-  return (((r << 16) + (t << 8) + n) * 0.1 - 1e4) / 1e3;
+function Ao(r, e) {
+  const o = r[e * 4], t = r[e * 4 + 1], i = r[e * 4 + 2];
+  return (((o << 16) + (t << 8) + i) * 0.1 - 1e4) / 1e3;
 }
-function dr(s) {
-  const e = Math.floor(s.length / 4), r = new Float32Array(e);
-  for (let t = 0; t < r.length; t++)
-    r[t] = lr(s, t);
-  return r;
+function Do(r) {
+  const e = Math.floor(r.length / 4), o = new Float32Array(e);
+  for (let t = 0; t < o.length; t++)
+    o[t] = Ao(r, t);
+  return o;
 }
-function ur(s, e, r) {
-  const n = new OffscreenCanvas(e, e).getContext("2d");
-  n.imageSmoothingEnabled = !1;
-  const o = We(r, s.width);
-  return e > o.sw && (e = o.sw), n.drawImage(s, o.sx, o.sy, o.sw, o.sh, 0, 0, e, e), { data: n.getImageData(0, 0, e, e).data, size: e };
+function Io(r, e, o) {
+  const i = new OffscreenCanvas(e, e).getContext("2d");
+  i.imageSmoothingEnabled = !1;
+  const n = it(o, r.width);
+  return e > n.sw && (e = n.sw), i.drawImage(r, n.sx, n.sy, n.sw, n.sh, 0, 0, e, e), { data: i.getImageData(0, 0, e, e).data, size: e };
 }
-_.registerGeometryLoader(new cr());
-class Y {
-  isWGS = !1;
+L.registerGeometryLoader(new jo());
+class _ {
+  dataType = "image";
+  attribution = "ThreeTile";
+  minLevel = 0;
+  maxLevel = 19;
+  projectionID = "3857";
+  url = "";
+  subdomains = [];
+  s = "";
+  opacity = 1;
+  // public bounds: [number, number, number, number] = [60, 10, 140, 60];
+  bounds = [-180, -85.05112877980659, 180, 85.05112877980659];
   /**
-   * create projection object from projection ID
-   *
-   * @param id projeciton ID, default: "3857"
-   * @returns IProjection instance
+   * constructor
+   * @param options
    */
-  static createFromID(e = "3857") {
-    let r;
-    switch (e) {
-      case "3857":
-        r = new Ke();
-        break;
-      case "4326":
-        r = new hr();
-        break;
+  constructor(e) {
+    Object.assign(this, e);
+  }
+  /**
+   * Get url from tile coordinate, public，called by TileLoader
+   * @param x
+   * @param y
+   * @param z
+   * @returns url
+   */
+  getTileUrl(e, o, t) {
+    const i = this.subdomains.length;
+    if (i > 0) {
+      const n = Math.floor(Math.random() * i);
+      this.s = this.subdomains[n];
     }
-    return r;
+    return this.getUrl(e, o, t);
   }
   /**
-   * create projection object from map source
-   * @param source map source
-   * @returns IProjection instance
+   * Get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
+   * @param x
+   * @param y
+   * @param z
+   * @returns url
    */
-  static createFromSource(e) {
-    let r = "3857";
-    return e && (r = e.projection), Y.createFromID(r);
+  getUrl(e, o, t) {
+    const i = Object.assign({}, this, { x: e, y: o, z: t });
+    return Oo(this.url, i);
+  }
+  /**
+   * source factory function, create source directly through factoy functions.
+   * @param options
+   * @returns ISource
+   */
+  static create(e) {
+    return new _(e);
   }
 }
-const se = 6378;
-class Ke extends Y {
+function Oo(r, e) {
+  const o = /\{ *([\w_ -]+) *\}/g;
+  return r.replace(o, (t, i) => {
+    let n = e[i];
+    if (n === void 0)
+      throw new Error(`source url template error, No value provided for variable: ${t}`);
+    return typeof n == "function" && (n = n(e)), n;
+  });
+}
+class fe extends _ {
+  _source;
+  _projection;
+  get projection() {
+    return this._projection;
+  }
+  set projection(e) {
+    this._projection = e, this._bounds = this.projection.getPorjBounds(this._source.bounds);
+  }
+  _bounds;
+  _getTileBounds(e, o, t, i = 1) {
+    const n = this.projection.getTileXYZproj(e, o, t), a = this.projection.getTileXYZproj(e + i, o + i, t);
+    return {
+      minX: Math.min(n.x, a.x),
+      minY: Math.min(n.y, a.y),
+      maxX: Math.max(n.x, a.x),
+      maxY: Math.max(n.y, a.y)
+    };
+  }
+  constructor(e, o) {
+    super(), Object.assign(this, e), this._source = e, this.projection = o;
+  }
+  getUrl(e, o, t) {
+    const i = Math.pow(2, t);
+    let n = e + Math.round(i / 360 * this.projection.lon0);
+    n >= i ? n -= i : n < 0 && (n += i);
+    const a = 0.9, c = this._bounds, d = this._getTileBounds(n, o, t, a);
+    if (!(d.maxX < c.minX || d.minX > c.maxX || d.maxY < c.minY || d.minY > c.maxY))
+      return this._source.getTileUrl(n, o, t);
+  }
+}
+class nt {
+  _lon0 = 0;
+  /** 中央经线 */
+  get lon0() {
+    return this._lon0;
+  }
+  /**
+   * 构造函数
+   * @param centerLon 中央经线
+   */
+  constructor(e = 0) {
+    this._lon0 = e;
+  }
+  /**
+   * 根据中央经线取得变换后的瓦片X坐标
+   * @param x
+   * @param z
+   * @returns
+   */
+  getTileXWithCenterLon(e, o) {
+    const t = Math.pow(2, o);
+    let i = e + Math.round(t / 360 * this._lon0);
+    return i >= t ? i -= t : i < 0 && (i += t), i;
+  }
+  /**
+   * 根据瓦片坐标计算投影坐标
+   * @param x
+   * @param y
+   * @param z
+   * @returns
+   */
+  getTileXYZproj(e, o, t) {
+    const i = this.mapWidth, n = this.mapHeight / 2, a = e / Math.pow(2, t) * i - i / 2, c = n - o / Math.pow(2, t) * n * 2;
+    return { x: a, y: c };
+  }
+  /**
+   * 取得投影后的经纬度边界坐标
+   * @param bounds 经纬度边界
+   * @returns 投影坐标
+   */
+  getPorjBounds(e) {
+    const o = this.project(e[0] + this.lon0, e[1]), t = this.project(e[2] + this.lon0, e[3]);
+    return {
+      minX: Math.min(o.x, t.x),
+      minY: Math.min(o.y, t.y),
+      maxX: Math.max(o.x, t.x),
+      maxY: Math.max(o.y, t.y)
+    };
+  }
+}
+const Q = 6378;
+class at extends nt {
   ID = "3857";
   // projeciton ID
   isWGS = !1;
   // Is linear projection of latitude and longitude
-  mapWidth = 2 * Math.PI * se;
+  mapWidth = 2 * Math.PI * Q;
   //E-W scacle Earth's circumference(km)
   mapHeight = this.mapWidth;
   //S-N scacle Earth's circumference(km)
@@ -1243,12 +1099,9 @@ class Ke extends Y {
    * @param lat Latitude
    * @returns projected coordinates
    */
-  project(e, r, t) {
-    const n = se;
-    let o = (e - t) * Math.PI / 180 * n;
-    o > this.mapWidth / 2 && (o = o - this.mapWidth);
-    const a = Math.log(Math.tan(Math.PI / 4 + r * Math.PI / 180 / 2)) * n;
-    return { x: o, y: a };
+  project(e, o) {
+    const t = (e - this.lon0) * (Math.PI / 180), i = o * (Math.PI / 180), n = Q * t, a = Q * Math.log(Math.tan(Math.PI / 4 + i / 2));
+    return { x: n, y: a };
   }
   /**
    * Projected coordinates to latitude and longitude
@@ -1256,12 +1109,12 @@ class Ke extends Y {
    * @param y projection y
    * @returns latitude and longitude
    */
-  unProject(e, r, t) {
-    const n = se, o = (e / n / Math.PI * 180 + t + 540) % 360 - 180;
-    return { lat: (Math.atan(Math.exp(r / n)) * 2 - Math.PI / 2) * 180 / Math.PI, lon: o };
+  unProject(e, o) {
+    const t = e / Q * (180 / Math.PI) + this.lon0;
+    return { lat: (2 * Math.atan(Math.exp(o / Q)) - Math.PI / 2) * (180 / Math.PI), lon: t };
   }
 }
-class hr extends Y {
+class Co extends nt {
   ID = "4326";
   isWGS = !0;
   mapWidth = 36e3;
@@ -1270,35 +1123,101 @@ class hr extends Y {
   //S-N scale (*0.01°)
   mapDepth = 1;
   //height scale
-  project(e, r, t) {
-    return { x: (e - t) * 100, y: r * 100 };
+  project(e, o) {
+    return { x: (e - this.lon0) * 100, y: o * 100 };
   }
-  unProject(e, r, t) {
-    return { lon: e / 100 + t, lat: r / 100 };
+  unProject(e, o) {
+    return { lon: e / 100 + this.lon0, lat: o / 100 };
   }
 }
-const mr = new p(0, 0, -1);
-function $e(s, e) {
-  const r = e.intersectObjects([s.rootTile]);
-  for (const t of r)
-    if (t.object instanceof Q) {
-      const n = s.worldToLocal(t.point), o = s.pos2geo(n);
+const Ke = {
+  /**
+   * create projection object from projection ID
+   *
+   * @param id projeciton ID, default: "3857"
+   * @returns IProjection instance
+   */
+  createFromID: (r = "3857", e) => {
+    let o;
+    switch (r) {
+      case "3857":
+        o = new at(e);
+        break;
+      case "4326":
+        o = new Co(e);
+        break;
+      default:
+        throw new Error(`Projection ID: ${r} is not supported.`);
+    }
+    return o;
+  }
+};
+function ct(r, e) {
+  const o = e.intersectObjects([r.rootTile]);
+  for (const t of o)
+    if (t.object instanceof ne) {
+      const i = r.worldToLocal(t.point), n = r.pos2geo(i);
       return Object.assign(t, {
-        location: o
+        location: n
       });
     }
 }
-function ze(s, e) {
-  const r = new p(e.x, e.y, 10), t = new Ze(r, mr);
-  return $e(s, t);
+function $e(r, e) {
+  const o = new m(0, -1, 0), t = new m(e.x, 10, e.z), i = new Je(t, o);
+  return ct(r, i);
 }
-function pr(s, e, r) {
-  const t = new Ze();
-  return t.setFromCamera(r, s), $e(e, t);
+function zo(r, e, o) {
+  const t = new Je();
+  return t.setFromCamera(o, r), ct(e, t);
 }
-class Ve extends le {
+function ko(r) {
+  const e = r.loader.manager;
+  return e.onStart = (o, t, i) => {
+    r.dispatchEvent({
+      type: "loading-start",
+      itemsLoaded: t,
+      itemsTotal: i
+    });
+  }, e.onError = (o) => {
+    r.dispatchEvent({ type: "loading-error", url: o });
+  }, e.onLoad = () => {
+    r.dispatchEvent({ type: "loading-complete" });
+  }, e.onProgress = (o, t, i) => {
+    r.dispatchEvent({
+      type: "loading-progress",
+      url: o,
+      itemsLoaded: t,
+      itemsTotal: i
+    });
+  }, r.rootTile.addEventListener("tile-created", (o) => {
+    r.dispatchEvent({ type: "tile-created", tile: o.tile });
+  }), r.rootTile.addEventListener("tile-loaded", (o) => {
+    r.dispatchEvent({ type: "tile-loaded", tile: o.tile });
+  }), r.rootTile.addEventListener("loaded", () => {
+    r.dispatchEvent({ type: "loaded" });
+  }), r;
+}
+function Ro(r) {
+  let e = 0, o = 0, t = 0, i = 0;
+  return r.rootTile.traverse((n) => {
+    n.isTile && (e++, n.isLeafInFrustum && o++, n.isLeaf && i++, t = Math.max(t, n.coord.z));
+  }), { total: e, visible: o, leaf: i, maxLevle: t };
+}
+function Fo(r) {
+  const e = [];
+  let o = r.imgSource;
+  if (Array.isArray(o) || (o = [o]), o.forEach((t) => {
+    const i = t.attribution;
+    i && e.push(i);
+  }), r.demSource) {
+    const t = r.demSource.attribution;
+    t && e.push(t);
+  }
+  return Array.from(new Set(e));
+}
+class lt extends be {
   // 渲染时钟计时器
-  _clock = new Be();
+  _clock = new et();
   // 是否为LOD模型（LOD模型，当autoUpdate为真时渲染时会自动调用update方法）
   isLOD = !0;
   /**
@@ -1359,20 +1278,20 @@ class Ve extends le {
   set autoLoad(e) {
     this.rootTile.autoLoad = e;
   }
-  _autoAdjustZ = !1;
+  _autoPosition = !1;
   /**
    * Get whether to adjust z of map automatically.
-   * 取得是否自动根据视野内地形高度调整地图Z坐标
+   * 取得是否自动根据视野内地形高度调整地图坐标
    */
-  get autoAdjustZ() {
-    return this._autoAdjustZ;
+  get autoPosition() {
+    return this._autoPosition;
   }
   /**
    * Set whether to adjust z of map automatically.
-   * 设置是否自动调整地图Z坐标，如果设置为true，将在每帧渲染中将地图Z坐标调整可视区域瓦片的平均高度
+   * 设置是否自动调整地图坐标，如果设置为true，将在每帧渲染中将地图坐标调整可视区域瓦片的平均高度
    */
-  set autoAdjustZ(e) {
-    this._autoAdjustZ = e;
+  set autoPosition(e) {
+    this._autoPosition = e;
   }
   /**
    * Get the number of  download cache files.
@@ -1424,22 +1343,21 @@ class Ve extends le {
   get avgZInView() {
     return this.rootTile.avgZ;
   }
-  _centralMeridian = 0;
   /**
    * Get central Meridian latidute
-   * 取得子午线经度
+   * 取得中央子午线经度
    */
-  get centralMeridian() {
-    return this._centralMeridian;
+  get lon0() {
+    return this.projection.lon0;
   }
   /**
    * Set central Meridian latidute, default:0
-   * 设置子午线经度，子午线经度决定了地图的投影中心经度，可设置为-90，0，90
+   * 设置中央子午线经度，中央子午线决定了地图的投影中心经度，可设置为-90，0，90
    */
-  set centralMeridian(e) {
-    e != 0 && this.rootTile.minLevel < 1 && console.warn(`Map centralMeridian is ${this.centralMeridian}, minLevel must > 0`), this._centralMeridian = e, this.reload();
+  set lon0(e) {
+    this.projection.lon0 !== e && (e != 0 && this.rootTile.minLevel < 1 && console.warn(`Map centralMeridian is ${this.lon0}, minLevel must > 0`), this.projection = Ke.createFromID(this.projection.ID, e), this.reload());
   }
-  _projection = new Ke();
+  _projection = new at(0);
   /**
    * Set the map projection object
    * 取得地图投影对象
@@ -1452,38 +1370,45 @@ class Ve extends le {
    * 设置地图投影对象
    */
   set projection(e) {
-    this.rootTile.scale.set(e.mapWidth, e.mapHeight, e.mapDepth), e.ID != this.projection.ID && (this.rootTile.isWGS = e.isWGS, this._projection = e, this.reload(), console.log("Map Projection Changed:", e.ID), this.dispatchEvent({
+    this._projection = e, this.rootTile.scale.set(e.mapWidth, e.mapHeight, e.mapDepth), this.rootTile.isWGS = e.isWGS, this.imgSource.forEach((o) => o.projection = this.projection), this.demSource && (this.demSource.projection = this.projection), e.ID != this.projection.ID && e.lon0 != this.lon0 && (this.reload(), console.log("Map Projection Changed:", e.ID), this.dispatchEvent({
       type: "projection-changed",
       projection: e
     }));
   }
+  _imgSource = [];
   /**
    * Get the image data source object
    * 取得影像数据源
    */
   get imgSource() {
-    return this.loader.imgSource;
+    return this._imgSource;
   }
   /**
    * Set the image data source object
    * 设置影像数据源
    */
   set imgSource(e) {
-    this.loader.imgSource = Array.isArray(e) ? e : [e], this._setMapProjection(), this._setTileCoordConvert(), this.dispatchEvent({ type: "source-changed", source: e });
+    const o = Array.isArray(e) ? e : [e];
+    if (o.length === 0)
+      throw new Error("imgSource can not be empty");
+    this.projection = Ke.createFromID(o[0].projectionID, this.projection.lon0);
+    const t = o.map((i) => i instanceof fe ? i : new fe(i, this.projection));
+    this._imgSource = t, this.loader.imgSource = t, this.dispatchEvent({ type: "source-changed", source: e });
   }
+  _demSource;
   /**
    * Get the terrain data source
    * 设置地形数据源
    */
   get demSource() {
-    return this.loader.demSource;
+    return this._demSource;
   }
   /**
    * Set the terrain data source
    * 取得地形数据源
    */
   set demSource(e) {
-    this.loader.demSource = e, this._setTileCoordConvert(), this.dispatchEvent({ type: "source-changed", source: e });
+    e && (this._demSource = new fe(e, this.projection), this.loader.demSource = this._demSource), this.dispatchEvent({ type: "source-changed", source: e });
   }
   /**
    * Get LOD threshold
@@ -1512,7 +1437,7 @@ class Ve extends le {
              // 高程数据源
              demSource: source.mapBoxDemSource,
              // 地图投影中心经度
-             centralMeridian: 90,
+             lon0: 90,
              // 最小缩放级别
              minLevel: 1,
              // 最大缩放级别
@@ -1521,47 +1446,34 @@ class Ve extends le {
         ```
       */
   static create(e) {
-    let r = e.imgSource;
-    Array.isArray(r) || (r = [r]);
-    const t = new rr(r, e.demSource), n = new Ie(t, 0, 0, 0);
-    return new Ve({
-      loader: t,
-      rootTile: n,
-      centralMeridian: e.centralMeridian,
-      minLevel: e.minLevel,
-      maxLevel: e.maxLevel
-    });
+    return new lt(e);
   }
   /**
    * Map mesh constructor
    *
    * 地图模型构造函数
-   * @param params 地图构造参数 {@link MapContructParams}     *
+   * @param params 地图参数 {@link MapParams}
    * @example
    * ``` typescript
-   *  const imgSource = [Source.mapBoxImgSource, new tt.TestSource()];
-   *  const demSource = Source.mapBoxDemSource;
-   *  const loader = new tt.TileLoader(imgSource, demSource, 2, 18);
-   *  const map = new TileMap({ loader, centralMeridian: 90 });
+  
+    const map = new TileMap({
+    		// 加载器
+  		loader: new TileLoader(),
+             // 影像数据源
+             imgSource: [Source.mapBoxImgSource, new TestSource()],
+             // 高程数据源
+             demSource: source.mapBoxDemSource,
+             // 地图投影中心经度
+             lon0: 90,
+             // 最小缩放级别
+             minLevel: 1,
+             // 最大缩放级别
+             maxLevel: 18,
+         });;
    * ```
    */
   constructor(e) {
-    super(), this.loader = e.loader, this.rootTile = e.rootTile || new Ie(this.loader), this.rootTile.minLevel = e.minLevel || 0, this.rootTile.maxLevel = e.maxLevel || 18, this.projection = Y.createFromSource(this.loader.imgSource[0] || "3857"), this.centralMeridian = e.centralMeridian || 0, this._setTileCoordConvert(), this._attachEvent(), this.add(this.rootTile), this.rootTile.updateMatrix(), this.rootTile.updateMatrixWorld();
-  }
-  _setTileCoordConvert() {
-    const e = this;
-    function r(t, n, o) {
-      const a = Math.pow(2, o);
-      let c = t + Math.round(a / 360 * e.centralMeridian);
-      return c >= a ? c -= a : c < 0 && (c += a), { x: c, y: n, z: o };
-    }
-    this.loader.imgSource.forEach((t) => {
-      t.onGetUrl || (t.onGetUrl = r);
-    }), this.loader.demSource && (this.loader.demSource.onGetUrl = r);
-  }
-  _setMapProjection() {
-    const e = this.loader.imgSource[0].projection;
-    this.projection.ID != e && (this.projection = Y.createFromID(e));
+    super(), this.up.set(0, 0, 1), this.loader = e.loader ?? new vo(), this.rootTile = e.rootTile ?? new yo(this.loader), this.minLevel = e.minLevel ?? 0, this.maxLevel = e.maxLevel ?? 19, this.imgSource = e.imgSource, this.demSource = e.demSource, this.lon0 = e.lon0 ?? 0, ko(this), this.add(this.rootTile), this.rootTile.updateMatrix(), this.rootTile.updateMatrixWorld();
   }
   /**
    * Update the map, It is automatically called after mesh adding a scene
@@ -1569,14 +1481,18 @@ class Ve extends le {
    * @param camera
    */
   update(e) {
-    this.rootTile.receiveShadow = this.receiveShadow, this.rootTile.castShadow = this.castShadow, this.autoAdjustZ && this.position.setZ((this.position.z - this.avgZInView / 100) / 1.03), this.rootTile.update(e), this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
+    if (this.rootTile.receiveShadow = this.receiveShadow, this.rootTile.castShadow = this.castShadow, this.autoPosition) {
+      const o = this.localToWorld(this.up.clone().multiplyScalar(this.avgZInView)), t = this.position.clone().add(o).multiplyScalar(0.01);
+      this.position.sub(t);
+    }
+    this.rootTile.update(e), this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
   }
   /**
    * reload the map data，muse called after the source has changed
    * 重新加载地图，在改变地图数据源后调用它才能生效
    */
   reload() {
-    this.rootTile.dispose(!0), this.position.setZ(0);
+    this.rootTile.dispose(!0);
   }
   /**
    * dispose map.
@@ -1587,41 +1503,24 @@ class Ve extends le {
     this.removeFromParent(), this.reload();
   }
   /**
-   * Get map data attributions information
-   * 取得地图数据归属版权信息
-   * @returns Attributions 版权信息数组
-   */
-  get attributions() {
-    const e = [];
-    let r = this.imgSource;
-    if (Array.isArray(r) || (r = [r]), r.forEach((t) => {
-      const n = t.attribution;
-      n && e.push(n);
-    }), this.demSource) {
-      const t = this.demSource.attribution;
-      t && e.push(t);
-    }
-    return Array.from(new Set(e));
-  }
-  /**
-   * Geo coordinates converted to model coordinates
+   * Geo coordinates converted to map model coordinates
    * 地理坐标转换为地图模型坐标
    * @param geo 地理坐标（经纬度）
    * @returns 模型坐标
    */
   geo2pos(e) {
-    const r = this._projection.project(e.x, e.y, this.centralMeridian);
-    return new p(r.x, r.y, e.z);
+    const o = this.projection.project(e.x, e.y);
+    return new m(o.x, o.y, e.z);
   }
   /**
-   * Model coordinates converted to coordinates geo
-   * 模型坐标转换为地理坐标
+   * Map model coordinates converted to coordinates geo
+   * 地图模型坐标转换为地理坐标
    * @param pos 模型坐标
    * @returns 地理坐标（经纬度）
    */
   pos2geo(e) {
-    const r = this._projection.unProject(e.x, e.y, this.centralMeridian);
-    return new p(r.lon, r.lat, e.z);
+    const o = this.projection.unProject(e.x, e.y);
+    return new m(o.lon, o.lat, e.z);
   }
   /**
    * Get the ground infomation for the specified latitude and longitude
@@ -1630,8 +1529,8 @@ class Ve extends le {
    * @returns 地面信息
    */
   getLocalInfoFromGeo(e) {
-    const r = this.geo2pos(e);
-    return ze(this, r);
+    const o = this.geo2pos(e);
+    return $e(this, o);
   }
   /**
    * Get loacation infomation from world position
@@ -1640,7 +1539,7 @@ class Ve extends le {
    * @returns 地面信息
    */
   getLocalInfoFromWorld(e) {
-    return ze(this, e);
+    return $e(this, e);
   }
   /**
    * Get loacation infomation from screen point
@@ -1649,65 +1548,39 @@ class Ve extends le {
    * @param pointer 点的屏幕坐标（-0.5~0.5）
    * @returns 位置信息（经纬度、高度等）
    */
-  getLocalInfoFromScreen(e, r) {
-    return pr(e, this, r);
+  getLocalInfoFromScreen(e, o) {
+    return zo(e, this, o);
+  }
+  /**
+   * Get map data attributions information
+   * 取得地图数据归属版权信息
+   * @returns Attributions 版权信息字符串数组
+   */
+  get attributions() {
+    return Fo(this);
   }
   /**
    * Get map tiles statistics to debug
    * @returns 取得瓦片统计信息，用于调试性能
    */
-  getTileCount() {
-    let e = 0, r = 0, t = 0, n = 0;
-    return this.rootTile.traverse((o) => {
-      o.isTile && (e++, o.isLeafInFrustum && r++, o.isLeaf && n++, t = Math.max(t, o.coord.z));
-    }), { total: e, visible: r, leaf: n, maxLevle: t };
-  }
-  /**
-   * Listen tile event.
-   * 监听瓦片数据加载等事件，并将事件挂接到TileMap上以方便使用
-   */
-  _attachEvent() {
-    const e = this.loader.manager;
-    return e.onStart = (r, t, n) => {
-      this.dispatchEvent({
-        type: "loading-start",
-        itemsLoaded: t,
-        itemsTotal: n
-      });
-    }, e.onError = (r) => {
-      this.dispatchEvent({ type: "loading-error", url: r });
-    }, e.onLoad = () => {
-      this.dispatchEvent({ type: "loading-complete" });
-    }, e.onProgress = (r, t, n) => {
-      this.dispatchEvent({
-        type: "loading-progress",
-        url: r,
-        itemsLoaded: t,
-        itemsTotal: n
-      });
-    }, this.rootTile.addEventListener("tile-created", (r) => {
-      this.dispatchEvent({ type: "tile-created", tile: r.tile });
-    }), this.rootTile.addEventListener("tile-loaded", (r) => {
-      this.dispatchEvent({ type: "tile-loaded", tile: r.tile });
-    }), this.rootTile.addEventListener("loaded", () => {
-      this.dispatchEvent({ type: "loaded" });
-    }), this;
+  get tileCount() {
+    return Ro(this);
   }
 }
-class fr {
+class No {
   dataType = "debug";
-  load(e, r, t, n) {
-    const o = (l) => {
-      const h = l.target;
-      h.map?.image instanceof ImageBitmap && h.map.image.close(), h.map?.dispose(), h.removeEventListener("dispose", o);
-    }, a = new bt(this.drawTile(r));
+  load(e, o, t, i) {
+    const n = (d) => {
+      const h = d.target;
+      h.map?.image instanceof ImageBitmap && h.map.image.close(), h.map?.dispose(), h.removeEventListener("dispose", n);
+    }, a = new kt(this.drawTile(o));
     a.needsUpdate = !0;
-    const c = new K({
+    const c = new J({
       transparent: !0,
       map: a,
       opacity: e.opacity
     });
-    return c.addEventListener("dispose", o), setTimeout(t), c;
+    return c.addEventListener("dispose", n), setTimeout(t), c;
   }
   /**
    * draw a box and coordiante
@@ -1715,12 +1588,12 @@ class fr {
    * @returns bitmap
    */
   drawTile(e) {
-    const t = new OffscreenCanvas(256, 256), n = t.getContext("2d");
-    return n.scale(1, -1), n.translate(0, -256), n && (n.strokeStyle = "#ccc", n.lineWidth = 4, n.strokeRect(5, 5, 256 - 10, 256 - 10), n.fillStyle = "white", n.shadowColor = "black", n.shadowBlur = 5, n.shadowOffsetX = 1, n.shadowOffsetY = 1, n.font = "bold 20px arial", n.textAlign = "center", n.fillText(`Tile Test - level: ${e.coord.z}`, 256 / 2, 50), n.fillText(`[${e.coord.x}, ${e.coord.y}]`, 256 / 2, 80)), t.transferToImageBitmap();
+    const t = new OffscreenCanvas(256, 256), i = t.getContext("2d");
+    return i.scale(1, -1), i.translate(0, -256), i && (i.strokeStyle = "#ccc", i.lineWidth = 4, i.strokeRect(5, 5, 246, 246), i.fillStyle = "white", i.shadowColor = "black", i.shadowBlur = 5, i.shadowOffsetX = 1, i.shadowOffsetY = 1, i.font = "bold 20px arial", i.textAlign = "center", i.fillText(`Tile Test - level: ${e.coord.z}`, 256 / 2, 50), i.fillText(`[${e.coord.x}, ${e.coord.y}]`, 256 / 2, 80)), t.transferToImageBitmap();
   }
 }
-_.registerMaterialLoader(new fr());
-class gr {
+L.registerMaterialLoader(new No());
+class Bo {
   dataType = "logo";
   /**
    * 加载材质
@@ -1729,17 +1602,17 @@ class gr {
    * @param onLoad 加载完成回调
    * @returns 材质
    */
-  load(e, r, t, n) {
-    if (r.coord.z < 4)
-      return setTimeout(t), new K();
-    const o = new de(this.drawLogo(e.attribution));
-    o.needsUpdate = !0;
-    const a = new K({
+  load(e, o, t, i) {
+    if (o.coord.z < 4)
+      return setTimeout(t), new J();
+    const n = new we(this.drawLogo(e.attribution));
+    n.needsUpdate = !0;
+    const a = new J({
       transparent: !0,
-      map: o,
+      map: n,
       opacity: e.opacity
-    }), c = (l) => {
-      const h = l.target;
+    }), c = (d) => {
+      const h = d.target;
       h.map?.image instanceof ImageBitmap && h.map.image.close(), h.map?.dispose(), h.removeEventListener("dispose", c);
     };
     return a.addEventListener("dispose", c), setTimeout(t), a;
@@ -1750,65 +1623,94 @@ class gr {
    * @returns bitmap
    */
   drawLogo(e) {
-    const t = new OffscreenCanvas(256, 256), n = t.getContext("2d");
-    return n.scale(1, -1), n.translate(0, -256), n && (n.fillStyle = "white", n.shadowColor = "black", n.shadowBlur = 5, n.shadowOffsetX = 1, n.shadowOffsetY = 1, n.font = "bold 14px arial", n.textAlign = "center", n.translate(256 / 2, 256 / 2), n.rotate(30 * Math.PI / 180), n.fillText(`${e}`, 0, 0)), t.transferToImageBitmap();
+    const t = new OffscreenCanvas(256, 256), i = t.getContext("2d");
+    return i.scale(1, -1), i.translate(0, -256), i && (i.fillStyle = "white", i.shadowColor = "black", i.shadowBlur = 5, i.shadowOffsetX = 1, i.shadowOffsetY = 1, i.font = "bold 14px arial", i.textAlign = "center", i.translate(256 / 2, 256 / 2), i.rotate(30 * Math.PI / 180), i.fillText(`${e}`, 0, 0)), t.transferToImageBitmap();
   }
 }
-_.registerMaterialLoader(new gr());
-class yr {
+L.registerMaterialLoader(new Bo());
+class Yo {
   dataType = "normal";
-  load(e, r, t, n) {
-    const o = new _t({
+  load(e, o, t, i) {
+    const n = new Rt({
       transparent: !0,
       opacity: e.opacity,
       flatShading: !0
     });
-    return setTimeout(t), o;
+    return setTimeout(t), n;
   }
 }
-_.registerMaterialLoader(new yr());
-class vr {
+L.registerMaterialLoader(new Yo());
+class Go {
   dataType = "wireframe";
-  load(e, r, t, n) {
-    const o = new X(`hsl(${r.coord.z * 14}, 100%, 50%)`), a = new K({
+  load(e, o, t, i) {
+    const n = new xe(`hsl(${o.coord.z * 14}, 100%, 50%)`), a = new J({
       transparent: !0,
       wireframe: !0,
-      color: o,
+      color: n,
       opacity: e.opacity
     });
     return setTimeout(t), a;
   }
 }
-_.registerMaterialLoader(new vr());
-const ke = { type: "change" }, ae = { type: "start" }, Re = { type: "end" };
-class br extends Ne {
-  constructor(e, r) {
-    super(), this.object = e, this.domElement = r, this.domElement.style.touchAction = "none", this.enabled = !0, this.target = new p(), this.minDistance = 0, this.maxDistance = 1 / 0, this.minZoom = 0, this.maxZoom = 1 / 0, this.minPolarAngle = 0, this.maxPolarAngle = Math.PI, this.minAzimuthAngle = -1 / 0, this.maxAzimuthAngle = 1 / 0, this.enableDamping = !1, this.dampingFactor = 0.05, this.enableZoom = !0, this.zoomSpeed = 1, this.enableRotate = !0, this.rotateSpeed = 1, this.enablePan = !0, this.panSpeed = 1, this.screenSpacePanning = !0, this.keyPanSpeed = 7, this.autoRotate = !1, this.autoRotateSpeed = 2, this.keys = { LEFT: "ArrowLeft", UP: "ArrowUp", RIGHT: "ArrowRight", BOTTOM: "ArrowDown" }, this.mouseButtons = { LEFT: k.ROTATE, MIDDLE: k.DOLLY, RIGHT: k.PAN }, this.touches = { ONE: U.ROTATE, TWO: U.DOLLY_PAN }, this.target0 = this.target.clone(), this.position0 = this.object.position.clone(), this.zoom0 = this.object.zoom, this._domElementKeyEvents = null, this.getPolarAngle = function() {
+L.registerMaterialLoader(new Go());
+const Ve = { type: "change" }, ge = { type: "start" }, qe = { type: "end" }, se = new Ft(), Qe = new Nt(), Zo = Math.cos(70 * H.DEG2RAD);
+class Uo extends tt {
+  constructor(e, o) {
+    super(), this.object = e, this.domElement = o, this.domElement.style.touchAction = "none", this.enabled = !0, this.target = new m(), this.cursor = new m(), this.minDistance = 0, this.maxDistance = 1 / 0, this.minZoom = 0, this.maxZoom = 1 / 0, this.minTargetRadius = 0, this.maxTargetRadius = 1 / 0, this.minPolarAngle = 0, this.maxPolarAngle = Math.PI, this.minAzimuthAngle = -1 / 0, this.maxAzimuthAngle = 1 / 0, this.enableDamping = !1, this.dampingFactor = 0.05, this.enableZoom = !0, this.zoomSpeed = 1, this.enableRotate = !0, this.rotateSpeed = 1, this.enablePan = !0, this.panSpeed = 1, this.screenSpacePanning = !0, this.keyPanSpeed = 7, this.zoomToCursor = !1, this.autoRotate = !1, this.autoRotateSpeed = 2, this.keys = { LEFT: "ArrowLeft", UP: "ArrowUp", RIGHT: "ArrowRight", BOTTOM: "ArrowDown" }, this.mouseButtons = { LEFT: N.ROTATE, MIDDLE: N.DOLLY, RIGHT: N.PAN }, this.touches = { ONE: Y.ROTATE, TWO: Y.DOLLY_PAN }, this.target0 = this.target.clone(), this.position0 = this.object.position.clone(), this.zoom0 = this.object.zoom, this._domElementKeyEvents = null, this.getPolarAngle = function() {
       return c.phi;
     }, this.getAzimuthalAngle = function() {
       return c.theta;
     }, this.getDistance = function() {
       return this.object.position.distanceTo(this.target);
-    }, this.listenToKeyEvents = function(i) {
-      i.addEventListener("keydown", te), this._domElementKeyEvents = i;
+    }, this.listenToKeyEvents = function(s) {
+      s.addEventListener("keydown", he), this._domElementKeyEvents = s;
     }, this.stopListenToKeyEvents = function() {
-      this._domElementKeyEvents.removeEventListener("keydown", te), this._domElementKeyEvents = null;
+      this._domElementKeyEvents.removeEventListener("keydown", he), this._domElementKeyEvents = null;
     }, this.saveState = function() {
       t.target0.copy(t.target), t.position0.copy(t.object.position), t.zoom0 = t.object.zoom;
     }, this.reset = function() {
-      t.target.copy(t.target0), t.object.position.copy(t.position0), t.object.zoom = t.zoom0, t.object.updateProjectionMatrix(), t.dispatchEvent(ke), t.update(), o = n.NONE;
+      t.target.copy(t.target0), t.object.position.copy(t.position0), t.object.zoom = t.zoom0, t.object.updateProjectionMatrix(), t.dispatchEvent(Ve), t.update(), n = i.NONE;
     }, this.update = function() {
-      const i = new p(), u = new Pe().setFromUnitVectors(e.up, new p(0, 1, 0)), y = u.clone().invert(), b = new p(), E = new Pe(), N = 2 * Math.PI;
-      return function() {
-        const Me = t.object.position;
-        i.copy(Me).sub(t.target), i.applyQuaternion(u), c.setFromVector3(i), t.autoRotate && o === n.NONE && S(R()), t.enableDamping ? (c.theta += l.theta * t.dampingFactor, c.phi += l.phi * t.dampingFactor) : (c.theta += l.theta, c.phi += l.phi);
-        let I = t.minAzimuthAngle, z = t.maxAzimuthAngle;
-        return isFinite(I) && isFinite(z) && (I < -Math.PI ? I += N : I > Math.PI && (I -= N), z < -Math.PI ? z += N : z > Math.PI && (z -= N), I <= z ? c.theta = Math.max(I, Math.min(z, c.theta)) : c.theta = c.theta > (I + z) / 2 ? Math.max(I, c.theta) : Math.min(z, c.theta)), c.phi = Math.max(t.minPolarAngle, Math.min(t.maxPolarAngle, c.phi)), c.makeSafe(), c.radius *= h, c.radius = Math.max(t.minDistance, Math.min(t.maxDistance, c.radius)), t.enableDamping === !0 ? t.target.addScaledVector(d, t.dampingFactor) : t.target.add(d), i.setFromSpherical(c), i.applyQuaternion(y), Me.copy(t.target).add(i), t.object.lookAt(t.target), t.enableDamping === !0 ? (l.theta *= 1 - t.dampingFactor, l.phi *= 1 - t.dampingFactor, d.multiplyScalar(1 - t.dampingFactor)) : (l.set(0, 0, 0), d.set(0, 0, 0)), h = 1, L || b.distanceToSquared(t.object.position) > a || 8 * (1 - E.dot(t.object.quaternion)) > a ? (t.dispatchEvent(ke), b.copy(t.object.position), E.copy(t.object.quaternion), L = !1, !0) : !1;
+      const s = new m(), l = new Ze().setFromUnitVectors(e.up, new m(0, 1, 0)), p = l.clone().invert(), f = new m(), S = new Ze(), B = new m(), P = 2 * Math.PI;
+      return function(Pt = null) {
+        const Ne = t.object.position;
+        s.copy(Ne).sub(t.target), s.applyQuaternion(l), c.setFromVector3(s), t.autoRotate && n === i.NONE && K(X(Pt)), t.enableDamping ? (c.theta += d.theta * t.dampingFactor, c.phi += d.phi * t.dampingFactor) : (c.theta += d.theta, c.phi += d.phi);
+        let k = t.minAzimuthAngle, R = t.maxAzimuthAngle;
+        isFinite(k) && isFinite(R) && (k < -Math.PI ? k += P : k > Math.PI && (k -= P), R < -Math.PI ? R += P : R > Math.PI && (R -= P), k <= R ? c.theta = Math.max(k, Math.min(R, c.theta)) : c.theta = c.theta > (k + R) / 2 ? Math.max(k, c.theta) : Math.min(R, c.theta)), c.phi = Math.max(t.minPolarAngle, Math.min(t.maxPolarAngle, c.phi)), c.makeSafe(), t.enableDamping === !0 ? t.target.addScaledVector(u, t.dampingFactor) : t.target.add(u), t.target.sub(t.cursor), t.target.clampLength(t.minTargetRadius, t.maxTargetRadius), t.target.add(t.cursor);
+        let V = !1;
+        if (t.zoomToCursor && D || t.object.isOrthographicCamera)
+          c.radius = le(c.radius);
+        else {
+          const F = c.radius;
+          c.radius = le(c.radius * h), V = F != c.radius;
+        }
+        if (s.setFromSpherical(c), s.applyQuaternion(p), Ne.copy(t.target).add(s), t.object.lookAt(t.target), t.enableDamping === !0 ? (d.theta *= 1 - t.dampingFactor, d.phi *= 1 - t.dampingFactor, u.multiplyScalar(1 - t.dampingFactor)) : (d.set(0, 0, 0), u.set(0, 0, 0)), t.zoomToCursor && D) {
+          let F = null;
+          if (t.object.isPerspectiveCamera) {
+            const q = s.length();
+            F = le(q * h);
+            const oe = q - F;
+            t.object.position.addScaledVector(x, oe), t.object.updateMatrixWorld(), V = !!oe;
+          } else if (t.object.isOrthographicCamera) {
+            const q = new m(y.x, y.y, 0);
+            q.unproject(t.object);
+            const oe = t.object.zoom;
+            t.object.zoom = Math.max(t.minZoom, Math.min(t.maxZoom, t.object.zoom / h)), t.object.updateProjectionMatrix(), V = oe !== t.object.zoom;
+            const Be = new m(y.x, y.y, 0);
+            Be.unproject(t.object), t.object.position.sub(Be).add(q), t.object.updateMatrixWorld(), F = s.length();
+          } else
+            console.warn("WARNING: OrbitControls.js encountered an unknown camera type - zoom to cursor disabled."), t.zoomToCursor = !1;
+          F !== null && (this.screenSpacePanning ? t.target.set(0, 0, -1).transformDirection(t.object.matrix).multiplyScalar(F).add(t.object.position) : (se.origin.copy(t.object.position), se.direction.set(0, 0, -1).transformDirection(t.object.matrix), Math.abs(t.object.up.dot(se.direction)) < Zo ? e.lookAt(t.target) : (Qe.setFromNormalAndCoplanarPoint(t.object.up, t.target), se.intersectPlane(Qe, t.target))));
+        } else if (t.object.isOrthographicCamera) {
+          const F = t.object.zoom;
+          t.object.zoom = Math.max(t.minZoom, Math.min(t.maxZoom, t.object.zoom / h)), F !== t.object.zoom && (t.object.updateProjectionMatrix(), V = !0);
+        }
+        return h = 1, D = !1, V || f.distanceToSquared(t.object.position) > a || 8 * (1 - S.dot(t.object.quaternion)) > a || B.distanceToSquared(t.target) > a ? (t.dispatchEvent(Ve), f.copy(t.object.position), S.copy(t.object.quaternion), B.copy(t.target), !0) : !1;
       };
     }(), this.dispose = function() {
-      t.domElement.removeEventListener("contextmenu", Le), t.domElement.removeEventListener("pointerdown", we), t.domElement.removeEventListener("pointercancel", W), t.domElement.removeEventListener("wheel", Te), t.domElement.removeEventListener("pointermove", ee), t.domElement.removeEventListener("pointerup", W), t._domElementKeyEvents !== null && (t._domElementKeyEvents.removeEventListener("keydown", te), t._domElementKeyEvents = null);
+      t.domElement.removeEventListener("contextmenu", Re), t.domElement.removeEventListener("pointerdown", Ie), t.domElement.removeEventListener("pointercancel", $), t.domElement.removeEventListener("wheel", Oe), t.domElement.removeEventListener("pointermove", de), t.domElement.removeEventListener("pointerup", $), t.domElement.getRootNode().removeEventListener("keydown", Ce, { capture: !0 }), t._domElementKeyEvents !== null && (t._domElementKeyEvents.removeEventListener("keydown", he), t._domElementKeyEvents = null);
     };
-    const t = this, n = {
+    const t = this, i = {
       NONE: -1,
       ROTATE: 0,
       DOLLY: 1,
@@ -1818,329 +1720,360 @@ class br extends Ne {
       TOUCH_DOLLY_PAN: 5,
       TOUCH_DOLLY_ROTATE: 6
     };
-    let o = n.NONE;
-    const a = 1e-6, c = new De(), l = new De();
+    let n = i.NONE;
+    const a = 1e-6, c = new Ue(), d = new Ue();
     let h = 1;
-    const d = new p();
-    let L = !1;
-    const v = new x(), f = new x(), M = new x(), T = new x(), A = new x(), C = new x(), j = new x(), O = new x(), g = new x(), m = [], P = {};
-    function R() {
-      return 2 * Math.PI / 60 / 60 * t.autoRotateSpeed;
+    const u = new m(), v = new T(), w = new T(), b = new T(), M = new T(), E = new T(), O = new T(), C = new T(), z = new T(), A = new T(), x = new m(), y = new T();
+    let D = !1;
+    const g = [], j = {};
+    let I = !1;
+    function X(s) {
+      return s !== null ? 2 * Math.PI / 60 * t.autoRotateSpeed * s : 2 * Math.PI / 60 / 60 * t.autoRotateSpeed;
     }
-    function D() {
-      return Math.pow(0.95, t.zoomSpeed);
+    function ee(s) {
+      const l = Math.abs(s * 0.01);
+      return Math.pow(0.95, t.zoomSpeed * l);
     }
-    function S(i) {
-      l.theta -= i;
+    function K(s) {
+      d.theta -= s;
     }
-    function F(i) {
-      l.phi -= i;
+    function te(s) {
+      d.phi -= s;
     }
-    const ue = function() {
-      const i = new p();
-      return function(y, b) {
-        i.setFromMatrixColumn(b, 0), i.multiplyScalar(-y), d.add(i);
+    const Te = function() {
+      const s = new m();
+      return function(p, f) {
+        s.setFromMatrixColumn(f, 0), s.multiplyScalar(-p), u.add(s);
       };
-    }(), he = function() {
-      const i = new p();
-      return function(y, b) {
-        t.screenSpacePanning === !0 ? i.setFromMatrixColumn(b, 1) : (i.setFromMatrixColumn(b, 0), i.crossVectors(t.object.up, i)), i.multiplyScalar(y), d.add(i);
+    }(), Le = function() {
+      const s = new m();
+      return function(p, f) {
+        t.screenSpacePanning === !0 ? s.setFromMatrixColumn(f, 1) : (s.setFromMatrixColumn(f, 0), s.crossVectors(t.object.up, s)), s.multiplyScalar(p), u.add(s);
       };
-    }(), B = function() {
-      const i = new p();
-      return function(y, b) {
-        const E = t.domElement;
+    }(), Z = function() {
+      const s = new m();
+      return function(p, f) {
+        const S = t.domElement;
         if (t.object.isPerspectiveCamera) {
-          const N = t.object.position;
-          i.copy(N).sub(t.target);
-          let $ = i.length();
-          $ *= Math.tan(t.object.fov / 2 * Math.PI / 180), ue(2 * y * $ / E.clientHeight, t.object.matrix), he(2 * b * $ / E.clientHeight, t.object.matrix);
-        } else
-          t.object.isOrthographicCamera ? (ue(y * (t.object.right - t.object.left) / t.object.zoom / E.clientWidth, t.object.matrix), he(b * (t.object.top - t.object.bottom) / t.object.zoom / E.clientHeight, t.object.matrix)) : (console.warn("WARNING: OrbitControls.js encountered an unknown camera type - pan disabled."), t.enablePan = !1);
+          const B = t.object.position;
+          s.copy(B).sub(t.target);
+          let P = s.length();
+          P *= Math.tan(t.object.fov / 2 * Math.PI / 180), Te(2 * p * P / S.clientHeight, t.object.matrix), Le(2 * f * P / S.clientHeight, t.object.matrix);
+        } else t.object.isOrthographicCamera ? (Te(p * (t.object.right - t.object.left) / t.object.zoom / S.clientWidth, t.object.matrix), Le(f * (t.object.top - t.object.bottom) / t.object.zoom / S.clientHeight, t.object.matrix)) : (console.warn("WARNING: OrbitControls.js encountered an unknown camera type - pan disabled."), t.enablePan = !1);
       };
     }();
-    function J(i) {
-      t.object.isPerspectiveCamera ? h /= i : t.object.isOrthographicCamera ? (t.object.zoom = Math.max(t.minZoom, Math.min(t.maxZoom, t.object.zoom * i)), t.object.updateProjectionMatrix(), L = !0) : (console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled."), t.enableZoom = !1);
+    function ae(s) {
+      t.object.isPerspectiveCamera || t.object.isOrthographicCamera ? h /= s : (console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled."), t.enableZoom = !1);
     }
-    function me(i) {
-      t.object.isPerspectiveCamera ? h *= i : t.object.isOrthographicCamera ? (t.object.zoom = Math.max(t.minZoom, Math.min(t.maxZoom, t.object.zoom / i)), t.object.updateProjectionMatrix(), L = !0) : (console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled."), t.enableZoom = !1);
+    function ve(s) {
+      t.object.isPerspectiveCamera || t.object.isOrthographicCamera ? h *= s : (console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled."), t.enableZoom = !1);
     }
-    function pe(i) {
-      v.set(i.clientX, i.clientY);
+    function ce(s, l) {
+      if (!t.zoomToCursor)
+        return;
+      D = !0;
+      const p = t.domElement.getBoundingClientRect(), f = s - p.left, S = l - p.top, B = p.width, P = p.height;
+      y.x = f / B * 2 - 1, y.y = -(S / P) * 2 + 1, x.set(y.x, y.y, 1).unproject(t.object).sub(t.object.position).normalize();
     }
-    function qe(i) {
-      j.set(i.clientX, i.clientY);
+    function le(s) {
+      return Math.max(t.minDistance, Math.min(t.maxDistance, s));
     }
-    function fe(i) {
-      T.set(i.clientX, i.clientY);
+    function Se(s) {
+      v.set(s.clientX, s.clientY);
     }
-    function Qe(i) {
-      f.set(i.clientX, i.clientY), M.subVectors(f, v).multiplyScalar(t.rotateSpeed);
-      const u = t.domElement;
-      S(2 * Math.PI * M.x / u.clientHeight), F(2 * Math.PI * M.y / u.clientHeight), v.copy(f), t.update();
+    function ht(s) {
+      ce(s.clientX, s.clientX), C.set(s.clientX, s.clientY);
     }
-    function Je(i) {
-      O.set(i.clientX, i.clientY), g.subVectors(O, j), g.y > 0 ? J(D()) : g.y < 0 && me(D()), j.copy(O), t.update();
+    function _e(s) {
+      M.set(s.clientX, s.clientY);
     }
-    function et(i) {
-      A.set(i.clientX, i.clientY), C.subVectors(A, T).multiplyScalar(t.panSpeed), B(C.x, C.y), T.copy(A), t.update();
+    function ut(s) {
+      w.set(s.clientX, s.clientY), b.subVectors(w, v).multiplyScalar(t.rotateSpeed);
+      const l = t.domElement;
+      K(2 * Math.PI * b.x / l.clientHeight), te(2 * Math.PI * b.y / l.clientHeight), v.copy(w), t.update();
     }
-    function tt(i) {
-      i.deltaY < 0 ? me(D()) : i.deltaY > 0 && J(D()), t.update();
+    function mt(s) {
+      z.set(s.clientX, s.clientY), A.subVectors(z, C), A.y > 0 ? ae(ee(A.y)) : A.y < 0 && ve(ee(A.y)), C.copy(z), t.update();
     }
-    function rt(i) {
-      let u = !1;
-      switch (i.code) {
+    function pt(s) {
+      E.set(s.clientX, s.clientY), O.subVectors(E, M).multiplyScalar(t.panSpeed), Z(O.x, O.y), M.copy(E), t.update();
+    }
+    function ft(s) {
+      ce(s.clientX, s.clientY), s.deltaY < 0 ? ve(ee(s.deltaY)) : s.deltaY > 0 && ae(ee(s.deltaY)), t.update();
+    }
+    function gt(s) {
+      let l = !1;
+      switch (s.code) {
         case t.keys.UP:
-          i.ctrlKey || i.metaKey || i.shiftKey ? F(2 * Math.PI * t.rotateSpeed / t.domElement.clientHeight) : B(0, t.keyPanSpeed), u = !0;
+          s.ctrlKey || s.metaKey || s.shiftKey ? te(2 * Math.PI * t.rotateSpeed / t.domElement.clientHeight) : Z(0, t.keyPanSpeed), l = !0;
           break;
         case t.keys.BOTTOM:
-          i.ctrlKey || i.metaKey || i.shiftKey ? F(-2 * Math.PI * t.rotateSpeed / t.domElement.clientHeight) : B(0, -t.keyPanSpeed), u = !0;
+          s.ctrlKey || s.metaKey || s.shiftKey ? te(-2 * Math.PI * t.rotateSpeed / t.domElement.clientHeight) : Z(0, -t.keyPanSpeed), l = !0;
           break;
         case t.keys.LEFT:
-          i.ctrlKey || i.metaKey || i.shiftKey ? S(2 * Math.PI * t.rotateSpeed / t.domElement.clientHeight) : B(t.keyPanSpeed, 0), u = !0;
+          s.ctrlKey || s.metaKey || s.shiftKey ? K(2 * Math.PI * t.rotateSpeed / t.domElement.clientHeight) : Z(t.keyPanSpeed, 0), l = !0;
           break;
         case t.keys.RIGHT:
-          i.ctrlKey || i.metaKey || i.shiftKey ? S(-2 * Math.PI * t.rotateSpeed / t.domElement.clientHeight) : B(-t.keyPanSpeed, 0), u = !0;
+          s.ctrlKey || s.metaKey || s.shiftKey ? K(-2 * Math.PI * t.rotateSpeed / t.domElement.clientHeight) : Z(-t.keyPanSpeed, 0), l = !0;
           break;
       }
-      u && (i.preventDefault(), t.update());
+      l && (s.preventDefault(), t.update());
     }
-    function ge() {
-      if (m.length === 1)
-        v.set(m[0].pageX, m[0].pageY);
+    function Ee(s) {
+      if (g.length === 1)
+        v.set(s.pageX, s.pageY);
       else {
-        const i = 0.5 * (m[0].pageX + m[1].pageX), u = 0.5 * (m[0].pageY + m[1].pageY);
-        v.set(i, u);
+        const l = U(s), p = 0.5 * (s.pageX + l.x), f = 0.5 * (s.pageY + l.y);
+        v.set(p, f);
       }
     }
-    function ye() {
-      if (m.length === 1)
-        T.set(m[0].pageX, m[0].pageY);
+    function Me(s) {
+      if (g.length === 1)
+        M.set(s.pageX, s.pageY);
       else {
-        const i = 0.5 * (m[0].pageX + m[1].pageX), u = 0.5 * (m[0].pageY + m[1].pageY);
-        T.set(i, u);
+        const l = U(s), p = 0.5 * (s.pageX + l.x), f = 0.5 * (s.pageY + l.y);
+        M.set(p, f);
       }
     }
-    function ve() {
-      const i = m[0].pageX - m[1].pageX, u = m[0].pageY - m[1].pageY, y = Math.sqrt(i * i + u * u);
-      j.set(0, y);
+    function Pe(s) {
+      const l = U(s), p = s.pageX - l.x, f = s.pageY - l.y, S = Math.sqrt(p * p + f * f);
+      C.set(0, S);
     }
-    function nt() {
-      t.enableZoom && ve(), t.enablePan && ye();
+    function yt(s) {
+      t.enableZoom && Pe(s), t.enablePan && Me(s);
     }
-    function it() {
-      t.enableZoom && ve(), t.enableRotate && ge();
+    function bt(s) {
+      t.enableZoom && Pe(s), t.enableRotate && Ee(s);
     }
-    function be(i) {
-      if (m.length == 1)
-        f.set(i.pageX, i.pageY);
+    function je(s) {
+      if (g.length == 1)
+        w.set(s.pageX, s.pageY);
       else {
-        const y = re(i), b = 0.5 * (i.pageX + y.x), E = 0.5 * (i.pageY + y.y);
-        f.set(b, E);
+        const p = U(s), f = 0.5 * (s.pageX + p.x), S = 0.5 * (s.pageY + p.y);
+        w.set(f, S);
       }
-      M.subVectors(f, v).multiplyScalar(t.rotateSpeed);
-      const u = t.domElement;
-      S(2 * Math.PI * M.x / u.clientHeight), F(2 * Math.PI * M.y / u.clientHeight), v.copy(f);
+      b.subVectors(w, v).multiplyScalar(t.rotateSpeed);
+      const l = t.domElement;
+      K(2 * Math.PI * b.x / l.clientHeight), te(2 * Math.PI * b.y / l.clientHeight), v.copy(w);
     }
-    function _e(i) {
-      if (m.length === 1)
-        A.set(i.pageX, i.pageY);
+    function Ae(s) {
+      if (g.length === 1)
+        E.set(s.pageX, s.pageY);
       else {
-        const u = re(i), y = 0.5 * (i.pageX + u.x), b = 0.5 * (i.pageY + u.y);
-        A.set(y, b);
+        const l = U(s), p = 0.5 * (s.pageX + l.x), f = 0.5 * (s.pageY + l.y);
+        E.set(p, f);
       }
-      C.subVectors(A, T).multiplyScalar(t.panSpeed), B(C.x, C.y), T.copy(A);
+      O.subVectors(E, M).multiplyScalar(t.panSpeed), Z(O.x, O.y), M.copy(E);
     }
-    function xe(i) {
-      const u = re(i), y = i.pageX - u.x, b = i.pageY - u.y, E = Math.sqrt(y * y + b * b);
-      O.set(0, E), g.set(0, Math.pow(O.y / j.y, t.zoomSpeed)), J(g.y), j.copy(O);
+    function De(s) {
+      const l = U(s), p = s.pageX - l.x, f = s.pageY - l.y, S = Math.sqrt(p * p + f * f);
+      z.set(0, S), A.set(0, Math.pow(z.y / C.y, t.zoomSpeed)), ae(A.y), C.copy(z);
+      const B = (s.pageX + l.x) * 0.5, P = (s.pageY + l.y) * 0.5;
+      ce(B, P);
     }
-    function ot(i) {
-      t.enableZoom && xe(i), t.enablePan && _e(i);
+    function wt(s) {
+      t.enableZoom && De(s), t.enablePan && Ae(s);
     }
-    function st(i) {
-      t.enableZoom && xe(i), t.enableRotate && be(i);
+    function xt(s) {
+      t.enableZoom && De(s), t.enableRotate && je(s);
     }
-    function we(i) {
-      t.enabled !== !1 && (m.length === 0 && (t.domElement.setPointerCapture(i.pointerId), t.domElement.addEventListener("pointermove", ee), t.domElement.addEventListener("pointerup", W)), ut(i), i.pointerType === "touch" ? lt(i) : at(i));
+    function Ie(s) {
+      t.enabled !== !1 && (g.length === 0 && (t.domElement.setPointerCapture(s.pointerId), t.domElement.addEventListener("pointermove", de), t.domElement.addEventListener("pointerup", $)), !Mt(s) && (_t(s), s.pointerType === "touch" ? ke(s) : Tt(s)));
     }
-    function ee(i) {
-      t.enabled !== !1 && (i.pointerType === "touch" ? dt(i) : ct(i));
+    function de(s) {
+      t.enabled !== !1 && (s.pointerType === "touch" ? St(s) : Lt(s));
     }
-    function W(i) {
-      ht(i), m.length === 0 && (t.domElement.releasePointerCapture(i.pointerId), t.domElement.removeEventListener("pointermove", ee), t.domElement.removeEventListener("pointerup", W)), t.dispatchEvent(Re), o = n.NONE;
-    }
-    function at(i) {
-      let u;
-      switch (i.button) {
+    function $(s) {
+      switch (Et(s), g.length) {
         case 0:
-          u = t.mouseButtons.LEFT;
+          t.domElement.releasePointerCapture(s.pointerId), t.domElement.removeEventListener("pointermove", de), t.domElement.removeEventListener("pointerup", $), t.dispatchEvent(qe), n = i.NONE;
           break;
         case 1:
-          u = t.mouseButtons.MIDDLE;
+          const l = g[0], p = j[l];
+          ke({ pointerId: l, pageX: p.x, pageY: p.y });
+          break;
+      }
+    }
+    function Tt(s) {
+      let l;
+      switch (s.button) {
+        case 0:
+          l = t.mouseButtons.LEFT;
+          break;
+        case 1:
+          l = t.mouseButtons.MIDDLE;
           break;
         case 2:
-          u = t.mouseButtons.RIGHT;
+          l = t.mouseButtons.RIGHT;
           break;
         default:
-          u = -1;
+          l = -1;
       }
-      switch (u) {
-        case k.DOLLY:
-          if (t.enableZoom === !1)
-            return;
-          qe(i), o = n.DOLLY;
+      switch (l) {
+        case N.DOLLY:
+          if (t.enableZoom === !1) return;
+          ht(s), n = i.DOLLY;
           break;
-        case k.ROTATE:
-          if (i.ctrlKey || i.metaKey || i.shiftKey) {
-            if (t.enablePan === !1)
-              return;
-            fe(i), o = n.PAN;
+        case N.ROTATE:
+          if (s.ctrlKey || s.metaKey || s.shiftKey) {
+            if (t.enablePan === !1) return;
+            _e(s), n = i.PAN;
           } else {
-            if (t.enableRotate === !1)
-              return;
-            pe(i), o = n.ROTATE;
+            if (t.enableRotate === !1) return;
+            Se(s), n = i.ROTATE;
           }
           break;
-        case k.PAN:
-          if (i.ctrlKey || i.metaKey || i.shiftKey) {
-            if (t.enableRotate === !1)
-              return;
-            pe(i), o = n.ROTATE;
+        case N.PAN:
+          if (s.ctrlKey || s.metaKey || s.shiftKey) {
+            if (t.enableRotate === !1) return;
+            Se(s), n = i.ROTATE;
           } else {
-            if (t.enablePan === !1)
-              return;
-            fe(i), o = n.PAN;
+            if (t.enablePan === !1) return;
+            _e(s), n = i.PAN;
           }
           break;
         default:
-          o = n.NONE;
+          n = i.NONE;
       }
-      o !== n.NONE && t.dispatchEvent(ae);
+      n !== i.NONE && t.dispatchEvent(ge);
     }
-    function ct(i) {
-      switch (o) {
-        case n.ROTATE:
-          if (t.enableRotate === !1)
-            return;
-          Qe(i);
+    function Lt(s) {
+      switch (n) {
+        case i.ROTATE:
+          if (t.enableRotate === !1) return;
+          ut(s);
           break;
-        case n.DOLLY:
-          if (t.enableZoom === !1)
-            return;
-          Je(i);
+        case i.DOLLY:
+          if (t.enableZoom === !1) return;
+          mt(s);
           break;
-        case n.PAN:
-          if (t.enablePan === !1)
-            return;
-          et(i);
+        case i.PAN:
+          if (t.enablePan === !1) return;
+          pt(s);
           break;
       }
     }
-    function Te(i) {
-      t.enabled === !1 || t.enableZoom === !1 || o !== n.NONE || (i.preventDefault(), t.dispatchEvent(ae), tt(i), t.dispatchEvent(Re));
+    function Oe(s) {
+      t.enabled === !1 || t.enableZoom === !1 || n !== i.NONE || (s.preventDefault(), t.dispatchEvent(ge), ft(vt(s)), t.dispatchEvent(qe));
     }
-    function te(i) {
-      t.enabled === !1 || t.enablePan === !1 || rt(i);
+    function vt(s) {
+      const l = s.deltaMode, p = {
+        clientX: s.clientX,
+        clientY: s.clientY,
+        deltaY: s.deltaY
+      };
+      switch (l) {
+        case 1:
+          p.deltaY *= 16;
+          break;
+        case 2:
+          p.deltaY *= 100;
+          break;
+      }
+      return s.ctrlKey && !I && (p.deltaY *= 10), p;
     }
-    function lt(i) {
-      switch (Se(i), m.length) {
+    function Ce(s) {
+      s.key === "Control" && (I = !0, t.domElement.getRootNode().addEventListener("keyup", ze, { passive: !0, capture: !0 }));
+    }
+    function ze(s) {
+      s.key === "Control" && (I = !1, t.domElement.getRootNode().removeEventListener("keyup", ze, { passive: !0, capture: !0 }));
+    }
+    function he(s) {
+      t.enabled === !1 || t.enablePan === !1 || gt(s);
+    }
+    function ke(s) {
+      switch (Fe(s), g.length) {
         case 1:
           switch (t.touches.ONE) {
-            case U.ROTATE:
-              if (t.enableRotate === !1)
-                return;
-              ge(), o = n.TOUCH_ROTATE;
+            case Y.ROTATE:
+              if (t.enableRotate === !1) return;
+              Ee(s), n = i.TOUCH_ROTATE;
               break;
-            case U.PAN:
-              if (t.enablePan === !1)
-                return;
-              ye(), o = n.TOUCH_PAN;
+            case Y.PAN:
+              if (t.enablePan === !1) return;
+              Me(s), n = i.TOUCH_PAN;
               break;
             default:
-              o = n.NONE;
+              n = i.NONE;
           }
           break;
         case 2:
           switch (t.touches.TWO) {
-            case U.DOLLY_PAN:
-              if (t.enableZoom === !1 && t.enablePan === !1)
-                return;
-              nt(), o = n.TOUCH_DOLLY_PAN;
+            case Y.DOLLY_PAN:
+              if (t.enableZoom === !1 && t.enablePan === !1) return;
+              yt(s), n = i.TOUCH_DOLLY_PAN;
               break;
-            case U.DOLLY_ROTATE:
-              if (t.enableZoom === !1 && t.enableRotate === !1)
-                return;
-              it(), o = n.TOUCH_DOLLY_ROTATE;
+            case Y.DOLLY_ROTATE:
+              if (t.enableZoom === !1 && t.enableRotate === !1) return;
+              bt(s), n = i.TOUCH_DOLLY_ROTATE;
               break;
             default:
-              o = n.NONE;
+              n = i.NONE;
           }
           break;
         default:
-          o = n.NONE;
+          n = i.NONE;
       }
-      o !== n.NONE && t.dispatchEvent(ae);
+      n !== i.NONE && t.dispatchEvent(ge);
     }
-    function dt(i) {
-      switch (Se(i), o) {
-        case n.TOUCH_ROTATE:
-          if (t.enableRotate === !1)
-            return;
-          be(i), t.update();
+    function St(s) {
+      switch (Fe(s), n) {
+        case i.TOUCH_ROTATE:
+          if (t.enableRotate === !1) return;
+          je(s), t.update();
           break;
-        case n.TOUCH_PAN:
-          if (t.enablePan === !1)
-            return;
-          _e(i), t.update();
+        case i.TOUCH_PAN:
+          if (t.enablePan === !1) return;
+          Ae(s), t.update();
           break;
-        case n.TOUCH_DOLLY_PAN:
-          if (t.enableZoom === !1 && t.enablePan === !1)
-            return;
-          ot(i), t.update();
+        case i.TOUCH_DOLLY_PAN:
+          if (t.enableZoom === !1 && t.enablePan === !1) return;
+          wt(s), t.update();
           break;
-        case n.TOUCH_DOLLY_ROTATE:
-          if (t.enableZoom === !1 && t.enableRotate === !1)
-            return;
-          st(i), t.update();
+        case i.TOUCH_DOLLY_ROTATE:
+          if (t.enableZoom === !1 && t.enableRotate === !1) return;
+          xt(s), t.update();
           break;
         default:
-          o = n.NONE;
+          n = i.NONE;
       }
     }
-    function Le(i) {
-      t.enabled !== !1 && i.preventDefault();
+    function Re(s) {
+      t.enabled !== !1 && s.preventDefault();
     }
-    function ut(i) {
-      m.push(i);
+    function _t(s) {
+      g.push(s.pointerId);
     }
-    function ht(i) {
-      delete P[i.pointerId];
-      for (let u = 0; u < m.length; u++)
-        if (m[u].pointerId == i.pointerId) {
-          m.splice(u, 1);
+    function Et(s) {
+      delete j[s.pointerId];
+      for (let l = 0; l < g.length; l++)
+        if (g[l] == s.pointerId) {
+          g.splice(l, 1);
           return;
         }
     }
-    function Se(i) {
-      let u = P[i.pointerId];
-      u === void 0 && (u = new x(), P[i.pointerId] = u), u.set(i.pageX, i.pageY);
+    function Mt(s) {
+      for (let l = 0; l < g.length; l++)
+        if (g[l] == s.pointerId) return !0;
+      return !1;
     }
-    function re(i) {
-      const u = i.pointerId === m[0].pointerId ? m[1] : m[0];
-      return P[u.pointerId];
+    function Fe(s) {
+      let l = j[s.pointerId];
+      l === void 0 && (l = new T(), j[s.pointerId] = l), l.set(s.pageX, s.pageY);
     }
-    t.domElement.addEventListener("contextmenu", Le), t.domElement.addEventListener("pointerdown", we), t.domElement.addEventListener("pointercancel", W), t.domElement.addEventListener("wheel", Te, { passive: !1 }), this.update();
+    function U(s) {
+      const l = s.pointerId === g[0] ? g[1] : g[0];
+      return j[l];
+    }
+    t.domElement.addEventListener("contextmenu", Re), t.domElement.addEventListener("pointerdown", Ie), t.domElement.addEventListener("pointercancel", $), t.domElement.addEventListener("wheel", Oe, { passive: !1 }), t.domElement.getRootNode().addEventListener("keydown", Ce, { passive: !0, capture: !0 }), this.update();
   }
 }
-class _r extends br {
-  constructor(e, r) {
-    super(e, r), this.screenSpacePanning = !1, this.mouseButtons = { LEFT: k.PAN, MIDDLE: k.DOLLY, RIGHT: k.ROTATE }, this.touches = { ONE: U.PAN, TWO: U.DOLLY_ROTATE };
+class Wo extends Uo {
+  constructor(e, o) {
+    super(e, o), this.screenSpacePanning = !1, this.mouseButtons = { LEFT: N.PAN, MIDDLE: N.DOLLY, RIGHT: N.ROTATE }, this.touches = { ONE: Y.PAN, TWO: Y.DOLLY_ROTATE };
   }
 }
-xt.DEFAULT_UP.set(0, 0, 1);
-class xr extends Ne {
+class Ho extends tt {
   scene;
   renderer;
   camera;
@@ -2148,7 +2081,7 @@ class xr extends Ne {
   ambLight;
   dirLight;
   container;
-  _clock = new Be();
+  _clock = new et();
   _fogFactor = 1;
   get fogFactor() {
     return this._fogFactor;
@@ -2162,49 +2095,54 @@ class xr extends Ne {
   get height() {
     return this.container.clientHeight;
   }
-  constructor(e, r = new p(0, 3e3, 0), t = new p(0, -1e3, 1e4)) {
-    super(), this.container = e, this.renderer = this._createRenderer(), this.scene = this._createScene(), this.camera = this._createCamera(t), this.controls = this._createControls(r, this.camera, e), this.ambLight = this._createAmbLight(), this.scene.add(this.ambLight), this.dirLight = this._createDirLight(), this.scene.add(this.dirLight), this.container.appendChild(this.renderer.domElement), window.addEventListener("resize", this.resize.bind(this)), this.resize(), this.animate();
+  constructor(e, o = { centerPostion: new m(0, 0, -3e3), cameraPosition: new m(0, 3e4, 0) }) {
+    super();
+    const t = typeof e == "string" ? document.querySelector(e) : e;
+    if (t instanceof HTMLElement)
+      this.container = t, this.renderer = this._createRenderer(), this.scene = this._createScene(), this.camera = this._createCamera(o.cameraPosition), this.controls = this._createControls(o.centerPostion), this.ambLight = this._createAmbLight(), this.scene.add(this.ambLight), this.dirLight = this._createDirLight(o.centerPostion), this.scene.add(this.dirLight), this.container.appendChild(this.renderer.domElement), window.addEventListener("resize", this.resize.bind(this)), this.resize(), this.renderer.setAnimationLoop(this.animate.bind(this));
+    else
+      throw `${e} not found!}`;
   }
   _createScene() {
-    const e = new wt(), r = 14414079;
-    return e.background = new X(r), e.fog = new Ce(r, 0), e;
+    const e = new Bt(), o = 14414079;
+    return e.background = new xe(o), e.fog = new We(o, 0), e;
   }
   _createRenderer() {
-    const e = new Tt({
+    const e = new Yt({
       antialias: !1,
       alpha: !0,
       logarithmicDepthBuffer: !0,
       precision: "highp"
     });
-    return e.debug.checkShaderErrors = !0, e.toneMapping = 0, e.sortObjects = !0, e.setPixelRatio(window.devicePixelRatio), e;
+    return e.debug.checkShaderErrors = !0, e.sortObjects = !0, e.setPixelRatio(window.devicePixelRatio), e;
   }
   _createCamera(e) {
-    const r = new Lt(70, 1, 0.1, 5e4);
-    return r.position.copy(e), r;
+    const o = new Gt(70, 1, 0.1, 5e4);
+    return o.position.copy(e), o;
   }
-  _createControls(e, r, t) {
-    const n = new _r(r, t);
-    return n.target.copy(e), n.minDistance = 0.1, n.maxDistance = 3e4, n.maxPolarAngle = 1.1, n.enableDamping = !0, n.keyPanSpeed = 5, n.listenToKeyEvents(window), n.addEventListener("change", () => {
-      const o = Math.max(this.controls.getPolarAngle(), 0.1), a = Math.max(this.controls.getDistance(), 0.1);
-      n.zoomSpeed = Math.max(Math.log(a), 1.8), this.camera.far = H.clamp(a / o * 8, 100, 5e4), this.camera.near = this.camera.far / 1e3, this.camera.updateProjectionMatrix(), this.scene.fog instanceof Ce && (this.scene.fog.density = o / (a + 5) / 4 * this.fogFactor), a > 8e3 ? (n.minAzimuthAngle = 0, n.maxAzimuthAngle = 0) : (n.minAzimuthAngle = -1 / 0, n.maxAzimuthAngle = 1 / 0), n.maxPolarAngle = Math.min(Math.pow(1e4, 4) / Math.pow(a, 4), 1.1);
-    }), n.saveState(), n;
+  _createControls(e) {
+    const o = new Wo(this.camera, this.container);
+    return o.target.copy(e), o.screenSpacePanning = !1, o.minDistance = 0.1, o.maxDistance = 3e4, o.enableDamping = !0, o.keyPanSpeed = 5, o.listenToKeyEvents(window), o.addEventListener("change", () => {
+      const t = Math.max(this.controls.getPolarAngle(), 0.1), i = Math.max(this.controls.getDistance(), 0.1);
+      o.zoomSpeed = Math.max(Math.log(i), 1.8), this.camera.far = H.clamp(i / t * 8, 100, 5e4), this.camera.near = this.camera.far / 1e3, this.camera.updateProjectionMatrix(), this.scene.fog instanceof We && (this.scene.fog.density = t / (i + 5) * this.fogFactor * 0.25), i > 8e3 ? (o.minAzimuthAngle = 0, o.maxAzimuthAngle = 0) : (o.minAzimuthAngle = -1 / 0, o.maxAzimuthAngle = 1 / 0), o.maxPolarAngle = Math.min(Math.pow(1e4, 4) / Math.pow(i, 4), 1.3);
+    }), o;
   }
   _createAmbLight() {
-    return new St(16777215, 0.5);
+    return new Zt(16777215, 1);
   }
-  _createDirLight() {
-    const e = new Mt(16777215, 0.5);
-    return e.target.position.copy(this.controls.target), e.position.set(-1e3, -2e3, 1e4), e;
+  _createDirLight(e) {
+    const o = new Ut(16777215, 1);
+    return o.position.set(0, 2e3, 1e3), o.target.position.copy(e), o;
   }
   resize() {
-    const e = this.width, r = this.height;
-    return this.renderer.setPixelRatio(window.devicePixelRatio), this.renderer.setSize(e, r), this.camera.aspect = e / r, this.camera.updateProjectionMatrix(), this;
+    const e = this.width, o = this.height;
+    return this.renderer.setPixelRatio(window.devicePixelRatio), this.renderer.setSize(e, o), this.camera.aspect = e / o, this.camera.updateProjectionMatrix(), this;
   }
   animate() {
-    this.controls.update(), this.renderer.render(this.scene, this.camera), this.dispatchEvent({ type: "update", delta: this._clock.getDelta() }), requestAnimationFrame(this.animate.bind(this));
+    this.controls.update(), this.renderer.render(this.scene, this.camera), this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
   }
 }
-class wr extends w {
+class Xo extends _ {
   token = "";
   format = "webp";
   style = "mapbox.satellite";
@@ -2215,7 +2153,7 @@ class wr extends w {
     super(e), Object.assign(this, e);
   }
 }
-class Tr extends w {
+class Ko extends _ {
   dataType = "image";
   attribution = "ArcGIS";
   style = "World_Imagery";
@@ -2224,7 +2162,7 @@ class Tr extends w {
     super(e), Object.assign(this, e);
   }
 }
-class Lr extends w {
+class $o extends _ {
   dataType = "lerc";
   attribution = "ArcGIS";
   maxLevel = 13;
@@ -2233,7 +2171,7 @@ class Lr extends w {
     super(e), Object.assign(this, e);
   }
 }
-class Sr extends w {
+class Vo extends _ {
   dataType = "image";
   attribution = "Bing[GS(2021)1731号]";
   style = "A";
@@ -2242,21 +2180,21 @@ class Sr extends w {
   constructor(e) {
     super(e), Object.assign(this, e);
   }
-  getUrl(e, r, t) {
-    const n = Mr(t, e, r);
-    return `https://t${this.s}.dynamic.tiles.ditu.live.com/comp/ch/${n}?mkt=${this.mkt}&ur=CN&it=${this.style}&n=z&og=804&cstl=vb`;
+  getUrl(e, o, t) {
+    const i = qo(t, e, o);
+    return `https://t${this.s}.dynamic.tiles.ditu.live.com/comp/ch/${i}?mkt=${this.mkt}&ur=CN&it=${this.style}&n=z&og=804&cstl=vb`;
   }
 }
-function Mr(s, e, r) {
+function qo(r, e, o) {
   let t = "";
-  for (let n = s; n > 0; n--) {
-    const o = 1 << n - 1;
+  for (let i = r; i > 0; i--) {
+    const n = 1 << i - 1;
     let a = 0;
-    e & o && a++, r & o && (a += 2), t += a;
+    e & n && a++, o & n && (a += 2), t += a;
   }
   return t;
 }
-class Er extends w {
+class Qo extends _ {
   dataType = "image";
   attribution = "高德[GS(2021)6375号]";
   style = "8";
@@ -2267,7 +2205,7 @@ class Er extends w {
     super(e), Object.assign(this, e);
   }
 }
-class Ar extends w {
+class Jo extends _ {
   dataType = "image";
   maxLevel = 16;
   attribution = "GeoQ[GS(2019)758号]";
@@ -2277,7 +2215,7 @@ class Ar extends w {
     super(e), Object.assign(this, e);
   }
 }
-class Pr extends w {
+class es extends _ {
   dataType = "image";
   attribution = "Google";
   maxLevel = 20;
@@ -2285,15 +2223,15 @@ class Pr extends w {
   subdomains = "0123";
   // 已失效
   // public url = "https://gac-geo.googlecnapps.cn/maps/vt?lyrs={style}&x={x}&y={y}&z={z}";
-  // 2024年新地址，不知道能坚持多久
-  // public url = "https://gac-geo.googlecnapps.club/maps/vt?lyrs={style}&x={x}&y={y}&z={z}";
-  // 想访问原版google，你懂的
-  url = "http://mt{s}.google.com/vt/lyrs={style}&src=app&x={x}&y={y}&z={z}";
+  // 2024年新地址，不知道能坚持多久。 续：坚持不到10天就挂了。
+  url = "https://gac-geo.googlecnapps.club/maps/vt?lyrs={style}&x={x}&y={y}&z={z}";
+  // 访问原版google，你懂的
+  // public url = "http://mt{s}.google.com/vt/lyrs={style}&src=app&x={x}&y={y}&z={z}";
   constructor(e) {
     super(e), Object.assign(this, e);
   }
 }
-class Dr extends w {
+class ts extends _ {
   attribution = "MapTiler";
   token = "get_your_own_key_QmavnBrQwNGsQ8YvPzZg";
   format = "jpg";
@@ -2303,7 +2241,7 @@ class Dr extends w {
     super(e), Object.assign(this, e);
   }
 }
-class Cr extends w {
+class os extends _ {
   dataType = "image";
   attribution = "Stadia";
   url = "https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}.jpg";
@@ -2311,7 +2249,7 @@ class Cr extends w {
     super(e), Object.assign(this, e);
   }
 }
-class jr extends w {
+class ss extends _ {
   dataType = "image";
   attribution = "天地图[GS(2023)336号]";
   token = "";
@@ -2321,13 +2259,8 @@ class jr extends w {
   constructor(e) {
     super(e), Object.assign(this, e);
   }
-  // public getUrl(x: number, y: number, z: number): string {
-  //     const proj = this.projection === "3857" ? "w" : "c";
-  //     const layer = this.style.substring(0, 3);
-  //     return `https://${this.s}.tianditu.gov.cn/${this.style}/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=${layer}&STYLE=default&TILEMATRIXSET=${proj}&FORMAT=tiles&TILEMATRIX=${z}&TILEROW=${y}&TILECOL=${x}&tk=${this.token}`;
-  // }
 }
-class Or extends w {
+class is extends _ {
   dataType = "image";
   style = "sateTiles";
   attribution = "腾讯[GS(2023)1号]";
@@ -2336,12 +2269,12 @@ class Or extends w {
   constructor(e) {
     super(e), Object.assign(this, e);
   }
-  getUrl(e, r, t) {
-    const n = e >> 4, o = (1 << t) - r >> 4, a = Math.pow(2, t) - 1 - r;
-    return `https://p${this.s}.map.gtimg.com/${this.style}/${t}/${n}/${o}/${e}_${a}.jpg`;
+  getUrl(e, o, t) {
+    const i = e >> 4, n = (1 << t) - o >> 4, a = Math.pow(2, t) - 1 - o;
+    return `https://p${this.s}.map.gtimg.com/${this.style}/${t}/${i}/${n}/${e}_${a}.jpg`;
   }
 }
-class Ir extends w {
+class rs extends _ {
   attribution = "中科星图[GS(2022)3995号]";
   token = "";
   style = "img";
@@ -2352,7 +2285,7 @@ class Ir extends w {
     super(e), Object.assign(this, e);
   }
 }
-const zr = `
+const ns = `
 varying vec2 vUv;
 uniform vec3 bkColor;
 uniform vec3 airColor;
@@ -2361,7 +2294,7 @@ void main() {
     vUv = uv;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);  
 }  
-`, kr = `
+`, as = `
 
 
 
@@ -2374,32 +2307,33 @@ void main() {
     // 当前点距中点的距离
     float d = distance(vUv, vec2(0.5f))*5.0f;
     
-    if(d<0.47f){
-        // 球体颜色(<0.48)
-        float a = smoothstep(0.4f,0.0f,0.48f-d);     
+    if(d<0.49f){
+        // 球体颜色
+        float a = smoothstep(0.0f,0.4f,d-0.12f);     
         gl_FragColor = vec4(vec3(0.0f), a);               
-    } else if(d<0.48){
-        float c = (d-0.47f)/0.01f;
-        gl_FragColor =vec4(mix(vec3(0.0f),airColor,c*c),1.0f);
-    } else if(d<0.52f){
+    } else if(d<0.5){
+        float c = (d-0.48f)/0.02f;
+        gl_FragColor =vec4(mix(vec3(0.0f),airColor,c*c),1.5f-d);
+    } else if(d<0.53f){
         // 光晕(0.48-0.52)
-        float c = (d-0.48f)/0.04f;
+        float c = (d-0.49f)/0.04f;
         gl_FragColor = vec4(mix(airColor,bkColor,sqrt(c)),1.0);
     } else{
         // 球体外颜色
         gl_FragColor = vec4(bkColor,1.0f);
     }
     
-    #include <tonemapping_fragment>
-    #include <encodings_fragment>    
+    // #include <tonemapping_fragment>
+    // #include <encodings_fragment>    
+    // #include <colorspace_fragment>
     
 }  
 `;
-class Xe extends Fe {
+class dt extends Wt {
   constructor(e) {
     super({
-      uniforms: Ue.merge([
-        Et.fog,
+      uniforms: Ht.merge([
+        Xt.fog,
         {
           bkColor: {
             value: e.bkColor
@@ -2411,61 +2345,58 @@ class Xe extends Fe {
       ]),
       transparent: !0,
       depthTest: !1,
-      vertexShader: zr,
-      fragmentShader: kr,
+      vertexShader: ns,
+      fragmentShader: as,
       lights: !1
     });
   }
 }
-class Rr extends le {
+class cs extends be {
   get bkColor() {
     return this.material.uniforms.bkColor.value;
   }
   set bkColor(e) {
     this.material.uniforms.bkColor.value.set(e);
   }
-  constructor(e, r = new X(6724044)) {
-    super(new Z(5, 5), new Xe({ bkColor: e, airColor: r })), this.renderOrder = 999;
+  constructor(e, o = new xe(6724044)) {
+    super(new G(5, 5), new dt({ bkColor: e, airColor: o })), this.renderOrder = 999;
   }
 }
-const Nr = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const ps = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  ArcGisDemSource: Lr,
-  ArcGisSource: Tr,
-  BingSource: Sr,
-  EarthMaskMaterial: Xe,
-  FakeEarth: Rr,
-  GDSource: Er,
-  GLViewer: xr,
-  GeoqSource: Ar,
-  GoogleSource: Pr,
-  MapBoxSource: wr,
-  MapTilerSource: Dr,
-  StadiaSource: Cr,
-  TDTSource: jr,
-  TXSource: Or,
-  ZKXTSource: Ir
-}, Symbol.toStringTag, { value: "Module" })), Gr = Ge.version, Yr = Ge.author;
+  ArcGisDemSource: $o,
+  ArcGisSource: Ko,
+  BingSource: Vo,
+  EarthMaskMaterial: dt,
+  FakeEarth: cs,
+  GDSource: Qo,
+  GLViewer: Ho,
+  GeoqSource: Jo,
+  GoogleSource: es,
+  MapBoxSource: Xo,
+  MapTilerSource: ts,
+  StadiaSource: os,
+  TDTSource: ss,
+  TXSource: is,
+  ZKXTSource: rs
+}, Symbol.toStringTag, { value: "Module" })), fs = ot.version, gs = ot.author;
 export {
-  w as BaseSource,
-  Jt as FileLoaderEx,
-  Ye as ImageLoaderEx,
-  _ as LoaderFactory,
-  Ke as ProjMCT,
-  hr as ProjWGS,
-  Y as Projection,
-  Ie as RootTile,
-  Q as Tile,
-  qt as TileGridGeometry,
-  rr as TileLoader,
-  Ve as TileMap,
-  Ur as TileMaterial,
-  Zr as TileSimpleGeometry,
-  ir as TileTextureLoader,
-  Yr as author,
-  He as getSafeTileUrlAndRect,
-  Nr as plugin,
-  We as rect2ImageBounds,
-  Br as resizeImage,
-  Gr as version
+  To as FileLoaderEx,
+  st as ImageLoaderEx,
+  L as LoaderFactory,
+  yo as RootTile,
+  ne as Tile,
+  wo as TileGridGeometry,
+  vo as TileLoader,
+  lt as TileMap,
+  bo as TileMaterial,
+  us as TileSimpleGeometry,
+  _ as TileSource,
+  _o as TileTextureLoader,
+  gs as author,
+  rt as getSafeTileUrlAndRect,
+  ps as plugin,
+  it as rect2ImageBounds,
+  ms as resizeImage,
+  fs as version
 };
