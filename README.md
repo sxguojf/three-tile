@@ -265,7 +265,7 @@ type MapParams = {
 
 ## 6. 示例
 
-提供一个完整浏览器引入方式示例供测试，可不用 web 服务直接在文件系统下运行：
+提供一个最小化示例：
 
 ```html
 <!DOCTYPE html>
@@ -276,7 +276,7 @@ type MapParams = {
 			name="viewport"
 			content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
 		/>
-		<title>three-tile</title>
+		<title>three-tile最小化应用</title>
 	</head>
 	<style>
 		html,
@@ -293,13 +293,22 @@ type MapParams = {
 		}
 	</style>
 
-	<script src="./three.js"></script>
-	<script src="./three-tile/three-tile.umd.cjs"></script>
+	<!-- 因three@v0.150+废弃了普通导入方式，需要改为使用importmap导入 -->
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+				"three-tile": "./three-tile/three-tile.js"
+			}
+		}
+	</script>
 
 	<body>
 		<div id="map"></div>
+		<script type="module">
+			import * as THREE from "three";
+			import * as tt from "three-tile";
 
-		<script>
 			console.log("three-tile start!");
 
 			// MapBoxToken 请更换为你自己申请的key
@@ -337,19 +346,21 @@ type MapParams = {
 			map.rotateX(-Math.PI / 2);
 
 			// 地图中心坐标(经度，纬度，高度)
-			const centerGeo = new THREE.Vector3(110, 30, 0);
+			const centerGeo = new THREE.Vector3(105, 30, 0);
 			// 摄像坐标(经度，纬度，高度)
-			const camersGeo = new THREE.Vector3(110, 0, 10000);
+			const camersGeo = new THREE.Vector3(105, 0, 5000);
 			// 地图中心转为世界坐标
 			const centerPostion = map.localToWorld(map.geo2pos(centerGeo));
 			// 摄像机转为世界坐标
 			const cameraPosition = map.localToWorld(map.geo2pos(camersGeo));
 			// 初始化场景
 			const viewer = new tt.plugin.GLViewer("#map", { centerPostion, cameraPosition });
+
 			// 地图添加到场景
 			viewer.scene.add(map);
 		</script>
 	</body>
 </html>
+
 
 ```

@@ -147,7 +147,7 @@ export class GLViewer extends EventDispatcher<Event> {
 			}
 
 			// limit the max polar on dist
-			controls.maxPolarAngle = Math.min(Math.pow(10000, 4) / Math.pow(dist, 4), 1.3);
+			controls.maxPolarAngle = Math.min(Math.pow(10000, 4) / Math.pow(dist, 4), 1.2);
 		});
 		return controls;
 	}
