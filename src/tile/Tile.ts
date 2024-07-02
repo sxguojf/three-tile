@@ -164,11 +164,11 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	 * @param raycaster
 	 * @param intersects
 	 */
-	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		if (this.loadState === "loaded") {
-			super.raycast(raycaster, intersects);
-		}
-	}
+	// public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
+	// 	if (this.loadState === "loaded") {
+	// 		super.raycast(raycaster, intersects);
+	// 	}
+	// }
 
 	/**
 	 * Level Of Details
