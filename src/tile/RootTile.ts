@@ -101,7 +101,7 @@ export class RootTile extends Tile {
 	// tile bounds, used to decide the tile in frustum, it greater than tile size to cache
 	private _tileBox = new Box3(
 		new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
-		new Vector3(this.viewerbufferSize, this.viewerbufferSize, 10),
+		new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
 	);
 
 	/**
