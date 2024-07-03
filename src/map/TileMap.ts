@@ -409,6 +409,7 @@ export class TileMap extends Mesh {
 	public update(camera: Camera) {
 		this.rootTile.receiveShadow = this.receiveShadow;
 		this.rootTile.castShadow = this.castShadow;
+		this.rootTile.update(camera);
 
 		// 动态调整地图高度
 		if (this.autoPosition) {
@@ -426,9 +427,6 @@ export class TileMap extends Mesh {
 				camera.position.add(dv);
 			}
 		}
-
-		// 更新瓦片树
-		this.rootTile.update(camera);
 
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 	}
