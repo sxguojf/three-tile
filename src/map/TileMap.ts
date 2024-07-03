@@ -54,11 +54,18 @@ export class TileMap extends Mesh {
 	public readonly isLOD = true;
 
 	/**
-	 * 瓦片是否在每帧渲染时自动更新
+
 	 * Whether the LOD object is updated automatically by the renderer per frame or not.
 	 * If set to false, you have to call LOD.update() in the render loop by yourself. Default is true.
+	 * 瓦片是否在每帧渲染时自动更新，默认为真
 	 */
 	public autoUpdate = true;
+
+	/**
+	 * Whether the camera can pass through the ground. Default is false.
+	 * 摄像机是否能穿过地面，默认为false
+	 */
+	public enableUnderground = false;
 
 	/**
 	 * Root tile, it is the root node of tile tree.
@@ -412,10 +419,31 @@ export class TileMap extends Mesh {
 			this.position.sub(dv);
 		}
 
+		// 防止摄像机钻入地下
+		if (!this.enableUnderground) {
+			while (this._getHightFromCamera(camera) < 0.1) {
+				const dv = this.localToWorld(this.up.clone()).multiplyScalar(0.01);
+				camera.position.add(dv);
+			}
+		}
+
 		// 更新瓦片树
 		this.rootTile.update(camera);
 
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
+	}
+
+	private _getHightFromCamera(camera: Camera, dist: number = -0.1) {
+		// 取摄像机前100米的高度
+		const checkPoint = camera.localToWorld(new Vector3(0, dist, 0));
+		// 取该点下方的地面高度
+		const info = this.getLocalInfoFromWorld(checkPoint);
+		if (info) {
+			// 地面高度与摄像机高度差
+			return this.worldToLocal(checkPoint).z - info.point.z;
+		} else {
+			return 10;
+		}
 	}
 
 	/**

@@ -11,6 +11,7 @@ export const createControlGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.T
 	folder.add(viewer.controls, "enableDamping");
 	folder.add(viewer.controls, "autoRotate");
 	folder.add(map, "autoUpdate");
+	folder.add(map, "enableUnderground");
 	folder.add(map.rootTile, "visible");
 	folder.add(map, "dispose");
 
