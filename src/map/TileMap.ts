@@ -307,8 +307,10 @@ export class TileMap extends Mesh {
 	public set demSource(value: ISource | undefined) {
 		if (value) {
 			this._demSource = new SourceWithProjection(value, this.projection);
-			this.loader.demSource = this._demSource;
+		} else {
+			this._demSource = undefined;
 		}
+		this.loader.demSource = this._demSource;
 
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
