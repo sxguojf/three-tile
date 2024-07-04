@@ -14,7 +14,7 @@ export { showCompass } from "./compass";
 export function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const gui = new GUI();
 	// 数据源
-	createSourceGui(gui, map);
+	createSourceGui(gui, viewer, map);
 	// 地图控制
 	createControlGui(gui, viewer, map);
 	// 加载器

@@ -49,6 +49,7 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 	}
 
 	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void, onError: (err: any) => void) {
+		// 降低高程瓦片分辨率，以提高速度
 		// get tile size in pixel
 		let tileSize = tile.coord.z * 3;
 		tileSize = Math.min(Math.max(tileSize, 2), 48);
@@ -97,7 +98,9 @@ function Img2dem(imgData: Uint8ClampedArray) {
 
 /**
  * get pixel from image
- * @param image
+ * 从图片中截取指定区域子图像，缩放到size大小，返回像素数组
+ * todo: 此处可能有bug，待确认
+ * @param image 源图像
  * @param size dest size
  * @param rect source rect
  * @returns pixel
@@ -106,13 +109,28 @@ function getImageDataFromRect(image: HTMLImageElement, size: number, rect: Box2)
 	const canvas = new OffscreenCanvas(size, size);
 	const ctx = canvas.getContext("2d")!;
 	ctx.imageSmoothingEnabled = false;
+	// 取得子图像范围
 	const prect = rect2ImageBounds(rect, image.width);
-	if (size > prect.sw) {
-		size = prect.sw;
+	let newSize = size;
+	if (newSize > prect.sw) {
+		newSize = prect.sw;
 	}
 	//const { sx, sy, sw, sh } = rect2ImageBounds(rect, image.width);
-	ctx.drawImage(image, prect.sx, prect.sy, prect.sw, prect.sh, 0, 0, size, size);
-	return { data: ctx.getImageData(0, 0, size, size).data, size };
+	ctx.drawImage(image, prect.sx, prect.sy, prect.sw, prect.sh, 0, 0, newSize, newSize);
+	const result = { data: ctx.getImageData(0, 0, newSize, newSize).data, size: newSize };
+	if (result.size / 4 != newSize * newSize) {
+		console.error("image size error");
+	}
+	return result;
 }
 
 LoaderFactory.registerGeometryLoader(new TileGeometryRGBLoader());
+
+// function getSubImageFromRect(image: HTMLImageElement, rect: Box2) {
+// 	const size = image.width;
+// 	const canvas = new OffscreenCanvas(size, size);
+// 	const ctx = canvas.getContext("2d")!;
+// 	const { sx, sy, sw, sh } = rect2ImageBounds(rect, image.width);
+// 	ctx.drawImage(image, sx, sy, sw, sh, 0, 0, size, size);
+// 	return canvas;
+// }
