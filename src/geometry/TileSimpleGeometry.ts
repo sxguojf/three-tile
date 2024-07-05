@@ -3,7 +3,7 @@ import { PlaneGeometry } from "three";
 /**
  * Create geomety from rules grid dem, it has gap between tiles
  */
-export abstract class TileSimpleGeometry extends PlaneGeometry {
+export class TileSimpleGeometry extends PlaneGeometry {
 	protected build(dem: ArrayLike<number>, tileSize: number) {
 		this.dispose();
 		this.copy(new PlaneGeometry(1, 1, tileSize - 1, tileSize - 1));
