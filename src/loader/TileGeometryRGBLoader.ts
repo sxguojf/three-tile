@@ -59,7 +59,7 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 			url,
 			// onLoad
 			(image) => {
-				const { data, size } = getImageDataFromRect(image, tileSize, rect);
+				const { data, size } = getImageDataFromRect(image, rect, tileSize);
 				geometry.setData(Img2dem(data), size);
 				onLoad();
 			},
@@ -80,10 +80,13 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 // RGB to dem (Mapbox Terrain-RGB v1)
 // https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-rgb-v1/
 function getZ(imgData: Uint8ClampedArray, i: number) {
+	// 透明像素直接返回高度0
+	// if (imgData[i * 4 + 3] === 0) {
+	// 	return 0;
+	// }
 	const r = imgData[i * 4];
 	const g = imgData[i * 4 + 1];
 	const b = imgData[i * 4 + 2];
-	// return ((r * 256.0 * 256.0 + g * 256.0 + b) * 0.1 - 10000.0) / 1000.0;
 	return (((r << 16) + (g << 8) + b) * 0.1 - 10000.0) / 1000.0;
 }
 
@@ -98,27 +101,27 @@ function Img2dem(imgData: Uint8ClampedArray) {
 
 /**
  * get pixel from image
- * 从图片中截取指定区域子图像，缩放到size大小，返回像素数组
+ * 从图片中截取指定区域子图像，缩放到size大小，返回其中的像素数组
  * todo: 此处可能有bug，待确认
  * @param image 源图像
- * @param size dest size
- * @param rect source rect
+ * @param bounds clip bounds
+ * @param targetSize dest size
  * @returns pixel
  */
-function getImageDataFromRect(image: HTMLImageElement, size: number, rect: Box2) {
-	const canvas = new OffscreenCanvas(size, size);
+function getImageDataFromRect(image: HTMLImageElement, bounds: Box2, targetSize: number) {
+	// 取得子图像范围
+	const cropRect = rect2ImageBounds(bounds, image.width);
+	// 如果需要的瓦片大小>截取的图片大小，则只用截取的大小，比如我想要48*48的瓦片，但是截取的图片只有32*32，那么就只用32*32
+	if (targetSize > cropRect.sw) {
+		targetSize = cropRect.sw;
+	}
+
+	const canvas = new OffscreenCanvas(targetSize, targetSize);
 	const ctx = canvas.getContext("2d")!;
 	ctx.imageSmoothingEnabled = false;
-	// 取得子图像范围
-	const prect = rect2ImageBounds(rect, image.width);
-	let newSize = size;
-	if (newSize > prect.sw) {
-		newSize = prect.sw;
-	}
-	//const { sx, sy, sw, sh } = rect2ImageBounds(rect, image.width);
-	ctx.drawImage(image, prect.sx, prect.sy, prect.sw, prect.sh, 0, 0, newSize, newSize);
-	const result = { data: ctx.getImageData(0, 0, newSize, newSize).data, size: newSize };
-	if (result.size / 4 != newSize * newSize) {
+	ctx.drawImage(image, cropRect.sx, cropRect.sy, cropRect.sw, cropRect.sh, 0, 0, targetSize, targetSize);
+	const result = { data: ctx.getImageData(0, 0, targetSize, targetSize).data, size: targetSize };
+	if (result.data.length != targetSize * targetSize * 4) {
 		console.error("image size error");
 	}
 	return result;

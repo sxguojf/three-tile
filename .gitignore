@@ -23,3 +23,5 @@ mydocs
 *.njsproj
 *.sln
 *.sw?
+
+testSource

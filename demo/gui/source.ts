@@ -175,7 +175,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 				minLevel: 5,
 			});
 
-			map.imgSource = [ms.arcGisSource, imgSource, ms.testSource];
+			map.imgSource = [imgSource, ms.testSource];
 			map.demSource = demSource;
 
 			// Move the camera to the bounds
