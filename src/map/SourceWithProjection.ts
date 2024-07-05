@@ -41,15 +41,6 @@ export class SourceWithProjection extends TileSource {
 		minY: number;
 	};
 
-	private _getTileXYBounds(z: number) {
-		const scale = Math.pow(2, z);
-		// 投影坐标转瓦片编号
-		const xRange = [Math.floor(this._bounds.minX / scale), Math.floor(this._bounds.maxX / scale)];
-		const yRange = [Math.floor(this._bounds.minY / scale), Math.floor(this._bounds.maxY / scale)];
-
-		return { xRange, yRange };
-	}
-
 	private _getTileBounds(x: number, y: number, z: number, s: number = 1) {
 		const p1 = this.projection.getTileXYZproj(x, y, z);
 		const p2 = this.projection.getTileXYZproj(x + s, y + s, z);
@@ -79,7 +70,7 @@ export class SourceWithProjection extends TileSource {
 		}
 
 		// 判断请求的瓦片是否在数据源经纬度有效范围内
-		const s = 0.9;
+		const s = 1;
 		const bounds = this._bounds;
 		// 取得当前瓦片的bounds
 		const tileBounds = this._getTileBounds(newx, y, z, s);
