@@ -1,4 +1,4 @@
-import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader } from "three";
+import { Color, MathUtils, Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader } from "three";
 import * as tt from "../src";
 import { FakeEarth } from "../src/plugin/fakeEarth";
 
@@ -50,7 +50,7 @@ export function addMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	// 当logarithmicDepthBuffer=true时，调整多边形偏移无效，所以直接调整背景Z坐标
 	viewer.controls.addEventListener("change", () => {
 		const dist = viewer.controls.getDistance();
-		const dz = Math.min(Math.max(Math.log(dist) * 3, 0), 1);
+		const dz = MathUtils.clamp(Math.log(dist) * 3, 0, 1);
 		backGround.position.setZ(-(dz + 0.5));
 	});
 

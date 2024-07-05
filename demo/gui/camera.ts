@@ -49,9 +49,9 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			flyToGeo(g1, g2);
 		},
 		toYanan: () => {
-			const g1 = new Vector3(109.49353372381903, 36.59636418262586, 3.3572026657301923);
-			const g2 = new Vector3(109.49500701539671, 36.6218368088748, 0);
-			flyToGeo(g1, g2);
+			const camera = new Vector3(109.48543504270644, 36.59146704194476, 1.6124168502501655);
+			const center = new Vector3(109.49721492409648, 36.613511416979144, 2.587750541118096e-16);
+			flyToGeo(camera, center);
 		},
 		toQomolangma: () => {
 			const g1 = new Vector3(86.80606589682316, 27.95599784430085, 8.632029116020213);

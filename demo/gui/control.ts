@@ -3,7 +3,7 @@ import * as tt from "../../src";
 
 export const createControlGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const folder = gui.addFolder("Map control").close();
-	folder.add(map.scale, "z", 1, 10, 0.1).name("Hight scale").listen();
+	folder.add(map.scale, "z", 1, 50, 0.1).name("Hight scale").listen();
 	// folder.add(viewer.controls.target, "y", -1, 1, 0.01).name("Controls").listen();
 	folder.add(map.position, "y", -5, 5, 0.01).name("Map Y").listen();
 	folder.add(map, "autoPosition");

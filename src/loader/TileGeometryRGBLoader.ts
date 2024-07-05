@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Box2, BufferGeometry, Loader, PlaneGeometry } from "three";
+import { Box2, BufferGeometry, Loader, MathUtils } from "three";
 import { TileGridGeometry } from "../geometry";
 import { ISource } from "../source";
 import { Tile } from "../tile";
@@ -30,11 +30,6 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 	 * @returns
 	 */
 	public load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void) {
-		// discard dem if level<8
-		if (tile.coord.z < 8) {
-			setTimeout(onLoad);
-			return new PlaneGeometry();
-		}
 		// get max level tile and rect
 		const { url, rect } = getSafeTileUrlAndRect(source, tile);
 
@@ -52,7 +47,7 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 		// 降低高程瓦片分辨率，以提高速度
 		// get tile size in pixel
 		let tileSize = tile.coord.z * 3;
-		tileSize = Math.min(Math.max(tileSize, 2), 48);
+		tileSize = MathUtils.clamp(tileSize, 2, 48);
 
 		const geometry = this.createGeometry();
 		this.imageLoader.load(
@@ -81,9 +76,9 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 // https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-rgb-v1/
 function getZ(imgData: Uint8ClampedArray, i: number) {
 	// 透明像素直接返回高度0
-	// if (imgData[i * 4 + 3] === 0) {
-	// 	return 0;
-	// }
+	if (imgData[i * 4 + 3] === 0) {
+		return 0;
+	}
 	const r = imgData[i * 4];
 	const g = imgData[i * 4 + 1];
 	const b = imgData[i * 4 + 2];
@@ -112,9 +107,7 @@ function getImageDataFromRect(image: HTMLImageElement, bounds: Box2, targetSize:
 	// 取得子图像范围
 	const cropRect = rect2ImageBounds(bounds, image.width);
 	// 如果需要的瓦片大小>截取的图片大小，则只用截取的大小，比如我想要48*48的瓦片，但是截取的图片只有32*32，那么就只用32*32
-	if (targetSize > cropRect.sw) {
-		targetSize = cropRect.sw;
-	}
+	targetSize = Math.min(targetSize, cropRect.sw);
 
 	const canvas = new OffscreenCanvas(targetSize, targetSize);
 	const ctx = canvas.getContext("2d")!;

@@ -1,4 +1,4 @@
-import { Box2, BufferGeometry, Loader, PlaneGeometry } from "three";
+import { Box2, BufferGeometry, Loader, MathUtils, PlaneGeometry } from "three";
 
 import {
 	FileLoaderEx,
@@ -59,7 +59,7 @@ export class TileGeometryLercLoader extends Loader implements ITileGeometryLoade
 	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void, onError: (err: any) => void) {
 		// 计算瓦片图片大小（像素）
 		let tileSize = tile.coord.z * 3;
-		tileSize = Math.min(Math.max(tileSize, 2), 48);
+		tileSize = MathUtils.clamp(tileSize, 2, 48);
 
 		const geometry = new TileGridGeometry();
 
