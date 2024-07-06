@@ -4,7 +4,7 @@ import {
 	FileLoaderEx,
 	ITileGeometryLoader,
 	LoaderFactory,
-	getSafeTileUrlAndRect,
+	getSafeTileUrlAndBounds,
 	rect2ImageBounds,
 } from "../../loader";
 
@@ -45,7 +45,7 @@ export class TileGeometryLercLoader extends Loader implements ITileGeometryLoade
 			return new PlaneGeometry();
 		}
 		// 计算最大级别瓦片和本瓦片在其中的位置
-		const { url, rect } = getSafeTileUrlAndRect(source, tile);
+		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
 
 		// 没有url，返回默认几何体
 		if (!url) {
@@ -53,10 +53,10 @@ export class TileGeometryLercLoader extends Loader implements ITileGeometryLoade
 			return emptyGeometry;
 		}
 
-		return this._load(tile, url, rect, onLoad, onError);
+		return this._load(tile, url, bounds, onLoad, onError);
 	}
 
-	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void, onError: (err: any) => void) {
+	private _load(tile: Tile, url: any, bounds: Box2, onLoad: () => void, onError: (err: any) => void) {
 		// 计算瓦片图片大小（像素）
 		let tileSize = tile.coord.z * 3;
 		tileSize = MathUtils.clamp(tileSize, 2, 48);
@@ -69,7 +69,7 @@ export class TileGeometryLercLoader extends Loader implements ITileGeometryLoade
 			(buffer) => {
 				this.decode(buffer).then((value: { width: number; dem: Float32Array }) => {
 					// 从dem中取出rect范围内数据，并缩放到tileSize大小
-					const { data, size } = this.clip(value.dem, value.width, rect, tileSize);
+					const { data, size } = this.clip(value.dem, value.width, bounds, tileSize);
 					geometry.setData(data, size);
 					onLoad();
 				});

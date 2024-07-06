@@ -9,9 +9,9 @@ import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
-import { getSafeTileUrlAndRect, rect2ImageBounds } from "./util";
+import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
 
-const EMPTYIMAGE = new Texture(new Image(1, 1));
+const emptyTexture = new Texture(new Image(1, 1));
 /**
  * texture loader
  */
@@ -31,12 +31,12 @@ export class TileTextureLoader {
 		onLoad: () => void,
 		onError: (err: ErrorEvent | DOMException | Event) => void,
 	): Texture {
-		// get the max level and rect in tile
-		const { url, rect } = getSafeTileUrlAndRect(source, tile);
+		// get the max level and bounds in tile
+		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
 
 		if (!url) {
-			setTimeout(onLoad);
-			return EMPTYIMAGE;
+			setTimeout(onLoad, 10);
+			return emptyTexture;
 		}
 
 		const texture = new Texture(new Image());
@@ -66,16 +66,16 @@ export class TileTextureLoader {
 }
 
 /**
- * get sub image from source image in rect
+ * get sub image in rect from source image
  * @param image source image
- * @rect  rect(orgin is (0,0), range is (-1,1))
+ * @bounds  rect (orgin is (0,0), range is (-1,1))
  * @returns sub image
  */
-function getSubImageFromRect(image: HTMLImageElement, rect: Box2) {
+function getSubImageFromRect(image: HTMLImageElement, bounds: Box2) {
 	const size = image.width;
 	const canvas = new OffscreenCanvas(size, size);
 	const ctx = canvas.getContext("2d")!;
-	const { sx, sy, sw, sh } = rect2ImageBounds(rect, image.width);
+	const { sx, sy, sw, sh } = rect2ImageBounds(bounds, image.width);
 	ctx.drawImage(image, sx, sy, sw, sh, 0, 0, size, size);
 	return canvas;
 }

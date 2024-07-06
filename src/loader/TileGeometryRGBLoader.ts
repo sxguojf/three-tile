@@ -4,16 +4,16 @@
  *@date: 2023-04-06
  */
 
-import { Box2, BufferGeometry, Loader, MathUtils } from "three";
+import { Box2, Loader, PlaneGeometry } from "three";
 import { TileGridGeometry } from "../geometry";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ITileGeometryLoader } from "./ITileLoaders";
 import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
-import { getSafeTileUrlAndRect, rect2ImageBounds } from "./util";
+import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
 
-const EmptyGeometry = new BufferGeometry();
+// const EmptyGeometry = new PlaneGeometry();
 /**
  * Mapbox-RGB geometry loader
  */
@@ -31,31 +31,29 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 	 */
 	public load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void) {
 		// get max level tile and rect
-		const { url, rect } = getSafeTileUrlAndRect(source, tile);
+		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
 
 		if (!url) {
-			setTimeout(onLoad);
-			return EmptyGeometry;
+			setTimeout(onLoad, 100);
+			return new PlaneGeometry();
+		} else {
+			return this._load(tile, url, rect, onLoad, onError);
 		}
-
-		const geometry = this._load(tile, url, rect, onLoad, onError);
-
-		return geometry;
 	}
 
 	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void, onError: (err: any) => void) {
 		// 降低高程瓦片分辨率，以提高速度
 		// get tile size in pixel
 		let tileSize = tile.coord.z * 3;
-		tileSize = MathUtils.clamp(tileSize, 2, 48);
+		// tileSize = MathUtils.clamp(tileSize, 2, 48);
 
 		const geometry = this.createGeometry();
 		this.imageLoader.load(
 			url,
 			// onLoad
 			(image) => {
-				const { data, size } = getImageDataFromRect(image, rect, tileSize);
-				geometry.setData(Img2dem(data), size);
+				const imgData = getImageDataFromRect(image, rect, tileSize);
+				geometry.setData(Img2dem(imgData.data), imgData.width);
 				onLoad();
 			},
 			// onProgress
@@ -95,38 +93,22 @@ function Img2dem(imgData: Uint8ClampedArray) {
 }
 
 /**
- * get pixel from image
- * 从图片中截取指定区域子图像，缩放到size大小，返回其中的像素数组
- * todo: 此处可能有bug，待确认
+ * Get pixels in bounds from image and resize to targetSize
+ * 从image中截取bounds区域子图像，缩放到targetSize大小，返回其中的像素数组
  * @param image 源图像
  * @param bounds clip bounds
  * @param targetSize dest size
- * @returns pixel
+ * @returns imgData
  */
 function getImageDataFromRect(image: HTMLImageElement, bounds: Box2, targetSize: number) {
 	// 取得子图像范围
 	const cropRect = rect2ImageBounds(bounds, image.width);
-	// 如果需要的瓦片大小>截取的图片大小，则只用截取的大小，比如我想要48*48的瓦片，但是截取的图片只有32*32，那么就只用32*32
 	targetSize = Math.min(targetSize, cropRect.sw);
-
 	const canvas = new OffscreenCanvas(targetSize, targetSize);
 	const ctx = canvas.getContext("2d")!;
 	ctx.imageSmoothingEnabled = false;
 	ctx.drawImage(image, cropRect.sx, cropRect.sy, cropRect.sw, cropRect.sh, 0, 0, targetSize, targetSize);
-	const result = { data: ctx.getImageData(0, 0, targetSize, targetSize).data, size: targetSize };
-	if (result.data.length != targetSize * targetSize * 4) {
-		console.error("image size error");
-	}
-	return result;
+	return ctx.getImageData(0, 0, targetSize, targetSize);
 }
 
 LoaderFactory.registerGeometryLoader(new TileGeometryRGBLoader());
-
-// function getSubImageFromRect(image: HTMLImageElement, rect: Box2) {
-// 	const size = image.width;
-// 	const canvas = new OffscreenCanvas(size, size);
-// 	const ctx = canvas.getContext("2d")!;
-// 	const { sx, sy, sw, sh } = rect2ImageBounds(rect, image.width);
-// 	ctx.drawImage(image, sx, sy, sw, sh, 0, 0, size, size);
-// 	return canvas;
-// }

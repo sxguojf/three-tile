@@ -136,6 +136,7 @@ export class TileLoader extends Loader implements ITileLoader {
 				tile,
 				() => {
 					material.userData.loaded = true;
+					// check all of materials loaded
 					if (materials.every((mat) => mat.userData.loaded)) {
 						onLoad();
 					}

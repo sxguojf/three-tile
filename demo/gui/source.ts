@@ -171,11 +171,11 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 				dataType: "terrain-rgb",
 				url: urlPrefix + "/dem/{z}/{x}/{y}.png",
 				bounds,
-				maxLevel: 15,
 				minLevel: 5,
+				maxLevel: 15,
 			});
 
-			map.imgSource = [imgSource, ms.testSource];
+			map.imgSource = [ms.arcGisSource, imgSource];
 			map.demSource = demSource;
 
 			// Move the camera to the bounds
