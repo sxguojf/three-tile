@@ -21,6 +21,13 @@ import {
 
 import { MapControls } from "three/examples/jsm/controls/MapControls";
 
+type GLViewerOptions = {
+	centerPostion?: Vector3;
+	cameraPosition?: Vector3;
+	antialias?: boolean;
+	logarithmicDepthBuffer?: boolean;
+};
+
 /**
  * threejs scene viewer initialize class
  */
@@ -51,21 +58,25 @@ export class GLViewer extends EventDispatcher<Event> {
 		return this.container.clientHeight;
 	}
 
-	constructor(
-		container: HTMLElement | string,
-		options = { centerPostion: new Vector3(0, 0, -3000), cameraPosition: new Vector3(0, 30000, 0) },
-	) {
+	constructor(container: HTMLElement | string, options: GLViewerOptions = {}) {
 		super();
 		const el = typeof container === "string" ? document.querySelector(container) : container;
 		if (el instanceof HTMLElement) {
+			const {
+				centerPostion = new Vector3(0, 0, -3000),
+				cameraPosition = new Vector3(0, 30000, 0),
+				antialias = false,
+				logarithmicDepthBuffer = true,
+			} = options;
+
 			this.container = el;
-			this.renderer = this._createRenderer();
+			this.renderer = this._createRenderer(antialias, logarithmicDepthBuffer);
 			this.scene = this._createScene();
-			this.camera = this._createCamera(options.cameraPosition);
-			this.controls = this._createControls(options.centerPostion);
+			this.camera = this._createCamera(cameraPosition);
+			this.controls = this._createControls(centerPostion);
 			this.ambLight = this._createAmbLight();
 			this.scene.add(this.ambLight);
-			this.dirLight = this._createDirLight(options.centerPostion);
+			this.dirLight = this._createDirLight(centerPostion);
 			this.scene.add(this.dirLight);
 			this.container.appendChild(this.renderer.domElement);
 			window.addEventListener("resize", this.resize.bind(this));
@@ -84,11 +95,11 @@ export class GLViewer extends EventDispatcher<Event> {
 		return scene;
 	}
 
-	private _createRenderer() {
+	private _createRenderer(antialias: boolean, logarithmicDepthBuffer: boolean) {
 		const renderer = new WebGLRenderer({
-			antialias: false,
+			antialias,
+			logarithmicDepthBuffer,
 			alpha: true,
-			logarithmicDepthBuffer: true,
 			precision: "highp",
 		});
 		renderer.debug.checkShaderErrors = true;

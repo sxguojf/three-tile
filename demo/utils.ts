@@ -1,4 +1,14 @@
-import { Color, MathUtils, Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader } from "three";
+import {
+	Camera,
+	Color,
+	MathUtils,
+	Mesh,
+	MeshLambertMaterial,
+	PlaneGeometry,
+	SRGBColorSpace,
+	TextureLoader,
+	Vector3,
+} from "three";
 import * as tt from "../src";
 import { FakeEarth } from "../src/plugin/fakeEarth";
 
@@ -55,4 +65,35 @@ export function addMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	});
 
 	return backGround;
+}
+
+/**
+ * 限制摄像机进入地下
+ * 计算摄像机视线与近剪裁面交点的距地面高度，太低则向天顶上移相机。
+ * 如果开启Controls的惯性阻尼效果，摄像机地面碰撞时会有抖动
+ * @param viewer 视图
+ * @param map  地图
+ */
+export function limitCameraHeight(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+	function getHightFromCamera() {
+		// 取摄像机下方点
+		const dist = viewer.camera.near;
+		const checkPoint = viewer.camera.localToWorld(new Vector3(0, 0, -dist));
+		// 取该点下方的地面高度
+		const info = map.getLocalInfoFromWorld(checkPoint);
+		if (info) {
+			// 地面高度与摄像机高度差
+			return map.worldToLocal(checkPoint).z - info.point.z;
+		} else {
+			return 10;
+		}
+	}
+
+	viewer.controls.addEventListener("change", () => {
+		const h = getHightFromCamera();
+		if (h < 0.2) {
+			const dv = map.localToWorld(map.up.clone()).multiplyScalar(0.21 - h);
+			viewer.camera.position.add(dv);
+		}
+	});
 }

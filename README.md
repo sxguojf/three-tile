@@ -142,7 +142,7 @@ map.rotateX(-Math.PI / 2);
 viewer.scene.add(map);
 ```
 
-也可调用 TileMap 的构造函数创建地图。
+
 
 ### 3.3 初始化三维场景
 
@@ -262,9 +262,13 @@ type MapParams = {
 -   地图标注源：大部分国内厂商地图数据的地名、边界、道路有一定偏移，与地形无法完全匹配。
 -   地图 token：大部分厂商的地图数据需要申请开发 key 才能使用，three-tile 示例包含一些厂商的 token，访问的人多了厂商会封掉它们，使用者一定要自己申请（又不要钱）避免直接使用。
 
-更多使用方法见 example
+## 6. 运行
 
-## 6. 示例
+* npm run dev
+
+更多使用方法见 example  https://sxguojf.github.io/three-tile-example
+
+## 7. 示例
 
 提供一个最小化示例：
 

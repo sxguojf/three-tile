@@ -3,7 +3,7 @@ import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
-import { addFakeEarth, addMapBackground } from "./utils";
+import { addFakeEarth, addMapBackground, limitCameraHeight } from "./utils";
 
 console.log(`three-tile V${tt.version}, ${tt.author.name}`);
 
@@ -128,6 +128,9 @@ function main() {
 
 	// 添加伪地球遮罩
 	addFakeEarth(viewer, map);
+
+	// 防止摄像机进入地下
+	limitCameraHeight(viewer, map);
 
 	// 创建gui
 	initGui(viewer, map);

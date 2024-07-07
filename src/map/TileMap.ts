@@ -62,12 +62,6 @@ export class TileMap extends Mesh {
 	public autoUpdate = true;
 
 	/**
-	 * Whether the camera can pass through the ground. Default is false.
-	 * 摄像机是否能穿过地面，默认为false
-	 */
-	public enableUnderground = false;
-
-	/**
 	 * Root tile, it is the root node of tile tree.
 	 * 根瓦片
 	 */
@@ -332,6 +326,22 @@ export class TileMap extends Mesh {
 	}
 
 	/**
+	 * Get the map model width
+	 * 取得地图模型宽度
+	 */
+	public get width() {
+		return this.projection.mapWidth;
+	}
+
+	/**
+	 * Get the map model height
+	 * 取得地图模型高度
+	 */
+	public get height() {
+		return this.projection.mapHeight;
+	}
+
+	/**
      * Create a map using factory function
      * 地图创建工厂函数
        @param params 地图参数 {@link MapParams}
@@ -422,28 +432,7 @@ export class TileMap extends Mesh {
 			this.position.sub(dv);
 		}
 
-		// 防止摄像机钻入地下
-		if (!this.enableUnderground) {
-			while (this._getHightFromCamera(camera) < 0.1) {
-				const dv = this.localToWorld(this.up.clone()).multiplyScalar(0.01);
-				camera.position.add(dv);
-			}
-		}
-
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
-	}
-
-	private _getHightFromCamera(camera: Camera, dist: number = -0.1) {
-		// 取摄像机前100米的高度
-		const checkPoint = camera.localToWorld(new Vector3(0, dist, 0));
-		// 取该点下方的地面高度
-		const info = this.getLocalInfoFromWorld(checkPoint);
-		if (info) {
-			// 地面高度与摄像机高度差
-			return this.worldToLocal(checkPoint).z - info.point.z;
-		} else {
-			return 10;
-		}
 	}
 
 	/**
