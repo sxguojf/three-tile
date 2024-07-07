@@ -1,5 +1,4 @@
 import {
-	Camera,
 	Color,
 	MathUtils,
 	Mesh,
