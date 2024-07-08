@@ -69,7 +69,6 @@ export function addMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 /**
  * 限制摄像机进入地下
  * 计算摄像机视线与近剪裁面交点的距地面高度，太低则向天顶上移相机。
- * 如果开启Controls的惯性阻尼效果，摄像机地面碰撞时会有抖动
  * @param viewer 视图
  * @param map  地图
  */
@@ -91,7 +90,7 @@ export function limitCameraHeight(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	viewer.controls.addEventListener("change", () => {
 		const h = getHightFromCamera();
 		if (h < 0.2) {
-			const dv = map.localToWorld(map.up.clone()).multiplyScalar(0.21 - h);
+			const dv = map.localToWorld(map.up.clone()).multiplyScalar(0.201 - h);
 			viewer.camera.position.add(dv);
 		}
 	});
