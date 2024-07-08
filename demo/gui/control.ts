@@ -10,7 +10,6 @@ export const createControlGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.T
 	folder.add(map, "autoPosition");
 	folder.add(viewer.controls, "maxPolarAngle", 0, Math.PI / 2, 0.1).listen();
 	folder.add(viewer.controls, "autoRotate");
-	folder.add(map, "enableUnderground");
 	folder.add(map.rootTile, "visible");
 	folder.add(map, "dispose");
 
