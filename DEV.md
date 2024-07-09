@@ -3,9 +3,9 @@
 
 three-tile 是一个开源的轻量级三维瓦片库，它基于threejs使用typescript开发，提供一个三维地形模型，能轻松给你的应用增加三维瓦片地图。
 
-| ![image-20240708192901949](images\dev\image-20240708192901949.png) | ![image-20240708193035753](images\dev\image-20240708193035753.png) | ![image-20240708193112274](image-20240708193112274.png)      |
-| ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![image-20240708194121218](image-20240708194121218.png)      | ![image-20240708194820946](images\dev\image-20240708194820946.png) | ![image-20240708195023555](images\dev\image-20240708195023555.png) |
+| ![image-20240708192901949](images\dev\image-20240708192901949.png) | ![image-20240708195023555](images\dev\image-20240708195023555.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![image-20240708193035753](images\dev\image-20240708193035753.png) | ![image-20240708194820946](images\dev\image-20240708194820946.png) |
 
 源码：https://github.com/sxguojf/three-tile
 
@@ -100,6 +100,8 @@ three-tile 是一个开源的轻量级三维瓦片库，它基于threejs使用ty
 | [three-tile demo](https://sxguojf.github.io/three-tile-example/step5.2/index.html) |                                                              |
 | ![image-20240708174850505](images/dev/image-20240708174850505.png)500hpa高度场 | ![image-20240708174735229](images/dev/image-20240708174735229.png)pm2.5体渲染 |
 | [three-tile demo](https://sxguojf.github.io/three-tile-example/step5.4/index.html) |                                                              |
+
+![](images\dev\image-20240708215819970.png)
 
 总之，three-tile仅提供一个地形Mesh，利用threejs的强大生态实现各种炫酷的效果。如果你是threejs开发者，值得一试。
 
