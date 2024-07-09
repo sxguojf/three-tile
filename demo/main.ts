@@ -1,4 +1,4 @@
-import { AxesHelper, BoxGeometry, Mesh, MeshStandardMaterial, TextureLoader, Vector3 } from "three";
+import { Vector3 } from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
