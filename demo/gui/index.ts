@@ -8,13 +8,13 @@ import { createControlGui } from "./control";
 import { createEnvironmentGui } from "./environment";
 import { createLoaderGui } from "./loader";
 import { createSourceGui } from "./source";
-export { updateDebug } from "./debug";
-export { updateCompass } from "./compass";
+export { showDebug } from "./debug";
+export { showCompass } from "./compass";
 
 export function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const gui = new GUI();
 	// 数据源
-	createSourceGui(gui, map);
+	createSourceGui(gui, viewer, map);
 	// 地图控制
 	createControlGui(gui, viewer, map);
 	// 加载器
@@ -22,11 +22,11 @@ export function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	// 环境控制
 	createEnvironmentGui(gui, viewer);
 	// 摄像机控制
-	createCameraGui(gui, viewer);
+	createCameraGui(gui, viewer, map);
 }
 
 // 状态栏显示地图数据下载状态
-export function updateLoading(map: tt.TileMap) {
+export function showLoading(map: tt.TileMap) {
 	const loading = document.querySelector<HTMLDivElement>("#loading");
 	if (loading) {
 		map.addEventListener("loading-start", (evt) => {
@@ -47,7 +47,7 @@ export function updateLoading(map: tt.TileMap) {
 }
 
 // 添加地图版权信息
-export function updateAttribution(map: tt.TileMap) {
+export function showAttribution(map: tt.TileMap) {
 	const show = () => {
 		const dom = document.querySelector("#attribution");
 		if (dom) {

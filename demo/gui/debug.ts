@@ -1,7 +1,7 @@
 import * as tt from "../../src";
 
 // 状态栏显示瓦片信息
-export function updateDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
+export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 	viewer.addEventListener("update", (evt) => {
 		const debug = document.querySelector("#debug");
 		if (debug) {
@@ -10,6 +10,9 @@ export function updateDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 					distance: viewer.controls.getDistance().toFixed(2),
 					azimuthal: viewer.controls.getAzimuthalAngle().toFixed(2),
 					polar: viewer.controls.getPolarAngle().toFixed(2),
+					targetX: viewer.controls.target.x.toFixed(2),
+					targetY: viewer.controls.target.y.toFixed(2),
+					targetZ: viewer.controls.target.z.toFixed(2),
 				},
 				null,
 				2,

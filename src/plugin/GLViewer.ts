@@ -6,7 +6,6 @@
 
 import {
 	AmbientLight,
-	Camera,
 	Clock,
 	Color,
 	DirectionalLight,
@@ -14,7 +13,6 @@ import {
 	EventDispatcher,
 	FogExp2,
 	MathUtils,
-	Object3D,
 	PerspectiveCamera,
 	Scene,
 	Vector3,
@@ -23,8 +21,12 @@ import {
 
 import { MapControls } from "three/examples/jsm/controls/MapControls";
 
-// three-tile x-axis points East, y-axis points north, z-axis points up, different from threejs default, so changes Glodal Object UP point to (0,0,1).
-Object3D.DEFAULT_UP.set(0, 0, 1);
+type GLViewerOptions = {
+	centerPostion?: Vector3;
+	cameraPosition?: Vector3;
+	antialias?: boolean;
+	logarithmicDepthBuffer?: boolean;
+};
 
 /**
  * threejs scene viewer initialize class
@@ -56,21 +58,33 @@ export class GLViewer extends EventDispatcher<Event> {
 		return this.container.clientHeight;
 	}
 
-	constructor(dom: HTMLElement, centerPositon = new Vector3(0, 3e3, 0), cameraPosition = new Vector3(0, -1e3, 1e4)) {
+	constructor(container: HTMLElement | string, options: GLViewerOptions = {}) {
 		super();
-		this.container = dom;
-		this.renderer = this._createRenderer();
-		this.scene = this._createScene();
-		this.camera = this._createCamera(cameraPosition);
-		this.controls = this._createControls(centerPositon, this.camera, dom);
-		this.ambLight = this._createAmbLight();
-		this.scene.add(this.ambLight);
-		this.dirLight = this._createDirLight();
-		this.scene.add(this.dirLight);
-		this.container.appendChild(this.renderer.domElement);
-		window.addEventListener("resize", this.resize.bind(this));
-		this.resize();
-		this.animate();
+		const el = typeof container === "string" ? document.querySelector(container) : container;
+		if (el instanceof HTMLElement) {
+			const {
+				centerPostion = new Vector3(0, 0, -3000),
+				cameraPosition = new Vector3(0, 30000, 0),
+				antialias = false,
+				logarithmicDepthBuffer = true,
+			} = options;
+
+			this.container = el;
+			this.renderer = this._createRenderer(antialias, logarithmicDepthBuffer);
+			this.scene = this._createScene();
+			this.camera = this._createCamera(cameraPosition);
+			this.controls = this._createControls(centerPostion);
+			this.ambLight = this._createAmbLight();
+			this.scene.add(this.ambLight);
+			this.dirLight = this._createDirLight(centerPostion);
+			this.scene.add(this.dirLight);
+			this.container.appendChild(this.renderer.domElement);
+			window.addEventListener("resize", this.resize.bind(this));
+			this.resize();
+			this.renderer.setAnimationLoop(this.animate.bind(this));
+		} else {
+			throw `${container} not found!}`;
+		}
 	}
 
 	private _createScene() {
@@ -81,35 +95,36 @@ export class GLViewer extends EventDispatcher<Event> {
 		return scene;
 	}
 
-	private _createRenderer() {
+	private _createRenderer(antialias: boolean, logarithmicDepthBuffer: boolean) {
 		const renderer = new WebGLRenderer({
-			antialias: false,
+			antialias,
+			logarithmicDepthBuffer,
 			alpha: true,
-			logarithmicDepthBuffer: true,
 			precision: "highp",
 		});
 		renderer.debug.checkShaderErrors = true;
-		// renderer.shadowMap.enabled = true;
 		// renderer.toneMapping = 3;
-		// renderer.toneMappingExposure = 2;
+		// renderer.toneMappingExposure = 1;
 
 		renderer.sortObjects = true;
 		renderer.setPixelRatio(window.devicePixelRatio);
+
 		return renderer;
 	}
 
-	private _createCamera(cameraPosition: Vector3) {
+	private _createCamera(pos: Vector3) {
 		const camera = new PerspectiveCamera(70, 1, 0.1, 50000);
-		camera.position.copy(cameraPosition);
+		camera.position.copy(pos);
 		return camera;
 	}
 
-	private _createControls(centerPositon: Vector3, camera: Camera, domElement: HTMLElement) {
-		const controls = new MapControls(camera, domElement);
-		controls.target.copy(centerPositon);
+	private _createControls(centerPos: Vector3) {
+		const controls = new MapControls(this.camera, this.container);
+		controls.target.copy(centerPos);
+		controls.screenSpacePanning = false;
 		controls.minDistance = 0.1;
 		controls.maxDistance = 30000;
-		controls.maxPolarAngle = 1.1;
+		controls.maxPolarAngle = 1.2;
 		controls.enableDamping = true;
 		controls.keyPanSpeed = 5;
 
@@ -120,17 +135,17 @@ export class GLViewer extends EventDispatcher<Event> {
 			// dist of camera to controls
 			const dist = Math.max(this.controls.getDistance(), 0.1);
 
-			// set zoom speed from dist
+			// set zoom speed on dist
 			controls.zoomSpeed = Math.max(Math.log(dist), 1.8);
 
-			// set far and near from dist/polar
+			// set far and near on dist/polar
 			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 50000);
 			this.camera.near = this.camera.far / 1000;
 			this.camera.updateProjectionMatrix();
 
-			// set fog density from dist/polar
+			// set fog density on dist/polar
 			if (this.scene.fog instanceof FogExp2) {
-				this.scene.fog.density = (polar / (dist + 5) / 4) * this.fogFactor;
+				this.scene.fog.density = (polar / (dist + 5)) * this.fogFactor * 0.25;
 			}
 
 			// set azimuth to 0 when dist>800
@@ -142,28 +157,28 @@ export class GLViewer extends EventDispatcher<Event> {
 				controls.maxAzimuthAngle = Infinity;
 			}
 
-			// set max polar from dist
-			controls.maxPolarAngle = Math.min(Math.pow(10000, 4) / Math.pow(dist, 4), 1.1);
+			// limit the max polar on dist
+			controls.maxPolarAngle = Math.min(Math.pow(10000, 4) / Math.pow(dist, 4), 1.2);
 		});
-		controls.saveState();
 		return controls;
 	}
 
 	private _createAmbLight() {
-		const ambLight = new AmbientLight(0xffffff, 1.5);
+		const ambLight = new AmbientLight(0xffffff, 1);
 		return ambLight;
 	}
 
-	private _createDirLight() {
-		const dirLight = new DirectionalLight(0xffffff, 1.5);
-		dirLight.target.position.copy(this.controls.target);
-		dirLight.position.set(-1e3, -2e3, 1e4);
+	private _createDirLight(center: Vector3) {
+		const dirLight = new DirectionalLight(0xffffff, 1);
+		// dirLight.position.set(-1e3, 1e4, -2e3);
+		dirLight.position.set(0, 2e3, 1e3);
+		dirLight.target.position.copy(center);
 		return dirLight;
 	}
 
 	public resize() {
-		const width = this.width,
-			height = this.height;
+		const width = this.width;
+		const height = this.height;
 		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(width, height);
 		this.camera.aspect = width / height;
@@ -176,6 +191,5 @@ export class GLViewer extends EventDispatcher<Event> {
 		this.renderer.render(this.scene, this.camera);
 
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
-		requestAnimationFrame(this.animate.bind(this));
 	}
 }

@@ -4,19 +4,10 @@
  *@date: 2023-04-05
  */
 
-import {
-	BufferGeometry,
-	Camera,
-	Intersection,
-	Material,
-	Mesh,
-	MeshBasicMaterial,
-	PlaneGeometry,
-	Raycaster,
-} from "three";
+import { BufferGeometry, Camera, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
-import { creatChildrenTile } from "./tileCreator";
 import { LODAction, evaluate } from "./LODEvaluate";
+import { creatChildrenTile } from "./tileCreator";
 
 // default geometry of tile
 const defaultGeometry = new PlaneGeometry();
@@ -164,11 +155,11 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	 * @param raycaster
 	 * @param intersects
 	 */
-	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		if (this.loadState === "loaded") {
-			super.raycast(raycaster, intersects);
-		}
-	}
+	// public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
+	// 	if (this.loadState === "loaded") {
+	// 		super.raycast(raycaster, intersects);
+	// 	}
+	// }
 
 	/**
 	 * Level Of Details

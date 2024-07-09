@@ -1,7 +1,4 @@
-import pg from "../package.json";
-
-export const version = pg.version;
-export const author = pg.author;
+export { version, author } from "../package.json";
 
 // core
 export * from "./tile";

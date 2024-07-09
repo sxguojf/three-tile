@@ -64,42 +64,52 @@ export function resizeImage(image: HTMLImageElement, size: number) {
  * @param tile
  * @returns max tile url and rect in  in maxTile
  */
-export function getSafeTileUrlAndRect(source: ISource, tile: Tile) {
+export function getSafeTileUrlAndBounds(source: ISource, tile: Tile) {
+	// 请求数据级别<最小级别返回空
+	if (tile.coord.z < source.minLevel) {
+		return {
+			url: undefined,
+		};
+	}
+	// 请数据级别<最大级别返回图片uil已经全部图片范围
 	if (tile.coord.z <= source.maxLevel) {
 		const url = source.getTileUrl(tile.coord.x, tile.coord.y, tile.coord.z);
 		return {
 			url,
-			rect: new Box2(new Vector2(-0.5, -0.5), new Vector2(0.5, 0.5)),
+			bounds: new Box2(new Vector2(-0.5, -0.5), new Vector2(0.5, 0.5)),
 		};
 	}
-	function getMaxLevelTileAndRect(tile: Tile, maxLevel: number) {
-		const center = new Vector3();
-		const size = new Vector2(1, 1);
-		// 循环找到最高级别瓦片，并取得瓦片中点相对于最高级别瓦片的中点和大小
-		while (tile.coord.z > maxLevel) {
-			// 瓦片中点转为相对本瓦片坐标（Mesh.positon为相对父瓦片坐标系中的坐标）
-			center.applyMatrix4(tile.matrix);
-			// 一级是上一级0.5倍大小
-			size.multiplyScalar(0.5);
-			if (tile.parent instanceof Tile) {
-				tile = tile.parent;
-			} else {
-				break;
-			}
-		}
-		// 因坐瓦片坐标与图像坐标系Y轴相反，所以取反
-		center.setY(-center.y);
-		const rect = new Box2().setFromCenterAndSize(new Vector2(center.x, center.y), size);
-		return { tile, rect };
-	}
+
+	// 请求数据级别>最大级别，取数据源的最大级别瓦片url和子瓦片其中的范围
 
 	// 取出数据源最大级别瓦片和当前瓦片在最大瓦片中的位置
-	const maxLevelTileAndBox = getMaxLevelTileAndRect(tile, source.maxLevel);
+	const maxLevelTileAndBox = getMaxLevelTileAndBounds(tile, source.maxLevel);
 	// 取得瓦片的url
 	const url = source.getTileUrl(
 		maxLevelTileAndBox.tile.coord.x,
 		maxLevelTileAndBox.tile.coord.y,
 		maxLevelTileAndBox.tile.coord.z,
 	);
-	return { url, rect: maxLevelTileAndBox.rect };
+	return { url, bounds: maxLevelTileAndBox.bounds };
+}
+
+function getMaxLevelTileAndBounds(tile: Tile, maxLevel: number) {
+	const center = new Vector3();
+	const size = new Vector2(1, 1);
+	// 循环找到最高级别瓦片，并取得瓦片中点相对于最高级别瓦片的中点和大小
+	while (tile.coord.z > maxLevel) {
+		// 瓦片中点转为相对本瓦片坐标（Mesh.positon为相对父瓦片坐标系中的坐标）
+		center.applyMatrix4(tile.matrix);
+		// 一级是上一级0.5倍大小
+		size.multiplyScalar(0.5);
+		if (tile.parent instanceof Tile) {
+			tile = tile.parent;
+		} else {
+			break;
+		}
+	}
+	// 因坐瓦片坐标与图像坐标系Y轴相反，所以取反
+	center.setY(-center.y);
+	const bounds = new Box2().setFromCenterAndSize(new Vector2(center.x, center.y), size);
+	return { tile, bounds };
 }

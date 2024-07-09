@@ -1,10 +1,10 @@
-import { Box2, BufferGeometry, Loader, PlaneGeometry } from "three";
+import { Box2, BufferGeometry, Loader, MathUtils, PlaneGeometry } from "three";
 
 import {
 	FileLoaderEx,
 	ITileGeometryLoader,
 	LoaderFactory,
-	getSafeTileUrlAndRect,
+	getSafeTileUrlAndBounds,
 	rect2ImageBounds,
 } from "../../loader";
 
@@ -13,7 +13,14 @@ import { Tile } from "../../tile";
 import * as Lerc from "./lercDecode/LercDecode.es";
 import { TileGridGeometry } from "../../geometry";
 
-Lerc.load({ locateFile: () => new URL("./lercDecode/lerc-wasm.wasm", import.meta.url).href });
+// Lerc.load({
+// 	locateFile: (fn, dir) => {
+// 		// const url = new URL("./lercDecode/lerc-wasm.wasm", import.meta.url).href;
+// 		const url = new URL(`../../assets/${fn}`, import.meta.url).href;
+// 		console.log(dir, fn, url);
+// 		return url;
+// 	},
+// });
 
 const emptyGeometry = new BufferGeometry();
 /**
@@ -38,7 +45,7 @@ export class TileGeometryLercLoader extends Loader implements ITileGeometryLoade
 			return new PlaneGeometry();
 		}
 		// 计算最大级别瓦片和本瓦片在其中的位置
-		const { url, rect } = getSafeTileUrlAndRect(source, tile);
+		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
 
 		// 没有url，返回默认几何体
 		if (!url) {
@@ -46,13 +53,13 @@ export class TileGeometryLercLoader extends Loader implements ITileGeometryLoade
 			return emptyGeometry;
 		}
 
-		return this._load(tile, url, rect, onLoad, onError);
+		return this._load(tile, url, bounds, onLoad, onError);
 	}
 
-	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void, onError: (err: any) => void) {
+	private _load(tile: Tile, url: any, bounds: Box2, onLoad: () => void, onError: (err: any) => void) {
 		// 计算瓦片图片大小（像素）
 		let tileSize = tile.coord.z * 3;
-		tileSize = Math.min(Math.max(tileSize, 2), 48);
+		tileSize = MathUtils.clamp(tileSize, 2, 48);
 
 		const geometry = new TileGridGeometry();
 
@@ -62,7 +69,7 @@ export class TileGeometryLercLoader extends Loader implements ITileGeometryLoade
 			(buffer) => {
 				this.decode(buffer).then((value: { width: number; dem: Float32Array }) => {
 					// 从dem中取出rect范围内数据，并缩放到tileSize大小
-					const { data, size } = this.clip(value.dem, value.width, rect, tileSize);
+					const { data, size } = this.clip(value.dem, value.width, bounds, tileSize);
 					geometry.setData(data, size);
 					onLoad();
 				});
@@ -77,11 +84,11 @@ export class TileGeometryLercLoader extends Loader implements ITileGeometryLoade
 	}
 
 	private async decode(buffer: ArrayBuffer) {
-		if (!Lerc.isLoaded()) {
-			console.log("load Lerc decoder");
-			await Lerc.load();
-		}
-
+		// if (!Lerc.isLoaded()) {
+		// 	console.log("load Lerc decoder");
+		// 	await Lerc.load({ locateFile: (path, _scriptDir) => `/src/plugin/lercLoader/lercDecode/${path}` });
+		// }
+		await Lerc.load();
 		const pixelBlock = Lerc.decode(buffer);
 		const { height, width, pixels } = pixelBlock;
 		const dem = new Float32Array(height * width);
@@ -123,8 +130,9 @@ function arrayClip(
 }
 
 /**
- * 双线性插值缩小数组
- * 1、该函数用于计算地形几何体地形高度，线性插值放大没有意义，只会徒增顶点数量
+ * 双线性插值缩小数组，
+ * todo: 可直接取临近点
+ * 1、该函数用于计算地形几何体地形高度，线性插值放大没有意义，只会徒增计算量
  * 2、双线性也没有必要，最临近即可
  * @param buffer
  * @param bufferWidth

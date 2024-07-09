@@ -7,15 +7,13 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 		skyColor: new Color(0xdbf0ff),
 		skyVisible: true,
 		skybox: new CubeTextureLoader()
-			.setPath("../assets/image/skybox/")
-			.load([
-				"skybox_nx.png",
-				"skybox_px.png",
-				"skybox_ny.png",
-				"skybox_py.png",
-				"skybox_nz.png",
-				"skybox_pz.png",
-			]),
+			.setPath("./image/skybox/")
+			.load(["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"]),
+		// .setPath("../assets/image/skybox3/")
+		// .load(["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"]),
+
+		// 	.setPath("../assets/image/skybox2/")
+		// 	.load(["nx.jpg", "px.jpg", "ny.jpg", "py.jpg", "nz.jpg", "pz.jpg"]),
 	};
 
 	viewer.scene.background = vm.skybox;
@@ -35,7 +33,6 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 
 	folder
 		.add(vm, "skyVisible")
-		.name("sky")
 		.onChange((value: boolean) => {
 			if (value) {
 				viewer.scene.background = vm.skybox;
@@ -64,13 +61,15 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 	const bk = viewer.scene.getObjectByName("background");
 	if (bk) {
 		folder.add(viewer, "fogFactor", 0, 10, 0.001).listen();
-		folder.add(bk, "visible").name("background image");
+		folder.add(bk, "visible").name("Background image");
 	}
 
 	const fakeEarth = viewer.scene.getObjectByName("fakeearth");
 	if (fakeEarth) {
 		folder.add(fakeEarth, "isMesh").name("Global mask");
 	}
+
+	folder.add(viewer.renderer.shadowMap, "enabled").name("Shadows");
 
 	return gui;
 };

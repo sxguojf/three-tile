@@ -1,15 +1,16 @@
 import * as tt from "../../src";
 
-//更新罗盘
-export function updateCompass(viewer: tt.plugin.GLViewer) {
-	viewer.addEventListener("update", (_evt) => {
-		const plane = document.querySelector<SVGElement>("#compass-plane");
-		if (plane) {
+//添加罗盘
+export function showCompass(viewer: tt.plugin.GLViewer) {
+	// viewer.controls.saveState();
+	const compass = document.querySelector<HTMLElement>("#compass");
+	const plane = document.querySelector<HTMLElement>("#compass-plane");
+	const text = document.querySelector<HTMLElement>("#compass-text");
+	if (compass && plane && text) {
+		viewer.addEventListener("update", (_evt) => {
 			plane.style.transform = `rotateX(${viewer.controls.getPolarAngle()}rad)`;
-		}
-		const text = document.querySelector<HTMLSpanElement>("#compass-text");
-		if (text) {
 			text.style.transform = `rotate(${viewer.controls.getAzimuthalAngle()}rad)`;
-		}
-	});
+		});
+		compass.addEventListener("click", viewer.controls.reset);
+	}
 }

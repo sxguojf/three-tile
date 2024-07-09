@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { Box3, Camera, Frustum, Matrix4, Vector3 } from "three";
+import { Box3, Camera, Frustum, MathUtils, Matrix4, Vector3 } from "three";
 import { Tile } from "./Tile";
 import { ITileLoader } from "../loader/ITileLoaders";
 
@@ -101,7 +101,7 @@ export class RootTile extends Tile {
 	// tile bounds, used to decide the tile in frustum, it greater than tile size to cache
 	private _tileBox = new Box3(
 		new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
-		new Vector3(this.viewerbufferSize, this.viewerbufferSize, 10),
+		new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
 	);
 
 	/**
@@ -114,7 +114,7 @@ export class RootTile extends Tile {
 	 * Get renderer cache size. (0.5-2.5，default: 0.6)
 	 */
 	public set viewerbufferSize(value) {
-		this._vierwerBufferSize = Math.min(Math.max(value, 0.5), 2.5);
+		this._vierwerBufferSize = MathUtils.clamp(value, 0.5, 2.5);
 		this._tileBox = new Box3(
 			new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
 			new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),

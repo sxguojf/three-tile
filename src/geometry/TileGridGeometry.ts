@@ -10,7 +10,7 @@ import { Float32BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three
  * create geomety from rules grid dem and it has a skrit
  */
 export class TileGridGeometry extends PlaneGeometry {
-	private _min = Infinity;
+	private _min = 0;
 
 	/**
 	 * buile
@@ -43,7 +43,6 @@ export class TileGridGeometry extends PlaneGeometry {
 		let demIndex = 0;
 		this._min = Math.min(...Array.from(dem));
 
-		// uv
 		for (let iy = 0; iy < gridY1; iy++) {
 			for (let ix = 0; ix < gridX1; ix++) {
 				let x = (ix - 1) * segment_width - width_half;
@@ -57,9 +56,9 @@ export class TileGridGeometry extends PlaneGeometry {
 				v = MathUtils.clamp(v, 0, 1);
 
 				let z = 0;
-				// set min z when point on tile edge,else set real dem
+				// set min z when point on tile edge, else set real dem
 				if (iy === 0 || iy === gridY1 - 1 || ix === 0 || ix === gridX1 - 1) {
-					z = this._min - 0.1;
+					z = this._min - 0.01;
 				} else {
 					z = dem[demIndex];
 					demIndex++;
@@ -114,7 +113,7 @@ export class TileGridGeometry extends PlaneGeometry {
 	}
 
 	// set normal on edge(skirt)
-	// 瓦片边缘法向量计算比较复杂，需要根据相邻瓦片高程计算，暂未实现
+	// 瓦片边缘法向量计算比较复杂，需要根据相邻瓦片高程计算，暂未完美实现
 	// 考虑使用Mapbox Terrain-DEM v1格式地形 https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-dem-v1/
 	public computeVertexNormals() {
 		super.computeVertexNormals();

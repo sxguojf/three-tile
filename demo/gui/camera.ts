@@ -3,102 +3,116 @@ import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../../src";
 
-export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
+export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	/**
-	 * 飞行到某位置
-	 * @param targetPosition 目标世界坐标
-	 * @param controlsPositon 目标控制器焦点坐标
+	 * 飞行到某世界坐标
+	 * @param cameraPos 目标摄像机世界坐标
+	 * @param centerPos 目标地图中心坐标
 	 */
-	const flyTo = (targetPosition: Vector3, controlsPositon: Vector3) => {
-		viewer.controls.target.copy(controlsPositon);
-		const cameraPos = viewer.camera.position;
-		new TWEEN.Tween(cameraPos)
+	const flyToPos = (cameraPos: Vector3, centerPos: Vector3) => {
+		viewer.controls.target.copy(centerPos);
+		const start = viewer.camera.position;
+		new TWEEN.Tween(start)
 			// 先到10000km高空
-			.to({ y: 0, z: 10000 }, 500)
+			.to({ y: 10000, z: 0 }, 500)
 			// 再到目标位置
-			.chain(new Tween(cameraPos).to(targetPosition))
+			.chain(new Tween(start).to(cameraPos))
 			.start();
+	};
+
+	/**
+	 * 飞行到某地理坐标
+	 * @param newCameraGeo 目标摄像机经纬度坐标
+	 * @param newcenterGeo 目标地图中心经纬度坐标
+	 */
+	const flyToGeo = (newCameraGeo: Vector3, newcenterGeo: Vector3) => {
+		const cameraPosition = getPos(newCameraGeo);
+		const centerPosition = getPos(newcenterGeo);
+		flyToPos(cameraPosition, centerPosition);
+	};
+
+	const getGeo = (pos: Vector3) => {
+		return map.pos2geo(map.worldToLocal(pos.clone()));
+	};
+
+	const getPos = (geo: Vector3) => {
+		return map.localToWorld(map.geo2pos(geo));
 	};
 
 	const vm = {
 		restCamera: () => {
-			const targetPosition = new Vector3(1113.170996921898, -461.4370141679119, 3999.999999999999);
-			const controlsPosition = new Vector3(1113.1709969219833, 3503.4745885626, -2.015115227743243e-147);
-			flyTo(targetPosition, controlsPosition);
+			flyToGeo(new Vector3(110, -10, 4000), new Vector3(110, 30, 0));
 		},
 		toBeiJing: () => {
-			const targetPosition = new Vector3(2937.880446206417, 4852.837272434148, 0.8982447706293892);
-			const controlsPosition = new Vector3(2937.8589434896376, 4853.535193447179, -4.179171171745043e-21);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(116.39199596764485, 39.91047669278009, 0.8982447706283121);
+			const g2 = new Vector3(116.39180280130437, 39.915285657622775, 0);
+			flyToGeo(g1, g2);
 		},
 		toYanan: () => {
-			const targetPosition = new Vector3(2169.9636368875927, 4382.899361611179, 3.357202665730798);
-			const controlsPosition = new Vector3(2170.1276394330216, 4386.431762895977, -3.919158283214042e-16);
-			flyTo(targetPosition, controlsPosition);
+			const camera = new Vector3(109.48543504270644, 36.59146704194476, 1.6124168502501655);
+			const center = new Vector3(109.49721492409648, 36.613511416979144, 2.587750541118096e-16);
+			flyToGeo(camera, center);
 		},
 		toQomolangma: () => {
-			const targetPosition = new Vector3(-355.53948097364827, 3243.3575887456013, 8.632029116020062);
-			const controlsPosition = new Vector3(-339.6053242829197, 3245.922621415272, 3.5013277444405166e-15);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(86.80606589682316, 27.95599784430085, 8.632029116020213);
+			const g2 = new Vector3(86.94920793640907, 27.97634961375401, 0);
+			flyToGeo(g1, g2);
 		},
 		toTaiBaiShan: () => {
-			const targetPosition = new Vector3(1982.800201813011, 4032.091565236495, 6.048197106233053);
-			const controlsPosition = new Vector3(1977.132544440199, 4026.222479546381, 3.1481138177319502e-18);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(107.81217986540818, 34.02513971165077, 6.048197106231797);
+			const g2 = new Vector3(107.7612653393517, 33.98143120559124, 0);
+			flyToGeo(g1, g2);
 		},
-
 		toHuaShan: () => {
-			const targetPosition = new Vector3(2237.1526254014593, 4106.558071882356, 5.7782429087784895);
-			const controlsPosition = new Vector3(2234.0706623994947, 4097.437786464135, 8.924989421922145e-17);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(110.0971156415985, 34.57775144132326, 5.7782429087774245);
+			const g2 = new Vector3(110.06942930220872, 34.510265895992404, 0);
+			flyToGeo(g1, g2);
 		},
 		toHuangShan: () => {
-			const targetPosition = new Vector3(3139.159996481894, 3512.179963938414, 2.610548923663056);
-			const controlsPosition = new Vector3(3137.8203425198435, 3516.2442480350014, -4.050010631814304e-15);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(118.20015977025946, 30.06770300827729, 2.610548923662593);
+			const g2 = new Vector3(118.18812519546589, 30.099295710163304, 0);
+			flyToGeo(g1, g2);
 		},
 		toTaiShan: () => {
-			const targetPosition = new Vector3(3017.0158184119055, 4327.635322127751, 1.6517273521133014);
-			const controlsPosition = new Vector3(3016.924080838552, 4330.879272502904, -2.3733148349125154e-17);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(117.10289638118692, 36.19675384399952, 1.6517273521123468);
+			const g2 = new Vector3(117.10207227084261, 36.220267343404004, 0);
+			flyToGeo(g1, g2);
 		},
-
 		toUluru: () => {
-			const targetPosition = new Vector3(4566.196382565265, -2918.2956143138167, 1.0185954608768784);
-			const controlsPosition = new Vector3(4567.893912842968, -2918.3165288349187, 6.544176126806917e-18);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(131.01972109578136, -25.34644783404596, 1.0185954608775432);
+			const g2 = new Vector3(131.03497059727212, -25.346617629956928, 0);
+			flyToGeo(g1, g2);
 		},
-
 		toFuji: () => {
-			const targetPosition = new Vector3(5422.954338850587, 4203.371844605109, 3.4382452420123366);
-			const controlsPosition = new Vector3(5424.711265795956, 4211.637536011978, -3.121323278595189e-18);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(138.7168714361765, 35.293034242886165, 4.138178498736728);
+			const g2 = new Vector3(138.73205716638114, 35.35132576846971, 0);
+			flyToGeo(g1, g2);
 		},
 		toNewyork: () => {
-			const targetPosition = new Vector3(-18256.922303267456, 4967.659263902319, 1.6554257243621036);
-			const controlsPosition = new Vector3(-18256.866473664508, 4969.044670725848, 6.725020259932867e-16);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(-74.00824629593717, 40.697098959649566, 1.6554257243613275);
+			const g2 = new Vector3(-74.007744759308, 40.70653413033989, 0);
+			flyToGeo(g1, g2);
 		},
 		toHome: () => {
-			const targetPosition = new Vector3(2108.604364020607, 4063.4424268618322, 0.7844306648429059);
-			const controlsPosition = new Vector3(2108.6251495800407, 4064.1558637058156, 0);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(108.94232215761177, 34.2582357530813, 0.7844306648412458);
+			const g2 = new Vector3(108.94250888147981, 34.26353272269615, 0);
+			flyToGeo(g1, g2);
 		},
 		toSchool: () => {
-			const targetPosition = new Vector3(4082.8093451257946, 5741.944970088485, 0.7902206445906863);
-			const controlsPosition = new Vector3(4082.9522902367175, 5741.148122418343, -8.27047699764849e-17);
-			flyTo(targetPosition, controlsPosition);
+			const g1 = new Vector3(126.67728818317335, 45.760602873759076, 0.7902206445893154);
+			const g2 = new Vector3(126.6785723085352, 45.755608565175756, 0);
+			flyToGeo(g1, g2);
 		},
 		CameraInfoToConsole: () => {
-			const cameraPos = viewer.camera.position;
-			const targetPos = viewer.controls.target;
+			const cameraGeo = getGeo(viewer.camera.getWorldPosition(new Vector3()));
+			const targetGeo = getGeo(viewer.controls.target);
 			const code = `
-() => {
-    const targetPosition = new Vector3(${cameraPos.x},${cameraPos.y},${cameraPos.z});
-    const controlsPosition = new Vector3(${targetPos.x},${targetPos.y},${targetPos.z});
-    flyTo(targetPosition,controlsPosition);
+()=>{
+	const camera = new Vector3(${cameraGeo.x},${cameraGeo.y},${cameraGeo.z})
+	const center = new Vector3(${targetGeo.x},${targetGeo.y},${targetGeo.z})
+	flyToGeo(camera,center);
 }
-`;
+			`;
 			navigator.clipboard.writeText(code);
 			console.log("-----------------------------------------------------------------------------------------");
 			console.log(code);

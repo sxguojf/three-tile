@@ -54,9 +54,10 @@ export class TileMap extends Mesh {
 	public readonly isLOD = true;
 
 	/**
-	 * 瓦片是否在每帧渲染时自动更新
+
 	 * Whether the LOD object is updated automatically by the renderer per frame or not.
 	 * If set to false, you have to call LOD.update() in the render loop by yourself. Default is true.
+	 * 瓦片是否在每帧渲染时自动更新，默认为真
 	 */
 	public autoUpdate = true;
 
@@ -117,20 +118,20 @@ export class TileMap extends Mesh {
 		this.rootTile.autoLoad = value;
 	}
 
-	private _autoAdjustMapZ = false;
+	private _autoPosition = false;
 	/**
 	 * Get whether to adjust z of map automatically.
-	 * 取得是否自动根据视野内地形高度调整地图Z坐标
+	 * 取得是否自动根据视野内地形高度调整地图坐标
 	 */
-	public get autoAdjustMapZ() {
-		return this._autoAdjustMapZ;
+	public get autoPosition() {
+		return this._autoPosition;
 	}
 	/**
 	 * Set whether to adjust z of map automatically.
-	 * 设置是否自动调整地图Z坐标，如果设置为true，将在每帧渲染中将地图Z坐标调整可视区域瓦片的平均高度
+	 * 设置是否自动调整地图坐标，如果设置为true，将在每帧渲染中将地图坐标调整可视区域瓦片的平均高度
 	 */
-	public set autoAdjustMapZ(value) {
-		this._autoAdjustMapZ = value;
+	public set autoPosition(value) {
+		this._autoPosition = value;
 	}
 
 	/**
@@ -300,8 +301,10 @@ export class TileMap extends Mesh {
 	public set demSource(value: ISource | undefined) {
 		if (value) {
 			this._demSource = new SourceWithProjection(value, this.projection);
-			this.loader.demSource = this._demSource;
+		} else {
+			this._demSource = undefined;
 		}
+		this.loader.demSource = this._demSource;
 
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
@@ -320,6 +323,22 @@ export class TileMap extends Mesh {
 	 */
 	public set LODThreshold(value) {
 		this.rootTile.LODThreshold = value;
+	}
+
+	/**
+	 * Get the map model width
+	 * 取得地图模型宽度
+	 */
+	public get width() {
+		return this.projection.mapWidth;
+	}
+
+	/**
+	 * Get the map model height
+	 * 取得地图模型高度
+	 */
+	public get height() {
+		return this.projection.mapHeight;
 	}
 
 	/**
@@ -373,7 +392,7 @@ export class TileMap extends Mesh {
 	 */
 	public constructor(params: MapParams) {
 		super();
-
+		this.up.set(0, 0, 1);
 		this.loader = params.loader ?? new TileLoader();
 		this.rootTile = params.rootTile ?? new RootTile(this.loader);
 		this.minLevel = params.minLevel ?? 0;
@@ -391,6 +410,7 @@ export class TileMap extends Mesh {
 		// 更新地图模型矩阵
 		this.rootTile.updateMatrix();
 		this.rootTile.updateMatrixWorld();
+		// this.rotateX(-Math.PI / 2);
 	}
 
 	/**
@@ -401,14 +421,16 @@ export class TileMap extends Mesh {
 	public update(camera: Camera) {
 		this.rootTile.receiveShadow = this.receiveShadow;
 		this.rootTile.castShadow = this.castShadow;
+		this.rootTile.update(camera);
 
 		// 动态调整地图高度
-		if (this.autoAdjustMapZ) {
-			this.position.setZ((this.position.z - this.avgZInView / 100) / 1.03);
+		if (this.autoPosition) {
+			// 平均海拔高度向量
+			const hv = this.localToWorld(this.up.clone().multiplyScalar(this.avgZInView));
+			// 当前地图高度与平均海拔高度之差，每次移动0.01km
+			const dv = this.position.clone().add(hv).multiplyScalar(0.01);
+			this.position.sub(dv);
 		}
-
-		// 更新瓦片树
-		this.rootTile.update(camera);
 
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 	}
@@ -419,7 +441,6 @@ export class TileMap extends Mesh {
 	 */
 	public reload() {
 		this.rootTile.dispose(true);
-		this.position.setZ(0);
 	}
 
 	/**
@@ -433,7 +454,7 @@ export class TileMap extends Mesh {
 	}
 
 	/**
-	 * Geo coordinates converted to model coordinates
+	 * Geo coordinates converted to map model coordinates
 	 * 地理坐标转换为地图模型坐标
 	 * @param geo 地理坐标（经纬度）
 	 * @returns 模型坐标
@@ -444,8 +465,8 @@ export class TileMap extends Mesh {
 	}
 
 	/**
-	 * Model coordinates converted to coordinates geo
-	 * 模型坐标转换为地理坐标
+	 * Map model coordinates converted to coordinates geo
+	 * 地图模型坐标转换为地理坐标
 	 * @param pos 模型坐标
 	 * @returns 地理坐标（经纬度）
 	 */

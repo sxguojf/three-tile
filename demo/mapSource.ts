@@ -1,16 +1,15 @@
 import * as tt from "../src";
 import {
-	MapBoxSource,
-	ArcGisDemSource,
 	ArcGisSource,
 	BingSource,
 	GDSource,
 	GoogleSource,
+	MapBoxSource,
 	MapTilerSource,
+	StadiaSource,
 	TDTSource,
 	TXSource,
 	ZKXTSource,
-	StadiaSource,
 } from "../src/plugin";
 
 // import * as tt from "../dist/three-tile";
@@ -132,7 +131,7 @@ export const gdImgLabelSource = new GDSource({ style: "8" });
 
 // arcgis
 export const arcGisSource = new ArcGisSource();
-export const arcGisDemSource = new ArcGisDemSource();
+// export const arcGisDemSource = new ArcGisDemSource();
 export const arcGisCiaSource = new ArcGisSource({
 	style: "Reference/World_Boundaries_and_Places",
 });

@@ -1,24 +1,25 @@
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import * as tt from "../../src";
-import * as MapSource from "../mapSource";
+import * as ms from "../mapSource";
 import { TileSource } from "../../src";
+import { Vector3 } from "three";
 
-export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
+export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
 		setMapBox: () => {
-			map.imgSource = [MapSource.mapBoxImgSource, MapSource.tdtCiaSource_w];
+			map.imgSource = [ms.mapBoxImgSource, ms.tdtCiaSource_w];
 			map.reload();
 		},
 		setZkxt: () => {
-			map.imgSource = [MapSource.xtImgSource, MapSource.xtCiaSource];
+			map.imgSource = [ms.xtImgSource, ms.xtCiaSource];
 			map.reload();
 		},
 		setBing: () => {
-			map.imgSource = [MapSource.bingSource];
+			map.imgSource = [ms.bingSource];
 			map.reload();
 		},
 		setArcGis: () => {
-			map.imgSource = [MapSource.arcGisSource];
+			map.imgSource = [ms.arcGisSource];
 			map.reload();
 		},
 		setArcGisHillShader: () => {
@@ -26,7 +27,7 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 				new tt.plugin.ArcGisSource({
 					style: "Elevation/World_HillShade_Dark",
 				}),
-				MapSource.xtCiaSource,
+				ms.xtCiaSource,
 			];
 			map.reload();
 		},
@@ -40,7 +41,7 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 			map.reload();
 		},
 		setStadia: () => {
-			map.imgSource = [MapSource.stadiamaps];
+			map.imgSource = [ms.stadiamaps];
 			map.reload();
 		},
 		setGeoq: () => {
@@ -48,11 +49,11 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 			map.reload();
 		},
 		setTdt_w: () => {
-			map.imgSource = [MapSource.tdtImgSource_w, MapSource.tdtCiaSource_w];
+			map.imgSource = [ms.tdtImgSource_w, ms.tdtCiaSource_w];
 			map.reload();
 		},
 		setTdt_c: () => {
-			map.imgSource = [MapSource.tdtImgSource_c, MapSource.testSource];
+			map.imgSource = [ms.tdtImgSource_c, ms.testSource];
 			// map.demSource = undefined;
 			map.reload();
 		},
@@ -71,17 +72,17 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 			map.reload();
 		},
 		setGD: () => {
-			map.imgSource = [MapSource.gdImgSource, MapSource.gdImgLabelSource];
+			map.imgSource = [ms.gdImgSource, ms.gdImgLabelSource];
 			map.reload();
 		},
 
 		setTencent: () => {
 			// map.imgSource = [source.tencentSource, source.gdImgLabelSource];
-			map.imgSource = [MapSource.tencentSource];
+			map.imgSource = [ms.tencentSource];
 			map.reload();
 		},
 		setMapTiler: () => {
-			map.imgSource = [MapSource.mapTilerImgSource, MapSource.xtCiaSource];
+			map.imgSource = [ms.mapTilerImgSource, ms.xtCiaSource];
 			map.reload();
 		},
 
@@ -95,15 +96,15 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 
 		// 地形
 		setMapBoxDem: () => {
-			map.demSource = MapSource.mapBoxDemSource;
+			map.demSource = ms.mapBoxDemSource;
 			map.reload();
 		},
 		setMapTilerDem: () => {
-			map.demSource = MapSource.mapTilerDemSource;
+			map.demSource = ms.mapTilerDemSource;
 			map.reload();
 		},
 		setZkXtDem: () => {
-			map.demSource = MapSource.xtDemSource;
+			map.demSource = ms.xtDemSource;
 			map.reload();
 		},
 		setDemNull: () => {
@@ -111,31 +112,31 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 			map.reload();
 		},
 
-		setArcgisLerc() {
-			map.demSource = MapSource.arcGisDemSource;
-			map.reload();
-		},
+		// setArcgisLerc() {
+		// 	map.demSource = MapSource.arcGisDemSource;
+		// 	map.reload();
+		// },
 
 		// 测试
 		setMapBoxDemTest: () => {
-			map.imgSource = [MapSource.mapBoxDemTestSource, MapSource.testSource];
+			map.imgSource = [ms.mapBoxDemTestSource, ms.testSource];
 			map.reload();
 		},
 		setMapTilerDemTest: () => {
-			map.imgSource = [MapSource.mapTilerDemTestSource, MapSource.testSource];
+			map.imgSource = [ms.mapTilerDemTestSource, ms.testSource];
 			map.reload();
 		},
 		setZkxtDemTest: () => {
-			map.imgSource = [MapSource.xtDemTestSource, MapSource.testSource];
+			map.imgSource = [ms.xtDemTestSource, ms.testSource];
 			map.reload();
 		},
 		setTileTest: () => {
-			map.imgSource = [MapSource.mapBoxImgSource, MapSource.testSource];
+			map.imgSource = [ms.mapBoxImgSource, ms.testSource];
 			map.reload();
 		},
 		setLogoTest: () => {
 			map.imgSource = [
-				MapSource.mapBoxImgSource,
+				ms.mapBoxImgSource,
 				tt.TileSource.create({
 					dataType: "logo",
 					attribution: "This is a logo",
@@ -150,11 +151,36 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 			map.reload();
 		},
 		setTileNormal: () => {
-			map.imgSource = [
-				tt.TileSource.create({ dataType: "normal" }),
-				MapSource.tdtCiaSource_w,
-				MapSource.testSource,
+			map.imgSource = [tt.TileSource.create({ dataType: "normal" }), ms.tdtCiaSource_w, ms.testSource];
+			map.reload();
+		},
+
+		setBoundsTile: () => {
+			const bounds: [number, number, number, number] = [
+				108.60157012939453, 30.64670562744141, 108.65313291549683, 30.69008231163025,
 			];
+			const urlPrefix = "http://127.0.0.1:5500/testSource";
+			const imgSource = tt.TileSource.create({
+				url: urlPrefix + "/img/{z}/{x}/{y}.png",
+				bounds,
+				minLevel: 0,
+				maxLevel: 16,
+			});
+
+			const demSource = tt.TileSource.create({
+				dataType: "terrain-rgb",
+				url: urlPrefix + "/dem/{z}/{x}/{y}.png",
+				bounds,
+				minLevel: 5,
+				maxLevel: 15,
+			});
+
+			map.imgSource = [ms.arcGisSource, imgSource];
+			map.demSource = demSource;
+
+			// Move the camera to the bounds
+			viewer.controls.target.copy(map.localToWorld(map.geo2pos(new Vector3(108.627984, 30.66284, 0.0))));
+			viewer.camera.position.copy(map.localToWorld(map.geo2pos(new Vector3(108.627139, 30.64138, 3.309163))));
 			map.reload();
 		},
 	};
@@ -186,7 +212,7 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 	demFolder.add(vm, "setMapTilerDem").name("MapTiler terrain(maxLevel=12)");
 	demFolder.add(vm, "setZkXtDem").name("中科星图(maxLevel=10)");
 	// demFolder.add(vm, "setTdt_qm").name("天地图QuantizedMesh");
-	demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
+	// demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
 
 	// 测试数据
 	const testFolder = folder.addFolder("Test data");
@@ -197,6 +223,7 @@ export const createSourceGui = (gui: GUI, map: tt.TileMap) => {
 	testFolder.add(vm, "setLogoTest").name("Logo test");
 	testFolder.add(vm, "setTileWire").name("Wireframe terrain");
 	testFolder.add(vm, "setTileNormal").name("Normal terrain");
+	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
 
 	return gui;
 };

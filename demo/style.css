@@ -103,11 +103,11 @@ button:focus-visible {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	pointer-events: none;
 	border-radius: 50%;
 	border: 1px solid #fffc;
 	filter: drop-shadow(0px 0px 2px black);
 	background-color: #0005;
+	cursor: pointer;
 }
 #compass > .circle {
 	width: 60%;
@@ -116,6 +116,10 @@ button:focus-visible {
 	border-radius: 50%;
 	border: 1px solid #fffc;
 	background-color: #fff4;
+}
+
+#compass:hover > .circle {
+	background-color: #0f05;
 }
 
 #compass > #compass-text {
@@ -151,7 +155,7 @@ button:focus-visible {
 	flex-wrap: nowrap;
 	justify-content: space-between;
 	text-shadow: 1px 1px 1px black;
-	background-color: #000c;
+	background-color: #0008;
 	box-shadow: 0 2px 5px black;
 }
 
