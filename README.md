@@ -303,7 +303,7 @@ type MapParams = {
 		{
 			"imports": {
 				"three": "https://unpkg.com/three@0.165.0/build/three.module.js",
-				"three-tile": "./three-tile/three-tile.js"
+				"three-tile": "https://unpkg.com/three-tile@0.6.1/dist/three-tile.js"
 			}
 		}
 	</script>
