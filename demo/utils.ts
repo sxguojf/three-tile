@@ -80,7 +80,7 @@ export function limitCameraHeight(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 		// 取该点下方的地面高度
 		const info = map.getLocalInfoFromWorld(checkPoint);
 		if (info) {
-			// 地面高度与摄像机高度差(世界坐标)
+			// 地面高度与摄像机高度差
 			return map.worldToLocal(checkPoint).z - map.worldToLocal(info.point).z;
 		} else {
 			return 10;
