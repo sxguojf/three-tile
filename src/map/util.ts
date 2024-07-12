@@ -26,7 +26,7 @@ export function getLocalInfoFromRay(map: TileMap, ray: Raycaster) {
 	for (const intersect of intersects) {
 		if (intersect.object instanceof Tile) {
 			// intersect point to local point
-			const point = map.worldToLocal(intersect.point);
+			const point = map.worldToLocal(intersect.point.clone());
 			const lonlat = map.pos2geo(point);
 			return Object.assign(intersect, {
 				location: lonlat,
