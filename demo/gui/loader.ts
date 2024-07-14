@@ -27,7 +27,7 @@ export const createLoaderGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 				// called when the gltf has been generated
 				function (gltf) {
 					if (gltf instanceof ArrayBuffer) {
-						save(new Blob([gltf], { type: "application/octet-stream" }), "scene.glb");
+						save(new Blob([gltf], { type: "application/octet-stream" }), "map.glb");
 					}
 				},
 				// called when there is an error in the generation
@@ -35,7 +35,7 @@ export const createLoaderGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 					console.log("An error happened: " + error);
 				},
 				{
-					trs: true,
+					trs: false,
 					onlyVisible: true,
 					binary: true,
 					maxTextureSize: 1024,
