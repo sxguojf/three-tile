@@ -9,6 +9,7 @@ import { Tile } from "./Tile";
 import { ITileLoader } from "../loader/ITileLoaders";
 
 const tempMat4 = new Matrix4();
+const temBox = new Box3(new Vector3(-0.6, -0.6, 0), new Vector3(0.6, 0.6, 9));
 const frustum = new Frustum();
 
 /**
@@ -184,8 +185,10 @@ export class RootTile extends Tile {
 				tile.geometry.computeBoundingBox();
 				tile.geometry.computeBoundingSphere();
 
-				// is the tile in the frustum?
+				// Is the tile in the frustum?
 				tile.inFrustum = frustum.intersectsBox(this._tileBox.clone().applyMatrix4(tile.matrixWorld));
+				// Show thie tile in frustum
+				tile.show(frustum.intersectsBox(temBox.clone().applyMatrix4(tile.matrixWorld)));
 
 				// LOD, get new tiles
 				const newTiles = tile._lod(camera, this.minLevel, this.maxLevel, this.LODThreshold, this.isWGS);
