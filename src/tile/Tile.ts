@@ -151,10 +151,6 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		});
 	}
 
-	public show(show = true) {
-		this.material.forEach((mat) => (mat.visible = show));
-	}
-
 	/**
 	 * Override mesh.raycast，only called when tile has loaded
 	 * @param raycaster

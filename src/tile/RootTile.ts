@@ -9,7 +9,7 @@ import { Tile } from "./Tile";
 import { ITileLoader } from "../loader/ITileLoaders";
 
 const tempMat4 = new Matrix4();
-const temBox = new Box3(new Vector3(-0.6, -0.6, 0), new Vector3(0.6, 0.6, 9));
+// const temBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
 const frustum = new Frustum();
 
 /**
@@ -171,12 +171,7 @@ export class RootTile extends Tile {
 	private _updateTileTree(camera: Camera) {
 		let change = false;
 
-		// get the pitch of camera
-		// this._pitch = camera
-		//     .getWorldDirection(tempVec3)
-		//     .angleTo(new Vector3(0, 0, -1).applyMatrix4(this.matrixWorld));
-
-		// get the frustum of map
+		// Get the frustum of map
 		frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 
 		// LOD for tiles
@@ -184,17 +179,19 @@ export class RootTile extends Tile {
 			if (tile.isTile) {
 				tile.geometry.computeBoundingBox();
 				tile.geometry.computeBoundingSphere();
+				if (tile.loadState === "loaded") {
+					// Show the tile in frustum，no buffer
+					tile.visible = frustum.intersectsObject(tile);
+				}
 
-				// Is the tile in the frustum?
+				// Is the tile in the frustum? has buffer
 				tile.inFrustum = frustum.intersectsBox(this._tileBox.clone().applyMatrix4(tile.matrixWorld));
-				// Show thie tile in frustum
-				tile.show(frustum.intersectsBox(temBox.clone().applyMatrix4(tile.matrixWorld)));
 
 				// LOD, get new tiles
 				const newTiles = tile._lod(camera, this.minLevel, this.maxLevel, this.LODThreshold, this.isWGS);
 
 				newTiles.forEach((newTile) => {
-					// fire event on the tile created
+					// Fire event on the tile created
 					this.dispatchEvent({ type: "tile-created", tile: newTile });
 				});
 
