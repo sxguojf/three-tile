@@ -9,7 +9,7 @@ import { Tile } from "./Tile";
 import { ITileLoader } from "../loader/ITileLoaders";
 
 const tempMat4 = new Matrix4();
-// const temBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
+const temBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
 const frustum = new Frustum();
 
 /**
@@ -179,13 +179,15 @@ export class RootTile extends Tile {
 			if (tile.isTile) {
 				tile.geometry.computeBoundingBox();
 				tile.geometry.computeBoundingSphere();
-				if (tile.loadState === "loaded") {
-					// Show the tile in frustum，no buffer
-					tile.visible = frustum.intersectsObject(tile);
-				}
+				// if (tile.loadState === "loaded") {
+				// 	// Show the tile in frustum，no buffer
+				// 	tile.visible = frustum.intersectsObject(tile);
+				// }
 
 				// Is the tile in the frustum? has buffer
 				tile.inFrustum = frustum.intersectsBox(this._tileBox.clone().applyMatrix4(tile.matrixWorld));
+				// tile.inFrustum = frustum.intersectsBox(temBox.clone().applyMatrix4(tile.matrixWorld));
+				// tile.inFrustum = frustum.intersectsObject(tile);
 
 				// LOD, get new tiles
 				const newTiles = tile._lod(camera, this.minLevel, this.maxLevel, this.LODThreshold, this.isWGS);
