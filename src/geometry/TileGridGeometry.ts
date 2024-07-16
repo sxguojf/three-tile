@@ -58,7 +58,7 @@ export class TileGridGeometry extends PlaneGeometry {
 				let z = 0;
 				// set min z when point on tile edge, else set real dem
 				if (iy === 0 || iy === gridY1 - 1 || ix === 0 || ix === gridX1 - 1) {
-					z = this._min - 0.01;
+					z = this._min - 0.03;
 				} else {
 					z = dem[demIndex];
 					demIndex++;

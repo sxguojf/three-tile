@@ -30,6 +30,7 @@ export const mapBoxDemSource = new MapBoxSource({
 	dataType: "terrain-rgb",
 	style: "mapbox.terrain-rgb",
 	maxLevel: 15,
+	bounds: [-180, -60, 180, 85],
 });
 export const mapBoxDemTestSource = new MapBoxSource({
 	token: MAPBOXKEY,
@@ -99,7 +100,8 @@ const TDTKEY =
 	// "4fa16fcfc196d1a6c435753b0850a336";
 	// "56b81006f361f6406d0e940d2f89a39c";
 	// "eba82bdad37844f02de970c9cefed234";
-	"85c9d12d5d691d168ba5cb6ecaa749eb";
+	// "85c9d12d5d691d168ba5cb6ecaa749eb";
+	"d083e4cf30bfc438ef93436c10c2c20a";
 
 export const tdtImgSource_w = new TDTSource({
 	token: TDTKEY,

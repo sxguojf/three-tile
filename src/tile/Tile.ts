@@ -150,6 +150,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			tile.traverse(callback);
 		});
 	}
+
 	/**
 	 * Override mesh.raycast，only called when tile has loaded
 	 * @param raycaster

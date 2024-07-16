@@ -4,11 +4,12 @@
  *@date: 2023-04-05
  */
 
-import { Box3, Camera, Frustum, MathUtils, Matrix4, Vector3 } from "three";
-import { Tile } from "./Tile";
+import { Box3, Camera, Frustum, MathUtils, Matrix4, PerspectiveCamera, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
+import { Tile } from "./Tile";
 
 const tempMat4 = new Matrix4();
+const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
 const frustum = new Frustum();
 
 /**
@@ -96,13 +97,7 @@ export class RootTile extends Tile {
 		this._autoLoad = value;
 	}
 
-	private _vierwerBufferSize = 0.6;
-
-	// tile bounds, used to decide the tile in frustum, it greater than tile size to cache
-	private _tileBox = new Box3(
-		new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
-		new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
-	);
+	private _vierwerBufferSize = 1.2;
 
 	/**
 	 * Get renderer cache size scale. (0.5-2.5，default: 0.6)
@@ -114,11 +109,7 @@ export class RootTile extends Tile {
 	 * Get renderer cache size. (0.5-2.5，default: 0.6)
 	 */
 	public set viewerbufferSize(value) {
-		this._vierwerBufferSize = MathUtils.clamp(value, 0.5, 2.5);
-		this._tileBox = new Box3(
-			new Vector3(-this.viewerbufferSize, -this.viewerbufferSize, 0),
-			new Vector3(this.viewerbufferSize, this.viewerbufferSize, 9),
-		);
+		this._vierwerBufferSize = MathUtils.clamp(value, 1, 2);
 	}
 
 	/**
@@ -144,11 +135,11 @@ export class RootTile extends Tile {
 		if (this._updateTileTree(camera)) {
 			this._treeReadyCount = 0;
 		} else {
-			this._treeReadyCount = Math.min(this._treeReadyCount + 1, 100);
+			this._treeReadyCount++;
 		}
 
 		// update tile data when tile tree steady
-		if (this.autoLoad && this._treeReadyCount > 10) {
+		if (this.autoLoad && this._treeReadyCount > 20) {
 			this._updateTileData();
 		}
 		return this;
@@ -170,28 +161,28 @@ export class RootTile extends Tile {
 	private _updateTileTree(camera: Camera) {
 		let change = false;
 
-		// get the pitch of camera
-		// this._pitch = camera
-		//     .getWorldDirection(tempVec3)
-		//     .angleTo(new Vector3(0, 0, -1).applyMatrix4(this.matrixWorld));
-
-		// get the frustum of map
-		frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+		// Frustum enlarge for buffer
+		const bufferCamera = camera.clone();
+		if (bufferCamera instanceof PerspectiveCamera) {
+			bufferCamera.fov *= this.viewerbufferSize;
+			bufferCamera.updateProjectionMatrix();
+		}
+		// Get the frustum
+		frustum.setFromProjectionMatrix(
+			tempMat4.multiplyMatrices(bufferCamera.projectionMatrix, bufferCamera.matrixWorldInverse),
+		);
 
 		// LOD for tiles
 		this.traverse((tile) => {
 			if (tile.isTile) {
-				tile.geometry.computeBoundingBox();
-				tile.geometry.computeBoundingSphere();
-
-				// is the tile in the frustum?
-				tile.inFrustum = frustum.intersectsBox(this._tileBox.clone().applyMatrix4(tile.matrixWorld));
+				// Is the tile in the frustum? has buffer
+				tile.inFrustum = frustum.intersectsBox(tileBox.clone().applyMatrix4(tile.matrixWorld));
 
 				// LOD, get new tiles
 				const newTiles = tile._lod(camera, this.minLevel, this.maxLevel, this.LODThreshold, this.isWGS);
 
 				newTiles.forEach((newTile) => {
-					// fire event on the tile created
+					// Fire event on the tile created
 					this.dispatchEvent({ type: "tile-created", tile: newTile });
 				});
 
