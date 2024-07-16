@@ -1,4 +1,4 @@
-import { CameraHelper, Object3D, Vector3 } from "three";
+import { CameraHelper, Vector3 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../../src";
