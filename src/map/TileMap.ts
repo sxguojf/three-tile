@@ -154,16 +154,16 @@ export class TileMap extends Mesh {
 	 * 取得瓦片渲染缓冲大小
 	 */
 	public get viewerBufferSize() {
-		return this.rootTile.viewerbufferSize * 2;
+		return this.rootTile.viewerbufferSize;
 	}
 
 	/**
 	 * Set the render cache size. Default:1.2.
-	 * 设置瓦片视图缓冲大小（取值范围1.2-5.0，默认1.2）.
+	 * 设置瓦片视图缓冲大小（取值范围1.2-2，默认1.2）.
 	 * 在判断瓦片是否在可视范围时，将瓦片大小扩大该属性倍来判断，可预加载部分不在可视范围的瓦片，增大viewerBufferSize可预加载较多瓦片，但也增大了数据下载量并占用更多资源。
 	 */
 	public set viewerBufferSize(value) {
-		this.rootTile.viewerbufferSize = value / 2;
+		this.rootTile.viewerbufferSize = value;
 	}
 
 	/**
