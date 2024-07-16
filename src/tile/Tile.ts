@@ -74,7 +74,8 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	private _toLoad = false;
 	/** needs to load? */
 	private get _needsLoad() {
-		return this.inFrustum && this._toLoad && this.loadState === "empty";
+		// return this.inFrustum && this._toLoad && this.loadState === "empty";
+		return this._toLoad && this.loadState === "empty";
 	}
 
 	private _inFrustum = false;
