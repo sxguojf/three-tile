@@ -7,6 +7,7 @@
 import { Box3, Camera, Frustum, MathUtils, Matrix4, PerspectiveCamera, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { Tile } from "./Tile";
+//import { AdvFrustum } from "./AdvFrustum";
 
 const tempMat4 = new Matrix4();
 const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
@@ -175,6 +176,8 @@ export class RootTile extends Tile {
 		// LOD for tiles
 		this.traverse((tile) => {
 			if (tile.isTile) {
+				// bug: https://github.com/mrdoob/three.js/issues/27756
+
 				// Is the tile in the frustum? has buffer
 				tile.inFrustum = frustum.intersectsBox(tileBox.clone().applyMatrix4(tile.matrixWorld));
 
@@ -199,18 +202,33 @@ export class RootTile extends Tile {
 	 *  Update tileTree data
 	 */
 	private _updateTileData() {
-		this.traverse((tile) => {
-			if (tile.isTile) {
-				// load tile data
-				tile._load(this.loader).then(() => {
-					if (tile.loadState === "loaded") {
-						// update z of map in view
-						this._updateVisibleHight();
-						// fire event of the tile loaded
-						this.dispatchEvent({ type: "tile-loaded", tile });
-					}
-				});
-			}
+		// this.traverse((tile) => {
+		// 	if (tile.isTile) {
+		// 		// load tile data
+		// 		tile._load(this.loader).then(() => {
+		// 			if (tile.loadState === "loaded") {
+		// 				// update z of map in view
+		// 				this._updateVisibleHight();
+		// 				// fire event of the tile loaded
+		// 				this.dispatchEvent({ type: "tile-loaded", tile });
+		// 			}
+		// 		});
+		// 	}
+		// });
+
+		// Tiles sorted by item distance to camera
+		let tiles: Tile[] = [];
+		this.traverse((tile) => tiles.push(tile));
+		tiles = tiles.filter((tile) => tile.isTile).sort((a, b) => a.userData.dist - b.userData.dist);
+		tiles.forEach((tile: Tile) => {
+			tile._load(this.loader).then(() => {
+				if (tile.loadState === "loaded") {
+					// update z of map in view
+					this._updateVisibleHight();
+					// fire event of the tile loaded
+					this.dispatchEvent({ type: "tile-loaded", tile });
+				}
+			});
 		});
 
 		return this;

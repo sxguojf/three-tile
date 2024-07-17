@@ -195,7 +195,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	 * @param loader data loader
 	 * @returns Promise<void>
 	 */
-	protected _load(loader: ITileLoader): Promise<void> {
+	public _load(loader: ITileLoader): Promise<void> {
 		if (!this._needsLoad) {
 			return Promise.resolve();
 		}
@@ -272,12 +272,13 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 				mat.userData.wireframe = mat.wireframe;
 			}
 		});
-		this._updateHeight();
 
 		if (!this.isLeaf && this._toLoad) {
 			this.children.forEach((child) => child.dispose(true));
 			this.clear();
 		}
+
+		this._updateHeight();
 
 		this.isTemp = this._getLoadedParent() != null;
 
