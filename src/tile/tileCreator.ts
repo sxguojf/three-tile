@@ -16,7 +16,7 @@ function createTile(x: number, y: number, level: number, position: Vector3, scal
 }
 
 /**
- * create children tiles
+ * Create children tiles
  * @param parent parent tile
  * @param isWGS  is WGS projection
  * @returns tiles
@@ -41,7 +41,7 @@ export function creatChildrenTile(parent: Tile, isWGS = false) {
 			parent.add(createTile(x, y, level, new Vector3(-p, p, z), scale)); //left-top
 			parent.add(createTile(x + 1, y, level, new Vector3(p, p, z), scale)); //right-top
 		}
-		parent.traverse((child) => {
+		parent.children.forEach((child) => {
 			child.updateMatrix();
 			child.updateMatrixWorld();
 			child.receiveShadow = parent.receiveShadow;

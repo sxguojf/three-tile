@@ -99,16 +99,16 @@ export class RootTile extends Tile {
 		this._autoLoad = value;
 	}
 
-	private _vierwerBufferSize = 1.2;
+	private _vierwerBufferSize = 1.1;
 
 	/**
-	 * Get renderer cache size scale. (0.5-2.5，default: 0.6)
+	 * Get renderer cache size scale. (1-2，default: 1.1)
 	 */
 	public get viewerbufferSize() {
 		return this._vierwerBufferSize;
 	}
 	/**
-	 * Get renderer cache size. (0.5-2.5，default: 0.6)
+	 * Get renderer cache size. (1-2，default: 1.2)
 	 */
 	public set viewerbufferSize(value) {
 		this._vierwerBufferSize = MathUtils.clamp(value, 1, 2);
@@ -129,7 +129,7 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * Update tile tree and tile data. It needs called on the scene update every frame.
+	 * Update tile tree and tile data. It called on the scene update every frame.
 	 * @param camera
 	 */
 	public update(camera: Camera) {
@@ -210,14 +210,14 @@ export class RootTile extends Tile {
 	 *  Update tileTree data
 	 */
 	private _updateTileData() {
-		// Tiles sorted by distance to camera
+		// Tiles are sorted by distance to camera
 		let tiles: Tile[] = [];
 		this.traverse((tile) => tiles.push(tile));
 		tiles = tiles.filter((tile) => tile.isTile).sort((a, b) => a.userData.dist - b.userData.dist);
 
-		// Load tile data
-		tiles.forEach((tile: Tile) => {
-			tile._load(this.loader).then(() => {
+		// Iterate through the tiles to load data
+		tiles.forEach((tile) => {
+			tile.load(this.loader).then(() => {
 				if (tile.loadState === "loaded") {
 					// update z of map in view
 					this._updateVisibleHight(tile);

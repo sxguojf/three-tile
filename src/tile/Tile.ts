@@ -9,83 +9,84 @@ import { ITileLoader } from "../loader/ITileLoaders";
 import { LODAction, evaluate } from "./LODEvaluate";
 import { creatChildrenTile } from "./tileCreator";
 
-// default geometry of tile
+// Default geometry of tile
 const defaultGeometry = new PlaneGeometry();
 
-// default material of tile
+// Default material of tile
 const defaultMaterial = new MeshBasicMaterial({ color: 0xff0000 });
 
 /**
- * state of tile data
+ * Type of Loading state
  */
 export type LoadState = "empty" | "loading" | "loaded";
 
 /**
- * coordinate of tile
+ * Type of coordinate of tile
  */
 export type TileCoord = { x: number; y: number; z: number };
 
 /**
- * class Tile, inherit of Mesh
+ * Class Tile, inherit of Mesh
  */
 export class Tile extends Mesh<BufferGeometry, Material[]> {
-	/** coordinate of tile */
+	/** Coordinate of tile */
 	public readonly coord: TileCoord;
 
-	/** is a tile? */
+	/** Is a tile? */
 	public readonly isTile = true;
 
-	/** tile parent */
+	/** Tile parent */
 	public readonly parent: this | null = null;
 
-	/** children of tile */
+	/** Children of tile */
 	public readonly children: this[] = [];
 
-	/** max height of tile */
+	/** Max height of tile */
 	public maxZ = 0;
 
-	/** min height of tile */
+	/** Min height of tile */
 	public minZ = 0;
 
-	/** avg height of tile */
+	/** Avg height of tile */
 	public avgZ = 0;
 
-	/** index of tile, mean positon in parent.
+	/** Index of tile, mean positon in parent.
 	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
 	 */
 	public get index(): number {
 		return this.parent ? this.parent.children.indexOf(this) : -1;
 	}
 
-	/* downloading abort controller */
+	/* Downloading abort controller */
 	private _abortController = new AbortController();
 
-	/** singnal of abort when downloading  */
+	/** Singnal of abort when downloading  */
 	public get abortSignal() {
 		return this._abortController.signal;
 	}
 
 	private _loadState: LoadState = "empty";
-	/** get the tile load state*/
+
+	/** Get the tile load state*/
 	public get loadState() {
 		return this._loadState;
 	}
 
 	private _toLoad = false;
-	/** needs to load? */
+
+	/** Tile needs to load? */
 	private get _needsLoad() {
-		// return this.inFrustum && this._toLoad && this.loadState === "empty";
-		return this._toLoad && this.loadState === "empty";
+		return this.inFrustum && this._toLoad && this.loadState === "empty";
 	}
 
 	private _inFrustum = false;
 
-	/** is tile in frustum? */
+	/** Tile is tile in frustum? */
 	public get inFrustum() {
 		return this._inFrustum;
 	}
 
-	/** set tile is in frustum or not */
+	/** Set tile is in frustum or not */
 	protected set inFrustum(value) {
 		if (this._inFrustum != value) {
 			this._inFrustum = value;
@@ -97,16 +98,25 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 				this.dispose(true);
 			}
 		}
+		// if (!value && this.loadState !== "empty") {
+		// 	this.dispose(true);
+		// }
+		// this._inFrustum = value;
+		// if (value) {
+		// 	this._toLoad = this.isLeaf;
+		// } else {
+		// 	this.dispose(true);
+		// }
 	}
 
-	/** is a leaf in frustum? */
+	/** Tile is a leaf in frustum? */
 	public get isLeafInFrustum() {
 		return this.inFrustum && this.isLeaf;
 	}
 
 	private _isTemp = false;
 
-	/** set the tile to temp */
+	/** Set the tile to temp */
 	private set isTemp(temp: boolean) {
 		this._isTemp = temp;
 		this.material.forEach((mat) => {
@@ -116,7 +126,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		});
 	}
 
-	/** is a leaf?  */
+	/** Tile is a leaf?  */
 	public get isLeaf() {
 		return this.children.length === 0;
 	}
@@ -194,11 +204,11 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * load data
+	 * Load data
 	 * @param loader data loader
 	 * @returns Promise<void>
 	 */
-	public _load(loader: ITileLoader): Promise<void> {
+	public load(loader: ITileLoader): Promise<void> {
 		if (!this._needsLoad) {
 			return Promise.resolve();
 		}
@@ -216,7 +226,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * callback function when error. (include abort)
+	 * Callback function on error. (include abort)
 	 * @param err error message
 	 */
 	private _onError(err: any) {
@@ -233,7 +243,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * Recursion to find loaded parent (hide when parent showing)
+	 * Recursion to find loaded parent (hide on parent showing)
 	 * @returns loaded parent or null
 	 */
 	private _getLoadedParent(): this | null {
@@ -332,6 +342,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		this._loadState = "empty";
 		this.isTemp = true;
 		this._toLoad = false;
+		// this._inFrustum = false;
 		// dispose material
 		if (this.material[0] != defaultMaterial) {
 			this.material.forEach((mat) => mat.dispose());
