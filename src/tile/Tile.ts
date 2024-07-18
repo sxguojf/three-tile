@@ -95,18 +95,10 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 				this._toLoad = this.isLeaf;
 			} else {
 				// dispose tile when leave frustum
+				// todo: Dispose only all brother have leaved frustum, dispose one leaf maybe get a hole
 				this.dispose(true);
 			}
 		}
-		// if (!value && this.loadState !== "empty") {
-		// 	this.dispose(true);
-		// }
-		// this._inFrustum = value;
-		// if (value) {
-		// 	this._toLoad = this.isLeaf;
-		// } else {
-		// 	this.dispose(true);
-		// }
 	}
 
 	/** Tile is a leaf in frustum? */
@@ -294,7 +286,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		this._updateHeight();
 
 		const loadedParent = this._getLoadedParent();
-		this.isTemp = loadedParent != null;
+		this.isTemp = !!loadedParent;
 
 		this._toLoad = false;
 
@@ -303,7 +295,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 
 	// update height
 	private _updateHeight() {
-		this.geometry.computeBoundingBox();
+		// this.geometry.computeBoundingBox();
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
 		this.avgZ = (this.maxZ + this.minZ) / 2;
@@ -342,7 +334,6 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		this._loadState = "empty";
 		this.isTemp = true;
 		this._toLoad = false;
-		// this._inFrustum = false;
 		// dispose material
 		if (this.material[0] != defaultMaterial) {
 			this.material.forEach((mat) => mat.dispose());
