@@ -10,26 +10,27 @@ import { Tile } from ".";
 const p1 = new Vector3(-0.5, -0.5, 0);
 const p2 = new Vector3(0.5, 0.5, 0);
 
-// get the dist of tile to camera
+// Get the dist of tile to camera
 function _getDist(tile: Tile, cameraPos: Vector3, z: number) {
 	const tilePos = tile.position.clone().setZ(z).applyMatrix4(tile.matrixWorld);
 	return cameraPos.distanceTo(tilePos);
 }
 
-// get size of tile
+// Get size of tile
 function _getSize(tile: Tile) {
 	const lt = p1.clone().applyMatrix4(tile.matrixWorld);
 	const rb = p2.clone().applyMatrix4(tile.matrixWorld);
 	return lt.sub(rb).length();
 }
 
-// get dist ratio
+// Get dist ratio
 function _getDistRatio(tile: Tile, cameraWorldPosition: Vector3) {
 	// const cameraWorldPos = camera.getWorldPosition(_temVec3);
 	const dist = _getDist(tile, cameraWorldPosition, tile.avgZ);
 	const size = _getSize(tile);
-	const ratio = dist / size;
-	return Math.log10(ratio) * 5 + 0.5;
+	const ratio = (dist / size) * 0.8;
+	// return 2 ** ratio * 0.5;
+	return ratio;
 }
 
 export enum LODAction {
@@ -41,7 +42,7 @@ export enum LODAction {
 /**
  * Tile LOD evaluate
  * @param tile
- * @param camera
+ * @param cameraWorldPosition
  * @param maxLevel
  * @param minLevel
  * @param threshold
