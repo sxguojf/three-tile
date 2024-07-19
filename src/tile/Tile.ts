@@ -97,8 +97,15 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 				// dispose tile when leave frustum
 				// todo: Dispose only all brother have leaved frustum, dispose one leaf maybe get a hole
 				this.dispose(true);
+				// if (this.parent?.children.every((child) => !child.inFrustum)) {
+				// 	this.parent?.children.forEach((child) => child.dispose(true));
+				// }
+				// this.parent && (this.parent._toLoad = true);
 			}
 		}
+		// if (!value && !this.isLeaf) {
+		// 	this.dispose(true);
+		// }
 	}
 
 	/** Tile is a leaf in frustum? */
@@ -278,12 +285,12 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			}
 		});
 
+		this._updateHeight();
+
 		if (!this.isLeaf && this._toLoad) {
 			this.children.forEach((child) => child.dispose(true));
 			this.clear();
 		}
-
-		this._updateHeight();
 
 		const loadedParent = this._getLoadedParent();
 		this.isTemp = !!loadedParent;

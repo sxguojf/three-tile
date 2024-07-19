@@ -44,7 +44,7 @@ class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
 	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void, onError: (err: any) => void) {
 		// 降低高程瓦片分辨率，以提高速度
 		// get tile size in pixel
-		let tileSize = tile.coord.z * 3;
+		const tileSize = tile.coord.z * 3;
 		// tileSize = MathUtils.clamp(tileSize, 2, 48);
 
 		const geometry = this.createGeometry();
