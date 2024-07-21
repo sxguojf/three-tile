@@ -239,6 +239,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			this._loadState = "loaded";
 			console.error(err.message || err.type || err);
 		}
+		this._getLoadedParent()?._checkVisible();
 	}
 
 	/**
@@ -259,7 +260,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	private _checkVisible(): boolean {
 		const leafs: Tile[] = [];
 		this.traverse((child) => leafs.push(child));
-		const loaded = !leafs.filter((child) => child.isLeafInFrustum).some((child) => child.loadState != "loaded");
+		const loaded = leafs.filter((child) => child.isLeafInFrustum).every((child) => child.loadState === "loaded");
 		if (loaded) {
 			leafs.forEach((child) => {
 				if (child.isLeaf) {
@@ -294,9 +295,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 
 		const loadedParent = this._getLoadedParent();
 		this.isTemp = !!loadedParent;
-
 		this._toLoad = false;
-
 		loadedParent?._checkVisible();
 	}
 
