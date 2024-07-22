@@ -172,7 +172,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 				url: urlPrefix + "/dem/{z}/{x}/{y}.png",
 				bounds,
 				minLevel: 5,
-				maxLevel: 15,
+				maxLevel: 17,
 			});
 
 			map.imgSource = [ms.arcGisSource, imgSource];

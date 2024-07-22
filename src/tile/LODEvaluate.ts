@@ -30,6 +30,7 @@ function _getDistRatio(tile: Tile, cameraWorldPosition: Vector3) {
 	const size = _getSize(tile);
 	const ratio = (dist / size) * 0.8;
 	// return 2 ** ratio * 0.5;
+	tile.userData.dist = dist;
 	return ratio;
 }
 
@@ -64,7 +65,6 @@ export function evaluate(
 	}
 	if (tile.coord.z < maxLevel && tile.isLeafInFrustum) {
 		const dist = _getDistRatio(tile, cameraWorldPosition);
-		tile.userData.dist = dist;
 		if (tile.coord.z < minLevel || dist < threshold / factor) {
 			return LODAction.create;
 		}

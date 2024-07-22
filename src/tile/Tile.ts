@@ -95,17 +95,9 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 				this._toLoad = this.isLeaf;
 			} else {
 				// dispose tile when leave frustum
-				// todo: Dispose only all brother have leaved frustum, dispose one leaf maybe get a hole
 				this.dispose(true);
-				// if (this.parent?.children.every((child) => !child.inFrustum)) {
-				// 	this.parent?.children.forEach((child) => child.dispose(true));
-				// }
-				// this.parent && (this.parent._toLoad = true);
 			}
 		}
-		// if (!value && !this.isLeaf) {
-		// 	this.dispose(true);
-		// }
 	}
 
 	/** Tile is a leaf in frustum? */
@@ -195,7 +187,6 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
-				parent.children.forEach((child) => (child._toLoad = false));
 			}
 		}
 
@@ -239,7 +230,6 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			this._loadState = "loaded";
 			console.error(err.message || err.type || err);
 		}
-		this._getLoadedParent()?._checkVisible();
 	}
 
 	/**
@@ -257,7 +247,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		return parent._getLoadedParent();
 	}
 
-	private _checkVisible(): boolean {
+	public _checkVisible(): boolean {
 		const leafs: Tile[] = [];
 		this.traverse((child) => leafs.push(child));
 		const loaded = leafs.filter((child) => child.isLeafInFrustum).every((child) => child.loadState === "loaded");
