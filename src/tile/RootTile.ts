@@ -15,8 +15,7 @@ const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
 const frustum = new AdvFrustum();
 
 /**
- * Root tile, inherit of Tile.
- * note: update() function is called on the scene update every frame it is rendered.
+ * Root tile, inherit of Tile
  */
 export class RootTile extends Tile {
 	private _treeReadyCount = 0;
@@ -213,7 +212,7 @@ export class RootTile extends Tile {
 		// Tiles are sorted by distance to camera
 		let tiles: Tile[] = [];
 		this.traverse((tile) => tiles.push(tile));
-		tiles = tiles.filter((tile) => tile.isTile).sort((a, b) => a.userData.dist - b.userData.dist);
+		tiles = tiles.filter((tile) => tile.isTile).sort((a, b) => a.distFromCamera - b.distFromCamera);
 
 		// Iterate through the tiles to load data
 		tiles.forEach((tile) => {

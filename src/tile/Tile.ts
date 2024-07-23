@@ -50,6 +50,9 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	/** Avg height of tile */
 	public avgZ = 0;
 
+	/** Distance of tile to campera */
+	public distFromCamera = 0;
+
 	/** Index of tile, mean positon in parent.
 	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
 	 */
@@ -159,6 +162,11 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		});
 	}
 
+	private _getDist(cameraPos: Vector3) {
+		const tilePos = this.position.clone().setZ(this.avgZ).applyMatrix4(this.matrixWorld);
+		return cameraPos.distanceTo(tilePos);
+	}
+
 	/**
 	 * Level Of Details
 	 * @param cameraWorldPosition
@@ -177,8 +185,9 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	) {
 		let change = false;
 		let newTiles: Tile[] = [];
+		this.distFromCamera = this._getDist(cameraWorldPosition);
 		// evaluate LOD
-		const action = evaluate(this, cameraWorldPosition, minLevel, maxLevel, threshold);
+		const action = evaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
