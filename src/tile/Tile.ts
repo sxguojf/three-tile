@@ -4,87 +4,92 @@
  *@date: 2023-04-05
  */
 
-import { BufferGeometry, Camera, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { LODAction, evaluate } from "./LODEvaluate";
 import { creatChildrenTile } from "./tileCreator";
 
-// default geometry of tile
+// Default geometry of tile
 const defaultGeometry = new PlaneGeometry();
 
-// default material of tile
+// Default material of tile
 const defaultMaterial = new MeshBasicMaterial({ color: 0xff0000 });
 
 /**
- * state of tile data
+ * Type of Loading state
  */
 export type LoadState = "empty" | "loading" | "loaded";
 
 /**
- * coordinate of tile
+ * Type of coordinate of tile
  */
 export type TileCoord = { x: number; y: number; z: number };
 
 /**
- * class Tile, inherit of Mesh
+ * Class Tile, inherit of Mesh
  */
 export class Tile extends Mesh<BufferGeometry, Material[]> {
-	/** coordinate of tile */
+	/** Coordinate of tile */
 	public readonly coord: TileCoord;
 
-	/** is a tile? */
+	/** Is a tile? */
 	public readonly isTile = true;
 
-	/** tile parent */
+	/** Tile parent */
 	public readonly parent: this | null = null;
 
-	/** children of tile */
+	/** Children of tile */
 	public readonly children: this[] = [];
 
-	/** max height of tile */
+	/** Max height of tile */
 	public maxZ = 0;
 
-	/** min height of tile */
+	/** Min height of tile */
 	public minZ = 0;
 
-	/** avg height of tile */
+	/** Avg height of tile */
 	public avgZ = 0;
 
-	/** index of tile, mean positon in parent.
+	/** Distance of tile to campera */
+	public distFromCamera = 0;
+
+	/** Index of tile, mean positon in parent.
 	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
 	 */
 	public get index(): number {
 		return this.parent ? this.parent.children.indexOf(this) : -1;
 	}
 
-	/* downloading abort controller */
+	/* Downloading abort controller */
 	private _abortController = new AbortController();
 
-	/** singnal of abort when downloading  */
+	/** Singnal of abort when downloading  */
 	public get abortSignal() {
 		return this._abortController.signal;
 	}
 
 	private _loadState: LoadState = "empty";
-	/** get the tile load state*/
+
+	/** Get the tile load state*/
 	public get loadState() {
 		return this._loadState;
 	}
 
 	private _toLoad = false;
-	/** needs to load? */
+
+	/** Tile needs to load? */
 	private get _needsLoad() {
 		return this.inFrustum && this._toLoad && this.loadState === "empty";
 	}
 
 	private _inFrustum = false;
 
-	/** is tile in frustum? */
+	/** Tile is tile in frustum? */
 	public get inFrustum() {
 		return this._inFrustum;
 	}
 
-	/** set tile is in frustum */
+	/** Set tile is in frustum or not */
 	protected set inFrustum(value) {
 		if (this._inFrustum != value) {
 			this._inFrustum = value;
@@ -98,14 +103,14 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		}
 	}
 
-	/** is leaf in frustum ? */
+	/** Tile is a leaf in frustum? */
 	public get isLeafInFrustum() {
 		return this.inFrustum && this.isLeaf;
 	}
 
 	private _isTemp = false;
 
-	/** set the tile to temp*/
+	/** Set the tile to temp */
 	private set isTemp(temp: boolean) {
 		this._isTemp = temp;
 		this.material.forEach((mat) => {
@@ -113,15 +118,9 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 				mat.wireframe = temp || mat.userData.wireframe;
 			}
 		});
-		if (!temp) {
-			const parent = this._getLoadedParent();
-			if (parent && parent.loadState === "loaded") {
-				// debugger;
-			}
-		}
 	}
 
-	/** is leaf?  */
+	/** Tile is a leaf?  */
 	public get isLeaf() {
 		return this.children.length === 0;
 	}
@@ -152,29 +151,42 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * Override mesh.raycast，only called when tile has loaded
-	 * @param raycaster
-	 * @param intersects
+	 * Override Obejct3D.traverseVisible, change the callback param type to "this"
+	 * @param callback callback
 	 */
-	// public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-	// 	if (this.loadState === "loaded") {
-	// 		super.raycast(raycaster, intersects);
-	// 	}
-	// }
+	public traverseVisible(callback: (object: this) => void): void {
+		if (this.visible === false) return;
+		callback(this);
+		this.children.forEach((tile) => {
+			tile.traverse(callback);
+		});
+	}
+
+	private _getDist(cameraPos: Vector3) {
+		const tilePos = this.position.clone().setZ(this.avgZ).applyMatrix4(this.matrixWorld);
+		return cameraPos.distanceTo(tilePos);
+	}
 
 	/**
 	 * Level Of Details
-	 * @param camera
+	 * @param cameraWorldPosition
 	 * @param minLevel min level for LOD
 	 * @param maxLevel max level for LOD
 	 * @param threshold threshold for LOD
 	 * @param isWGS is WGS projection?
-	 * @returns new tiles
+	 * @returns  new tiles
 	 */
-	protected _lod(camera: Camera, minLevel: number, maxLevel: number, threshold: number, isWGS: boolean) {
+	protected _LOD(
+		cameraWorldPosition: Vector3,
+		minLevel: number,
+		maxLevel: number,
+		threshold: number,
+		isWGS: boolean,
+	) {
 		let newTiles: Tile[] = [];
-		// evaluate LOD
-		const action = evaluate(this, camera, minLevel, maxLevel, threshold);
+		this.distFromCamera = this._getDist(cameraWorldPosition);
+		// LOD evaluate
+		const action = evaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
@@ -182,7 +194,6 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
-				// parent.children.forEach((child) => (child._toLoad = false));
 			}
 		}
 
@@ -190,11 +201,11 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * load data
+	 * Load data
 	 * @param loader data loader
 	 * @returns Promise<void>
 	 */
-	protected _load(loader: ITileLoader): Promise<void> {
+	public load(loader: ITileLoader): Promise<void> {
 		if (!this._needsLoad) {
 			return Promise.resolve();
 		}
@@ -212,7 +223,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * callback function when error. (include abort)
+	 * Callback function on error. (include abort)
 	 * @param err error message
 	 */
 	private _onError(err: any) {
@@ -229,7 +240,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	}
 
 	/**
-	 * Recursion to find loaded parent (hide when parent showing)
+	 * Recursion to find loaded parent (hide on parent showing)
 	 * @returns loaded parent or null
 	 */
 	private _getLoadedParent(): this | null {
@@ -243,10 +254,10 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		return parent._getLoadedParent();
 	}
 
-	private _checkVisible(): boolean {
+	public _checkVisible(): boolean {
 		const leafs: Tile[] = [];
 		this.traverse((child) => leafs.push(child));
-		const loaded = !leafs.filter((child) => child.isLeafInFrustum).some((child) => child.loadState != "loaded");
+		const loaded = leafs.filter((child) => child.isLeafInFrustum).every((child) => child.loadState === "loaded");
 		if (loaded) {
 			leafs.forEach((child) => {
 				if (child.isLeaf) {
@@ -271,6 +282,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 				mat.userData.wireframe = mat.wireframe;
 			}
 		});
+
 		this._updateHeight();
 
 		if (!this.isLeaf && this._toLoad) {
@@ -278,16 +290,15 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			this.clear();
 		}
 
-		this.isTemp = this._getLoadedParent() != null;
-
+		const loadedParent = this._getLoadedParent();
+		this.isTemp = !!loadedParent;
 		this._toLoad = false;
-
-		this._getLoadedParent()?._checkVisible();
+		loadedParent?._checkVisible();
 	}
 
 	// update height
 	private _updateHeight() {
-		this.geometry.computeBoundingBox();
+		// this.geometry.computeBoundingBox();
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
 		this.avgZ = (this.maxZ + this.minZ) / 2;

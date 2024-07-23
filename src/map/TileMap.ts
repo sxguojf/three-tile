@@ -274,8 +274,7 @@ export class TileMap extends Mesh {
 			if (source instanceof SourceWithProjection) {
 				return source;
 			} else {
-				const agent = new SourceWithProjection(source, this.projection);
-				return agent;
+				return new SourceWithProjection(source, this.projection);
 			}
 		});
 
@@ -300,7 +299,11 @@ export class TileMap extends Mesh {
 	 */
 	public set demSource(value: ISource | undefined) {
 		if (value) {
-			this._demSource = new SourceWithProjection(value, this.projection);
+			if (value instanceof SourceWithProjection) {
+				this._demSource = value;
+			} else {
+				this._demSource = new SourceWithProjection(value, this.projection);
+			}
 		} else {
 			this._demSource = undefined;
 		}
@@ -319,7 +322,7 @@ export class TileMap extends Mesh {
 
 	/**
 	 * Set LOD threshold
-	 * 设置LOD阈值，LOD阈值越大，使用更多瓦片显示，地图越清晰，但耗费资源越高，建议取0.8-5之间
+	 * 设置LOD阈值，LOD阈值越大，瓦片细化，但耗费资源越高，建议取1-2之间
 	 */
 	public set LODThreshold(value) {
 		this.rootTile.LODThreshold = value;
@@ -329,17 +332,17 @@ export class TileMap extends Mesh {
 	 * Get the map model width
 	 * 取得地图模型宽度
 	 */
-	public get width() {
-		return this.projection.mapWidth;
-	}
+	// public get width() {
+	// 	return this.projection.mapWidth;
+	// }
 
-	/**
-	 * Get the map model height
-	 * 取得地图模型高度
-	 */
-	public get height() {
-		return this.projection.mapHeight;
-	}
+	// /**
+	//  * Get the map model height
+	//  * 取得地图模型高度
+	//  */
+	// public get height() {
+	// 	return this.projection.mapHeight;
+	// }
 
 	/**
      * Create a map using factory function

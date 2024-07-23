@@ -4,17 +4,18 @@
  *@date: 2023-04-05
  */
 
-import { Box3, Camera, Frustum, MathUtils, Matrix4, PerspectiveCamera, Vector3 } from "three";
+import { Box3, Camera, MathUtils, Matrix4, PerspectiveCamera, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
+import { AdvFrustum } from "./AdvFrustum";
 import { Tile } from "./Tile";
 
+const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
 const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
-const frustum = new Frustum();
+const frustum = new AdvFrustum();
 
 /**
- * Root tile, inherit of Tile.
- * note: update() function is called on the scene update every frame it is rendered.
+ * Root tile, inherit of Tile
  */
 export class RootTile extends Tile {
 	private _treeReadyCount = 0;
@@ -90,23 +91,23 @@ export class RootTile extends Tile {
 
 	/**
 	 * Set whether allow tile data to update, default true.
-	 * true: load data on the scene update every frame it is rendered.
-	 * false: do not load data, only update tile true.
+	 * true: Load data on the scene update every frame it is rendered.
+	 * false: Do not load data, only update tile tree.
 	 */
 	public set autoLoad(value: boolean) {
 		this._autoLoad = value;
 	}
 
-	private _vierwerBufferSize = 1.2;
+	private _vierwerBufferSize = 1.1;
 
 	/**
-	 * Get renderer cache size scale. (0.5-2.5，default: 0.6)
+	 * Get renderer cache size scale. (1-2，default: 1.1)
 	 */
 	public get viewerbufferSize() {
 		return this._vierwerBufferSize;
 	}
 	/**
-	 * Get renderer cache size. (0.5-2.5，default: 0.6)
+	 * Get renderer cache size. (1-2，default: 1.2)
 	 */
 	public set viewerbufferSize(value) {
 		this._vierwerBufferSize = MathUtils.clamp(value, 1, 2);
@@ -127,7 +128,7 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * Update tile tree and tile data. It needs called on the scene update every frame.
+	 * Update tile tree and tile data. It called on the scene update every frame.
 	 * @param camera
 	 */
 	public update(camera: Camera) {
@@ -138,7 +139,7 @@ export class RootTile extends Tile {
 			this._treeReadyCount++;
 		}
 
-		// update tile data when tile tree steady
+		// update tile data when the tile tree to stabilize
 		if (this.autoLoad && this._treeReadyCount > 20) {
 			this._updateTileData();
 		}
@@ -161,32 +162,41 @@ export class RootTile extends Tile {
 	private _updateTileTree(camera: Camera) {
 		let change = false;
 
-		// Frustum enlarge for buffer
+		// Camera fov enlarge for buffer
 		const bufferCamera = camera.clone();
 		if (bufferCamera instanceof PerspectiveCamera) {
 			bufferCamera.fov *= this.viewerbufferSize;
 			bufferCamera.updateProjectionMatrix();
 		}
-		// Get the frustum
+		// Get the frustum whith buffer
 		frustum.setFromProjectionMatrix(
 			tempMat4.multiplyMatrices(bufferCamera.projectionMatrix, bufferCamera.matrixWorldInverse),
 		);
 
+		const cameraWorldPosition = camera.getWorldPosition(tempVec3);
+
 		// LOD for tiles
 		this.traverse((tile) => {
 			if (tile.isTile) {
+				// Issues: https://github.com/mrdoob/three.js/issues/27756
 				// Is the tile in the frustum? has buffer
-				tile.inFrustum = frustum.intersectsBox(tileBox.clone().applyMatrix4(tile.matrixWorld));
+				const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
+				tile.inFrustum = frustum.intersectsBox(bounds);
 
-				// LOD, get new tiles
-				const newTiles = tile._lod(camera, this.minLevel, this.maxLevel, this.LODThreshold, this.isWGS);
-
-				newTiles.forEach((newTile) => {
-					// Fire event on the tile created
-					this.dispatchEvent({ type: "tile-created", tile: newTile });
-				});
+				// LOD, Get new tiles
+				const newTiles = tile._LOD(
+					cameraWorldPosition,
+					this.minLevel,
+					this.maxLevel,
+					this.LODThreshold,
+					this.isWGS,
+				);
 
 				if (newTiles.length > 0) {
+					newTiles.forEach((tile) => {
+						// Fire event on the tile created
+						this.dispatchEvent({ type: "tile-created", tile });
+					});
 					change = true;
 				}
 			}
@@ -199,18 +209,23 @@ export class RootTile extends Tile {
 	 *  Update tileTree data
 	 */
 	private _updateTileData() {
-		this.traverse((tile) => {
-			if (tile.isTile) {
-				// load tile data
-				tile._load(this.loader).then(() => {
-					if (tile.loadState === "loaded") {
-						// update z of map in view
-						this._updateVisibleHight();
-						// fire event of the tile loaded
-						this.dispatchEvent({ type: "tile-loaded", tile });
-					}
-				});
-			}
+		// Tiles are sorted by distance to camera
+		let tiles: Tile[] = [];
+		this.traverse((tile) => tiles.push(tile));
+		tiles = tiles
+			.filter((tile) => tile.isTile && tile.loadState === "empty")
+			.sort((a, b) => a.distFromCamera - b.distFromCamera);
+
+		// Iterate through the tiles to load data
+		tiles.forEach((tile) => {
+			tile.load(this.loader).then(() => {
+				if (tile.loadState === "loaded") {
+					// update z of map in view
+					this._updateVisibleHight(tile);
+					// fire event of the tile loaded
+					this.dispatchEvent({ type: "tile-loaded", tile });
+				}
+			});
 		});
 
 		return this;
@@ -219,21 +234,22 @@ export class RootTile extends Tile {
 	/**
 	 * Update height of tiles in view
 	 */
-	private _updateVisibleHight() {
+	private _updateVisibleHight(_tile: Tile) {
 		let sumZ = 0,
 			count = 0;
 		this.maxZ = 0;
 		this.minZ = 9000;
-		this.traverse((tile) => {
-			if (tile.isTile && tile.isLeafInFrustum && tile.loadState === "loaded") {
-				this.maxZ = Math.max(this.maxZ, tile.maxZ);
-				this.minZ = Math.min(this.minZ, tile.minZ);
-				sumZ += tile.avgZ;
+		this.traverseVisible((child) => {
+			if (child.isTile && child.isLeafInFrustum && child.loadState === "loaded") {
+				this.maxZ = Math.max(this.maxZ, child.maxZ);
+				this.minZ = Math.min(this.minZ, child.minZ);
+				sumZ += child.avgZ;
 				count++;
 			}
 		});
 		if (count > 0) {
 			this.avgZ = sumZ / count;
 		}
+		return this;
 	}
 }
