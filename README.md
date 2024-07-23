@@ -183,7 +183,7 @@ const viewer = new tt.plugin.GLViewer("#map", { centerPostion, cameraPosition })
 
 一般使用，仅需 TileMap 类即可完成绝大部分操作，TileMap 继承于 threejs 的 Mesh 类，你可以把它当做一个普通的三维模型，加入 scene 即可使用。
 
-### 4.1 构造函数
+### 4.1 TileMap构造函数
 
 constructor(params: MapParams) ，MapParams：地图构造函数参数：
 

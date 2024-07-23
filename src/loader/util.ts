@@ -1,5 +1,5 @@
 /**
- *@description: utils functions
+ *@description: Utils functions
  *@author: Guojf
  *@date: 2023-04-06
  */
@@ -9,7 +9,7 @@ import { ISource } from "../source";
 import { Tile } from "../tile";
 
 /**
- * get bounds from rect
+ * Get bounds from rect
  * @param rect
  * @param imgSize
  * @returns
@@ -26,12 +26,12 @@ export function rect2ImageBounds(rect: Box2, imgSize: number) {
 }
 
 /**
- * image resize
+ * Image resize
  * @param image source image
  * @param size dest size
  * @returns canvas
  */
-export function resizeImage(image: HTMLImageElement, size: number) {
+export function imageResize(image: HTMLImageElement, size: number) {
 	if (image.width <= size) {
 		return image;
 	}
@@ -57,7 +57,7 @@ export function resizeImage(image: HTMLImageElement, size: number) {
 }
 
 /**
- * get url and rect for max level tile
+ * Get url and rect for max level tile
  * to load greater than max level from source,  had to load from max level.
  * 因为瓦片数据并未覆盖所有级别瓦片，如MapBox地形瓦片最高只到15级，如果要显示18级以上瓦片，不能从17级瓦片中获取，只能从15级瓦片里截取一部分
  * @param source
