@@ -103,7 +103,7 @@ export function showClickedTile(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 		const info = map.getLocalInfoFromScreen(viewer.camera, pointer);
 		// getScreenPointInfo(viewer, map, pointer);
 		if (info) {
-			console.log(info.object);
+			console.log(info);
 		}
 	});
 }

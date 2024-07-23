@@ -184,7 +184,7 @@ export class RootTile extends Tile {
 				tile.inFrustum = frustum.intersectsBox(bounds);
 
 				// LOD, Get new tiles
-				const result = tile._LOD(
+				const newTiles = tile._LOD(
 					cameraWorldPosition,
 					this.minLevel,
 					this.maxLevel,
@@ -192,10 +192,10 @@ export class RootTile extends Tile {
 					this.isWGS,
 				);
 
-				if (result.change) {
-					result.newTiles.forEach((newTile) => {
+				if (newTiles.length > 0) {
+					newTiles.forEach((tile) => {
 						// Fire event on the tile created
-						this.dispatchEvent({ type: "tile-created", tile: newTile });
+						this.dispatchEvent({ type: "tile-created", tile });
 					});
 					change = true;
 				}
@@ -212,7 +212,9 @@ export class RootTile extends Tile {
 		// Tiles are sorted by distance to camera
 		let tiles: Tile[] = [];
 		this.traverse((tile) => tiles.push(tile));
-		tiles = tiles.filter((tile) => tile.isTile).sort((a, b) => a.distFromCamera - b.distFromCamera);
+		tiles = tiles
+			.filter((tile) => tile.isTile && tile.loadState === "empty")
+			.sort((a, b) => a.distFromCamera - b.distFromCamera);
 
 		// Iterate through the tiles to load data
 		tiles.forEach((tile) => {

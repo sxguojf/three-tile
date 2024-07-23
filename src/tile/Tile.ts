@@ -174,7 +174,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	 * @param maxLevel max level for LOD
 	 * @param threshold threshold for LOD
 	 * @param isWGS is WGS projection?
-	 * @returns change, new tiles
+	 * @returns  new tiles
 	 */
 	protected _LOD(
 		cameraWorldPosition: Vector3,
@@ -183,15 +183,13 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		threshold: number,
 		isWGS: boolean,
 	) {
-		let change = false;
 		let newTiles: Tile[] = [];
 		this.distFromCamera = this._getDist(cameraWorldPosition);
-		// evaluate LOD
+		// LOD evaluate
 		const action = evaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
-			change = true;
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile) {
@@ -199,7 +197,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			}
 		}
 
-		return { change, newTiles };
+		return newTiles;
 	}
 
 	/**
