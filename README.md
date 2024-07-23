@@ -12,25 +12,18 @@ three-tile 是一个使用 [threejs](https://threejs.org/)开发的轻量级三�
 
 Source: https://github.com/sxguojf/three-tile
 
+demo: [three-tile demo (sxguojf.github.io](https://sxguojf.github.io/mydemo/three-tile/index.html)
+
 提供一些开发示例：
 
 Examples: https://sxguojf.github.io/three-tile-example
 
 Examples Source： https://github.com/sxguojf/three-tile-example
 
-![alt text](images/image-3.png)
-
-![alt text](images/image-0.png)
-
-![alt text](images/image-2.png)
-
-![image-20240715090719129](images\image-20240715090719129.png)
-
-![image-20240715090911564](images\image-20240715090911564.png)
-
-![alt text](images/image-4.png)
-
-![alt text](images/image-1.png)
+| ![alt text](images/image-3.png)                              | ![alt text](images/image-4.png)                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![alt text](images/image-2.png)                              | ![image-20240715090719129](images/image-20240715090719129.png) |
+| ![image-20240715090911564](images/image-20240715090911564.png) | ![alt text](images/image-1.png)                              |
 
 免责声明：
 
@@ -183,7 +176,7 @@ const viewer = new tt.plugin.GLViewer("#map", { centerPostion, cameraPosition })
 
 一般使用，仅需 TileMap 类即可完成绝大部分操作，TileMap 继承于 threejs 的 Mesh 类，你可以把它当做一个普通的三维模型，加入 scene 即可使用。
 
-### 4.1 TileMap构造函数
+### 4.1 TileMap 构造函数
 
 constructor(params: MapParams) ，MapParams：地图构造函数参数：
 
