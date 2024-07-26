@@ -18,8 +18,10 @@ export interface ISource {
 	projectionID: ProjectionType;
 	/** Display opacity */
 	opacity: number;
-	/* Data bounds in lonlat, Only be loaded inside the lonlats*/
+	/* Data bounds in lonlat [minLon,minLat,maxLon,maxLat]*/
 	bounds: [number, number, number, number];
-	/** get url from xyz */
+	/** Data bounds in Proejction, internal use */
+	_projectionBounds: [number, number, number, number] | undefined;
+	/** Get url from xyz */
 	getTileUrl: (x: number, y: number, z: number) => string | undefined;
 }
