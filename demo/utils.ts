@@ -73,7 +73,7 @@ export function addMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
  * @param map  地图
  * @param dist 距地高度
  */
-export function limitCameraHeight(viewer: tt.plugin.GLViewer, map: tt.TileMap, dist = 0.2) {
+export function limitCameraHeight(viewer: tt.plugin.GLViewer, map: tt.TileMap, dist = 0.1) {
 	function getHightFromCamera() {
 		// 取摄像机下方点
 		const dist = viewer.camera.near;
