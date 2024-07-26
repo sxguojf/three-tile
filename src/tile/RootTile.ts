@@ -228,8 +228,9 @@ export class RootTile extends Tile {
 					}
 				})
 				.catch((err) => {
-					console.error(err.message || err.type || err);
-					this.dispatchEvent({ type: "tile-load-error", tile });
+					// console.error(`${tile.name}: ${err.message || err.type || err}`);
+					const message = err.message || "download error";
+					this.dispatchEvent({ type: "tile-load-error", tile, message });
 				});
 		});
 

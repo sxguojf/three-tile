@@ -97,7 +97,7 @@ export function attachEvent(tileMap: TileMap) {
 	});
 	// 瓦片加载错误事件
 	tileMap.rootTile.addEventListener("tile-load-error", (evt) => {
-		tileMap.dispatchEvent({ type: "tile-load-error", tile: evt.tile });
+		tileMap.dispatchEvent({ type: "tile-load-error", tile: evt.tile, message: evt.message });
 	});
 
 	return tileMap;
