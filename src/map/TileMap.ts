@@ -40,6 +40,7 @@ export type MapParams = {
  *
  * @event tile-created
  * @event tile-loaded
+ * @event tile-load-error
  *
  * @event update
  * @event source-changed

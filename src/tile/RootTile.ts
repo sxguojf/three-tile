@@ -218,14 +218,19 @@ export class RootTile extends Tile {
 
 		// Iterate through the tiles to load data
 		tiles.forEach((tile) => {
-			tile.load(this.loader).then(() => {
-				if (tile.loadState === "loaded") {
-					// update z of map in view
-					this._updateVisibleHight(tile);
-					// fire event of the tile loaded
-					this.dispatchEvent({ type: "tile-loaded", tile });
-				}
-			});
+			tile.load(this.loader)
+				.then(() => {
+					if (tile.loadState === "loaded") {
+						// update z of map in view
+						this._updateVisibleHight(tile);
+						// fire event of the tile loaded
+						this.dispatchEvent({ type: "tile-loaded", tile });
+					}
+				})
+				.catch((err) => {
+					console.error(err.message || err.type || err);
+					this.dispatchEvent({ type: "tile-load-error", tile });
+				});
 		});
 
 		return this;
