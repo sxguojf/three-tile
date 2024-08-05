@@ -8,6 +8,7 @@ import { Tile } from "../../tile";
  */
 export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "logo";
+	private _texture: CanvasTexture | null = null; // = new CanvasTexture(this.drawLogo(source.attribution));
 
 	/**
 	 * 加载材质
@@ -24,24 +25,16 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 		}
 
 		// 绘制logo图
-		const texture = new CanvasTexture(this.drawLogo(source.attribution));
-		texture.needsUpdate = true;
+		if (!this._texture) {
+			this._texture = new CanvasTexture(this.drawLogo(source.attribution));
+			this._texture.needsUpdate = true;
+		}
+
 		const material = new MeshBasicMaterial({
 			transparent: true,
-			map: texture,
+			map: this._texture,
 			opacity: source.opacity,
 		});
-
-		// 材质销毁时释放纹理图
-		const onMaterialDispose = (evt: any) => {
-			const mat: MeshBasicMaterial = evt.target;
-			if (mat.map?.image instanceof ImageBitmap) {
-				mat.map.image.close();
-			}
-			mat.map?.dispose();
-			mat.removeEventListener("dispose", onMaterialDispose);
-		};
-		material.addEventListener("dispose", onMaterialDispose);
 
 		setTimeout(onLoad);
 

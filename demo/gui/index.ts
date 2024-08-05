@@ -44,6 +44,9 @@ export function showLoading(map: tt.TileMap) {
 			loading.style.backgroundColor = "red";
 		});
 	}
+	map.addEventListener("tile-load-error", (evt) => {
+		console.error(`${evt.message}:  ${evt.tile.name}`);
+	});
 }
 
 // 添加地图版权信息

@@ -140,7 +140,7 @@ export class RootTile extends Tile {
 		}
 
 		// update tile data when the tile tree to stabilize
-		if (this.autoLoad && this._treeReadyCount > 20) {
+		if (this.autoLoad && this._treeReadyCount > 5) {
 			this._updateTileData();
 		}
 		return this;
@@ -218,14 +218,20 @@ export class RootTile extends Tile {
 
 		// Iterate through the tiles to load data
 		tiles.forEach((tile) => {
-			tile.load(this.loader).then(() => {
-				if (tile.loadState === "loaded") {
-					// update z of map in view
-					this._updateVisibleHight(tile);
-					// fire event of the tile loaded
-					this.dispatchEvent({ type: "tile-loaded", tile });
-				}
-			});
+			tile.load(this.loader)
+				.then(() => {
+					if (tile.loadState === "loaded") {
+						// update z of map in view
+						this._updateVisibleHight(tile);
+						// fire event of the tile loaded
+						this.dispatchEvent({ type: "tile-loaded", tile });
+					}
+				})
+				.catch((err) => {
+					// console.error(`${tile.name}: ${err.message || err.type || err}`);
+					const message = err.message || "download error";
+					this.dispatchEvent({ type: "tile-load-error", tile, message });
+				});
 		});
 
 		return this;

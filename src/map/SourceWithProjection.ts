@@ -31,15 +31,15 @@ export class SourceWithProjection extends TileSource {
 	}
 	public set projection(value: IProjection) {
 		this._projection = value;
-		this._bounds = this.projection.getPorjBounds(this._source.bounds);
+		this._projectionBounds = this.projection.getPorjBounds(this._source.bounds);
 	}
 
-	private _bounds!: {
-		maxX: number;
-		maxY: number;
-		minX: number;
-		minY: number;
-	};
+	// public _projectionBounds!: {
+	// 	maxX: number;
+	// 	maxY: number;
+	// 	minX: number;
+	// 	minY: number;
+	// };
 
 	private _getTileBounds(x: number, y: number, z: number, s: number = 1) {
 		const p1 = this.projection.getTileXYZproj(x, y, z);
@@ -71,18 +71,27 @@ export class SourceWithProjection extends TileSource {
 
 		// 判断请求的瓦片是否在数据源经纬度有效范围内
 		const s = 1;
-		const bounds = this._bounds;
+		const bounds = this._projectionBounds;
 		// 取得当前瓦片的bounds
 		const tileBounds = this._getTileBounds(newx, y, z, s);
 
 		if (
-			tileBounds.maxX < bounds.minX ||
-			tileBounds.minX > bounds.maxX ||
-			tileBounds.maxY < bounds.minY ||
-			tileBounds.minY > bounds.maxY
+			tileBounds.maxX < bounds[0] || // minx
+			tileBounds.maxY < bounds[1] || // miny
+			tileBounds.minX > bounds[2] || // maxx
+			tileBounds.minY > bounds[3] // maxy
 		) {
 			return undefined;
 		}
+
+		// if (
+		// 	tileBounds.maxX < bounds.minX ||
+		// 	tileBounds.minX > bounds.maxX ||
+		// 	tileBounds.maxY < bounds.minY ||
+		// 	tileBounds.minY > bounds.maxY
+		// ) {
+		// 	return undefined;
+		// }
 
 		return this._source.getTileUrl(newx, y, z);
 	}

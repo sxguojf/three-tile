@@ -95,10 +95,9 @@ export function attachEvent(tileMap: TileMap) {
 	tileMap.rootTile.addEventListener("tile-loaded", (evt) => {
 		tileMap.dispatchEvent({ type: "tile-loaded", tile: evt.tile });
 	});
-
-	// 瓦片全部加载完成事件
-	tileMap.rootTile.addEventListener("loaded", () => {
-		tileMap.dispatchEvent({ type: "loaded" });
+	// 瓦片加载错误事件
+	tileMap.rootTile.addEventListener("tile-load-error", (evt) => {
+		tileMap.dispatchEvent({ type: "tile-load-error", tile: evt.tile, message: evt.message });
 	});
 
 	return tileMap;

@@ -213,30 +213,23 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		this._abortController = new AbortController();
 		this._loadState = "loading";
 		// Load tile data
-		return new Promise((resolve, _reject) => {
+		return new Promise((resolve, reject) => {
 			loader.load(
 				this,
 				() => resolve(this._onLoad()),
-				(err) => resolve(this._onError(err)),
+				(err) => {
+					this._toLoad = false;
+					if (err.name === "AbortError") {
+						// download abort, loadeState has seted empty
+						console.assert(this._loadState === "empty");
+					} else {
+						// download fail, set loadState to loaded to prevent reload
+						this._loadState = "loaded";
+						reject(err);
+					}
+				},
 			);
 		});
-	}
-
-	/**
-	 * Callback function on error. (include abort)
-	 * @param err error message
-	 */
-	private _onError(err: any) {
-		this._toLoad = false;
-		if (err.name === "AbortError") {
-			// download abort, loadeState has seted empty
-			console.assert(this._loadState === "empty");
-			// console.log(err.message, this.name);
-		} else {
-			// download fail, set loadState to loaded to prevent reload
-			this._loadState = "loaded";
-			console.error(err.message || err.type || err);
-		}
 	}
 
 	/**
