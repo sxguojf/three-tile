@@ -1,4 +1,4 @@
-import { Box2, BufferGeometry, Loader, MathUtils, PlaneGeometry } from "three";
+import { Box2, BufferGeometry, MathUtils, PlaneGeometry } from "three";
 
 import {
 	FileLoaderEx,
@@ -8,10 +8,10 @@ import {
 	rect2ImageBounds,
 } from "../../loader";
 
+import { TileGridGeometry } from "../../geometry";
 import { ISource } from "../../source";
 import { Tile } from "../../tile";
 import * as Lerc from "./lercDecode/LercDecode.es";
-import { TileGridGeometry } from "../../geometry";
 
 // Lerc.load({
 // 	locateFile: (fn, dir) => {
@@ -27,13 +27,12 @@ const emptyGeometry = new BufferGeometry();
  * ArcGis-lerc格式瓦片几何体加载器
  * @link https://github.com/Esri/lerc
  */
-export class TileGeometryLercLoader extends Loader implements ITileGeometryLoader {
+export class TileGeometryLercLoader implements ITileGeometryLoader {
 	public readonly dataType = "lerc";
 	// 图像加载器
 	private fileLoader = new FileLoaderEx(LoaderFactory.manager);
 
 	public constructor() {
-		super();
 		this.fileLoader.setResponseType("arraybuffer");
 	}
 

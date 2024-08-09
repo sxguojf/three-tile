@@ -4,13 +4,30 @@
  *@date: 2023-04-06
  */
 
-import { Camera, Clock, Mesh, Vector2, Vector3 } from "three";
+import { BufferGeometry, Camera, Clock, Material, Mesh, Object3DEventMap, Vector2, Vector3 } from "three";
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { RootTile } from "../tile/RootTile";
 import { SourceWithProjection } from "./SourceWithProjection";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld, getTileCount } from "./util";
+import { Tile } from "../tile";
+
+export interface TileMapEventMap extends Object3DEventMap {
+	"tile-created": { type: "tile-created"; tile: Tile };
+	"tile-load-error": { type: "tile-load-error"; tile: Tile; message: string };
+	"tile-loaded": { type: "tile-loaded"; tile: Tile };
+
+	"projection-changed": { type: "projection-changed"; projection: IProjection };
+	"source-changed": { type: "source-changed"; source: ISource | ISource[] | undefined };
+
+	"loading-start": { type: "loading-start"; itemsLoaded: number; itemsTotal: number };
+	"loading-error": { type: "loading-error"; url: string };
+	"loading-complete": { type: "loading-complete" };
+	"loading-progress": { type: "loading-progress"; url: string; itemsLoaded: number; itemsTotal: number };
+
+	update: { type: "update"; delta: number };
+}
 
 // 地图投影中心经度类型
 type ProjectCenterLongitude = 0 | 90 | -90;
@@ -32,22 +49,9 @@ export type MapParams = {
 /**
  * Map Mesh
  * 地图模型
- *
- * @event loading-start
- * @event loading-error
- * @event loading-complete
- * @event loading-progress
- *
- * @event tile-created
- * @event tile-loaded
- * @event tile-load-error
- *
- * @event update
- * @event source-changed
- * @event projection-changed
- *
  */
-export class TileMap extends Mesh {
+
+export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	// 渲染时钟计时器
 	private readonly _clock = new Clock();
 

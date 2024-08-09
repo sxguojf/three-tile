@@ -9,6 +9,12 @@ import { ITileLoader } from "../loader/ITileLoaders";
 import { AdvFrustum } from "./AdvFrustum";
 import { Tile } from "./Tile";
 
+// export interface RootTileEventMap extends TileEventMap {
+// 	tileCreated: { type: "tile-created" };
+// 	tileLoadError: { type: "tile-load-error" };
+// 	tileLoaded: { type: "tile-loaded" };
+// }
+
 const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
 const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));

@@ -4,10 +4,17 @@
  *@date: 2023-04-05
  */
 
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from "three";
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Object3DEventMap, PlaneGeometry, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { LODAction, evaluate } from "./LODEvaluate";
 import { creatChildrenTile } from "./tileCreator";
+
+export interface TileEventMap extends Object3DEventMap {
+	dispose: { type: "dispose" };
+	"tile-created": { type: "tile-created"; tile: Tile };
+	"tile-load-error": { type: "tile-load-error"; tile: Tile; message: string };
+	"tile-loaded": { type: "tile-loaded"; tile: Tile };
+}
 
 // Default geometry of tile
 const defaultGeometry = new PlaneGeometry();
@@ -28,7 +35,7 @@ export type TileCoord = { x: number; y: number; z: number };
 /**
  * Class Tile, inherit of Mesh
  */
-export class Tile extends Mesh<BufferGeometry, Material[]> {
+export class Tile extends Mesh<BufferGeometry, Material[], TileEventMap> {
 	/** Coordinate of tile */
 	public readonly coord: TileCoord;
 

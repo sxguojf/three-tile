@@ -4,13 +4,13 @@
  *@date: 2023-04-06
  */
 
-import { Material, MeshLambertMaterial } from "three";
+import { Material } from "three";
+import { TileMaterial } from "../material";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ITileMaterialLoader } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
 import { TileTextureLoader } from "./TileTextureLoader";
-import { TileMaterial } from "../material";
 
 /**
  * image material loader
@@ -20,7 +20,7 @@ class TileMaterialImageLoader implements ITileMaterialLoader {
 
 	public load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void): Material {
 		// dispose texture on material disposed
-		const onMaterialDispose = (evt: { target: MeshLambertMaterial }) => {
+		const onMaterialDispose = (evt: { target: TileMaterial }) => {
 			const mat = evt.target;
 			if (mat.map?.image instanceof ImageBitmap) {
 				mat.map.image.close();

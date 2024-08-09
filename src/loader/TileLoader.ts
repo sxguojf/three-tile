@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Loader, Material, PlaneGeometry } from "three";
+import { BufferGeometry, LoadingManager, Material, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { CacheEx } from "./CacheEx";
@@ -14,7 +14,7 @@ import { LoaderFactory } from "./LoaderFactory";
 /**
  * tile loader
  */
-export class TileLoader extends Loader implements ITileLoader {
+export class TileLoader implements ITileLoader {
 	/** get loader cache size of file  */
 	public get cacheSize() {
 		return CacheEx.size;
@@ -44,11 +44,13 @@ export class TileLoader extends Loader implements ITileLoader {
 		this._demSource = value;
 	}
 
+	public manager: LoadingManager = LoaderFactory.manager;
+
 	/**
 	 * constructor
 	 */
 	constructor() {
-		super(LoaderFactory.manager);
+		// super(LoaderFactory.manager);
 		// this.imgSource = imgSource || [BaseSource.create({ dataType: "test" })];
 		// this.demSource = demSource;
 	}

@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Box2, Loader, PlaneGeometry } from "three";
+import { Box2, PlaneGeometry } from "three";
 import { TileGridGeometry } from "../geometry";
 import { ISource } from "../source";
 import { Tile } from "../tile";
@@ -17,7 +17,7 @@ import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
 /**
  * Mapbox-RGB geometry loader
  */
-class TileGeometryRGBLoader extends Loader implements ITileGeometryLoader {
+class TileGeometryRGBLoader implements ITileGeometryLoader {
 	public readonly dataType = "terrain-rgb";
 	private imageLoader = new ImageLoaderEx(LoaderFactory.manager);
 
