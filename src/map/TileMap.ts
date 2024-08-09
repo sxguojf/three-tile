@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Camera, Clock, Material, Mesh, Object3DEventMap, Vector2, Vector3 } from "three";
+import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEventMap, Vector2, Vector3 } from "three";
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { RootTile } from "../tile/RootTile";
@@ -13,20 +13,23 @@ import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld, getTileCount } from "./util";
 import { Tile } from "../tile";
 
+/**
+ * TileMap Event Map
+ */
 export interface TileMapEventMap extends Object3DEventMap {
-	"tile-created": { type: "tile-created"; tile: Tile };
-	"tile-load-error": { type: "tile-load-error"; tile: Tile; message: string };
-	"tile-loaded": { type: "tile-loaded"; tile: Tile };
+	"tile-created": BaseEvent & { tile: Tile };
+	"tile-load-error": BaseEvent & { tile: Tile; message: string };
+	"tile-loaded": BaseEvent & { tile: Tile };
 
-	"projection-changed": { type: "projection-changed"; projection: IProjection };
-	"source-changed": { type: "source-changed"; source: ISource | ISource[] | undefined };
+	"projection-changed": BaseEvent & { projection: IProjection };
+	"source-changed": BaseEvent & { source: ISource | ISource[] | undefined };
 
-	"loading-start": { type: "loading-start"; itemsLoaded: number; itemsTotal: number };
-	"loading-error": { type: "loading-error"; url: string };
-	"loading-complete": { type: "loading-complete" };
-	"loading-progress": { type: "loading-progress"; url: string; itemsLoaded: number; itemsTotal: number };
+	"loading-start": BaseEvent & { itemsLoaded: number; itemsTotal: number };
+	"loading-error": BaseEvent & { url: string };
+	"loading-complete": BaseEvent;
+	"loading-progress": BaseEvent & { url: string; itemsLoaded: number; itemsTotal: number };
 
-	update: { type: "update"; delta: number };
+	update: BaseEvent & { delta: number };
 }
 
 // 地图投影中心经度类型

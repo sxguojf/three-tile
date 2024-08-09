@@ -6,6 +6,7 @@
 
 import {
 	AmbientLight,
+	BaseEvent,
 	Clock,
 	Color,
 	DirectionalLight,
@@ -21,10 +22,16 @@ import {
 
 import { MapControls } from "three/examples/jsm/controls/MapControls";
 
+/**
+ * GlViewer event map
+ */
 export interface GLViewerEventMap extends Object3DEventMap {
-	update: { type: "update"; delta: number };
+	update: BaseEvent & { delta: number };
 }
 
+/**
+ * GlViewer options
+ */
 type GLViewerOptions = {
 	centerPostion?: Vector3;
 	cameraPosition?: Vector3;
