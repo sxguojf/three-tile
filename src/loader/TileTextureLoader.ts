@@ -35,7 +35,7 @@ export class TileTextureLoader {
 		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
 
 		if (!url) {
-			setTimeout(onLoad, 10);
+			setTimeout(onLoad);
 			return emptyTexture;
 		}
 

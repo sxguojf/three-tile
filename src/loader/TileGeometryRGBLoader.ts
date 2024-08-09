@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Box2, PlaneGeometry } from "three";
+import { Box2, BufferGeometry, PlaneGeometry } from "three";
 import { TileGridGeometry } from "../geometry";
 import { ISource } from "../source";
 import { Tile } from "../tile";
@@ -29,12 +29,12 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	 * @param onError
 	 * @returns
 	 */
-	public load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void) {
+	public load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void): BufferGeometry {
 		// get max level tile and rect
 		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
 
 		if (!url) {
-			setTimeout(onLoad, 100);
+			setTimeout(onLoad);
 			return new PlaneGeometry();
 		} else {
 			return this._load(tile, url, rect, onLoad, onError);
@@ -42,18 +42,16 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	}
 
 	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void, onError: (err: any) => void) {
-		// 降低高程瓦片分辨率，以提高速度
-		// get tile size in pixel
-		const tileSize = tile.coord.z * 3;
-		// tileSize = MathUtils.clamp(tileSize, 2, 48);
-
+		const tileSize = (tile.coord.z + 2) * 3;
 		const geometry = this.createGeometry();
 		this.imageLoader.load(
 			url,
 			// onLoad
 			(image) => {
-				const imgData = getImageDataFromRect(image, rect, tileSize);
-				geometry.setData(Img2dem(imgData.data), imgData.width);
+				if (!tile.abortSignal.aborted) {
+					const imgData = getImageDataFromRect(image, rect, tileSize);
+					geometry.setData(Img2dem(imgData.data), imgData.width);
+				}
 				onLoad();
 			},
 			// onProgress
@@ -77,10 +75,13 @@ function getZ(imgData: Uint8ClampedArray, i: number) {
 	if (imgData[i * 4 + 3] === 0) {
 		return 0;
 	}
-	const r = imgData[i * 4];
-	const g = imgData[i * 4 + 1];
-	const b = imgData[i * 4 + 2];
-	return (((r << 16) + (g << 8) + b) * 0.1 - 10000.0) / 1000.0;
+	// const r = imgData[i * 4];
+	// const g = imgData[i * 4 + 1];
+	// const b = imgData[i * 4 + 2];
+	// return (((r << 16) + (g << 8) + b) * 0.1 - 10000.0) / 1000.0;
+
+	const rgb = (imgData[i * 4] << 16) | (imgData[i * 4 + 1] << 8) | imgData[i * 4 + 2];
+	return rgb / 10000 - 10;
 }
 
 function Img2dem(imgData: Uint8ClampedArray) {
