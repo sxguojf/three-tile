@@ -15,7 +15,7 @@ import {
 	Vector3,
 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
-import { LODAction, evaluate } from "./LODEvaluate";
+import { LODAction, LODEvaluate } from "./LODEvaluate";
 import { creatChildrenTile } from "./tileCreator";
 
 /**
@@ -207,7 +207,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		let newTiles: Tile[] = [];
 		this.distFromCamera = this._getDist(cameraWorldPosition);
 		// LOD evaluate
-		const action = evaluate(this, minLevel, maxLevel, threshold);
+		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
