@@ -11,9 +11,6 @@ void main() {
 }  
 `;
 const frag = `
-
-
-
 varying vec2 vUv;
 uniform vec3 bkColor;
 uniform vec3 airColor;
@@ -21,19 +18,19 @@ uniform vec3 airColor;
 void main() {   
 
     // 当前点距中点的距离
-    float d = distance(vUv, vec2(0.5f))*5.0f;
+    float d = distance(vUv, vec2(0.5f)); 
+    d = d * d * 100.0f;
     
-    if(d<0.49f){
+    if(d<0.98f){
         // 球体颜色
-        float a = smoothstep(0.0f,0.4f,d-0.12f);     
+        float a = smoothstep(0.0f,1.0f,d);     
         gl_FragColor = vec4(vec3(0.0f), a);               
-    } else if(d<0.5){
-        float c = (d-0.48f)/0.02f;
-        gl_FragColor =vec4(mix(vec3(0.0f),airColor,c*c),1.5f-d);
-    } else if(d<0.53f){
-        // 光晕(0.48-0.52)
-        float c = (d-0.49f)/0.04f;
-        gl_FragColor = vec4(mix(airColor,bkColor,sqrt(c)),1.0);
+    } else if(d<=1.0f){
+        float c = (d-0.98f)/(1.0f-0.98f);        
+        gl_FragColor =vec4(mix(vec3(0.0f),airColor,c),1.0f);        
+    } else if(d<=1.1f){        
+        float c = (d-1.0f)/(1.1f-1.0f);
+        gl_FragColor = vec4(mix(airColor,bkColor,sqrt(c)),1.0f);
     } else{
         // 球体外颜色
         gl_FragColor = vec4(bkColor,1.0f);
