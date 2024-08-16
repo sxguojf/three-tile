@@ -4,14 +4,14 @@
  *@date: 2023-04-06
  */
 
-import { Box2, Texture, SRGBColorSpace } from "three";
+import { Box2, Texture, SRGBColorSpace, DataTexture, RGBAFormat } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
 
-const emptyTexture = new Texture(new Image(1, 1));
+const emptyTexture = new DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1, RGBAFormat);
 /**
  * texture loader
  */
@@ -35,7 +35,7 @@ export class TileTextureLoader {
 		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
 
 		if (!url) {
-			setTimeout(onLoad, 10);
+			setTimeout(onLoad);
 			return emptyTexture;
 		}
 

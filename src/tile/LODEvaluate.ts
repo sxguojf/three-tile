@@ -47,7 +47,7 @@ export enum LODAction {
  * @param threshold
  * @returns action
  */
-export function evaluate(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {
+export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {
 	const factor = 1.02;
 	if (tile.coord.z > minLevel && tile.index === 0 && tile.parent?.isTile) {
 		const dist = _getDistRatio(tile.parent);

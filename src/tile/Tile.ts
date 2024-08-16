@@ -4,16 +4,35 @@
  *@date: 2023-04-05
  */
 
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3 } from "three";
+import {
+	BaseEvent,
+	BufferGeometry,
+	Material,
+	Mesh,
+	MeshBasicMaterial,
+	Object3DEventMap,
+	PlaneGeometry,
+	Vector3,
+} from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
-import { LODAction, evaluate } from "./LODEvaluate";
+import { LODAction, LODEvaluate } from "./LODEvaluate";
 import { creatChildrenTile } from "./tileCreator";
+
+/**
+ * Tile event map
+ */
+export interface TTileEventMap extends Object3DEventMap {
+	dispose: BaseEvent;
+	"tile-created": BaseEvent & { tile: Tile };
+	"tile-load-error": BaseEvent & { tile: Tile; message: string };
+	"tile-loaded": BaseEvent & { tile: Tile };
+}
 
 // Default geometry of tile
 const defaultGeometry = new PlaneGeometry();
 
 // Default material of tile
-const defaultMaterial = new MeshBasicMaterial({ color: 0xff0000 });
+const defaultMaterial = new MeshBasicMaterial();
 
 /**
  * Type of Loading state
@@ -28,7 +47,8 @@ export type TileCoord = { x: number; y: number; z: number };
 /**
  * Class Tile, inherit of Mesh
  */
-export class Tile extends Mesh<BufferGeometry, Material[]> {
+export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
+	// export class Tile<TTileEvent extends TTileEventMap = TTileEventMap> extends Mesh<BufferGeometry, Material[], TTileEvent> {
 	/** Coordinate of tile */
 	public readonly coord: TileCoord;
 
@@ -96,7 +116,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			if (value) {
 				// load data when leaf into frustum
 				this._toLoad = this.isLeaf;
-			} else {
+			} else if (!this.isLeaf) {
 				// dispose tile when leave frustum
 				this.dispose(true);
 			}
@@ -155,16 +175,17 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 	 * @param callback callback
 	 */
 	public traverseVisible(callback: (object: this) => void): void {
-		if (this.visible === false) return;
-		callback(this);
-		this.children.forEach((tile) => {
-			tile.traverse(callback);
-		});
+		if (this.visible) {
+			callback(this);
+			this.children.forEach((tile) => {
+				tile.traverseVisible(callback);
+			});
+		}
 	}
 
-	private _getDist(cameraPos: Vector3) {
+	private _getDist(cameraPosition: Vector3) {
 		const tilePos = this.position.clone().setZ(this.avgZ).applyMatrix4(this.matrixWorld);
-		return cameraPos.distanceTo(tilePos);
+		return cameraPosition.distanceTo(tilePos);
 	}
 
 	/**
@@ -186,7 +207,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 		let newTiles: Tile[] = [];
 		this.distFromCamera = this._getDist(cameraWorldPosition);
 		// LOD evaluate
-		const action = evaluate(this, minLevel, maxLevel, threshold);
+		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
@@ -194,6 +215,7 @@ export class Tile extends Mesh<BufferGeometry, Material[]> {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
+				parent.children.forEach((child) => (child._toLoad = false));
 			}
 		}
 
