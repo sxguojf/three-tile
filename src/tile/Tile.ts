@@ -116,12 +116,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			if (value) {
 				// load data when leaf into frustum
 				this._toLoad = this.isLeaf;
-			} else {
+			} else if (!this.isLeaf) {
 				// dispose tile when leave frustum
-				//this.dispose(true);
-				if (this.parent?.isTile && !this.parent.inFrustum) {
-					this.parent.dispose(true);
-				}
+				this.dispose(true);
 			}
 		}
 	}

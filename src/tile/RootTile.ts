@@ -4,9 +4,8 @@
  *@date: 2023-04-05
  */
 
-import { Box3, Camera, MathUtils, Matrix4, PerspectiveCamera, Vector3 } from "three";
+import { Box3, Camera, Frustum, MathUtils, Matrix4, PerspectiveCamera, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
-import { AdvFrustum } from "./AdvFrustum";
 import { Tile } from "./Tile";
 
 // export interface RootTileEventMap extends TileEventMap {
@@ -18,7 +17,7 @@ import { Tile } from "./Tile";
 const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
 const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
-const frustum = new AdvFrustum();
+const frustum = new Frustum();
 
 /**
  * Root tile, inherit of Tile

@@ -1,3 +1,5 @@
+// Issues: https://github.com/mrdoob/three.js/issues/27756
+
 import { Frustum, Matrix3, Matrix4, Plane, Vector3 } from "three";
 
 const _mat3 = new Matrix3();
