@@ -159,14 +159,7 @@ export class RootTile extends Tile {
 		return this;
 	}
 
-	/**
-	 * Update tile tree use LOD
-	 * @param camera  camera
-	 * @returns  the tile tree has changed
-	 */
-	private _updateTileTree(camera: Camera) {
-		let change = false;
-
+	private _getBufferFrustum(camera: Camera) {
 		// Camera fov enlarge for buffer
 		const bufferCamera = camera.clone();
 		if (bufferCamera instanceof PerspectiveCamera) {
@@ -177,6 +170,18 @@ export class RootTile extends Tile {
 		frustum.setFromProjectionMatrix(
 			tempMat4.multiplyMatrices(bufferCamera.projectionMatrix, bufferCamera.matrixWorldInverse),
 		);
+		return frustum;
+	}
+
+	/**
+	 * Update tile tree use LOD
+	 * @param camera  camera
+	 * @returns  the tile tree has changed
+	 */
+	private _updateTileTree(camera: Camera) {
+		let change = false;
+
+		this._getBufferFrustum(camera);
 
 		const cameraWorldPosition = camera.getWorldPosition(tempVec3);
 

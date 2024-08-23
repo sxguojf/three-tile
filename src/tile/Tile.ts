@@ -74,7 +74,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Distance of tile to campera */
 	public distFromCamera = 0;
 
-	private _loadingColor = new Color(0xcccccc);
+	private _loadingColor = new Color(0xcc0000);
 
 	/** Index of tile, mean positon in parent.
 	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
@@ -139,6 +139,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this.material.forEach((mat) => {
 			if ("wireframe" in mat) {
 				mat.wireframe = temp || mat.userData.wireframe;
+			}
+			if (!temp) {
+				this._setColor(new Color(0xffffff));
 			}
 		});
 	}
@@ -293,7 +296,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		if (loaded) {
 			leafs.forEach((child) => {
 				if (child.isLeaf) {
-					child.isTemp = false;
+					setTimeout(() => (child.isTemp = false));
 				} else {
 					child.dispose(false);
 				}
