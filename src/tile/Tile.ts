@@ -7,6 +7,7 @@
 import {
 	BaseEvent,
 	BufferGeometry,
+	Color,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
@@ -72,6 +73,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	/** Distance of tile to campera */
 	public distFromCamera = 0;
+
+	private _loadingColor = new Color(0xcccccc);
 
 	/** Index of tile, mean positon in parent.
 	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
@@ -188,6 +191,16 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return cameraPosition.distanceTo(tilePos);
 	}
 
+	private _setColor(color: Color) {
+		if (this.loadState === "loaded") {
+			this.material.forEach((mat) => {
+				if ("color" in mat) {
+					mat.color = color;
+				}
+			});
+		}
+	}
+
 	/**
 	 * Level Of Details
 	 * @param cameraWorldPosition
@@ -211,11 +224,15 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
+			this._setColor(this._loadingColor);
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
-				parent.children.forEach((child) => (child._toLoad = false));
+				parent.children.forEach((child) => {
+					child._toLoad = false;
+					child._setColor(this._loadingColor);
+				});
 			}
 		}
 
