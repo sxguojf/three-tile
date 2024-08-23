@@ -74,7 +74,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Distance of tile to campera */
 	public distFromCamera = 0;
 
-	private _loadingColor = new Color(0xcc0000);
+	private _loadingColor = new Color(0xcccccc);
 
 	/** Index of tile, mean positon in parent.
 	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
@@ -137,12 +137,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	private set isTemp(temp: boolean) {
 		this._isTemp = temp;
 		this.material.forEach((mat) => {
-			if ("wireframe" in mat) {
-				mat.wireframe = temp || mat.userData.wireframe;
-			}
-			if (!temp) {
-				this._setColor(new Color(0xffffff));
-			}
+			// if ("wireframe" in mat) {
+			// 	mat.wireframe = temp || mat.userData.wireframe;
+			// }
+			mat.visible = !temp;
 		});
 	}
 
@@ -194,11 +192,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return cameraPosition.distanceTo(tilePos);
 	}
 
-	private _setColor(color: Color) {
+	private _markLoading() {
 		if (this.loadState === "loaded") {
 			this.material.forEach((mat) => {
 				if ("color" in mat) {
-					mat.color = color;
+					mat.color = this._loadingColor;
 				}
 			});
 		}
@@ -227,14 +225,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
-			this._setColor(this._loadingColor);
+			this._markLoading();
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
 				parent.children.forEach((child) => {
-					child._toLoad = false;
-					child._setColor(this._loadingColor);
+					// child._toLoad = false;
+					child._markLoading();
 				});
 			}
 		}
@@ -269,6 +267,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 						this._loadState = "loaded";
 						reject(err);
 					}
+					this._checkVisible();
 				},
 			);
 		});
@@ -296,7 +295,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		if (loaded) {
 			leafs.forEach((child) => {
 				if (child.isLeaf) {
-					setTimeout(() => (child.isTemp = false));
+					child.isTemp = false;
 				} else {
 					child.dispose(false);
 				}
@@ -312,11 +311,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._loadState = "loaded";
 
 		// save the material.wireframe, rest when showing
-		this.material.forEach((mat) => {
-			if ("wireframe" in mat) {
-				mat.userData.wireframe = mat.wireframe;
-			}
-		});
+		// this.material.forEach((mat) => {
+		// 	if ("wireframe" in mat) {
+		// 		mat.userData.wireframe = mat.wireframe;
+		// 	}
+		// });
 
 		this._updateHeight();
 
