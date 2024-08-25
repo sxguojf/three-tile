@@ -74,7 +74,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Distance of tile to campera */
 	public distFromCamera = 0;
 
-	private _loadingColor = new Color(0xcccccc);
+	private _loadingColor = new Color(0xdddddd);
 
 	/** Index of tile, mean positon in parent.
 	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
@@ -119,9 +119,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			if (value) {
 				// load data when leaf into frustum
 				this._toLoad = this.isLeaf;
-			} else if (!this.isLeaf) {
+			} else if (this.isLeaf) {
 				// dispose tile when leave frustum
-				this.dispose(true);
+				this.dispose(false);
+			} else {
+				this.children.forEach((child) => child.dispose(true));
+				this.clear();
 			}
 		}
 	}
@@ -202,6 +205,16 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		}
 	}
 
+	// private _fadein() {
+	// 	if (this.loadState === "loaded") {
+	// 		this.material.forEach((mat) => {
+	// 			if (mat.opacity < mat.userData.opacity) {
+	// 				mat.opacity += 0.03;
+	// 			}
+	// 		});
+	// 	}
+	// }
+
 	/**
 	 * Level Of Details
 	 * @param cameraWorldPosition
@@ -236,6 +249,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				});
 			}
 		}
+
+		// this._fadein();
 
 		return newTiles;
 	}
@@ -315,6 +330,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		// 	if ("wireframe" in mat) {
 		// 		mat.userData.wireframe = mat.wireframe;
 		// 	}
+		// });
+		// this.material.forEach((mat) => {
+		// 	mat.userData.opacity = mat.opacity;
+		// 	mat.opacity = 0;
 		// });
 
 		this._updateHeight();

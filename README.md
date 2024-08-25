@@ -1,4 +1,4 @@
-# **three-tile V0.6.3**
+# **three-tile V0.6.4**
 
 <p align='right'>hz_gjf@163.com</p>
 
@@ -240,17 +240,17 @@ type MapParams = {
 
 ### 4.4 TileMap 事件
 
-| 事件名称           | 参数                                                    | 说明                                                           |
-| ------------------ | ------------------------------------------------------- | -------------------------------------------------------------- |
-| update             | delta: 时间戳                                           | 在地图每帧更新时发生，与 threejs 的渲染回调函数基本一致        |
-| tile-created       | tile: 瓦片                                              | 在每块瓦片创建完成后发生，可在此事件中修改瓦片默认属性         |
-| tile-loaded        | tile: 瓦片                                              | 在每块瓦片数据加载完成时发生，可在此事件中修改瓦片数据         |
-| tile-load-error    | tile: 瓦片                                              | 当瓦片加载错误时发生                                           |
-| source-changed     | source: 地图数据源                                      | 在数据源对象发生变化时发生                                     |
-| projection-changed | projection: 投影对象                                    | 在地图投影发生变化时发生                                       |
-| loading-start      | itemsLoaded: 加载完成数量<br />itemsTotal: 加载完成合计 | 在地图数据开始加载时发生（THREE.LoadingManager事件的封装）     |
-| loading-error      | url: 瓦片 url                                           | 在地图数据加载错误时发生（THREE.LoadingManager事件的封装）     |
-| loading-complete   | 无                                                      | 在地图数据全部加载完成时发生（THREE.LoadingManager事件的封装） |
+| 事件名称           | 参数                                                    | 说明                                                            |
+| ------------------ | ------------------------------------------------------- | --------------------------------------------------------------- |
+| update             | delta: 时间戳                                           | 在地图每帧更新时发生，与 threejs 的渲染回调函数基本一致         |
+| tile-created       | tile: 瓦片                                              | 在每块瓦片创建完成后发生，可在此事件中修改瓦片默认属性          |
+| tile-loaded        | tile: 瓦片                                              | 在每块瓦片数据加载完成时发生，可在此事件中修改瓦片数据          |
+| tile-load-error    | tile: 瓦片                                              | 当瓦片加载错误时发生                                            |
+| source-changed     | source: 地图数据源                                      | 在数据源对象发生变化时发生                                      |
+| projection-changed | projection: 投影对象                                    | 在地图投影发生变化时发生                                        |
+| loading-start      | itemsLoaded: 加载完成数量<br />itemsTotal: 加载完成合计 | 在地图数据开始加载时发生（THREE.LoadingManager 事件的封装）     |
+| loading-error      | url: 瓦片 url                                           | 在地图数据加载错误时发生（THREE.LoadingManager 事件的封装）     |
+| loading-complete   | 无                                                      | 在地图数据全部加载完成时发生（THREE.LoadingManager 事件的封装） |
 
 ## 5. 约定和限制
 
