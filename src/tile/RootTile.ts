@@ -4,8 +4,9 @@
  *@date: 2023-04-05
  */
 
-import { Box3, Camera, Frustum, MathUtils, Matrix4, PerspectiveCamera, Vector3 } from "three";
+import { Box3, Camera, MathUtils, Matrix4, PerspectiveCamera, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
+import { AdvFrustum } from "./AdvFrustum";
 import { Tile } from "./Tile";
 
 // export interface RootTileEventMap extends TileEventMap {
@@ -17,7 +18,7 @@ import { Tile } from "./Tile";
 const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
 const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
-const frustum = new Frustum();
+const frustum = new AdvFrustum();
 
 /**
  * Root tile, inherit of Tile
@@ -159,14 +160,7 @@ export class RootTile extends Tile {
 		return this;
 	}
 
-	/**
-	 * Update tile tree use LOD
-	 * @param camera  camera
-	 * @returns  the tile tree has changed
-	 */
-	private _updateTileTree(camera: Camera) {
-		let change = false;
-
+	private _getBufferFrustum(camera: Camera) {
 		// Camera fov enlarge for buffer
 		const bufferCamera = camera.clone();
 		if (bufferCamera instanceof PerspectiveCamera) {
@@ -177,6 +171,18 @@ export class RootTile extends Tile {
 		frustum.setFromProjectionMatrix(
 			tempMat4.multiplyMatrices(bufferCamera.projectionMatrix, bufferCamera.matrixWorldInverse),
 		);
+		return frustum;
+	}
+
+	/**
+	 * Update tile tree use LOD
+	 * @param camera  camera
+	 * @returns  the tile tree has changed
+	 */
+	private _updateTileTree(camera: Camera) {
+		let change = false;
+
+		this._getBufferFrustum(camera);
 
 		const cameraWorldPosition = camera.getWorldPosition(tempVec3);
 
@@ -216,10 +222,15 @@ export class RootTile extends Tile {
 	private _updateTileData() {
 		// Tiles are sorted by distance to camera
 		let tiles: Tile[] = [];
-		this.traverse((tile) => tiles.push(tile));
-		tiles = tiles
-			.filter((tile) => tile.isTile && tile.loadState === "empty")
-			.sort((a, b) => a.distFromCamera - b.distFromCamera);
+		this.traverse((tile) => tile.isTile && tile.loadState === "empty" && tiles.push(tile));
+		tiles = tiles.sort((a, b) => {
+			const dz = a.coord.z - b.coord.z;
+			if (dz === 0) {
+				return a.distFromCamera - b.distFromCamera;
+			} else {
+				return dz;
+			}
+		});
 
 		// Iterate through the tiles to load data
 		tiles.forEach((tile) => {

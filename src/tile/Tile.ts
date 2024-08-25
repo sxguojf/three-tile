@@ -7,6 +7,7 @@
 import {
 	BaseEvent,
 	BufferGeometry,
+	Color,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
@@ -73,6 +74,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Distance of tile to campera */
 	public distFromCamera = 0;
 
+	private _loadingColor = new Color(0xdddddd);
+
 	/** Index of tile, mean positon in parent.
 	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
 	 */
@@ -116,9 +119,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			if (value) {
 				// load data when leaf into frustum
 				this._toLoad = this.isLeaf;
-			} else if (!this.isLeaf) {
+			} else if (this.isLeaf) {
 				// dispose tile when leave frustum
-				this.dispose(true);
+				this.dispose(false);
+			} else {
+				this.children.forEach((child) => child.dispose(true));
+				this.clear();
 			}
 		}
 	}
@@ -134,9 +140,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	private set isTemp(temp: boolean) {
 		this._isTemp = temp;
 		this.material.forEach((mat) => {
-			if ("wireframe" in mat) {
-				mat.wireframe = temp || mat.userData.wireframe;
-			}
+			// if ("wireframe" in mat) {
+			// 	mat.wireframe = temp || mat.userData.wireframe;
+			// }
+			mat.visible = !temp;
 		});
 	}
 
@@ -188,6 +195,26 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return cameraPosition.distanceTo(tilePos);
 	}
 
+	private _markLoading() {
+		if (this.loadState === "loaded") {
+			this.material.forEach((mat) => {
+				if ("color" in mat) {
+					mat.color = this._loadingColor;
+				}
+			});
+		}
+	}
+
+	// private _fadein() {
+	// 	if (this.loadState === "loaded") {
+	// 		this.material.forEach((mat) => {
+	// 			if (mat.opacity < mat.userData.opacity) {
+	// 				mat.opacity += 0.03;
+	// 			}
+	// 		});
+	// 	}
+	// }
+
 	/**
 	 * Level Of Details
 	 * @param cameraWorldPosition
@@ -211,13 +238,19 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
+			this._markLoading();
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
-				parent.children.forEach((child) => (child._toLoad = false));
+				parent.children.forEach((child) => {
+					// child._toLoad = false;
+					child._markLoading();
+				});
 			}
 		}
+
+		// this._fadein();
 
 		return newTiles;
 	}
@@ -249,6 +282,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 						this._loadState = "loaded";
 						reject(err);
 					}
+					this._checkVisible();
 				},
 			);
 		});
@@ -292,11 +326,15 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._loadState = "loaded";
 
 		// save the material.wireframe, rest when showing
-		this.material.forEach((mat) => {
-			if ("wireframe" in mat) {
-				mat.userData.wireframe = mat.wireframe;
-			}
-		});
+		// this.material.forEach((mat) => {
+		// 	if ("wireframe" in mat) {
+		// 		mat.userData.wireframe = mat.wireframe;
+		// 	}
+		// });
+		// this.material.forEach((mat) => {
+		// 	mat.userData.opacity = mat.opacity;
+		// 	mat.opacity = 0;
+		// });
 
 		this._updateHeight();
 
