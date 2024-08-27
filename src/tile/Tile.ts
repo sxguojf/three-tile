@@ -117,14 +117,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		if (this._inFrustum != value) {
 			this._inFrustum = value;
 			if (value) {
-				// load data when leaf into frustum
 				this._toLoad = this.isLeaf;
 			} else if (this.isLeaf) {
-				// dispose tile when leave frustum
 				this.dispose(false);
 			} else {
-				this.children.forEach((child) => child.dispose(true));
-				this.clear();
+				this._disposeChilren();
 			}
 		}
 	}
@@ -244,7 +241,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			if (parent?.isTile) {
 				parent._toLoad = true;
 				parent.children.forEach((child) => {
-					// child._toLoad = false;
+					child._toLoad = false;
 					child._markLoading();
 				});
 			}
@@ -339,8 +336,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._updateHeight();
 
 		if (!this.isLeaf && this._toLoad) {
-			this.children.forEach((child) => child.dispose(true));
-			this.clear();
+			this._disposeChilren();
 		}
 
 		const loadedParent = this._getLoadedParent();
@@ -405,5 +401,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 		// fire dispose
 		this.dispatchEvent({ type: "dispose" });
+	}
+
+	private _disposeChilren() {
+		this.children.forEach((child) => child.dispose(true));
+		this.clear();
 	}
 }
