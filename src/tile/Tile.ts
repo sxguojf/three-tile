@@ -241,7 +241,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			if (parent?.isTile) {
 				parent._toLoad = true;
 				parent.children.forEach((child) => {
-					child._toLoad = false;
+					// child._toLoad = false;
 					child._markLoading();
 				});
 			}
