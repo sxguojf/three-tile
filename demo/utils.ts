@@ -52,7 +52,7 @@ export function addMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 		const dist = viewer.controls.getDistance();
 		// https://threejs.org/docs/index.html#manual/zh/introduction/FAQ
 		const dz = 2 * Math.tan(((Math.PI / 180) * viewer.camera.fov) / 2) * dist;
-		backGround.position.setZ(-dz / viewer.height / 100);
+		backGround.position.setZ(-dz / viewer.height / 100 - 5);
 	});
 
 	return backGround;

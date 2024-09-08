@@ -137,7 +137,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		controls.maxDistance = 30000;
 		controls.maxPolarAngle = 1.2;
 		controls.enableDamping = true;
-		controls.dampingFactor = 0.035;
+		controls.dampingFactor = 0.05;
 		controls.keyPanSpeed = 5;
 
 		controls.listenToKeyEvents(window);

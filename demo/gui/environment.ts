@@ -9,11 +9,6 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 		skybox: new CubeTextureLoader()
 			.setPath("./image/skybox/")
 			.load(["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"]),
-		// .setPath("../assets/image/skybox3/")
-		// .load(["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"]),
-
-		// 	.setPath("../assets/image/skybox2/")
-		// 	.load(["nx.jpg", "px.jpg", "ny.jpg", "py.jpg", "nz.jpg", "pz.jpg"]),
 	};
 
 	viewer.scene.background = vm.skybox;
@@ -28,6 +23,9 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 		ReinhardToneMapping: 2,
 		CineonToneMapping: 3,
 		ACESFilmicToneMapping: 4,
+		CustomToneMapping: 5,
+		AgXToneMapping: 6,
+		NeutralToneMapping: 7,
 	});
 	folder.add(viewer.renderer, "toneMappingExposure", 0, 5);
 

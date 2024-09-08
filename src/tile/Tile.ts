@@ -149,6 +149,19 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this.children.length === 0;
 	}
 
+	private _sizeInWorld = -100;
+
+	/** Get diagonal length of tile in world */
+	public get sizeInWorld() {
+		if (this._sizeInWorld > 0) {
+			return this._sizeInWorld;
+		} else {
+			const lt = new Vector3(-0.5, -0.5, 0).applyMatrix4(this.matrixWorld);
+			const rt = new Vector3(0.5, 0.5, 0).applyMatrix4(this.matrixWorld);
+			return lt.sub(rt).length();
+		}
+	}
+
 	/**
 	 * constructor
 	 * @param x tile X-coordinate, default:0
