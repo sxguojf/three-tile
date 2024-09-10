@@ -137,10 +137,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	private set isTemp(temp: boolean) {
 		this._isTemp = temp;
 		this.material.forEach((mat) => {
-			// if ("wireframe" in mat) {
-			// 	mat.wireframe = temp || mat.userData.wireframe;
-			// }
-			mat.visible = !temp;
+			if ("wireframe" in mat) {
+				mat.wireframe = temp || mat.userData.wireframe;
+			}
+			// mat.visible = !temp;
 		});
 	}
 
@@ -205,15 +205,15 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return cameraPosition.distanceTo(tilePos);
 	}
 
-	private _markLoading() {
-		if (this.loadState === "loaded") {
-			this.material.forEach((mat) => {
-				if ("color" in mat) {
-					mat.color = this._loadingColor;
-				}
-			});
-		}
-	}
+	// private _markLoading() {
+	// 	if (this.loadState === "loaded") {
+	// 		this.material.forEach((mat) => {
+	// 			if ("color" in mat) {
+	// 				mat.color = this._loadingColor;
+	// 			}
+	// 		});
+	// 	}
+	// }
 
 	// private _fadein() {
 	// 	if (this.loadState === "loaded") {
@@ -248,14 +248,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
-			this._markLoading();
+			// this._markLoading();
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
 				parent.children.forEach((child) => {
 					// child._toLoad = false;
-					child._markLoading();
+					// child._markLoading();
 				});
 			}
 		}
@@ -336,11 +336,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._loadState = "loaded";
 
 		// save the material.wireframe, rest when showing
-		// this.material.forEach((mat) => {
-		// 	if ("wireframe" in mat) {
-		// 		mat.userData.wireframe = mat.wireframe;
-		// 	}
-		// });
+		this.material.forEach((mat) => {
+			if ("wireframe" in mat) {
+				mat.userData.wireframe = mat.wireframe;
+			}
+		});
 		// this.material.forEach((mat) => {
 		// 	mat.userData.opacity = mat.opacity;
 		// 	mat.opacity = 0;
