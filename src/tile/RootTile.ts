@@ -146,7 +146,8 @@ export class RootTile extends Tile {
 		}
 
 		// update tile data when the tile tree to stabilize
-		if (this.autoLoad && this._treeReadyCount > 5) {
+		// if (this.autoLoad && this._treeReadyCount > 5) {
+		if (this.autoLoad && Math.random() > 0.8) {
 			this._updateTileData();
 		}
 		return this;

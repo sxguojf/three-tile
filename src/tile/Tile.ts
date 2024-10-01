@@ -7,7 +7,6 @@
 import {
 	BaseEvent,
 	BufferGeometry,
-	Color,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
@@ -139,12 +138,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Set the tile to temp */
 	private set isTemp(temp: boolean) {
 		this._isTemp = temp;
-		this.material.forEach((mat) => {
-			if ("wireframe" in mat) {
-				mat.wireframe = temp || mat.userData.wireframe;
-			}
-			// mat.visible = !temp;
-		});
+		this.material
+			.filter((mat) => mat != defaultMaterial)
+			.forEach((mat) => {
+				if ("wireframe" in mat) {
+					mat.wireframe = temp || mat.userData.wireframe;
+				}
+				// mat.visible = !temp;
+			});
 	}
 
 	/** Tile is a leaf?  */
@@ -256,10 +257,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
-				parent.children.forEach((child) => {
-					// child._toLoad = false;
-					// child._markLoading();
-				});
+				// parent.children.forEach((_child) => {
+				// 	child._toLoad = false;
+				// 	child._markLoading();
+				// });
 			}
 		}
 
