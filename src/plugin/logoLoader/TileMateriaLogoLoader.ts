@@ -1,4 +1,4 @@
-import { MeshBasicMaterial, Texture as CanvasTexture } from "three";
+import { MeshBasicMaterial, CanvasTexture } from "three";
 import { ISource } from "../../source";
 import { ITileMaterialLoader } from "../../loader";
 import { Tile } from "../../tile";

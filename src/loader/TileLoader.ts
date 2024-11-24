@@ -47,15 +47,6 @@ export class TileLoader implements ITileLoader {
 	public manager: LoadingManager = LoaderFactory.manager;
 
 	/**
-	 * constructor
-	 */
-	constructor() {
-		// super(LoaderFactory.manager);
-		// this.imgSource = imgSource || [BaseSource.create({ dataType: "test" })];
-		// this.demSource = demSource;
-	}
-
-	/**
 	 * load material and geometry data
 	 * @param tile tile to load
 	 * @param onLoad callback on data loaded
