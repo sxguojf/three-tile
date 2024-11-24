@@ -19,21 +19,8 @@ class TileMaterialImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "image";
 
 	public load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void): Material {
-		// dispose texture on material disposed
-		const onMaterialDispose = (evt: { target: TileMaterial }) => {
-			const mat = evt.target;
-			if (mat.map?.image instanceof ImageBitmap) {
-				mat.map.image.close();
-			}
-			mat.map?.dispose();
-			mat.removeEventListener("dispose", onMaterialDispose);
-		};
-
 		const material = this.createMaterial();
 		material.opacity = source.opacity;
-
-		material.addEventListener("dispose", onMaterialDispose);
-
 		const textureLoader = new TileTextureLoader();
 		const texture = textureLoader.load(
 			source,
