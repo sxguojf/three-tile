@@ -3,6 +3,7 @@ import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
+import { loadSvg } from "./svgMap";
 import { addFakeEarth, addMapBackground, limitCameraHeight } from "./utils";
 
 console.log(`three-tile V${tt.version}, ${tt.author.name}`);
@@ -85,19 +86,6 @@ function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 	tween.to(to).start().onComplete(viewer.controls.saveState);
 }
 
-// function addTestModel(viewer: tt.plugin.GLViewer, position: Vector3) {
-// 	const mat = new MeshStandardMaterial({
-// 		map: new TextureLoader().load("./image/test.jpg"),
-// 	});
-
-// 	const geo = new BoxGeometry(100, 100, 100);
-// 	geo.translate(0, 50, 0);
-// 	const mesh = new Mesh(geo, mat);
-// 	mesh.position.copy(position);
-// 	mesh.castShadow = true;
-// 	viewer.scene.add(mesh);
-// }
-
 function main() {
 	// 创建地图
 	const map = createMap();
@@ -123,6 +111,8 @@ function main() {
 
 	// 摄像机动画移动到3000km高空
 	flyTo(viewer, 3000);
+
+	loadSvg("./image/shanxi.svg", map);
 }
 
 addEventListener("load", main);

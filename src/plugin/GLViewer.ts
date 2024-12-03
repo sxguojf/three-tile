@@ -110,14 +110,15 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		const renderer = new WebGLRenderer({
 			antialias,
 			logarithmicDepthBuffer,
+			stencil: true,
+			depth: true,
 			alpha: true,
 			precision: "highp",
 		});
-		renderer.debug.checkShaderErrors = true;
+		// renderer.debug.checkShaderErrors = true;
 		// renderer.toneMapping = 3;
 		// renderer.toneMappingExposure = 1;
-
-		renderer.sortObjects = true;
+		// renderer.sortObjects = false;
 		renderer.setPixelRatio(window.devicePixelRatio);
 
 		return renderer;

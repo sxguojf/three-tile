@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Box2, Texture, SRGBColorSpace, DataTexture, RGBAFormat } from "three";
+import { Box2, Texture, SRGBColorSpace, DataTexture, RGBAFormat, NearestFilter } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ImageLoaderEx } from "./ImageLoaerEx";

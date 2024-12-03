@@ -122,6 +122,10 @@ button:focus-visible {
 	background-color: #0f05;
 }
 
+#compass:active .circle {
+	background-color: #000;
+}
+
 #compass > #compass-text {
 	position: absolute;
 	top: 0px;
