@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Float32BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three";
+import { BufferAttribute, Float32BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three";
 
 /**
  * create geomety from rules grid dem and it has a skrit
@@ -37,7 +37,7 @@ export class TileGridGeometry extends PlaneGeometry {
 		//
 		const indices = [];
 		const vertices = [];
-		const normals = [];
+		// const normals = [];
 		const uvs = [];
 
 		let demIndex = 0;
@@ -67,7 +67,7 @@ export class TileGridGeometry extends PlaneGeometry {
 				// vertices
 				vertices.push(x, -y, z);
 				// normals
-				normals.push(0, 0, 1);
+				// normals.push(0, 0, 1);
 				// uv
 				uvs.push(u, v);
 			}
@@ -87,7 +87,8 @@ export class TileGridGeometry extends PlaneGeometry {
 
 		this.setIndex(indices);
 		this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
-		this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+		// this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+		this.setAttribute("normal", new BufferAttribute(new Float32Array(vertices.length), 3));
 		this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
 
 		return this;
@@ -104,10 +105,11 @@ export class TileGridGeometry extends PlaneGeometry {
 			throw "DEM array size error!";
 		}
 		this.build(dem, tileSize);
+		//计算顶点法向量
+		this.computeVertexNormals();
 		//修改顶点后必须重新计算包围矩形和包围球
 		this.computeBoundingBox();
 		this.computeBoundingSphere();
-		this.computeVertexNormals();
 
 		return this;
 	}
@@ -143,6 +145,7 @@ export class TileGridGeometry extends PlaneGeometry {
 				pB.fromBufferAttribute(positionAttribute, vB);
 				pC.fromBufferAttribute(positionAttribute, vC);
 
+				// 三个点中有一个点在边缘，重置法向量
 				if (pA.z < this._min || pB.z < this._min || pC.z < this._min) {
 					setSkirtNormal(vA);
 					setSkirtNormal(vB);
