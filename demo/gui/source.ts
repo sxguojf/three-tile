@@ -180,8 +180,10 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.demSource = demSource;
 
 			// Move the camera to the bounds
-			viewer.controls.target.copy(map.localToWorld(map.geo2pos(new Vector3(108.627984, 30.66284, 0.0))));
-			viewer.camera.position.copy(map.localToWorld(map.geo2pos(new Vector3(108.627139, 30.64138, 3.309163))));
+			viewer.controls.target.copy(map.geo2world(new Vector3(108.627984, 30.66284, 0.0)));
+			viewer.camera.position.copy(map.geo2world(new Vector3(108.627139, 30.64138, 3.309163)));
+			// viewer.controls.target.copy(map.localToWorld(map.geo2pos(new Vector3(108.627984, 30.66284, 0.0))));
+			// viewer.camera.position.copy(map.localToWorld(map.geo2pos(new Vector3(108.627139, 30.64138, 3.309163))));
 			map.reload();
 		},
 	};

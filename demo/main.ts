@@ -3,7 +3,6 @@ import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
-import { loadSvg } from "./svgMap";
 import { addFakeEarth, addMapBackground, limitCameraHeight } from "./utils";
 
 console.log(`three-tile V${tt.version}, ${tt.author.name}`);
@@ -40,10 +39,10 @@ function initViewer(id: string, map: tt.TileMap) {
 	const centerGeo = new Vector3(110, 30, 0);
 	// 摄像坐标(经度，纬度，高度)
 	const camersGeo = new Vector3(110, 0, 10000);
-	// 地图中心转为世界坐标
-	const centerPostion = map.localToWorld(map.geo2pos(centerGeo));
-	// 摄像机转为世界坐标
-	const cameraPosition = map.localToWorld(map.geo2pos(camersGeo));
+	// 地图中心经纬度高度转为世界坐标
+	const centerPostion = map.geo2world(centerGeo);
+	// 摄像机经纬度高度转为世界坐标
+	const cameraPosition = map.geo2world(camersGeo);
 	// 初始化场景
 	const viewer = new tt.plugin.GLViewer(id, { centerPostion, cameraPosition });
 	// 地图添加到场景
@@ -74,7 +73,6 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	gui.showDebug(map, viewer);
 	// 显示罗盘
 	gui.showCompass(viewer);
-
 	// 显示鼠标点击的瓦片信息-调试
 	gui.showClickedTile(viewer, map);
 }
@@ -90,29 +88,20 @@ function main() {
 	// 创建地图
 	const map = createMap();
 	map.receiveShadow = true;
-
 	// 创建视图
 	const viewer = initViewer("#map", map);
-
 	// 每帧更新TWEEN
 	viewer.addEventListener("update", () => TWEEN.update());
-
 	// 添加地图背景图
 	addMapBackground(viewer, map);
-
 	// 添加伪地球遮罩
 	addFakeEarth(viewer, map);
-
 	// 防止摄像机进入地下
 	limitCameraHeight(viewer, map);
-
 	// 创建gui
 	initGui(viewer, map);
-
 	// 摄像机动画移动到3000km高空
 	flyTo(viewer, 3000);
-
-	loadSvg("./image/shanxi.svg", map);
 }
 
 addEventListener("load", main);

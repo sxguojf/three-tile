@@ -32,11 +32,11 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	};
 
 	const getGeo = (pos: Vector3) => {
-		return map.pos2geo(map.worldToLocal(pos.clone()));
+		return map.world2geo(pos);
 	};
 
 	const getPos = (geo: Vector3) => {
-		return map.localToWorld(map.geo2pos(geo));
+		return map.geo2world(geo);
 	};
 
 	const vm = {
