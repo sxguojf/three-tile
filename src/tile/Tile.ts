@@ -73,8 +73,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Distance of tile to campera */
 	public distFromCamera = 0;
 
-	// private _loadingColor = new Color(0xdddddd);
-
 	/** Index of tile, mean positon in parent.
 	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
 	 */
@@ -120,11 +118,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			} else {
 				this.dispose(true);
 			}
-			// } else if (this.isLeaf) {
-			// 	this.dispose(false);
-			// } else {
-			// 	this._disposeChilren();
-			// }
 		}
 	}
 
@@ -209,26 +202,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return cameraPosition.distanceTo(tilePos);
 	}
 
-	// private _markLoading() {
-	// 	if (this.loadState === "loaded") {
-	// 		this.material.forEach((mat) => {
-	// 			if ("color" in mat) {
-	// 				mat.color = this._loadingColor;
-	// 			}
-	// 		});
-	// 	}
-	// }
-
-	// private _fadein() {
-	// 	if (this.loadState === "loaded") {
-	// 		this.material.forEach((mat) => {
-	// 			if (mat.opacity < mat.userData.opacity) {
-	// 				mat.opacity += 0.03;
-	// 			}
-	// 		});
-	// 	}
-	// }
-
 	/**
 	 * Level Of Details
 	 * @param cameraWorldPosition
@@ -252,20 +225,13 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
 			this._toLoad = false;
-			// this._markLoading();
+			this.abortLoad();
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile) {
 				parent._toLoad = true;
-				// parent.children.forEach((_child) => {
-				// 	child._toLoad = false;
-				// 	child._markLoading();
-				// });
 			}
 		}
-
-		// this._fadein();
-
 		return newTiles;
 	}
 
@@ -289,8 +255,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				(err) => {
 					this._toLoad = false;
 					if (err.name === "AbortError") {
-						// download abort, loadeState has seted empty
-						console.assert(this._loadState === "empty");
+						// console.warn("Abort!!!");
 					} else {
 						// download fail, set loadState to loaded to prevent reload
 						this._loadState = "loaded";
@@ -345,10 +310,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				mat.userData.wireframe = mat.wireframe;
 			}
 		});
-		// this.material.forEach((mat) => {
-		// 	mat.userData.opacity = mat.opacity;
-		// 	mat.opacity = 0;
-		// });
 
 		this._updateHeight();
 
@@ -375,6 +336,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public abortLoad() {
 		this._abortController.abort();
+		this._toLoad = false;
 	}
 
 	/**
