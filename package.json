@@ -1,12 +1,11 @@
 {
 	"name": "three-tile",
 	"private": false,
-	"version": "0.6.4",
+	"version": "0.6.5",
 	"type": "module",
 	"files": [
 		"dist",
-		"images",
-		"docs"
+		"images"
 	],
 	"main": "dist/three-tile.umd.cjs",
 	"module": "dist/three-tile.js",
