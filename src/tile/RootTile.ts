@@ -222,7 +222,7 @@ export class RootTile extends Tile {
 	 */
 	private _updateTileData() {
 		// Tiles are sorted by distance to camera
-		let tiles: Tile[] = [];
+		/*let tiles: Tile[] = [];
 		this.traverse((tile) => tile.isTile && tile.loadState === "empty" && tiles.push(tile));
 		tiles = tiles.sort((a, b) => {
 			const dz = a.coord.z - b.coord.z;
@@ -249,6 +249,23 @@ export class RootTile extends Tile {
 					const message = err.message || "download error";
 					this.dispatchEvent({ type: "tile-load-error", tile, message });
 				});
+		});*/
+		this.traverseVisible((tile) => {
+			if (tile.isTile && tile.loadState === "empty") {
+				tile.load(this.loader)
+					.then(() => {
+						if (tile.loadState === "loaded") {
+							// update z of map in view
+							this._updateVisibleHight(tile);
+							// fire event of the tile loaded
+							this.dispatchEvent({ type: "tile-loaded", tile });
+						}
+					})
+					.catch((err) => {
+						const message = err.message || "download error";
+						this.dispatchEvent({ type: "tile-load-error", tile, message });
+					});
+			}
 		});
 
 		return this;
