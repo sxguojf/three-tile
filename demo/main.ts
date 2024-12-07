@@ -3,13 +3,14 @@ import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
-import { addFakeEarth, addMapBackground, limitCameraHeight } from "./utils";
+import { addFakeEarth, limitCameraHeight } from "./utils";
 
 console.log(`three-tile V${tt.version}, ${tt.author.name}`);
 
 // 创建地图
 function createMap() {
 	// 影像数据源
+	// const imgSource = [source.arcGisSource, source.testSource];
 	const imgSource = [source.arcGisSource, source.arcGisCiaSource];
 	// 地形数据源
 	const demSource = source.mapBoxDemSource;
@@ -92,10 +93,8 @@ function main() {
 	const viewer = initViewer("#map", map);
 	// 每帧更新TWEEN
 	viewer.addEventListener("update", () => TWEEN.update());
-	// 添加地图背景图
-	addMapBackground(viewer, map);
 	// 添加伪地球遮罩
-	addFakeEarth(viewer, map);
+	// addFakeEarth(viewer, map);
 	// 防止摄像机进入地下
 	limitCameraHeight(viewer, map);
 	// 创建gui

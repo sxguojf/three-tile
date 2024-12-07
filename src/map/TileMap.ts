@@ -4,7 +4,19 @@
  *@date: 2023-04-06
  */
 
-import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEventMap, Vector2, Vector3 } from "three";
+import {
+	BaseEvent,
+	BufferGeometry,
+	Camera,
+	Clock,
+	Material,
+	Mesh,
+	MeshBasicMaterial,
+	Object3DEventMap,
+	PlaneGeometry,
+	Vector2,
+	Vector3,
+} from "three";
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { RootTile } from "../tile/RootTile";
@@ -155,23 +167,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public set loadCacheSize(value) {
 		this.loader.cacheSize = value;
-	}
-
-	/**
-	 * Get the render cache size. Default:1.2
-	 * 取得瓦片渲染缓冲大小
-	 */
-	public get viewerBufferSize() {
-		return this.rootTile.viewerbufferSize;
-	}
-
-	/**
-	 * Set the render cache size. Default:1.2.
-	 * 设置瓦片视图缓冲大小（取值范围1.2-2，默认1.2）.
-	 * 在判断瓦片是否在可视范围时，将瓦片大小扩大该属性倍来判断，可预加载部分不在可视范围的瓦片，增大viewerBufferSize可预加载较多瓦片，但也增大了数据下载量并占用更多资源。
-	 */
-	public set viewerBufferSize(value) {
-		this.rootTile.viewerbufferSize = value;
 	}
 
 	/**
@@ -403,11 +398,12 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public constructor(params: MapParams) {
 		super();
-		this.up.set(0, 0, 1);
 		this.loader = params.loader ?? new TileLoader();
 		this.rootTile = params.rootTile ?? new RootTile(this.loader);
-		this.minLevel = params.minLevel ?? 0;
+
+		this.minLevel = params.minLevel ?? 1;
 		this.maxLevel = params.maxLevel ?? 19;
+
 		this.imgSource = params.imgSource;
 		this.demSource = params.demSource;
 		this.lon0 = params.lon0 ?? 0;
@@ -421,7 +417,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		// 更新地图模型矩阵
 		this.rootTile.updateMatrix();
 		this.rootTile.updateMatrixWorld();
-		// this.rotateX(-Math.PI / 2);
 	}
 
 	/**
@@ -430,6 +425,11 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * @param camera
 	 */
 	public update(camera: Camera) {
+		// for (let i = 0; i < this.minLevel; i++) {
+		// 	this.rootTile.material.forEach((mat) => {
+		// 		mat.visible = false;
+		// 	});
+		// }
 		this.rootTile.receiveShadow = this.receiveShadow;
 		this.rootTile.castShadow = this.castShadow;
 		this.rootTile.update(camera);
@@ -503,7 +503,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * @returns 地理坐标（经纬度）
 	 */
 	public world2geo(world: Vector3) {
-		return this.pos2geo(this.worldToLocal(world));
+		return this.pos2geo(this.worldToLocal(world.clone()));
 	}
 
 	/**

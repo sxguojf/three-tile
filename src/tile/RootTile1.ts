@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { Box3, Camera, Matrix4, MeshBasicMaterial, Vector3 } from "three";
+import { Box3, Camera, MathUtils, Matrix4, PerspectiveCamera, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { AdvFrustum } from "./AdvFrustum";
 import { Tile } from "./Tile";
@@ -14,10 +14,6 @@ import { Tile } from "./Tile";
 // 	tileLoadError: { type: "tile-load-error" };
 // 	tileLoaded: { type: "tile-loaded" };
 // }
-
-export interface RootTileEventMap {
-	ready: { type: "reay" };
-}
 
 const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
@@ -32,7 +28,6 @@ export class RootTile extends Tile {
 	private _autoLoad = true;
 	private _loader: ITileLoader;
 	private _minLevel = 0;
-	private _ready = false;
 
 	/**
 	 * Get minLevel of the map
@@ -109,6 +104,21 @@ export class RootTile extends Tile {
 		this._autoLoad = value;
 	}
 
+	private _vierwerBufferSize = 1.1;
+
+	/**
+	 * Get renderer cache size scale. (1-2，default: 1.1)
+	 */
+	public get viewerbufferSize() {
+		return this._vierwerBufferSize;
+	}
+	/**
+	 * Get renderer cache size. (1-2，default: 1.2)
+	 */
+	public set viewerbufferSize(value) {
+		this._vierwerBufferSize = MathUtils.clamp(value, 1, 2);
+	}
+
 	/**
 	 * Constructor
 	 * @param loader tile data loader
@@ -118,32 +128,9 @@ export class RootTile extends Tile {
 	 */
 	public constructor(loader: ITileLoader, level = 0, x = 0, y = 0) {
 		super(level, x, y);
-		this.visible = false;
 		this._loader = loader;
 		this.matrixAutoUpdate = true;
 		this.matrixWorldAutoUpdate = true;
-	}
-
-	/**
-	 * Check the map is ready to render
-	 *
-	 * @returns this
-	 */
-	private _checkReady() {
-		if (!this._ready) {
-			this._ready = true;
-			this.traverse((child) => {
-				if (child.isLeaf && child.loadState != "loaded") {
-					this._ready = false;
-				}
-			});
-			if (this._ready) {
-				console.log("Map ready!!!");
-				this.visible = true;
-				this.dispatchEvent({ type: "ready" });
-			}
-		}
-		return this;
 	}
 
 	/**
@@ -159,15 +146,10 @@ export class RootTile extends Tile {
 		}
 
 		// update tile data when the tile tree to stabilize
-		if (this.autoLoad && this._treeReadyCount > 5) {
-			// if (this.autoLoad && Math.random() > 0.8) {
+		// if (this.autoLoad && this._treeReadyCount > 5) {
+		if (this.autoLoad && Math.random() > 0.8) {
 			this._updateTileData();
 		}
-
-		if (!this._ready) {
-			this._checkReady();
-		}
-
 		return this;
 	}
 
@@ -180,8 +162,16 @@ export class RootTile extends Tile {
 	}
 
 	private _getBufferFrustum(camera: Camera) {
+		// Camera fov enlarge for buffer
+		const bufferCamera = camera.clone();
+		if (bufferCamera instanceof PerspectiveCamera) {
+			bufferCamera.fov *= this.viewerbufferSize;
+			bufferCamera.updateProjectionMatrix();
+		}
 		// Get the frustum whith buffer
-		frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+		frustum.setFromProjectionMatrix(
+			tempMat4.multiplyMatrices(bufferCamera.projectionMatrix, bufferCamera.matrixWorldInverse),
+		);
 		return frustum;
 	}
 
