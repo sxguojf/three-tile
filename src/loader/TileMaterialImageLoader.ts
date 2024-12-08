@@ -18,7 +18,7 @@ import { TileTextureLoader } from "./TileTextureLoader";
 class TileMaterialImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "image";
 
-	public load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void): Material {
+	public load(source: ISource, tile: Tile, onLoad: () => void): Material {
 		const material = this.createMaterial();
 		material.opacity = source.opacity;
 		const textureLoader = new TileTextureLoader();
@@ -30,9 +30,7 @@ class TileMaterialImageLoader implements ITileMaterialLoader {
 				texture.needsUpdate = true;
 				onLoad();
 			},
-			(err) => {
-				onError(err);
-			},
+			onLoad,
 		);
 
 		return material;

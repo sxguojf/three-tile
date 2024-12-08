@@ -9,7 +9,7 @@ import { Tile } from "../../tile";
 export class TileMaterialWrieLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "wireframe";
 
-	public load(source: ISource, tile: Tile, onLoad: () => void, _onError: (err: any) => void): Material {
+	public load(source: ISource, tile: Tile, onLoad: () => void): Material {
 		const color = new Color(`hsl(${tile.coord.z * 14}, 100%, 50%)`);
 		const material = new MeshBasicMaterial({
 			transparent: true,

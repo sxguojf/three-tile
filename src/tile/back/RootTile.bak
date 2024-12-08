@@ -24,7 +24,6 @@ const frustum = new AdvFrustum();
  * Root tile, inherit of Tile
  */
 export class RootTile extends Tile {
-	private _treeReadyCount = 0;
 	private _autoLoad = true;
 	private _loader: ITileLoader;
 	private _minLevel = 0;
@@ -280,7 +279,7 @@ export class RootTile extends Tile {
 		this.maxZ = 0;
 		this.minZ = 9000;
 		this.traverse((child) => {
-			if (child.isTile && child.isLeafInFrustum && child.loadState === "loaded") {
+			if (child.isTile && child.isLeaf && child.inFrustum) {
 				this.maxZ = Math.max(this.maxZ, child.maxZ);
 				this.minZ = Math.min(this.minZ, child.minZ);
 				sumZ += child.avgZ;

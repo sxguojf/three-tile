@@ -19,7 +19,6 @@ export interface ITileLoader {
 	load(
 		tile: Tile,
 		onLoad: () => void,
-		onError: (err: any) => void,
 	): {
 		geometry: BufferGeometry;
 		material: Material[];
@@ -29,11 +28,11 @@ export interface ITileLoader {
 /**  Material loader interface */
 export interface ITileMaterialLoader {
 	dataType: string;
-	load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void): Material;
+	load(source: ISource, tile: Tile, onLoad: () => void): Material;
 }
 
 /** geometry loader interface */
 export interface ITileGeometryLoader {
 	dataType: string;
-	load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void): BufferGeometry;
+	load(source: ISource, tile: Tile, onLoad: () => void): BufferGeometry;
 }

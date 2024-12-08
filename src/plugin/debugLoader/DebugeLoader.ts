@@ -16,7 +16,7 @@ import { TileMaterial } from "../../material";
 export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "debug";
 
-	public load(source: ISource, tile: Tile, onLoad: () => void, _onError: (err: any) => void): TileMaterial {
+	public load(source: ISource, tile: Tile, onLoad: () => void): TileMaterial {
 		const texture = new CanvasTexture(this.drawTile(tile));
 		texture.needsUpdate = true;
 		const material = new TileMaterial({

@@ -240,41 +240,39 @@ export class RootTile extends Tile {
 				tiles.push(tile);
 			}
 		});
-		tiles = tiles.sort((a, b) => a.distFromCamera - b.distFromCamera);
+		// tiles = tiles.sort((a, b) => b.coord.z - a.coord.z);
+
+		tiles = tiles.sort((a, b) => {
+			const dz = b.coord.z - b.coord.z;
+			if (dz === 0) {
+				return a.distFromCamera - a.distFromCamera;
+			} else {
+				return dz;
+			}
+		});
 
 		// Iterate through the tiles to load data
 		tiles.forEach((tile) => {
-			tile.load(this.loader, this.minLevel, this.maxLevel)
-				.then(() => {
-					if (tile.loadState === "loaded") {
-						// update z of map in view
-						this._updateHight(tile);
-						// fire event of the tile loaded
-						this.dispatchEvent({ type: "tile-loaded", tile });
-					}
-				})
-				.catch((err) => {
-					// console.error(`${tile.name}: ${err.message || err.type || err}`);
-					const message = err.message || "download error";
-					this.dispatchEvent({ type: "tile-load-error", tile, message });
-				});
+			tile.load(this.loader, this.minLevel, this.maxLevel).then(() => {
+				if (tile.loadState === "loaded") {
+					// update z of map in view
+					this._updateHight(tile);
+					// fire event of the tile loaded
+					this.dispatchEvent({ type: "tile-loaded", tile });
+				}
+			});
 		});
 
 		// this.traverse((tile) => {
 		// 	if (tile.isTile && tile.loadState === "empty") {
-		// 		tile.load(this.loader, this.minLevel, this.maxLevel)
-		// 			.then(() => {
-		// 				if (tile.loadState === "loaded") {
-		// 					// update z of map in view
-		// 					this._updateHight(tile);
-		// 					// fire event of the tile loaded
-		// 					this.dispatchEvent({ type: "tile-loaded", tile });
-		// 				}
-		// 			})
-		// 			.catch((err) => {
-		// 				const message = err.message || "download error";
-		// 				this.dispatchEvent({ type: "tile-load-error", tile, message });
-		// 			});
+		// 		tile.load(this.loader, this.minLevel, this.maxLevel).then(() => {
+		// 			if (tile.loadState === "loaded") {
+		// 				// update z of map in view
+		// 				this._updateHight(tile);
+		// 				// fire event of the tile loaded
+		// 				this.dispatchEvent({ type: "tile-loaded", tile });
+		// 			}
+		// 		});
 		// 	}
 		// });
 

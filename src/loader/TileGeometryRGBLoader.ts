@@ -29,7 +29,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	 * @param onError
 	 * @returns
 	 */
-	public load(source: ISource, tile: Tile, onLoad: () => void, onError: (err: any) => void): BufferGeometry {
+	public load(source: ISource, tile: Tile, onLoad: () => void): BufferGeometry {
 		// get max level tile and rect
 		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
 
@@ -37,11 +37,11 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 			setTimeout(onLoad);
 			return new PlaneGeometry();
 		} else {
-			return this._load(tile, url, rect, onLoad, onError);
+			return this._load(tile, url, rect, onLoad);
 		}
 	}
 
-	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void, onError: (err: any) => void) {
+	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
 		const tileSize = (tile.coord.z + 2) * 3;
 		const geometry = this.createGeometry();
 		this.imageLoader.load(
@@ -57,7 +57,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 			// onProgress
 			undefined,
 			// onError
-			onError,
+			onLoad,
 			tile.abortSignal,
 		);
 		return geometry;

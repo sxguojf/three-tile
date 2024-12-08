@@ -52,7 +52,7 @@ export class TileLoader implements ITileLoader {
 	 * @param onLoad callback on data loaded
 	 * @returns geometry, material(s)
 	 */
-	public load(tile: Tile, onLoad: () => void, onError: (err: any) => void) {
+	public load(tile: Tile, onLoad: () => void) {
 		if (this.imgSource.length === 0) {
 			throw new Error("imgSource can not be empty");
 		}
@@ -70,23 +70,15 @@ export class TileLoader implements ITileLoader {
 		let geoLoaded = false;
 		let matLoaded = false;
 
-		const geometry = this.loadGeometry(
-			tile,
-			() => {
-				geoLoaded = true;
-				onDataLoad();
-			},
-			onError,
-		);
+		const geometry = this.loadGeometry(tile, () => {
+			geoLoaded = true;
+			onDataLoad();
+		});
 
-		const materials = this.loadMaterial(
-			tile,
-			() => {
-				matLoaded = true;
-				onDataLoad();
-			},
-			onError,
-		);
+		const materials = this.loadMaterial(tile, () => {
+			matLoaded = true;
+			onDataLoad();
+		});
 
 		tile.geometry = geometry;
 		tile.material = materials;
@@ -101,12 +93,12 @@ export class TileLoader implements ITileLoader {
 	 * @param onError error callback
 	 * @returns geometry
 	 */
-	protected loadGeometry(tile: Tile, onLoad: () => void, onError: (err: any) => void): BufferGeometry {
+	protected loadGeometry(tile: Tile, onLoad: () => void): BufferGeometry {
 		let geometry: BufferGeometry;
 		// load dem if has dem source, else create a PlaneGeometry
 		if (this.demSource) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
-			geometry = loader.load(this.demSource, tile, onLoad, onError);
+			geometry = loader.load(this.demSource, tile, onLoad);
 		} else {
 			geometry = new PlaneGeometry();
 			setTimeout(onLoad);
@@ -121,21 +113,16 @@ export class TileLoader implements ITileLoader {
 	 * @param onError error callback
 	 * @returns material
 	 */
-	protected loadMaterial(tile: Tile, onLoad: () => void, onError: (err: any) => void): Material[] {
+	protected loadMaterial(tile: Tile, onLoad: () => void): Material[] {
 		const materials = this.imgSource.map((source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
-			const material = loader.load(
-				source,
-				tile,
-				() => {
-					material.userData.loaded = true;
-					// check all of materials loaded
-					if (materials.every((mat) => mat.userData.loaded)) {
-						onLoad();
-					}
-				},
-				onError,
-			);
+			const material = loader.load(source, tile, () => {
+				material.userData.loaded = true;
+				// check all of materials loaded
+				if (materials.every((mat) => mat.userData.loaded)) {
+					onLoad();
+				}
+			});
 			return material;
 		});
 

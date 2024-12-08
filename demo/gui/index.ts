@@ -39,14 +39,12 @@ export function showLoading(map: tt.TileMap) {
 			loading.innerHTML = "Loading complete!";
 			loading.style.backgroundColor = "";
 		});
-		map.addEventListener("loading-error", (url) => {
-			loading.innerHTML = "There was an error loading " + url;
+		map.addEventListener("loading-error", (evt) => {
+			loading.innerHTML = "There was an error loading " + evt.url;
 			loading.style.backgroundColor = "red";
+			console.error("Downloading error:", evt.url);
 		});
 	}
-	map.addEventListener("tile-load-error", (evt) => {
-		console.error(`${evt.message}:  ${evt.tile.name}`);
-	});
 }
 
 // 添加地图版权信息

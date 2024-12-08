@@ -4,33 +4,20 @@
  *@date: 2023-04-06
  */
 
-import {
-	BaseEvent,
-	BufferGeometry,
-	Camera,
-	Clock,
-	Material,
-	Mesh,
-	MeshBasicMaterial,
-	Object3DEventMap,
-	PlaneGeometry,
-	Vector2,
-	Vector3,
-} from "three";
+import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEventMap, Vector2, Vector3 } from "three";
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
+import { Tile } from "../tile";
 import { RootTile } from "../tile/RootTile";
 import { SourceWithProjection } from "./SourceWithProjection";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld, getTileCount } from "./util";
-import { Tile } from "../tile";
 
 /**
  * TileMap Event Map
  */
 export interface TileMapEventMap extends Object3DEventMap {
 	"tile-created": BaseEvent & { tile: Tile };
-	"tile-load-error": BaseEvent & { tile: Tile; message: string };
 	"tile-loaded": BaseEvent & { tile: Tile };
 
 	"projection-changed": BaseEvent & { projection: IProjection };

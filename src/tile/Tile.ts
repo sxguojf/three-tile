@@ -26,7 +26,6 @@ import { creatChildrenTile } from "./tileCreator";
 export interface TTileEventMap extends Object3DEventMap {
 	dispose: BaseEvent;
 	"tile-created": BaseEvent & { tile: Tile };
-	"tile-load-error": BaseEvent & { tile: Tile; message: string };
 	"tile-loaded": BaseEvent & { tile: Tile };
 	ready: BaseEvent;
 }
@@ -36,9 +35,6 @@ const defaultGeometry = new PlaneGeometry(1, 1);
 
 // Default material of tile
 const defaultMaterial = new MeshBasicMaterial({ color: 0xff0000, visible: false, transparent: true });
-
-const errorGeometry = new PlaneGeometry(1, 1);
-const errorMaterial = new MeshBasicMaterial({ color: 0xff0000 });
 
 /**
  * Type of Loading state
@@ -119,7 +115,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this.material[0] === defaultMaterial;
 	}
 
-	private _showing = true;
+	private _showing = false;
 	public get showing() {
 		return this._showing;
 	}
@@ -240,8 +236,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param loader data loader
 	 * @returns Promise<void>
 	 */
-	public load(loader: ITileLoader, minLevel: number, _maxLevel: number): Promise<void> {
-		if (this.loadState === "loaded" || this.coord.z < minLevel) {
+	public load(loader: ITileLoader, _minLevel: number, _maxLevel: number): Promise<void> {
+		// if (this.loadState === "loaded" || this.coord.z < minLevel) {
+		if (this.loadState === "loaded") {
 			return Promise.resolve();
 		}
 		// Reset the abortC controller
@@ -249,31 +246,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._loadState = "loading";
 
 		// Load tile data
-		return new Promise((resolve, reject) => {
-			loader.load(
-				this,
-				() => resolve(this._onLoad()),
-				(err) => {
-					if (err.name === "AbortError") {
-						console.warn("Abort!!!");
-						if (!this.isDefault) {
-							this.dispose(false);
-						}
-					} else {
-						// When download failed, set loadState to loaded to prevent reload
-						// this.material = [errorMaterial];
-						// this.geometry = errorGeometry;
-						// this._loadState = "loaded";
-						// this.geometry = new PlaneGeometry(1, 1, 10, 10);
-						// this.material = [new MeshBasicMaterial({ color: 0xff00ff })];
-						// this.showing = true;
-						// console.warn("Download error!!!");
-						// () => resolve(this._onLoad());
-					}
-					() => resolve(this._onLoad());
-				},
-			);
-		});
+		return new Promise((resolve) => loader.load(this, () => resolve(this._onLoad())));
 	}
 
 	/**
@@ -289,6 +262,16 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			return parent;
 		}
 		return parent._getShowingParent();
+	}
+
+	private _hasShowChildren() {
+		let result = false;
+		this.traverse((child) => {
+			if (child.showing && child !== this && child.loadState === "loaded") {
+				result = true;
+			}
+		});
+		return result;
 	}
 
 	/**
@@ -310,15 +293,17 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	public _checkVisible(): boolean {
 		const leafs: Tile[] = [];
 		this.traverse((child) => leafs.push(child));
+		// Check if all children has loaded
 		const loaded = leafs.filter((child) => child.isLeaf).every((child) => child.loadState === "loaded");
 		if (loaded) {
+			// If all children has loaded, show leaf and hide the other
 			leafs.forEach((child) => (child.showing = child.isLeaf));
 		}
 		return loaded;
 	}
 
 	/**
-	 * tile loaded callback
+	 * Tile loaded callback
 	 */
 	private _onLoad() {
 		if (!this.parent) {
@@ -326,17 +311,22 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			return;
 		}
 
-		if (this.isDefault) {
-			debugger;
-		}
-
 		this._loadState = "loaded";
-		console.log(this.name);
 		this._updateHeight();
 
+		this.showing = false;
+
+		// Hide if tile is not a leaf and it has showing child
+		if (!this.isLeaf && this._hasShowChildren()) {
+			return;
+		}
+		// If tile is a leaf, showing when all of brother to be loaded
 		const loadedParent = this._getShowingParent();
-		this.showing = !loadedParent;
-		loadedParent?._checkVisible();
+		if (loadedParent) {
+			loadedParent._checkVisible();
+		} else {
+			this.showing = true;
+		}
 	}
 
 	// update height
