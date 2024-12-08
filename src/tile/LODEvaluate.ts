@@ -35,7 +35,7 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 			return LODAction.remove;
 		}
 	}
-	if (tile.coord.z < maxLevel && tile.isLeafInFrustum) {
+	if (tile.coord.z < maxLevel && tile.isLeaf && tile.inFrustum) {
 		const dist = _getDistRatio(tile);
 		if (tile.coord.z < minLevel || dist < threshold / factor) {
 			return LODAction.create;

@@ -4,7 +4,7 @@
 
 ## 1 简介
 
-three-tile 是一个使用 [threejs](https://threejs.org/)开发的轻量级三维瓦片地图库，具有使用简单、资源占用少等优点，它提供了一个使用瓦片地图服务的轻量级三维地形模型，适用于给基于 threejs 开发应用增加三维地图。
+three-tile 是一个使用 [threejs](https://threejs.org/)开发的轻量级三维瓦片地图库，具有使用简单、资源占用少等优点，它提供了一个使用瓦片地图服务的轻量级三维地形模型，适用于给基于 threejs 开发应用添加三维地图。
 
 详细介绍：https://blog.csdn.net/HZGJF/article/details/140280844
 
@@ -55,7 +55,7 @@ Examples Source： https://github.com/sxguojf/three-tile-example
 {
     "imports": {
         "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
-        "three-tile": "https://unpkg.com/three-tile@0.6.2/dist/three-tile.js"
+        "three-tile": "https://unpkg.com/three-tile@0.6.4/dist/three-tile.js"
     }
 }
 </script>
@@ -119,8 +119,6 @@ export const mapBoxDemSource = new tt.plugin.MapBoxSource({
 
 ### 3.2 地图创建
 
-使用 TileMap 类的工厂方法 create() 创建地图，加入场景。
-
 ```typescript
 import * as tt from "three-tile";
 
@@ -159,22 +157,26 @@ const viewer = new tt.plugin.GLViewer("#map");
 与二维 webgis 不同，三维场景中平移、缩放、旋转地图模型并不是修改模型的位置，而是修改摄像机（观察者）位置来实现的。包括摄像机坐标和其方向矢量（heading 、pitch 、roll ），即观察者在哪个坐标及朝哪个方向看。但这个这个描述有些抽象，three-tile 中用摄像机坐标和地图中心坐标替代，通过将摄像机经度纬度高度和目标点经度纬度高度转换为世界坐标，传入 GLViewer 构造函数参数来定位。
 
 ```typescript
-// 地图中心坐标(经度，纬度，高度)
-const centerGeo = new Vector3(110, 30, 0);
-// 摄像坐标(经度，纬度，高度)
-const camersGeo = new Vector3(110, 0, 10000);
-// 地图中心转为世界坐标
-const centerPostion = map.localToWorld(map.geo2pos(centerGeo));
-// 摄像机转为世界坐标
-const cameraPosition = map.localToWorld(map.geo2pos(camersGeo));
-// 初始化场景
-const viewer = new tt.plugin.GLViewer("#map", { centerPostion, cameraPosition });
+// 初始化三维场景
+function initViewer(id: string, map: tt.TileMap) {
+	// 地图中心坐标(经度，纬度，高度)
+	const centerGeo = new Vector3(110, 30, 0);
+	// 摄像坐标(经度，纬度，高度)
+	const camersGeo = new Vector3(110, 0, 10000);
+	// 地图中心经纬度高度转为世界坐标
+	const centerPostion = map.geo2world(centerGeo);
+	// 摄像机经纬度高度转为世界坐标
+	const cameraPosition = map.geo2world(camersGeo);
+	// 初始化场景
+	const viewer = new tt.plugin.GLViewer(id, { centerPostion, cameraPosition });
+	// 地图添加到场景
+	viewer.scene.add(map);
+	return viewer;
+}
 ```
 
 如果你熟悉 threejs，场景初始化最好自己写，跟普通 threejs 程序并无太大差异。以下部分需要注意：
 
--   为了使地图坐标系与一般人类理解一致，three-tile 地图坐标方向采用东(x)北(y)上(z)方向，即地面在 x-y 平面上，海拔高度在 z 轴。而 threejs 一般平面在 xz 平面上，高度为 y 轴，所以初始化时需要使场景默认 up 指向 z 轴，可添加：Object3D.DEFAULT_UP.set(0, 0, 1) 即可。如果你的应用不能调整 up 值，可以将地图旋转-π/2 完成。
--   因大部分 three 开发人员不太关注 Object3D.up 值，包括 threejs 官方示例，以至于一些 three 代码需要做修改才能添加运行，从 V0.6.1 开始，GLViewer 类中不再设置 Object3D.DEFAULT_UP.set(0, 0, 1) ，开发者需在创建地图后自行将地图沿 x 轴旋转-π/2° ：map.rotateX(-Math.PI / 2);
 -   地图添加光照才能显示。一般至少要有一个环境光，另外最好加一个直射光以通过地形法向量增强凹凸感。
 -   场景控制器一般应用可使用 threejs 内置的 MapControls，其它控制器如 OrbitControls、FlyControls、PointerLockControls、TransformControls、FirstPersonControls 都能完美支持。
 
@@ -212,31 +214,32 @@ type MapParams = {
 
 ### 4.2 TileMap 主要属性
 
-| 名称             | 类型     | 说明                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ---------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| autoUpdate       | boolean  | 默认为 true，指定是否在每帧渲染中更新地图模型和数据。禁止更新主要有两种使用场景，一是在某些特效需要改变摄像机位置取得该摄像机位置下的离线渲染缓冲，如水面、反光等特效，由于 autoUpdate 为 true 时，地图瓦片会根据摄像机位置做增删，无法取得正确的缓冲图像，所以可在加载特效前禁止自动更新，完成后恢复自动更新；二是用于瓦片树和数据加载调试，运行时禁止自动更新可查看瓦片树是否正确得被细化、合并、剔除 |
-| autoLoad         | boolean  | 默认为 true，指定是否在每帧渲染中加载地图模型和数据，与 autoUpdate 类似，但它仅控制数据是否加载，主要用于调试                                                                                                                                                                                                                                                                                           |
-| autoPosition     | boolean  | 默认为 false，指定是否在每帧渲染中根据视野内瓦片的平均海拔高度，调整地图模型的位置（高度）。地图默认位置在海拔 0 米，但在高海拔地区，地面在视野里显得很高，自动调整会将模型位置调整为地面平均海拔高度而不是 0 米。自动调整在快速旋转或移动地图时，视野内瓦片平均海拔变化很大，地图有些漂移感觉，故一般在 2000 米海拔下设置为 false，如果你不明白它是啥意思，保持默认值                                  |
-| maxZInView       | number   | 取得视野内地形的最高高度                                                                                                                                                                                                                                                                                                                                                                                |
-| minZInView       | number   | 取得视野内地形的最低高度                                                                                                                                                                                                                                                                                                                                                                                |
-| avgZInView       | number   | 取得视野内地形的平均高度                                                                                                                                                                                                                                                                                                                                                                                |
-| loadCacheSize    | number   | 默认为 500，设置或取得瓦片数据的缓存大小，单位为块。较大的缓存能提高运行速度，但会耗费较多内存                                                                                                                                                                                                                                                                                                          |
-| viewerBufferSize | number   | 默认为 1.2，设置或取得瓦片渲染缓冲区大小系数，取值在 1-2 之间。为了减少资源占用，three-tile 仅加载视野体内瓦片，在瓦片离开视野立即释放，进入视野在重新加载，这就造成刚进入视野的瓦片出现短暂空白，通过调整 viewerBufferSize，可控制瓦片离开视野多远会才被释放。用瓦片大小的倍数表示，增大它瓦片将离开视野较远时才释放，能够提高渲染速度，但会占用大量 gpu 资源。如果你的 cpu 够强悍可以设置大些         |
-| LODThreshold     | number   | 默认为 1，设置瓦片 LOD 阈值系数。TileMap 本质上是一个动态 LOD 模型，它根据瓦片离摄像机的距离对模型进行细化或合并，该值越大瓦片细化越快，越小瓦片合并越快快                                                                                                                                                                                                                                              |
-| attributions     | string[] | 取得瓦片数据归属者信息，如版权等，来自瓦片数据源定义中的 attributions 属性源                                                                                                                                                                                                                                                                                                                            |
-| tileCount        | Object   | 取得瓦片统计信息，如瓦片总数、叶子瓦片数、可视瓦片数等，主要用来进行调试                                                                                                                                                                                                                                                                                                                                |
+| 名称          | 类型     | 说明                                                         |
+| ------------- | -------- | ------------------------------------------------------------ |
+| autoUpdate    | boolean  | 默认为 true，指定是否在每帧渲染中更新地图模型和数据。禁止更新主要有两种使用场景，一是在某些特效需要改变摄像机位置取得该摄像机位置下的离线渲染缓冲，如水面、反光等特效，由于 autoUpdate 为 true 时，地图瓦片会根据摄像机位置做增删，无法取得正确的缓冲图像，所以可在加载特效前禁止自动更新，完成后恢复自动更新；二是用于瓦片树和数据加载调试，运行时禁止自动更新可查看瓦片树是否正确得被细化、合并、剔除 |
+| autoLoad      | boolean  | 默认为 true，指定是否在每帧渲染中加载地图模型和数据，与 autoUpdate 类似，但它仅控制数据是否加载，主要用于调试 |
+| autoPosition  | boolean  | 默认为 false，指定是否在每帧渲染中根据视野内瓦片的平均海拔高度，调整地图模型的位置（高度）。地图默认位置在海拔 0 米，但在高海拔地区，地面在视野里显得很高，自动调整会将模型位置调整为地面平均海拔高度而不是 0 米。自动调整在快速旋转或移动地图时，视野内瓦片平均海拔变化很大，地图有些漂移感觉，故一般在 2000 米海拔下设置为 false，如果你不明白它是啥意思，保持默认值 |
+| maxZInView    | number   | 取得视野内地形的最高高度                                     |
+| minZInView    | number   | 取得视野内地形的最低高度                                     |
+| avgZInView    | number   | 取得视野内地形的平均高度                                     |
+| loadCacheSize | number   | 默认为 500，设置或取得瓦片数据的缓存大小，单位为块。较大的缓存能提高运行速度，但会耗费较多内存 |
+| LODThreshold  | number   | 默认为 1，设置瓦片 LOD 阈值系数。TileMap 本质上是一个动态 LOD 模型，它根据瓦片离摄像机的距离对模型进行细化或合并，该值越大瓦片细化越快，越小瓦片合并越快快 |
+| attributions  | string[] | 取得瓦片数据归属者信息，如版权等，来自瓦片数据源定义中的 attributions 属性源 |
+| tileCount     | Object   | 取得瓦片统计信息，如瓦片总数、叶子瓦片数、可视瓦片数等，主要用来进行调试 |
 
 ### 4.3 TileMap 主要方法
 
-| 名称                                                     | 参数                             | 返回                                                                                                            | 功能                                                   |
-| -------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| geo2pos(geo: Vector3)                                    | geo: 地理坐标（经纬度）          | Vector3：地图模型局地坐标                                                                                       | 地理坐标转地图模型坐标                                 |
-| pos2geo(pos: Vector3)                                    | pos: 地图模型坐标                | Vector3：地理坐标（经度、纬度、高度）                                                                           | 地图模型坐标转地理坐标                                 |
+| 名称                                                     | 参数                             | 返回                                                         | 功能                                                   |
+| -------------------------------------------------------- | -------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
+| geo2pos(geo: Vector3)                                    | geo: 地理坐标（经纬度）          | Vector3：地图模型局地坐标                                    | 地理坐标转地图模型坐标                                 |
+| pos2geo(pos: Vector3)                                    | pos: 地图模型坐标                | Vector3：地理坐标（经度、纬度、高度）                        | 地图模型坐标转地理坐标                                 |
+| geo2world(geo:Vector3)                                   | geo: 地理坐标（经纬度）          | Vector3：世界坐标坐标                                        | 地理坐标转世界坐标                                     |
+| world2geo(world:Vector)                                  | world:世界坐标                   | Vector3：地理坐标（经度、纬度、高度）                        | 世界坐标转地理坐标                                     |
 | getLocalInfoFromGeo(geo: Vector3)                        | geo: 地理坐标（经纬度）          | LocationInfo：它继承于 THREE.Intersection，除了交点信息，增加了 location 属性，包含地理坐标（经度、纬度、高度） | 通过射线法获取指定地理坐标的地面信息（法向量、高度等） |
 | getLocalInfoFromWorld(pos: Vector3)                      | pos: 世界坐标                    | LocationInfo：它继承于 THREE.Intersection，除了交点信息，增加了 location 属性，包含地理坐标（经度、纬度、高度） | 通过射线法获取指定世界坐标的地面信息（法向量、高度等） |
 | getLocalInfoFromScreen(camera: Camera, pointer: Vector2) | camera: 摄像机 ,pointer:屏幕坐标 | LocationInfo：它继承于 THREE.Intersection，除了交点信息，增加了 location 属性，包含地理坐标（经度、纬度、高度） | 通过射线法获取指定屏幕坐标的地面信息（法向量、高度等） |
-| reload()                                                 | void                             | void                                                                                                            | 重新加载地图，在改变地图数据源后调用它才能生效         |
-| static create(params: MapParams)                         | params:地图构建参数              | TileMap：瓦片地图对象                                                                                           | 静态工厂函数，与构造函数功能参数相同                   |
+| reload()                                                 | void                             | void                                                         | 重新加载地图，在改变地图数据源后调用它才能生效         |
+| static create(params: MapParams)                         | params:地图构建参数              | TileMap：瓦片地图对象                                        | 静态工厂函数，与构造函数功能参数相同                   |
 
 ### 4.4 TileMap 事件
 
@@ -301,7 +304,7 @@ type MapParams = {
 		{
 			"imports": {
 				"three": "https://unpkg.com/three@0.165.0/build/three.module.js",
-				"three-tile": "https://unpkg.com/three-tile@0.6.2/dist/three-tile.js"
+				"three-tile": "https://unpkg.com/three-tile@0.6.4/dist/three-tile.js"
 			}
 		}
 	</script>
@@ -353,9 +356,9 @@ type MapParams = {
 			// 摄像坐标(经度，纬度，高度)
 			const camersGeo = new THREE.Vector3(105, 0, 5000);
 			// 地图中心转为世界坐标
-			const centerPostion = map.localToWorld(map.geo2pos(centerGeo));
+			const centerPostion = map.geo2world(centerGeo);
 			// 摄像机转为世界坐标
-			const cameraPosition = map.localToWorld(map.geo2pos(camersGeo));
+			const cameraPosition = map.geo2world(camersGeo));
 			// 初始化场景
 			const viewer = new tt.plugin.GLViewer("#map", { centerPostion, cameraPosition });
 

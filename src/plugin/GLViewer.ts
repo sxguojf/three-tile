@@ -36,6 +36,7 @@ type GLViewerOptions = {
 	centerPostion?: Vector3;
 	cameraPosition?: Vector3;
 	antialias?: boolean;
+	stencil?: boolean;
 	logarithmicDepthBuffer?: boolean;
 };
 
@@ -77,11 +78,12 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 				centerPostion = new Vector3(0, 0, -3000),
 				cameraPosition = new Vector3(0, 30000, 0),
 				antialias = false,
+				stencil = true,
 				logarithmicDepthBuffer = true,
 			} = options;
 
 			this.container = el;
-			this.renderer = this._createRenderer(antialias, logarithmicDepthBuffer);
+			this.renderer = this._createRenderer(antialias, stencil, logarithmicDepthBuffer);
 			this.scene = this._createScene();
 			this.camera = this._createCamera(cameraPosition);
 			this.controls = this._createControls(centerPostion);
@@ -106,12 +108,11 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		return scene;
 	}
 
-	private _createRenderer(antialias: boolean, logarithmicDepthBuffer: boolean) {
+	private _createRenderer(antialias: boolean, stencil: boolean, logarithmicDepthBuffer: boolean) {
 		const renderer = new WebGLRenderer({
 			antialias,
 			logarithmicDepthBuffer,
-			stencil: true,
-			depth: true,
+			stencil,
 			alpha: true,
 			precision: "highp",
 		});

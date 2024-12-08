@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { Box3, Camera, Matrix4, MeshBasicMaterial, Vector3 } from "three";
+import { Box3, Camera, Matrix4, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { AdvFrustum } from "./AdvFrustum";
 import { Tile } from "./Tile";
@@ -15,9 +15,9 @@ import { Tile } from "./Tile";
 // 	tileLoaded: { type: "tile-loaded" };
 // }
 
-export interface RootTileEventMap {
-	ready: { type: "reay" };
-}
+// export interface RootTileEventMap {
+// 	ready: { type: "reay" };
+// }
 
 const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
@@ -28,7 +28,7 @@ const frustum = new AdvFrustum();
  * Root tile, inherit of Tile
  */
 export class RootTile extends Tile {
-	private _treeReadyCount = 0;
+	// private _treeReadyCount = 0;
 	private _autoLoad = true;
 	private _loader: ITileLoader;
 	private _minLevel = 0;
@@ -152,14 +152,16 @@ export class RootTile extends Tile {
 	 */
 	public update(camera: Camera) {
 		// update tile tree
-		if (this._updateTileTree(camera)) {
-			this._treeReadyCount = 0;
-		} else {
-			this._treeReadyCount++;
-		}
+		// if (this._updateTileTree(camera)) {
+		// 	this._treeReadyCount = 0;
+		// } else {
+		// 	this._treeReadyCount++;
+		// }
+
+		this._updateTileTree(camera);
 
 		// update tile data when the tile tree to stabilize
-		if (this.autoLoad && this._treeReadyCount > 5) {
+		if (this.autoLoad) {
 			// if (this.autoLoad && Math.random() > 0.8) {
 			this._updateTileData();
 		}
@@ -232,24 +234,21 @@ export class RootTile extends Tile {
 	 */
 	private _updateTileData() {
 		// Tiles are sorted by distance to camera
-		/*let tiles: Tile[] = [];
-		this.traverse((tile) => tile.isTile && tile.loadState === "empty" && tiles.push(tile));
-		tiles = tiles.sort((a, b) => {
-			const dz = a.coord.z - b.coord.z;
-			if (dz === 0) {
-				return a.distFromCamera - b.distFromCamera;
-			} else {
-				return dz;
+		let tiles: Tile[] = [];
+		this.traverse((tile) => {
+			if (tile.isTile && tile.loadState === "empty") {
+				tiles.push(tile);
 			}
 		});
+		tiles = tiles.sort((a, b) => a.distFromCamera - b.distFromCamera);
 
 		// Iterate through the tiles to load data
 		tiles.forEach((tile) => {
-			tile.load(this.loader)
+			tile.load(this.loader, this.minLevel, this.maxLevel)
 				.then(() => {
 					if (tile.loadState === "loaded") {
 						// update z of map in view
-						this._updateVisibleHight(tile);
+						this._updateHight(tile);
 						// fire event of the tile loaded
 						this.dispatchEvent({ type: "tile-loaded", tile });
 					}
@@ -259,24 +258,25 @@ export class RootTile extends Tile {
 					const message = err.message || "download error";
 					this.dispatchEvent({ type: "tile-load-error", tile, message });
 				});
-		});*/
-		this.traverse((tile) => {
-			if (tile.isTile && tile.loadState === "empty") {
-				tile.load(this.loader, this.minLevel, this.maxLevel)
-					.then(() => {
-						if (tile.loadState === "loaded") {
-							// update z of map in view
-							this._updateHight(tile);
-							// fire event of the tile loaded
-							this.dispatchEvent({ type: "tile-loaded", tile });
-						}
-					})
-					.catch((err) => {
-						const message = err.message || "download error";
-						this.dispatchEvent({ type: "tile-load-error", tile, message });
-					});
-			}
 		});
+
+		// this.traverse((tile) => {
+		// 	if (tile.isTile && tile.loadState === "empty") {
+		// 		tile.load(this.loader, this.minLevel, this.maxLevel)
+		// 			.then(() => {
+		// 				if (tile.loadState === "loaded") {
+		// 					// update z of map in view
+		// 					this._updateHight(tile);
+		// 					// fire event of the tile loaded
+		// 					this.dispatchEvent({ type: "tile-loaded", tile });
+		// 				}
+		// 			})
+		// 			.catch((err) => {
+		// 				const message = err.message || "download error";
+		// 				this.dispatchEvent({ type: "tile-load-error", tile, message });
+		// 			});
+		// 	}
+		// });
 
 		return this;
 	}
@@ -290,7 +290,7 @@ export class RootTile extends Tile {
 		this.maxZ = 0;
 		this.minZ = 9000;
 		this.traverse((child) => {
-			if (child.isTile && child.isLeafInFrustum && child.loadState === "loaded") {
+			if (child.isTile && child.isLeaf && child.inFrustum && child.loadState === "loaded") {
 				this.maxZ = Math.max(this.maxZ, child.maxZ);
 				this.minZ = Math.min(this.minZ, child.minZ);
 				sumZ += child.avgZ;

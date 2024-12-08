@@ -88,13 +88,14 @@ function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 function main() {
 	// 创建地图
 	const map = createMap();
+	// 开启阴影
 	map.receiveShadow = true;
 	// 创建视图
 	const viewer = initViewer("#map", map);
 	// 每帧更新TWEEN
 	viewer.addEventListener("update", () => TWEEN.update());
 	// 添加伪地球遮罩
-	// addFakeEarth(viewer, map);
+	addFakeEarth(viewer, map);
 	// 防止摄像机进入地下
 	limitCameraHeight(viewer, map);
 	// 创建gui
