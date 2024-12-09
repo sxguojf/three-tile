@@ -151,25 +151,13 @@ export class RootTile extends Tile {
 	 * @param camera
 	 */
 	public update(camera: Camera) {
-		// update tile tree
-		// if (this._updateTileTree(camera)) {
-		// 	this._treeReadyCount = 0;
-		// } else {
-		// 	this._treeReadyCount++;
-		// }
-
 		this._updateTileTree(camera);
-
-		// update tile data when the tile tree to stabilize
 		if (this.autoLoad) {
-			// if (this.autoLoad && Math.random() > 0.8) {
 			this._updateTileData();
 		}
-
 		if (!this._ready) {
 			this._checkReady();
 		}
-
 		return this;
 	}
 
@@ -181,12 +169,6 @@ export class RootTile extends Tile {
 		return this;
 	}
 
-	private _getBufferFrustum(camera: Camera) {
-		// Get the frustum whith buffer
-		frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
-		return frustum;
-	}
-
 	/**
 	 * Update tile tree use LOD
 	 * @param camera  camera
@@ -194,20 +176,17 @@ export class RootTile extends Tile {
 	 */
 	private _updateTileTree(camera: Camera) {
 		let change = false;
-
-		this._getBufferFrustum(camera);
-
+		frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 		const cameraWorldPosition = camera.getWorldPosition(tempVec3);
 
 		// LOD for tiles
 		this.traverse((tile) => {
 			if (tile.isTile) {
 				// Issues: https://github.com/mrdoob/three.js/issues/27756
-				// Is the tile in the frustum? has buffer
 				const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
 				tile.inFrustum = frustum.intersectsBox(bounds);
 
-				// LOD, Get new tiles
+				// LOD to get new tiles
 				const newTiles = tile._LOD(
 					cameraWorldPosition,
 					this.minLevel,

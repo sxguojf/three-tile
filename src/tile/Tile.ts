@@ -122,15 +122,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	public set showing(value) {
 		if (!this.isDefault) {
 			this._showing = value;
-			//this.material.forEach((mat) => mat != defaultMaterial && (mat.visible = value));
-			(this as any).isMesh = value;
+			this.material.forEach((mat) => mat != defaultMaterial && (mat.visible = value));
 		}
 	}
-
-	// /** Tile is a leaf in frustum? */
-	// public get isLeafInFrustum() {
-	// 	return this.inFrustum && this.isLeaf;
-	// }
 
 	/** Tile is a leaf?  */
 	public get isLeaf() {
@@ -274,22 +268,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return result;
 	}
 
-	/**
-	 * Find showing parent
-	 * @returns showing parent or null
-	 */
-	// private _getShowingParent1(): this | null {
-	// 	let parent = this.parent;
-	// 	let result = null;
-	// 	while (parent && parent.isTile) {
-	// 		if (parent.showing) {
-	// 			result = parent;
-	// 		}
-	// 		parent = parent.parent;
-	// 	}
-	// 	return result;
-	// }
-
 	public _checkVisible(): boolean {
 		const leafs: Tile[] = [];
 		this.traverse((child) => leafs.push(child));
@@ -331,7 +309,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	// update height
 	private _updateHeight() {
-		// this.geometry.computeBoundingBox();
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
 		this.avgZ = (this.maxZ + this.minZ) / 2;

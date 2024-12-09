@@ -385,6 +385,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public constructor(params: MapParams) {
 		super();
+		this.up.set(0, 0, 1);
 		this.loader = params.loader ?? new TileLoader();
 		this.rootTile = params.rootTile ?? new RootTile(this.loader);
 
