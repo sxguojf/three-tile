@@ -232,9 +232,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public load(loader: ITileLoader, _minLevel: number, _maxLevel: number): Promise<void> {
 		// if (this.loadState === "loaded" || this.coord.z < minLevel) {
-		if (this.loadState === "loaded") {
-			return Promise.resolve();
-		}
+		// if (this.loadState === "loaded") {
+		// 	return Promise.resolve();
+		// }
 		// Reset the abortC controller
 		this._abortController = new AbortController();
 		this._loadState = "loading";
