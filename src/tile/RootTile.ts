@@ -147,6 +147,8 @@ export class RootTile extends Tile {
 	/**
 	 * Update tile tree and tile data. It called on the scene update every frame.
 	 * @param camera
+	 *
+	 * @returns this
 	 */
 	public update(camera: Camera) {
 		this._updateTileTree(camera);
@@ -170,10 +172,10 @@ export class RootTile extends Tile {
 	/**
 	 * Update tile tree use LOD
 	 * @param camera  camera
-	 * @returns  the tile tree has changed
+	 *
+	 * @returns this
 	 */
 	private _updateTileTree(camera: Camera) {
-		let change = false;
 		frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 		const cameraWorldPosition = camera.getWorldPosition(tempVec3);
 
@@ -198,16 +200,16 @@ export class RootTile extends Tile {
 					newTiles.forEach((tile) => {
 						this.dispatchEvent({ type: "tile-created", tile });
 					});
-					change = true;
 				}
 			}
 		});
-
-		return change;
+		return this;
 	}
 
 	/**
 	 *  Update tileTree data
+	 *
+	 * @returns this
 	 */
 	private _updateTileData() {
 		// Tiles are sorted by distance to camera
@@ -234,7 +236,6 @@ export class RootTile extends Tile {
 					}
 				});
 			});
-			console.log(tiles.length);
 		}
 
 		// this.traverse(async (tile) => {
@@ -250,6 +251,8 @@ export class RootTile extends Tile {
 
 	/**
 	 * Update height of tiles in view
+	 *
+	 * @returns this
 	 */
 	private _updateHight() {
 		let sumZ = 0,

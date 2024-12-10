@@ -51,7 +51,6 @@ export type TileCoord = { x: number; y: number; z: number };
  * Class Tile, inherit of Mesh
  */
 export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
-	// export class Tile<TTileEvent extends TTileEventMap = TTileEventMap> extends Mesh<BufferGeometry, Material[], TTileEvent> {
 	/** Coordinate of tile */
 	public readonly coord: TileCoord;
 
@@ -78,14 +77,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Distance of tile to campera */
 	public distFromCamera = 0;
 
-	/** Index of tile, mean positon in parent.
-	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
-	 */
+	/** Index of tile, mean positon in parent.  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）	 */
 	public get index(): number {
 		return this.parent ? this.parent.children.indexOf(this) : -1;
 	}
 
-	/* Downloading abort controller */
+	/**  Downloading abort controller **/
 	private _abortController = new AbortController();
 
 	/** Singnal of abort when downloading  */
@@ -112,7 +109,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._inFrustum = value;
 	}
 
-	public get isDefault() {
+	private get _isDefault() {
 		return this.material[0] === defaultMaterial;
 	}
 
@@ -121,7 +118,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this._showing;
 	}
 	public set showing(value) {
-		if (!this.isDefault) {
+		if (!this._isDefault) {
 			this._showing = value;
 			this.material.forEach((mat) => mat != defaultMaterial && (mat.visible = value));
 		}
@@ -188,7 +185,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		}
 	}
 
-	private _getDist(cameraPosition: Vector3) {
+	private _getDistToCamera(cameraPosition: Vector3) {
 		const tilePos = this.position.clone().setZ(this.avgZ).applyMatrix4(this.matrixWorld);
 		return cameraPosition.distanceTo(tilePos);
 	}
@@ -210,12 +207,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		isWGS: boolean,
 	) {
 		let newTiles: Tile[] = [];
-		this.distFromCamera = this._getDist(cameraWorldPosition);
+		this.distFromCamera = this._getDistToCamera(cameraWorldPosition);
 		// LOD evaluate
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
-			// this.abortLoad();
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile) {

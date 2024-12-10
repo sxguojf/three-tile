@@ -44,7 +44,7 @@ function getVisibleParent(tile: Tile): Tile | null {
 	if (!parent || !parent.isTile) {
 		return null;
 	}
-	if (parent.showing && !parent.isDefault) {
+	if (parent.showing && parent.loadState === "loaded") {
 		return parent;
 	}
 	return getVisibleParent(parent);
