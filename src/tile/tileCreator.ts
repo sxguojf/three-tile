@@ -1,5 +1,5 @@
 /**
- *@description: tile creator
+ *@description: Tile creator
  *@author: Guojf
  *@date: 2023-04-05
  */

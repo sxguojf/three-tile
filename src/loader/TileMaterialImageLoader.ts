@@ -1,5 +1,5 @@
 /**
- *@description: image material loader
+ *@description: Image material loader
  *@author: Guojf
  *@date: 2023-04-06
  */

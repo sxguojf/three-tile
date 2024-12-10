@@ -1,6 +1,6 @@
 import { CameraHelper, Vector3 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
-import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
+import { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../../src";
 
 export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
@@ -12,11 +12,11 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	const flyToPos = (cameraPos: Vector3, centerPos: Vector3) => {
 		viewer.controls.target.copy(centerPos);
 		const start = viewer.camera.position;
-		new TWEEN.Tween(start)
+		new Tween(start)
 			// 先到10000km高空
 			.to({ y: 10000, z: 0 }, 500)
 			// 再到目标位置
-			.chain(new Tween(start).to(cameraPos))
+			.chain(new Tween(start).to(cameraPos, 2000))
 			.start();
 	};
 
@@ -99,9 +99,9 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			flyToGeo(g1, g2);
 		},
 		toSchool: () => {
-			const g1 = new Vector3(126.67728818317335, 45.760602873759076, 0.7902206445893154);
-			const g2 = new Vector3(126.6785723085352, 45.755608565175756, 0);
-			flyToGeo(g1, g2);
+			const camera = new Vector3(126.62167808106878, 45.736928355251315, 1.2842047462544324);
+			const center = new Vector3(126.62613052944019, 45.740203546956955, 9.757703042909935e-16);
+			flyToGeo(camera, center);
 		},
 		cameraInfoToConsole: () => {
 			const cameraGeo = getGeo(viewer.camera.getWorldPosition(new Vector3()));
