@@ -17,6 +17,7 @@ import {
 	Vector3,
 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
+import { checkVisible } from "./checkVisible";
 import { LODAction, LODEvaluate } from "./LODEvaluate";
 import { creatChildrenTile } from "./tileCreator";
 
@@ -94,19 +95,19 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	private _loadState: LoadState = "empty";
 
-	/** Get the tile load state*/
+	/** Get load state*/
 	public get loadState() {
 		return this._loadState;
 	}
 
 	private _inFrustum = false;
 
-	/** Tile is tile in frustum? */
+	/** Is tile in frustum? */
 	public get inFrustum() {
 		return this._inFrustum;
 	}
 
-	/** Set tile is in frustum or not */
+	/** Set tile is in frustum */
 	protected set inFrustum(value) {
 		this._inFrustum = value;
 	}
@@ -182,7 +183,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		if (this.showing && this.loadState === "loaded") {
+		if (this.showing) {
 			super.raycast(raycaster, intersects);
 		}
 	}
@@ -232,9 +233,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public load(loader: ITileLoader, _minLevel: number, _maxLevel: number): Promise<void> {
 		// if (this.loadState === "loaded" || this.coord.z < minLevel) {
-		// if (this.loadState === "loaded") {
-		// 	return Promise.resolve();
-		// }
 		// Reset the abortC controller
 		this._abortController = new AbortController();
 		this._loadState = "loading";
@@ -244,67 +242,20 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Recursion to find showing parent
-	 * @returns showing parent or null
-	 */
-	private _getShowingParent(): this | null {
-		const parent = this.parent;
-		if (!parent || !parent.isTile) {
-			return null;
-		}
-		if (parent.showing && !parent.isDefault) {
-			return parent;
-		}
-		return parent._getShowingParent();
-	}
-
-	private _hasShowChildren() {
-		let result = false;
-		this.traverse((child) => {
-			if (child.showing && child !== this && child.loadState === "loaded") {
-				result = true;
-			}
-		});
-		return result;
-	}
-
-	public _checkVisible(): boolean {
-		const leafs: Tile[] = [];
-		this.traverse((child) => leafs.push(child));
-		// Check if all children has loaded
-		const loaded = leafs.filter((child) => child.isLeaf).every((child) => child.loadState === "loaded");
-		if (loaded) {
-			// If all children has loaded, show leaf and hide the other
-			leafs.forEach((child) => (child.showing = child.isLeaf));
-		}
-		return loaded;
-	}
-
-	/**
 	 * Tile loaded callback
 	 */
 	private _onLoad() {
-		if (!this.parent) {
+		const parent = this.parent;
+		if (!parent) {
 			this.dispose(true);
 			return;
 		}
-
+		// this.showing = false;
 		this._loadState = "loaded";
-		this._updateHeight();
-
-		this.showing = false;
-
-		// Hide if tile is not a leaf and it has showing child
-		if (!this.isLeaf && this._hasShowChildren()) {
-			return;
+		if (this.isLeaf) {
+			this._updateHeight();
 		}
-		// If tile is a leaf, showing when all of brother to be loaded
-		const loadedParent = this._getShowingParent();
-		if (loadedParent) {
-			loadedParent._checkVisible();
-		} else {
-			this.showing = true;
-		}
+		checkVisible(this);
 	}
 
 	// update height
@@ -327,9 +278,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public dispose(removeChildren: boolean) {
 		if (this.loadState != "empty") {
+			this._loadState = "empty";
 			this.abortLoad();
 			this._dispose();
-			this._loadState = "empty";
 		}
 
 		// if remove children, recursion

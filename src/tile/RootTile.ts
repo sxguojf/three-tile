@@ -4,9 +4,8 @@
  *@date: 2023-04-05
  */
 
-import { Box3, Camera, Matrix4, Vector3 } from "three";
+import { Box3, Camera, Frustum, Matrix4, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
-import { AdvFrustum } from "./AdvFrustum";
 import { Tile } from "./Tile";
 
 // export interface RootTileEventMap extends TileEventMap {
@@ -22,16 +21,16 @@ import { Tile } from "./Tile";
 const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
 const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
-const frustum = new AdvFrustum();
+const frustum = new Frustum();
 
 /**
  * Root tile, inherit of Tile
  */
 export class RootTile extends Tile {
-	// private _treeReadyCount = 0;
 	private _autoLoad = true;
 	private _loader: ITileLoader;
 	private _minLevel = 0;
+	private _maxLevel = 19;
 	private _ready = false;
 
 	/**
@@ -47,7 +46,6 @@ export class RootTile extends Tile {
 		this._minLevel = value;
 	}
 
-	private _maxLevel = 19;
 	/**
 	 * Get maxLevel of the map
 	 */
@@ -195,9 +193,9 @@ export class RootTile extends Tile {
 					this.isWGS,
 				);
 
+				// Fire event on the tile created
 				if (newTiles.length > 0) {
 					newTiles.forEach((tile) => {
-						// Fire event on the tile created
 						this.dispatchEvent({ type: "tile-created", tile });
 					});
 					change = true;
@@ -213,44 +211,39 @@ export class RootTile extends Tile {
 	 */
 	private _updateTileData() {
 		// Tiles are sorted by distance to camera
-		// let tiles: Tile[] = [];
-		// this.traverse((tile) => {
-		// 	if (tile.isTile && tile.loadState === "empty") {
-		// 		tiles.push(tile);
-		// 	}
-		// });
-		// // tiles = tiles.sort((a, b) => b.coord.z - a.coord.z);
-
-		// tiles = tiles.sort((a, b) => {
-		// 	const dz = b.coord.z - b.coord.z;
-		// 	if (dz === 0) {
-		// 		return a.distFromCamera - a.distFromCamera;
-		// 	} else {
-		// 		return dz;
-		// 	}
-		// });
-
-		// // Iterate through the tiles to load data
-		// tiles.forEach((tile) => {
-		// 	tile.load(this.loader, this.minLevel, this.maxLevel).then(() => {
-		// 		if (tile.loadState === "loaded") {
-		// 			// update z of map in view
-		// 			this._updateHight(tile);
-		// 			// fire event of the tile loaded
-		// 			this.dispatchEvent({ type: "tile-loaded", tile });
-		// 		}
-		// 	});
-		// });
-
-		this.traverse(async (tile) => {
+		let tiles: Tile[] = [];
+		this.traverse((tile) => {
 			if (tile.isTile && tile.loadState === "empty") {
-				await tile.load(this.loader, this.minLevel, this.maxLevel);
-				// update z of map in view
-				this._updateHight(tile);
-				// fire event of the tile loaded
-				this.dispatchEvent({ type: "tile-loaded", tile });
+				tiles.push(tile);
 			}
 		});
+		if (tiles.length > 0) {
+			// tiles = tiles.sort((a, b) => b.coord.z - a.coord.z);
+			tiles = tiles.sort((a, b) => {
+				const inFrustumA = a.inFrustum ? 1 : 100;
+				const inFrustumB = b.inFrustum ? 1 : 100;
+				return a.distFromCamera * inFrustumA - b.distFromCamera * inFrustumB;
+			});
+
+			// Iterate through the tiles to load data
+			tiles.forEach((tile) => {
+				tile.load(this.loader, this.minLevel, this.maxLevel).then(() => {
+					if (tile.loadState === "loaded") {
+						this._updateHight();
+						this.dispatchEvent({ type: "tile-loaded", tile });
+					}
+				});
+			});
+			console.log(tiles.length);
+		}
+
+		// this.traverse(async (tile) => {
+		// 	if (tile.isTile && tile.loadState === "empty") {
+		// 		await tile.load(this.loader, this.minLevel, this.maxLevel);
+		// 		this._updateHight();
+		// 		this.dispatchEvent({ type: "tile-loaded", tile });
+		// 	}
+		// });
 
 		return this;
 	}
@@ -258,7 +251,7 @@ export class RootTile extends Tile {
 	/**
 	 * Update height of tiles in view
 	 */
-	private _updateHight(_tile: Tile) {
+	private _updateHight() {
 		let sumZ = 0,
 			count = 0;
 		this.maxZ = 0;
