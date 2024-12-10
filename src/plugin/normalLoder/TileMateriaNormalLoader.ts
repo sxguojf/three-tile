@@ -7,7 +7,7 @@ import { ISource, ITileMaterialLoader, Tile } from "../..";
 export class TileMateriaNormalLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "normal";
 
-	public load(source: ISource, _tile: Tile, onLoad: () => void, _onError: (err: any) => void): MeshNormalMaterial {
+	public load(source: ISource, _tile: Tile, onLoad: () => void): MeshNormalMaterial {
 		const material = new MeshNormalMaterial({
 			transparent: true,
 			opacity: source.opacity,

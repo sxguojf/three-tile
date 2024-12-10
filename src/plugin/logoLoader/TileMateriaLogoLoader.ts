@@ -1,4 +1,4 @@
-import { MeshBasicMaterial, Texture as CanvasTexture } from "three";
+import { MeshBasicMaterial, CanvasTexture } from "three";
 import { ISource } from "../../source";
 import { ITileMaterialLoader } from "../../loader";
 import { Tile } from "../../tile";
@@ -17,7 +17,7 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	 * @param onLoad 加载完成回调
 	 * @returns 材质
 	 */
-	public load(source: ISource, tile: Tile, onLoad: () => void, _onError: (err: any) => void): MeshBasicMaterial {
+	public load(source: ISource, tile: Tile, onLoad: () => void): MeshBasicMaterial {
 		// 瓦片级别<4不绘制logo
 		if (tile.coord.z < 4) {
 			setTimeout(onLoad);

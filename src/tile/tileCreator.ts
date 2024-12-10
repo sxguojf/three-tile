@@ -9,7 +9,7 @@ import { Tile } from ".";
 
 function createTile(x: number, y: number, level: number, position: Vector3, scale: Vector3) {
 	const tile = new Tile(x, y, level);
-	// tile.renderOrder = level;
+	tile.renderOrder = 0;
 	tile.position.copy(position);
 	tile.scale.copy(scale);
 	return tile;

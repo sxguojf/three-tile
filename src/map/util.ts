@@ -95,10 +95,6 @@ export function attachEvent(tileMap: TileMap) {
 	tileMap.rootTile.addEventListener("tile-loaded", (evt) => {
 		tileMap.dispatchEvent({ type: "tile-loaded", tile: evt.tile });
 	});
-	// 瓦片加载错误事件
-	tileMap.rootTile.addEventListener("tile-load-error", (evt) => {
-		tileMap.dispatchEvent({ type: "tile-load-error", tile: evt.tile, message: evt.message });
-	});
 
 	return tileMap;
 }
@@ -112,7 +108,7 @@ export function getTileCount(tileMap: TileMap) {
 	tileMap.rootTile.traverse((tile) => {
 		if (tile.isTile) {
 			total++;
-			tile.isLeafInFrustum && visible++;
+			tile.isLeaf && tile.inFrustum && visible++;
 			tile.isLeaf && leaf++;
 			maxLevle = Math.max(maxLevle, tile.coord.z);
 		}

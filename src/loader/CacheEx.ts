@@ -3,7 +3,7 @@
  */
 export class CacheEx {
 	public static enabled = true;
-	public static size = 500;
+	public static size = 200;
 	protected static files = new Map<string, any>();
 
 	public static add(key: string, data: any) {

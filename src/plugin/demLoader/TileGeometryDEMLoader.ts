@@ -5,24 +5,27 @@
  */
 
 import { Box2, BufferGeometry, PlaneGeometry } from "three";
-import { TileGridGeometry } from "../geometry";
-import { ISource } from "../source";
-import { Tile } from "../tile";
-import { ITileGeometryLoader } from "./ITileLoaders";
-import { ImageLoaderEx } from "./ImageLoaerEx";
-import { LoaderFactory } from "./LoaderFactory";
-import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
+import {
+	ITileGeometryLoader,
+	ImageLoaderEx,
+	LoaderFactory,
+	getSafeTileUrlAndBounds,
+	rect2ImageBounds,
+} from "../../loader";
+import { ISource } from "../../source";
+import { Tile } from "../../tile";
+import { TileDEMGeometry } from "./TileDEMGeometry";
 
 // const EmptyGeometry = new PlaneGeometry();
 /**
  * Mapbox-RGB geometry loader
  */
-class TileGeometryRGBLoader implements ITileGeometryLoader {
-	public readonly dataType = "terrain-rgb";
+export class TileGeometryDEMLoader implements ITileGeometryLoader {
+	public readonly dataType = "terrain-dem";
 	private imageLoader = new ImageLoaderEx(LoaderFactory.manager);
 
 	/**
-	 * load tile's data from source
+	 * load tile data from source
 	 * @param source
 	 * @param tile
 	 * @param onLoad
@@ -31,13 +34,13 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	 */
 	public load(source: ISource, tile: Tile, onLoad: () => void): BufferGeometry {
 		// get max level tile and rect
-		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
+		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
 
 		if (!url) {
 			setTimeout(onLoad);
 			return new PlaneGeometry();
 		} else {
-			return this._load(tile, url, rect, onLoad);
+			return this._load(tile, url, bounds, onLoad);
 		}
 	}
 
@@ -64,7 +67,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	}
 
 	protected createGeometry() {
-		return new TileGridGeometry();
+		return new TileDEMGeometry();
 	}
 }
 
@@ -111,5 +114,3 @@ function getImageDataFromRect(image: HTMLImageElement, bounds: Box2, targetSize:
 	ctx.drawImage(image, cropRect.sx, cropRect.sy, cropRect.sw, cropRect.sh, 0, 0, targetSize, targetSize);
 	return ctx.getImageData(0, 0, targetSize, targetSize);
 }
-
-LoaderFactory.registerGeometryLoader(new TileGeometryRGBLoader());

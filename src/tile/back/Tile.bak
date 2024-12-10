@@ -7,17 +7,14 @@
 import {
 	BaseEvent,
 	BufferGeometry,
-	Intersection,
 	Material,
 	Mesh,
 	MeshBasicMaterial,
 	Object3DEventMap,
 	PlaneGeometry,
-	Raycaster,
 	Vector3,
 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
-import { checkVisible } from "./checkVisible";
 import { LODAction, LODEvaluate } from "./LODEvaluate";
 import { creatChildrenTile } from "./tileCreator";
 
@@ -27,15 +24,15 @@ import { creatChildrenTile } from "./tileCreator";
 export interface TTileEventMap extends Object3DEventMap {
 	dispose: BaseEvent;
 	"tile-created": BaseEvent & { tile: Tile };
+	"tile-load-error": BaseEvent & { tile: Tile; message: string };
 	"tile-loaded": BaseEvent & { tile: Tile };
-	ready: BaseEvent;
 }
 
 // Default geometry of tile
-const defaultGeometry = new PlaneGeometry(1, 1);
+const defaultGeometry = new PlaneGeometry();
 
 // Default material of tile
-const defaultMaterial = new MeshBasicMaterial({ color: 0xff0000, visible: false, transparent: true });
+const defaultMaterial = new MeshBasicMaterial();
 
 /**
  * Type of Loading state
@@ -51,10 +48,9 @@ export type TileCoord = { x: number; y: number; z: number };
  * Class Tile, inherit of Mesh
  */
 export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
+	// export class Tile<TTileEvent extends TTileEventMap = TTileEventMap> extends Mesh<BufferGeometry, Material[], TTileEvent> {
 	/** Coordinate of tile */
 	public readonly coord: TileCoord;
-
-	// public isMesh: boolean = true;
 
 	/** Is a tile? */
 	public readonly isTile = true;
@@ -77,12 +73,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Distance of tile to campera */
 	public distFromCamera = 0;
 
-	/** Index of tile, mean positon in parent.  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）	 */
+	/** Index of tile, mean positon in parent.
+	 *  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）
+	 */
 	public get index(): number {
 		return this.parent ? this.parent.children.indexOf(this) : -1;
 	}
 
-	/**  Downloading abort controller **/
+	/* Downloading abort controller */
 	private _abortController = new AbortController();
 
 	/** Singnal of abort when downloading  */
@@ -92,36 +90,55 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	private _loadState: LoadState = "empty";
 
-	/** Get load state*/
+	/** Get the tile load state*/
 	public get loadState() {
 		return this._loadState;
 	}
 
+	private _toLoad = false;
+
+	/** Tile needs to load? */
+	private get _needsLoad() {
+		return this.inFrustum && this._toLoad && this.loadState === "empty";
+	}
+
 	private _inFrustum = false;
 
-	/** Is tile in frustum? */
+	/** Tile is tile in frustum? */
 	public get inFrustum() {
 		return this._inFrustum;
 	}
 
-	/** Set tile is in frustum */
+	/** Set tile is in frustum or not */
 	protected set inFrustum(value) {
-		this._inFrustum = value;
-	}
-
-	private get _isDefault() {
-		return this.material[0] === defaultMaterial;
-	}
-
-	private _showing = false;
-	public get showing() {
-		return this._showing;
-	}
-	public set showing(value) {
-		if (!this._isDefault) {
-			this._showing = value;
-			this.material.forEach((mat) => mat != defaultMaterial && (mat.visible = value));
+		if (this._inFrustum != value) {
+			this._inFrustum = value;
+			if (value) {
+				this._toLoad = this.isLeaf;
+			} else {
+				this.dispose(true);
+			}
 		}
+	}
+
+	/** Tile is a leaf in frustum? */
+	public get isLeafInFrustum() {
+		return this.inFrustum && this.isLeaf;
+	}
+
+	private _isTemp = false;
+
+	/** Set the tile to temp */
+	private set isTemp(temp: boolean) {
+		this._isTemp = temp;
+		this.material
+			.filter((mat) => mat != defaultMaterial)
+			.forEach((mat) => {
+				if ("wireframe" in mat) {
+					mat.wireframe = temp || mat.userData.wireframe;
+				}
+				// mat.visible = !temp;
+			});
 	}
 
 	/** Tile is a leaf?  */
@@ -129,8 +146,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this.children.length === 0;
 	}
 
-	private _sizeInWorld = -1;
-	/** Get tile diagonal length of tile in world */
+	private _sizeInWorld = -100;
+
+	/** Get diagonal length of tile in world */
 	public get sizeInWorld() {
 		if (this._sizeInWorld > 0) {
 			return this._sizeInWorld;
@@ -179,13 +197,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		}
 	}
 
-	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		if (this.showing) {
-			super.raycast(raycaster, intersects);
-		}
-	}
-
-	private _getDistToCamera(cameraPosition: Vector3) {
+	private _getDist(cameraPosition: Vector3) {
 		const tilePos = this.position.clone().setZ(this.avgZ).applyMatrix4(this.matrixWorld);
 		return cameraPosition.distanceTo(tilePos);
 	}
@@ -207,16 +219,17 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		isWGS: boolean,
 	) {
 		let newTiles: Tile[] = [];
-		this.distFromCamera = this._getDistToCamera(cameraWorldPosition);
+		this.distFromCamera = this._getDist(cameraWorldPosition);
 		// LOD evaluate
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create) {
 			newTiles = creatChildrenTile(this, isWGS);
+			this._toLoad = false;
+			this.abortLoad();
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile) {
-				parent._disposeChilren();
-				parent._onLoad();
+				parent._toLoad = true;
 			}
 		}
 		return newTiles;
@@ -227,35 +240,92 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param loader data loader
 	 * @returns Promise<void>
 	 */
-	public load(loader: ITileLoader, _minLevel: number, _maxLevel: number): Promise<void> {
-		// if (this.loadState === "loaded" || this.coord.z < minLevel) {
+	public load(loader: ITileLoader): Promise<void> {
+		if (!this._needsLoad) {
+			return Promise.resolve();
+		}
 		// Reset the abortC controller
 		this._abortController = new AbortController();
 		this._loadState = "loading";
-
 		// Load tile data
-		return new Promise((resolve) => loader.load(this, () => resolve(this._onLoad())));
+		return new Promise((resolve, reject) => {
+			loader.load(
+				this,
+				() => resolve(this._onLoad()),
+				(err) => {
+					this._toLoad = false;
+					if (err.name === "AbortError") {
+						// console.warn("Abort!!!");
+					} else {
+						// download fail, set loadState to loaded to prevent reload
+						this._loadState = "loaded";
+						reject(err);
+					}
+					this._checkVisible();
+				},
+			);
+		});
 	}
 
 	/**
-	 * Tile loaded callback
+	 * Recursion to find loaded parent (hide on parent showing)
+	 * @returns loaded parent or null
+	 */
+	private _getLoadedParent(): this | null {
+		const parent = this.parent;
+		if (!parent || !parent.isTile) {
+			return null;
+		}
+		if (parent.loadState === "loaded" && !parent._isTemp) {
+			return parent;
+		}
+		return parent._getLoadedParent();
+	}
+
+	public _checkVisible(): boolean {
+		const leafs: Tile[] = [];
+		this.traverse((child) => leafs.push(child));
+		const loaded = leafs.filter((child) => child.isLeafInFrustum).every((child) => child.loadState === "loaded");
+		if (loaded) {
+			leafs.forEach((child) => {
+				if (child.isLeaf) {
+					child.isTemp = false;
+				} else {
+					child.dispose(false);
+				}
+			});
+		}
+		return loaded;
+	}
+
+	/**
+	 * tile loaded callback
 	 */
 	private _onLoad() {
-		const parent = this.parent;
-		if (!parent) {
-			this.dispose(true);
-			return;
-		}
-		// this.showing = false;
 		this._loadState = "loaded";
-		if (this.isLeaf) {
-			this._updateHeight();
+
+		// save the material.wireframe, rest when showing
+		this.material.forEach((mat) => {
+			if ("wireframe" in mat) {
+				mat.userData.wireframe = mat.wireframe;
+			}
+		});
+
+		this._updateHeight();
+
+		if (!this.isLeaf && this._toLoad) {
+			this._disposeChilren();
 		}
-		checkVisible(this);
+
+		const loadedParent = this._getLoadedParent();
+		this.isTemp = !!loadedParent;
+		this._toLoad = false;
+		loadedParent?._checkVisible();
 	}
 
 	// update height
 	private _updateHeight() {
+		// this.geometry.computeBoundingBox();
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
 		this.avgZ = (this.maxZ + this.minZ) / 2;
@@ -266,6 +336,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public abortLoad() {
 		this._abortController.abort();
+		this._toLoad = false;
 	}
 
 	/**
@@ -274,8 +345,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public dispose(removeChildren: boolean) {
 		if (this.loadState != "empty") {
-			this._loadState = "empty";
-			this.abortLoad();
 			this._dispose();
 		}
 
@@ -291,12 +360,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this;
 	}
 
-	private _disposeChilren() {
-		this.children.forEach((child) => child.dispose(true));
-		this.clear();
-	}
-
 	private _dispose() {
+		this.abortLoad();
+		this._loadState = "empty";
+		this.isTemp = true;
+		this._toLoad = false;
 		// dispose material
 		if (this.material[0] != defaultMaterial) {
 			this.material.forEach((mat) => mat.dispose());
@@ -312,5 +380,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 		// fire dispose
 		this.dispatchEvent({ type: "dispose" });
+	}
+
+	private _disposeChilren() {
+		this.children.forEach((child) => child.dispose(true));
+		this.clear();
 	}
 }

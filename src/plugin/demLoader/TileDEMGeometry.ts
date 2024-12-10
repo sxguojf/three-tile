@@ -4,16 +4,16 @@
  *@date: 2023-04-06
  */
 
-import { BufferAttribute, Float32BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three";
+import { Float32BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three";
 
 /**
  * create geomety from rules grid dem and it has a skrit
  */
-export class TileGridGeometry extends PlaneGeometry {
+export class TileDEMGeometry extends PlaneGeometry {
 	private _min = 0;
 
 	/**
-	 * Build grid geometry from dem
+	 * buile
 	 * @param dem 2d array of dem
 	 * @param tileSize tile size
 	 */
@@ -24,29 +24,21 @@ export class TileGridGeometry extends PlaneGeometry {
 			widthSegments = tileSize - 1,
 			heightSegments = tileSize - 1;
 
-		const width_half = width / 2,
-			height_half = height / 2;
-
-		let gridX = Math.floor(widthSegments),
-			gridY = Math.floor(heightSegments);
-
-		const segment_width = width / gridX,
-			segment_height = height / gridY;
-
+		const width_half = width / 2;
+		const height_half = height / 2;
+		let gridX = Math.floor(widthSegments);
+		let gridY = Math.floor(heightSegments);
+		const segment_width = width / gridX;
+		const segment_height = height / gridY;
 		gridX += 2;
 		gridY += 2;
-
-		const gridX1 = gridX + 1,
-			gridY1 = gridY + 1;
-
-		// 顶点数量
-		const numVertices = gridX1 * gridY1;
-		// 索引数组
-		const indices = new Uint32Array(numVertices * 6);
-		// 顶点数组
-		const vertices = new Float32Array(numVertices * 3);
-		// uv数组
-		const uvs = new Float32Array(numVertices * 2);
+		const gridX1 = gridX + 1;
+		const gridY1 = gridY + 1;
+		//
+		const indices = [];
+		const vertices = [];
+		const normals = [];
+		const uvs = [];
 
 		let demIndex = 0;
 		this._min = Math.min(...Array.from(dem));
@@ -71,15 +63,13 @@ export class TileGridGeometry extends PlaneGeometry {
 					z = dem[demIndex];
 					demIndex++;
 				}
-				const vecIndex = ix + gridX1 * iy;
 
 				// vertices
-				vertices[vecIndex * 3] = x;
-				vertices[vecIndex * 3 + 1] = -y;
-				vertices[vecIndex * 3 + 2] = z;
+				vertices.push(x, -y, z);
 				// normals
-				uvs[vecIndex * 2] = u;
-				uvs[vecIndex * 2 + 1] = v;
+				normals.push(0, 0, 1);
+				// uv
+				uvs.push(u, v);
 			}
 		}
 
@@ -90,19 +80,14 @@ export class TileGridGeometry extends PlaneGeometry {
 				const b = ix + gridX1 * (iy + 1);
 				const c = ix + 1 + gridX1 * (iy + 1);
 				const d = ix + 1 + gridX1 * iy;
-				const vecIndex = ix + gridX1 * iy;
-				indices[vecIndex * 6] = a;
-				indices[vecIndex * 6 + 1] = b;
-				indices[vecIndex * 6 + 2] = d;
-				indices[vecIndex * 6 + 3] = b;
-				indices[vecIndex * 6 + 4] = c;
-				indices[vecIndex * 6 + 5] = d;
+				indices.push(a, b, d);
+				indices.push(b, c, d);
 			}
 		}
 
-		this.setIndex(new BufferAttribute(indices, 1));
+		this.setIndex(indices);
 		this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
-		this.setAttribute("normal", new Float32BufferAttribute(new Float32Array(numVertices * 3), 3));
+		this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
 		this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
 
 		return this;
@@ -119,11 +104,11 @@ export class TileGridGeometry extends PlaneGeometry {
 			throw "DEM array size error!";
 		}
 		this.build(dem, tileSize);
-		//计算顶点法向量
-		this.computeVertexNormals();
 		//修改顶点后必须重新计算包围矩形和包围球
 		this.computeBoundingBox();
 		this.computeBoundingSphere();
+		this.computeVertexNormals();
+
 		return this;
 	}
 
@@ -141,8 +126,13 @@ export class TileGridGeometry extends PlaneGeometry {
 			pB = new Vector3(),
 			pC = new Vector3();
 
+		const shkirtNormal = new Vector3(0, 0, 1);
+		function setSkirtNormal(vA: number) {
+			return normalAttribute.setXYZ(vA, shkirtNormal.x, shkirtNormal.y, shkirtNormal.z);
+		}
+
 		if (index) {
-			for (let i = 0; i < index.count; i += 3) {
+			for (let i = 0, il = index.count; i < il; i += 3) {
 				// 取得一个三角形的三个顶点索引
 				const vA = index.getX(i + 0);
 				const vB = index.getX(i + 1);
@@ -153,13 +143,13 @@ export class TileGridGeometry extends PlaneGeometry {
 				pB.fromBufferAttribute(positionAttribute, vB);
 				pC.fromBufferAttribute(positionAttribute, vC);
 
-				// 三个点中有一个点在边缘，重置法向量
 				if (pA.z < this._min || pB.z < this._min || pC.z < this._min) {
-					normalAttribute.setXYZ(vA, 0, 0, 1);
-					normalAttribute.setXYZ(vB, 0, 0, 1);
-					normalAttribute.setXYZ(vC, 0, 0, 1);
+					setSkirtNormal(vA);
+					setSkirtNormal(vB);
+					setSkirtNormal(vC);
 				}
 			}
 		}
+		normalAttribute.needsUpdate = true;
 	}
 }

@@ -4,10 +4,11 @@
  *@date: 2023-04-06
  */
 
-import { CanvasTexture, MeshBasicMaterial } from "three";
+import { CanvasTexture } from "three";
 import { ITileMaterialLoader } from "../../loader/ITileLoaders";
 import { ISource } from "../../source";
 import { Tile } from "../../tile";
+import { TileMaterial } from "../../material";
 
 /**
  * Debug material laoder, it draw a box and coordinate on tile
@@ -15,27 +16,15 @@ import { Tile } from "../../tile";
 export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "debug";
 
-	public load(source: ISource, tile: Tile, onLoad: () => void, _onError: (err: any) => void): MeshBasicMaterial {
-		const onMaterialDispose = (evt: any) => {
-			const mat: MeshBasicMaterial = evt.target;
-			if (mat.map?.image instanceof ImageBitmap) {
-				mat.map.image.close();
-			}
-			mat.map?.dispose();
-			mat.removeEventListener("dispose", onMaterialDispose);
-		};
-
+	public load(source: ISource, tile: Tile, onLoad: () => void): TileMaterial {
 		const texture = new CanvasTexture(this.drawTile(tile));
 		texture.needsUpdate = true;
-		const material = new MeshBasicMaterial({
+		const material = new TileMaterial({
 			transparent: true,
 			map: texture,
 			opacity: source.opacity,
 		});
-		material.addEventListener("dispose", onMaterialDispose);
-
 		setTimeout(onLoad);
-
 		return material;
 	}
 

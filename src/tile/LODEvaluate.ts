@@ -4,32 +4,11 @@
  *@date: 2023-04-05
  */
 
-import { Vector3 } from "three";
 import { Tile } from ".";
-
-const p1 = new Vector3(-0.5, -0.5, 0);
-const p2 = new Vector3(0.5, 0.5, 0);
-
-// Get the dist of tile to camera
-// function _getDist(tile: Tile, cameraPos: Vector3, z: number) {
-// 	const tilePos = tile.position.clone().setZ(z).applyMatrix4(tile.matrixWorld);
-// 	return cameraPos.distanceTo(tilePos);
-// }
-
-// Get size of tile
-function _getSize(tile: Tile) {
-	const lt = p1.clone().applyMatrix4(tile.matrixWorld);
-	const rb = p2.clone().applyMatrix4(tile.matrixWorld);
-	return lt.sub(rb).length();
-}
 
 // Get dist ratio
 function _getDistRatio(tile: Tile) {
-	const dist = tile.distFromCamera; // _getDist(tile, cameraWorldPosition, tile.avgZ);
-	const size = _getSize(tile);
-	const ratio = (dist / size) * 0.8;
-	tile.distFromCamera = dist;
-	return ratio;
+	return (tile.distFromCamera / tile.sizeInWorld) * 0.8;
 }
 
 export enum LODAction {
@@ -50,12 +29,13 @@ export enum LODAction {
 export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {
 	const factor = 1.02;
 	if (tile.coord.z > minLevel && tile.index === 0 && tile.parent?.isTile) {
+		// if (tile.coord.z > minLevel && tile.parent?.isTile) {
 		const dist = _getDistRatio(tile.parent);
 		if (tile.coord.z > maxLevel || dist > threshold * factor) {
 			return LODAction.remove;
 		}
 	}
-	if (tile.coord.z < maxLevel && tile.isLeafInFrustum) {
+	if (tile.coord.z < maxLevel && tile.isLeaf && tile.inFrustum) {
 		const dist = _getDistRatio(tile);
 		if (tile.coord.z < minLevel || dist < threshold / factor) {
 			return LODAction.create;
