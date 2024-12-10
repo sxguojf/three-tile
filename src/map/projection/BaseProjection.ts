@@ -1,5 +1,5 @@
 /**
- *@description: projection
+ *@description: Projection
  *@author: Guojf
  *@date: 2023-04-06
  */
@@ -7,7 +7,7 @@
 import { IProjection, ProjectionType } from "./IProjection";
 
 /**
- * abstruct projection base class
+ * Abstruct projection base class
  */
 export abstract class Projection implements IProjection {
 	abstract ID: ProjectionType;

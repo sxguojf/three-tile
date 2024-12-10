@@ -37,11 +37,11 @@ export function showLoading(map: tt.TileMap) {
 		});
 		map.addEventListener("loading-complete", () => {
 			loading.innerHTML = "Loading complete!";
-			loading.style.backgroundColor = "";
+			loading.style.color = "";
 		});
 		map.addEventListener("loading-error", (evt) => {
 			loading.innerHTML = "There was an error loading " + evt.url;
-			loading.style.backgroundColor = "red";
+			loading.style.color = "red";
 			console.error("Downloading error:", evt.url);
 		});
 	}

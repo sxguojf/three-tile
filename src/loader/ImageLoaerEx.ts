@@ -1,5 +1,5 @@
 /**
- *@description: Image loader white abort
+ *@description: Image loader whit abort
  *@author: Guojf
  *@date: 2023-04-06
  */

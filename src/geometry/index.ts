@@ -5,4 +5,4 @@
  */
 
 export * from "./TileSimpleGeometry";
-export * from "./TileGridGeometry";
+export * from "./TileDEMGeometry";

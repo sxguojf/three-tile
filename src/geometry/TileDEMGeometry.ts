@@ -1,5 +1,5 @@
 /**
- *@description: grid geomety has skrit
+ *@description: DEM geomety with skrit
  *@author: Guojf
  *@date: 2023-04-06
  */
@@ -9,7 +9,7 @@ import { BufferAttribute, Float32BufferAttribute, MathUtils, PlaneGeometry, Vect
 /**
  * create geomety from rules grid dem and it has a skrit
  */
-export class TileGridGeometry extends PlaneGeometry {
+export class TileDEMGeometry extends PlaneGeometry {
 	private _min = 0;
 
 	/**
@@ -127,7 +127,7 @@ export class TileGridGeometry extends PlaneGeometry {
 		return this;
 	}
 
-	// set normal on edge(skirt)
+	// set normal on edge(skrit)
 	// 瓦片边缘法向量计算比较复杂，需要根据相邻瓦片高程计算，暂未完美实现
 	// 考虑使用Mapbox Terrain-DEM v1格式地形 https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-dem-v1/
 	public computeVertexNormals() {

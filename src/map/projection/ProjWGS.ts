@@ -1,5 +1,5 @@
 /**
- *@description: linear projection of latitude and longitude
+ *@description: Linear projection of latitude and longitude
  *@author: Guojf
  *@date: 2023-04-06
  */

@@ -155,9 +155,7 @@ export class RootTile extends Tile {
 		if (this.autoLoad) {
 			this._updateTileData();
 		}
-		if (!this._ready) {
-			this._checkReady();
-		}
+		this._checkReady();
 		return this;
 	}
 
@@ -220,11 +218,10 @@ export class RootTile extends Tile {
 			}
 		});
 		if (tiles.length > 0) {
-			// tiles = tiles.sort((a, b) => b.coord.z - a.coord.z);
 			tiles = tiles.sort((a, b) => {
 				const inFrustumA = a.inFrustum ? 1 : 100;
 				const inFrustumB = b.inFrustum ? 1 : 100;
-				return a.distFromCamera * inFrustumA - b.distFromCamera * inFrustumB;
+				return a.distToCamera * inFrustumA - b.distToCamera * inFrustumB;
 			});
 
 			// Iterate through the tiles to load data

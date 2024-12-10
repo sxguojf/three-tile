@@ -1,11 +1,11 @@
 /**
- *@description: rigester Mapbox-RGB geometry loader
+ *@description: Mapbox-RGB geometry loader
  *@author: Guojf
  *@date: 2023-04-06
  */
 
 import { Box2, BufferGeometry, PlaneGeometry } from "three";
-import { TileGridGeometry } from "../geometry";
+import { TileDEMGeometry } from "../geometry";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ITileGeometryLoader } from "./ITileLoaders";
@@ -64,7 +64,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	}
 
 	protected createGeometry() {
-		return new TileGridGeometry();
+		return new TileDEMGeometry();
 	}
 }
 

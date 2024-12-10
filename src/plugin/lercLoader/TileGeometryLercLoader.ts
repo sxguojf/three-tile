@@ -8,7 +8,7 @@ import {
 	rect2ImageBounds,
 } from "../../loader";
 
-import { TileGridGeometry } from "../../geometry";
+import { TileDEMGeometry } from "../../geometry";
 import { ISource } from "../../source";
 import { Tile } from "../../tile";
 import * as Lerc from "./lercDecode/LercDecode.es";
@@ -60,7 +60,7 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 		let tileSize = tile.coord.z * 3;
 		tileSize = MathUtils.clamp(tileSize, 2, 48);
 
-		const geometry = new TileGridGeometry();
+		const geometry = new TileDEMGeometry();
 
 		this.fileLoader.load(
 			url,

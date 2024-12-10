@@ -44,10 +44,6 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.imgSource = [ms.stadiamaps];
 			map.reload();
 		},
-		setGeoq: () => {
-			map.imgSource = [new tt.plugin.GeoqSource()];
-			map.reload();
-		},
 		setTdt_w: () => {
 			map.imgSource = [ms.tdtImgSource_w, ms.tdtCiaSource_w];
 			map.reload();
@@ -55,20 +51,6 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		setTdt_c: () => {
 			map.imgSource = [ms.tdtImgSource_c, ms.testSource];
 			// map.demSource = undefined;
-			map.reload();
-		},
-		setTdt_qm: () => {
-			const dem = tt.TileSource.create({
-				dataType: "quantized-mesh",
-				// url: "https://t0.tianditu.gov.cn/mapservice/swdx?T=elv_c&x={x}&y={y}&l={z}&tk=eba82bdad37844f02de970c9cefed234",
-				// url: "https://t0.tianditu.gov.cn/DataServer?T=ter_w&x={x}&y={y}&l={z}&tk=tk=eba82bdad37844f02de970c9cefed234",
-				// url: "https://t0.tianditu.gov.cn/DataServer?T=ter_w&x={x}&y={y}&l={z}&tk=eba82bdad37844f02de970c9cefed234",
-				// url: "https://api.maptiler.com/tiles/terrain-quantized-mesh/{z}/{x}/{y}.terrain?key=get_your_own_key_QmavnBrQwNGsQ8YvPzZg",
-				// url: "http://tianditu.gov.cn/mapservice/GetTiles?&x={x}&y={y}&l={z}&tk=eba82bdad37844f02de970c9cefed234",
-				// url: "https://tiles1.geovisearth.com/base/v1/terrain/{z}/{x}/{y}.terrain?v=1.1.0&token=4ea7bc4e9a2efc4e76be33d9511600dfa3b4f24bb81cb69561ab0b833d9b482c",
-				url: "https://t1.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk=eba82bdad37844f02de970c9cefed234&x={x}&y={y}&l={z}",
-			});
-			map.demSource = dem;
 			map.reload();
 		},
 		setGD: () => {
@@ -195,13 +177,12 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	imgFolder.add(vm, "setMapBox").name("MapBox+天地图标注");
 	imgFolder.add(vm, "setZkxt").name("中科星图");
 	imgFolder.add(vm, "setBing").name("Bing(有偏移)");
-	imgFolder.add(vm, "setGoogle").name("Google image");
+	imgFolder.add(vm, "setGoogle").name("Google image(大偏移)");
 	imgFolder.add(vm, "setGoogleP").name("Google terrain image");
 	imgFolder.add(vm, "setArcGis").name("ArcGis");
 	imgFolder.add(vm, "setArcGisHillShader").name("ArcGisHillShader+中科星图标注");
 	imgFolder.add(vm, "setMapTiler").name("MapTiler+中科星图标注");
 	imgFolder.add(vm, "setStadia").name("Stadis");
-	imgFolder.add(vm, "setGeoq").name("GeoQ");
 	imgFolder.add(vm, "setGD").name("高德(大偏移)");
 	imgFolder.add(vm, "setTencent").name("腾讯(大偏移)");
 	imgFolder.add(vm, "setTdt_w").name("天地图");
@@ -214,7 +195,6 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	demFolder.add(vm, "setMapBoxDem").name("Mapbox terrain(maxLevel=15)");
 	demFolder.add(vm, "setMapTilerDem").name("MapTiler terrain(maxLevel=12)");
 	demFolder.add(vm, "setZkXtDem").name("中科星图(maxLevel=10)");
-	// demFolder.add(vm, "setTdt_qm").name("天地图QuantizedMesh");
 	// demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
 
 	// 测试数据
