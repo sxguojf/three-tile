@@ -45,7 +45,6 @@ export const createLoaderGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	};
 
 	const folder = gui.addFolder("Data loader").close();
-	folder.add(map, "autoLoad");
 	folder.add(map, "loadCacheSize", 0, 3000);
 	folder.add(map, "LODThreshold", 0.5, 4, 0.01);
 	folder.add(map, "reload");
@@ -64,6 +63,4 @@ function save(blob: Blob, filename: string) {
 	link.href = URL.createObjectURL(blob);
 	link.download = filename;
 	link.click();
-
-	// URL.revokeObjectURL( url ); breaks Firefox...
 }
