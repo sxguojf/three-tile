@@ -58,6 +58,11 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 
 	folder.add(viewer, "fogFactor", 0, 10, 0.001).listen();
 
+	const background = viewer.scene.getObjectByName("background");
+	if (background) {
+		folder.add(background, "visible").name("Background");
+	}
+
 	const fakeEarth = viewer.scene.getObjectByName("fakeearth") as tt.plugin.FakeEarth;
 	if (fakeEarth) {
 		folder.add<tt.plugin.FakeEarth, "isMesh">(fakeEarth, "isMesh").name("Global mask");

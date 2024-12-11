@@ -59,9 +59,9 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			flyToGeo(g1, g2);
 		},
 		toTaiBaiShan: () => {
-			const g1 = new Vector3(107.81217986540818, 34.02513971165077, 6.048197106231797);
-			const g2 = new Vector3(107.7612653393517, 33.98143120559124, 0);
-			flyToGeo(g1, g2);
+			const camera = new Vector3(107.83112070637517, 34.025426010356576, 5.975849209767802);
+			const center = new Vector3(107.76416702572577, 33.97857186381407, 8.186888965509196e-17);
+			flyToGeo(camera, center);
 		},
 		toHuaShan: () => {
 			const g1 = new Vector3(110.0971156415985, 34.57775144132326, 5.7782429087774245);
@@ -99,8 +99,8 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			flyToGeo(g1, g2);
 		},
 		toSchool: () => {
-			const camera = new Vector3(126.62167808106878, 45.736928355251315, 1.2842047462544324);
-			const center = new Vector3(126.62613052944019, 45.740203546956955, 9.757703042909935e-16);
+			const camera = new Vector3(126.62063809151746, 45.7424339643477, 0.8079759367520237);
+			const center = new Vector3(126.62495629765102, 45.7399914201275, 9.6509323421991e-16);
 			flyToGeo(camera, center);
 		},
 		cameraInfoToConsole: () => {
