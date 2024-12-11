@@ -31,6 +31,10 @@ function createMap() {
 
 	// 地图旋转到xz平面
 	map.rotateX(-Math.PI / 2);
+
+	// 地图准备就绪
+	map.addEventListener("ready", () => console.log("Map ready!!!!!!"));
+
 	return map;
 }
 

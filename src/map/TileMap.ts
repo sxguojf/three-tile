@@ -17,6 +17,7 @@ import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromW
  * TileMap Event Map
  */
 export interface TileMapEventMap extends Object3DEventMap {
+	ready: BaseEvent;
 	"tile-created": BaseEvent & { tile: Tile };
 	"tile-loaded": BaseEvent & { tile: Tile };
 
@@ -108,21 +109,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public set maxLevel(value: number) {
 		this.rootTile.maxLevel = value;
-	}
-
-	/**
-	 * Whether the LOD object is load data automatically by the renderer per frame or not.
-	 * 取得是否在每帧渲染时按需更新瓦片数据
-	 */
-	public get autoLoad() {
-		return this.rootTile.autoLoad;
-	}
-	/**
-	 * Get whether the LOD object is load data automatically by the renderer per frame or not.
-	 * 设置是否在每帧渲染时按需更新瓦片数据
-	 */
-	public set autoLoad(value: boolean) {
-		this.rootTile.autoLoad = value;
 	}
 
 	private _autoPosition = false;

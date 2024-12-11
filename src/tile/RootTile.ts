@@ -27,7 +27,6 @@ const frustum = new Frustum();
  * Root tile, inherit of Tile
  */
 export class RootTile extends Tile {
-	private _autoLoad = true;
 	private _loader: ITileLoader;
 	private _minLevel = 0;
 	private _maxLevel = 19;
@@ -92,22 +91,6 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * Get whether allow tile data to update, default true.
-	 */
-	public get autoLoad(): boolean {
-		return this._autoLoad;
-	}
-
-	/**
-	 * Set whether allow tile data to update, default true.
-	 * true: Load data on the scene update every frame it is rendered.
-	 * false: Do not load data, only update tile tree.
-	 */
-	public set autoLoad(value: boolean) {
-		this._autoLoad = value;
-	}
-
-	/**
 	 * Constructor
 	 * @param loader tile data loader
 	 * @param level tile level, default:0
@@ -117,6 +100,7 @@ export class RootTile extends Tile {
 	public constructor(loader: ITileLoader, level = 0, x = 0, y = 0) {
 		super(level, x, y);
 		this.visible = false;
+		this.showing = true;
 		this._loader = loader;
 		this.matrixAutoUpdate = true;
 		this.matrixWorldAutoUpdate = true;
@@ -131,12 +115,11 @@ export class RootTile extends Tile {
 		if (!this._ready) {
 			this._ready = true;
 			this.traverse((child) => {
-				if (child.isLeaf && child.loadState != "loaded") {
+				if (child.isLeaf && child.loadState != "loaded" && child.coord.z >= this.minLevel) {
 					this._ready = false;
 				}
 			});
 			if (this._ready) {
-				console.log("Map ready!!!");
 				this.visible = true;
 				this.dispatchEvent({ type: "ready" });
 			}
@@ -152,9 +135,7 @@ export class RootTile extends Tile {
 	 */
 	public update(camera: Camera) {
 		this._updateTileTree(camera);
-		if (this.autoLoad) {
-			this._updateTileData();
-		}
+		this._updateTileData();
 		this._checkReady();
 		return this;
 	}
@@ -179,27 +160,21 @@ export class RootTile extends Tile {
 
 		// LOD for tiles
 		this.traverse((tile) => {
-			if (tile.isTile) {
-				// Issues: https://github.com/mrdoob/three.js/issues/27756
-				const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
-				tile.inFrustum = frustum.intersectsBox(bounds);
+			// Issues: https://github.com/mrdoob/three.js/issues/27756
+			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
+			tile.inFrustum = frustum.intersectsBox(bounds);
 
-				// LOD to get new tiles
-				const newTiles = tile._LOD(
-					cameraWorldPosition,
-					this.minLevel,
-					this.maxLevel,
-					this.LODThreshold,
-					this.isWGS,
-				);
+			// LOD to get new tiles
+			const newTiles = tile._LOD(
+				cameraWorldPosition,
+				this.minLevel,
+				this.maxLevel,
+				this.LODThreshold,
+				this.isWGS,
+			);
 
-				// Fire event on the tile created
-				if (newTiles.length > 0) {
-					newTiles.forEach((tile) => {
-						this.dispatchEvent({ type: "tile-created", tile });
-					});
-				}
-			}
+			// Fire event on the tile created
+			newTiles.forEach((tile) => this.dispatchEvent({ type: "tile-created", tile }));
 		});
 		return this;
 	}
@@ -211,7 +186,8 @@ export class RootTile extends Tile {
 	 */
 	private _updateTileData() {
 		// Tiles are sorted by distance to camera
-		let tiles: Tile[] = [];
+		// 按距摄像机距离从小到大顺序请求数据。因瓦片创建已按层级顺序创建，排序没有意义
+		/*let tiles: Tile[] = [];
 		this.traverse((tile) => {
 			if (tile.isTile && tile.loadState === "empty") {
 				tiles.push(tile);
@@ -233,15 +209,18 @@ export class RootTile extends Tile {
 					}
 				});
 			});
-		}
+		}*/
 
-		// this.traverse(async (tile) => {
-		// 	if (tile.isTile && tile.loadState === "empty") {
-		// 		await tile.load(this.loader, this.minLevel, this.maxLevel);
-		// 		this._updateHight();
-		// 		this.dispatchEvent({ type: "tile-loaded", tile });
-		// 	}
-		// });
+		this.traverse((tile) => {
+			if (tile.loadState === "empty") {
+				tile.load(this.loader, this.minLevel, this.maxLevel).then((loaded) => {
+					if (loaded) {
+						this._updateHight();
+						this.dispatchEvent({ type: "tile-loaded", tile });
+					}
+				});
+			}
+		});
 
 		return this;
 	}
@@ -257,7 +236,7 @@ export class RootTile extends Tile {
 		this.maxZ = 0;
 		this.minZ = 9000;
 		this.traverse((child) => {
-			if (child.isTile && child.isLeaf && child.inFrustum && child.loadState === "loaded") {
+			if (child.isLeaf && child.inFrustum && child.loadState === "loaded") {
 				this.maxZ = Math.max(this.maxZ, child.maxZ);
 				this.minZ = Math.min(this.minZ, child.minZ);
 				sumZ += child.avgZ;

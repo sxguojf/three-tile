@@ -87,6 +87,9 @@ export function attachEvent(tileMap: TileMap) {
 		});
 	};
 
+	// 地图准备就绪事件
+	tileMap.rootTile.addEventListener("ready", () => tileMap.dispatchEvent({ type: "ready" }));
+
 	// 瓦片创建完成事件
 	tileMap.rootTile.addEventListener("tile-created", (evt) => {
 		tileMap.dispatchEvent({ type: "tile-created", tile: evt.tile });
