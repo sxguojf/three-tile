@@ -218,7 +218,23 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				parent.showing = true;
 			}
 		}
+
+		this._fadeIn();
+
 		return newTiles;
+	}
+
+	/**
+	 * Tile Fade in
+	 */
+	private _fadeIn() {
+		if (this.showing) {
+			this.material.forEach((mat) => {
+				if (mat.opacity < mat.userData.opacity) {
+					mat.opacity += 0.01;
+				}
+			});
+		}
 	}
 
 	/**
@@ -248,6 +264,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 				this._loadState = "loaded";
 				this._updateHeight();
+
+				this.material.forEach((material) => {
+					material.userData.opacity = material.opacity;
+					material.opacity -= 0.1;
+				});
+
 				//Show children and hide parent when all children has loaded
 				const children = parent.children.filter((child) => child.isTile);
 				const loaded = children.every((child) => child.loadState === "loaded");
