@@ -99,11 +99,30 @@ export class RootTile extends Tile {
 	 */
 	public constructor(loader: ITileLoader, level = 0, x = 0, y = 0) {
 		super(level, x, y);
-		this.visible = false;
 		this.showing = true;
 		this._loader = loader;
 		this.matrixAutoUpdate = true;
 		this.matrixWorldAutoUpdate = true;
+	}
+
+	/**
+	 * Update tile tree and tile data. It called on the scene update every frame.
+	 * @param camera
+	 *
+	 * @returns this
+	 */
+	public update(camera: Camera) {
+		this._updateTileTree(camera);
+		this._checkReady();
+		return this;
+	}
+
+	/**
+	 * Reload data, Called to take effect after source has changed
+	 */
+	public reload() {
+		this.dispose(true);
+		return this;
 	}
 
 	/**
@@ -120,31 +139,9 @@ export class RootTile extends Tile {
 				}
 			});
 			if (this._ready) {
-				this.visible = true;
 				this.dispatchEvent({ type: "ready" });
 			}
 		}
-		return this;
-	}
-
-	/**
-	 * Update tile tree and tile data. It called on the scene update every frame.
-	 * @param camera
-	 *
-	 * @returns this
-	 */
-	public update(camera: Camera) {
-		this._updateTileTree(camera);
-		this._updateTileData();
-		this._checkReady();
-		return this;
-	}
-
-	/**
-	 * Reload data, Called to take effect after source has changed
-	 */
-	public reload() {
-		this.dispose(true);
 		return this;
 	}
 
@@ -160,7 +157,6 @@ export class RootTile extends Tile {
 
 		// LOD for tiles
 		this.traverse((tile) => {
-			// Issues: https://github.com/mrdoob/three.js/issues/27756
 			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
 			tile.inFrustum = frustum.intersectsBox(bounds);
 
@@ -173,60 +169,35 @@ export class RootTile extends Tile {
 				this.isWGS,
 			);
 
-			// Fire event on the tile created
-			newTiles.forEach((tile) => this.dispatchEvent({ type: "tile-created", tile }));
+			// Load data for new tiles
+			this._updateTileData(newTiles);
 		});
 		return this;
 	}
 
 	/**
-	 *  Update tileTree data
+	 * Load data
 	 *
+	 * @param tiles Tiles needs load
 	 * @returns this
 	 */
-	private _updateTileData() {
-		// Tiles are sorted by distance to camera
-		// 按距摄像机距离从小到大顺序请求数据。因瓦片创建已按层级顺序创建，排序没有意义
-		/*let tiles: Tile[] = [];
-		this.traverse((tile) => {
-			if (tile.isTile && tile.loadState === "empty") {
-				tiles.push(tile);
-			}
-		});
-		if (tiles.length > 0) {
-			tiles = tiles.sort((a, b) => {
-				const inFrustumA = a.inFrustum ? 1 : 100;
-				const inFrustumB = b.inFrustum ? 1 : 100;
-				return a.distToCamera * inFrustumA - b.distToCamera * inFrustumB;
-			});
-
-			// Iterate through the tiles to load data
-			tiles.forEach((tile) => {
-				tile.load(this.loader, this.minLevel, this.maxLevel).then(() => {
-					if (tile.loadState === "loaded") {
+	private _updateTileData(tiles: Tile[]) {
+		tiles.forEach((tile) => {
+			this.dispatchEvent({ type: "tile-created", tile });
+			tile.load(this.loader, this.minLevel, this.maxLevel).then((loaded) => {
+				if (loaded) {
+					if (tiles.every((child) => child.loadState === "loaded")) {
 						this._updateHight();
-						this.dispatchEvent({ type: "tile-loaded", tile });
 					}
-				});
+					tile.dispatchEvent({ type: "tile-loaded", tile });
+				}
 			});
-		}*/
-
-		this.traverse((tile) => {
-			if (tile.loadState === "empty") {
-				tile.load(this.loader, this.minLevel, this.maxLevel).then((loaded) => {
-					if (loaded) {
-						this._updateHight();
-						this.dispatchEvent({ type: "tile-loaded", tile });
-					}
-				});
-			}
 		});
-
 		return this;
 	}
 
 	/**
-	 * Update height of tiles in view
+	 * Update elevation of tiles in view
 	 *
 	 * @returns this
 	 */

@@ -243,6 +243,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @returns Has loaded? Promise<boolean>
 	 */
 	public load(loader: ITileLoader, minLevel: number, _maxLevel: number): Promise<boolean> {
+		if (this.loadState != "empty") {
+			return Promise.resolve(false);
+		}
 		// Don't load data when tile.coord.z < minLeve
 		if (this.coord.z < minLevel) {
 			this._loadState = "loaded";
@@ -253,7 +256,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._abortController = new AbortController();
 		this._loadState = "loading";
 
-		// Load tile data
+		// Load data
 		return new Promise((resolve) =>
 			loader.load(this, () => {
 				const parent = this.parent;
@@ -265,6 +268,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				this._loadState = "loaded";
 				this._updateHeight();
 
+				// Save opacity for fade in
 				this.material.forEach((material) => {
 					material.userData.opacity = material.opacity;
 					material.opacity -= 0.1;
