@@ -31,7 +31,7 @@ export interface TTileEventMap extends Object3DEventMap {
 }
 
 // Default geometry of tile
-const defaultGeometry = new PlaneGeometry(1, 1);
+const defaultGeometry = new PlaneGeometry();
 
 // Default material of tile
 const defaultMaterial = new MeshBasicMaterial();
@@ -192,8 +192,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/**
 	 * Level Of Details
 	 * @param cameraWorldPosition
-	 * @param minLevel min level for LOD
-	 * @param maxLevel max level for LOD
+	 * @param minLevel min level of map
+	 * @param maxLevel max level of map
 	 * @param threshold threshold for LOD
 	 * @param isWGS is WGS projection?
 	 * @returns  new tiles
@@ -246,7 +246,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		if (this.loadState != "empty") {
 			return Promise.resolve(false);
 		}
-		// Don't load data when tile.coord.z < minLeve
+		// Don't load when tile.coord.z < minLeve
 		if (this.coord.z < minLevel) {
 			this._loadState = "loaded";
 			this.showing = true;
@@ -266,7 +266,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				}
 
 				this._loadState = "loaded";
-				this._updateHeight();
+				this._heightUpdate();
 
 				// Save opacity for fade in
 				this.material.forEach((material) => {
@@ -285,9 +285,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * update height
+	 * Height update
 	 */
-	private _updateHeight() {
+	private _heightUpdate() {
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
 		this.avgZ = (this.maxZ + this.minZ) / 2;
@@ -296,7 +296,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/**
 	 *  Abort download
 	 */
-	public abortLoad() {
+	public loadAbort() {
 		this._abortController.abort();
 	}
 
@@ -308,7 +308,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	public dispose(removeChildren: boolean) {
 		if (this.loadState != "empty") {
 			this._loadState = "empty";
-			this.abortLoad();
+			this.loadAbort();
 			this._dispose();
 		}
 

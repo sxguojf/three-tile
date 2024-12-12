@@ -112,7 +112,7 @@ export class RootTile extends Tile {
 	 * @returns this
 	 */
 	public update(camera: Camera) {
-		this._updateTileTree(camera);
+		this._tileTreeUpdate(camera);
 		this._checkReady();
 		return this;
 	}
@@ -151,7 +151,7 @@ export class RootTile extends Tile {
 	 *
 	 * @returns this
 	 */
-	private _updateTileTree(camera: Camera) {
+	private _tileTreeUpdate(camera: Camera) {
 		frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 		const cameraWorldPosition = camera.getWorldPosition(tempVec3);
 
@@ -170,7 +170,7 @@ export class RootTile extends Tile {
 			);
 
 			// Load data for new tiles
-			this._updateTileData(newTiles);
+			this._dataUpdate(newTiles);
 		});
 		return this;
 	}
@@ -181,13 +181,13 @@ export class RootTile extends Tile {
 	 * @param tiles Tiles needs load
 	 * @returns this
 	 */
-	private _updateTileData(tiles: Tile[]) {
+	private _dataUpdate(tiles: Tile[]) {
 		tiles.forEach((tile) => {
 			this.dispatchEvent({ type: "tile-created", tile });
 			tile.load(this.loader, this.minLevel, this.maxLevel).then((loaded) => {
 				if (loaded) {
 					if (tiles.every((child) => child.loadState === "loaded")) {
-						this._updateHight();
+						this._calcHeightInView();
 					}
 					tile.dispatchEvent({ type: "tile-loaded", tile });
 				}
@@ -197,11 +197,11 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * Update elevation of tiles in view
+	 * Calculate the elevation of tiles in view
 	 *
 	 * @returns this
 	 */
-	private _updateHight() {
+	private _calcHeightInView() {
 		let sumZ = 0,
 			count = 0;
 		this.maxZ = 0;
