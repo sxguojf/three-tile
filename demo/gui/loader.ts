@@ -18,19 +18,14 @@ export const createLoaderGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			viewer.controls.reset();
 		},
 		export: () => {
-			// Instantiate a exporter
 			const exporter = new GLTFExporter();
-
-			// Parse the input and generate the glTF output
 			exporter.parse(
 				map.rootTile,
-				// called when the gltf has been generated
 				function (gltf) {
 					if (gltf instanceof ArrayBuffer) {
 						save(new Blob([gltf], { type: "application/octet-stream" }), "map.glb");
 					}
 				},
-				// called when there is an error in the generation
 				function (error: any) {
 					console.log("An error happened: " + error);
 				},

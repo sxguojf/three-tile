@@ -1,10 +1,15 @@
-// projection ID, only support 3857 and 4326
+/**
+ *@description: Map projection interface
+ *@author: Guojf
+ *@date: 2023-04-06
+ */
 
+// projection ID, only support 3857 and 4326
 export type ProjectionType = "3857" | "4326";
+
 /**
  * Porjection interface
  */
-
 export interface IProjection {
 	readonly ID: ProjectionType;
 	readonly mapWidth: number; // W-E scale

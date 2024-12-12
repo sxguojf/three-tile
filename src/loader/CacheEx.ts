@@ -1,4 +1,10 @@
 /**
+ *@description: Cache for File loader
+ *@author: Guojf
+ *@date: 2023-04-06
+ */
+
+/**
  * overwrite threejs.Cache，added cache file count
  */
 export class CacheEx {

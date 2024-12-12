@@ -102,7 +102,6 @@ export function showClickedTile(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 		pointer.y = -(evt.clientY / viewer.renderer.domElement.clientHeight) * 2 + 1;
 		// 取得鼠标点击处的经纬度高度
 		const info = map.getLocalInfoFromScreen(viewer.camera, pointer);
-		// getScreenPointInfo(viewer, map, pointer);
 		if (info) {
 			console.log(info);
 		}

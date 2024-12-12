@@ -1,6 +1,3 @@
-import { TileSource, ISource } from "../source";
-import { IProjection } from "./projection/IProjection";
-
 /**
  * 使用代理模式将数据源和投影解耦
  *
@@ -15,6 +12,9 @@ import { IProjection } from "./projection/IProjection";
  * 基本数据源仍为简单对象，在数据源传入地图时，给数据源套上一层代理，代理对象里完成瓦片xyz转换规则，然后再交给原数据源生成url。
  *
  */
+
+import { TileSource, ISource } from "../source";
+import { IProjection } from "./projection/IProjection";
 
 /**
  * 地图数据源代理，增加投影功能
@@ -33,13 +33,6 @@ export class SourceWithProjection extends TileSource {
 		this._projection = value;
 		this._projectionBounds = this.projection.getPorjBounds(this._source.bounds);
 	}
-
-	// public _projectionBounds!: {
-	// 	maxX: number;
-	// 	maxY: number;
-	// 	minX: number;
-	// 	minY: number;
-	// };
 
 	private _getTileBounds(x: number, y: number, z: number, s: number = 1) {
 		const p1 = this.projection.getTileXYZproj(x, y, z);
@@ -83,15 +76,6 @@ export class SourceWithProjection extends TileSource {
 		) {
 			return undefined;
 		}
-
-		// if (
-		// 	tileBounds.maxX < bounds.minX ||
-		// 	tileBounds.minX > bounds.maxX ||
-		// 	tileBounds.maxY < bounds.minY ||
-		// 	tileBounds.minY > bounds.maxY
-		// ) {
-		// 	return undefined;
-		// }
 
 		return this._source.getTileUrl(newx, y, z);
 	}

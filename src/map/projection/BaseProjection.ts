@@ -1,5 +1,5 @@
 /**
- *@description: Projection
+ *@description: Projection abstruct class
  *@author: Guojf
  *@date: 2023-04-06
  */

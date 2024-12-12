@@ -7,8 +7,11 @@
 import { Projection } from "./BaseProjection";
 import { IProjection } from "./IProjection";
 
-export const EarthRad = 6378; //Earth's radius(km)
+const EarthRad = 6378; //Earth's radius(km)
 
+/**
+ * Mercator projection
+ */
 export class ProjMCT extends Projection implements IProjection {
 	public readonly ID = "3857"; // projeciton ID
 	public readonly isWGS = false; // Is linear projection of latitude and longitude

@@ -25,9 +25,9 @@ import { creatChildrenTile } from "./tileCreator";
  */
 export interface TTileEventMap extends Object3DEventMap {
 	dispose: BaseEvent;
+	ready: BaseEvent;
 	"tile-created": BaseEvent & { tile: Tile };
 	"tile-loaded": BaseEvent & { tile: Tile };
-	ready: BaseEvent;
 }
 
 // Default geometry of tile

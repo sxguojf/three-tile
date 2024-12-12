@@ -1,3 +1,9 @@
+/**
+ *@description: Map projection factory
+ *@author: Guojf
+ *@date: 2023-04-06
+ */
+
 import { IProjection, ProjectionType } from "./IProjection";
 import { ProjMCT } from "./ProjMCT";
 import { ProjWGS } from "./ProjWGS";

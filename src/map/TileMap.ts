@@ -15,9 +15,12 @@ import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromW
 
 /**
  * TileMap Event Map
+ * 地图事件
  */
 export interface TileMapEventMap extends Object3DEventMap {
 	ready: BaseEvent;
+	update: BaseEvent & { delta: number };
+
 	"tile-created": BaseEvent & { tile: Tile };
 	"tile-loaded": BaseEvent & { tile: Tile };
 
@@ -28,11 +31,12 @@ export interface TileMapEventMap extends Object3DEventMap {
 	"loading-error": BaseEvent & { url: string };
 	"loading-complete": BaseEvent;
 	"loading-progress": BaseEvent & { url: string; itemsLoaded: number; itemsTotal: number };
-
-	update: BaseEvent & { delta: number };
 }
 
-// 地图投影中心经度类型
+/**
+ * Map projection center longitude type
+ * 地图投影中心经度类型
+ */
 type ProjectCenterLongitude = 0 | 90 | -90;
 
 /**
@@ -62,7 +66,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	public readonly isLOD = true;
 
 	/**
-
 	 * Whether the LOD object is updated automatically by the renderer per frame or not.
 	 * If set to false, you have to call LOD.update() in the render loop by yourself. Default is true.
 	 * 瓦片是否在每帧渲染时自动更新，默认为真
@@ -83,7 +86,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Get min level of map
-	 * 取得地图最小缩放级别，小于这个级别瓦片树不再更新
+	 * 地图最小缩放级别，小于这个级别瓦片树不再更新
 	 */
 	public get minLevel() {
 		return this.rootTile.minLevel;
@@ -98,7 +101,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Get max level of map
-	 * 取得地图最大缩放级别，大于这个级别瓦片树不再更新
+	 * 地图最大缩放级别，大于这个级别瓦片树不再更新
 	 */
 	public get maxLevel() {
 		return this.rootTile.maxLevel;
@@ -114,7 +117,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	private _autoPosition = false;
 	/**
 	 * Get whether to adjust z of map automatically.
-	 * 取得是否自动根据视野内地形高度调整地图坐标
+	 * 是否自动根据视野内地形高度调整地图坐标
 	 */
 	public get autoPosition() {
 		return this._autoPosition;
@@ -128,8 +131,8 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
-	 * Get the number of  download cache files.
-	 * 取得瓦片下载缓存文件数量。
+	 * Get the number of download cache files.
+	 * 下载缓存文件数量
 	 */
 	public get loadCacheSize() {
 		return this.loader.cacheSize;
@@ -144,7 +147,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Get max height in view
-	 * 取得可视范围内瓦片的最高高度
+	 * 可视范围内瓦片的最高海拔高度
 	 */
 	public get maxZInView() {
 		return this.rootTile.maxZ;
@@ -152,7 +155,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Set min height in view
-	 * 取得可视范围内瓦片的最低高度
+	 * 取得可视范围内瓦片的最低海拔高度
 	 */
 	public get minZInView() {
 		return this.rootTile.minZ;
@@ -160,7 +163,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Get avg hegiht in view
-	 * 取得可视范围内瓦片的平均高度
+	 * 取得可视范围内瓦片的平均海拔高度
 	 */
 	public get avgZInView() {
 		return this.rootTile.avgZ;
@@ -305,22 +308,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
-	 * Get the map model width
-	 * 取得地图模型宽度
-	 */
-	// public get width() {
-	// 	return this.projection.mapWidth;
-	// }
-
-	// /**
-	//  * Get the map model height
-	//  * 取得地图模型高度
-	//  */
-	// public get height() {
-	// 	return this.projection.mapHeight;
-	// }
-
-	/**
      * Create a map using factory function
      * 地图创建工厂函数
        @param params 地图参数 {@link MapParams}
@@ -399,11 +386,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * @param camera
 	 */
 	public update(camera: Camera) {
-		// for (let i = 0; i < this.minLevel; i++) {
-		// 	this.rootTile.material.forEach((mat) => {
-		// 		mat.visible = false;
-		// 	});
-		// }
 		this.rootTile.receiveShadow = this.receiveShadow;
 		this.rootTile.castShadow = this.castShadow;
 		this.rootTile.update(camera);
@@ -425,7 +407,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * 重新加载地图，在改变地图数据源后调用它才能生效
 	 */
 	public reload() {
-		this.rootTile.dispose(true);
+		this.rootTile.reload();
 	}
 
 	/**
@@ -450,6 +432,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
+	 * Geo coordinates converted to world coordinates
 	 * 地理坐标转换为世界坐标
 	 *
 	 * @param geo 地理坐标（经纬度）
@@ -460,7 +443,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
-	 * Map model coordinates converted to coordinates geo
+	 * Map model coordinates converted to geo coordinates
 	 * 地图模型坐标转换为地理坐标
 	 * @param pos 模型坐标
 	 * @returns 地理坐标（经纬度）
@@ -471,6 +454,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
+	 * World coordinates converted to geo coordinates
 	 * 世界坐标转换为地理坐标
 	 *
 	 * @param world 世界坐标
@@ -481,7 +465,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
-	 * Get the ground infomation for the specified latitude and longitude
+	 * Get the ground infomation from latitude and longitude
 	 * 获取指定经纬度的地面信息（法向量、高度等）
 	 * @param geo 地理坐标
 	 * @returns 地面信息
@@ -502,7 +486,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
-	 * Get loacation infomation from screen point
+	 * Get loacation infomation from screen pointer
 	 * 获取指定屏幕坐标的地面信息
 	 * @param camera 摄像机
 	 * @param pointer 点的屏幕坐标（-0.5~0.5）
@@ -513,7 +497,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
-	 * Get map data attributions information
+	 * Get map source attributions information
 	 * 取得地图数据归属版权信息
 	 * @returns Attributions 版权信息字符串数组
 	 */

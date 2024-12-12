@@ -7,7 +7,10 @@
 import { Projection } from "./BaseProjection";
 import { IProjection } from "./IProjection";
 
-//linear projection of latitude and longitude
+/**
+ * linear projection of latitude and longitude
+ */
+
 export class ProjWGS extends Projection implements IProjection {
 	public readonly ID = "4326";
 	public readonly isWGS = true;

@@ -6,6 +6,7 @@ import * as source from "./mapSource";
 import { addFakeEarth, addMapBackground, limitCameraHeight } from "./utils";
 
 console.log(`three-tile V${tt.version}, ${tt.author.name}`);
+document.querySelector<HTMLSpanElement>("#version")!.innerText = tt.version;
 
 // 创建地图
 function createMap() {
