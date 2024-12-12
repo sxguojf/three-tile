@@ -26,10 +26,10 @@ export class GoogleSource extends TileSource {
 	// public url = "https://gac-geo.googlecnapps.cn/maps/vt?lyrs={style}&x={x}&y={y}&z={z}";
 
 	// 2024年新地址，不知道能坚持多久。 续：坚持不到10天就挂了。
-	public url = "https://gac-geo.googlecnapps.club/maps/vt?lyrs={style}&x={x}&y={y}&z={z}";
+	// public url = "https://gac-geo.googlecnapps.club/maps/vt?lyrs={style}&x={x}&y={y}&z={z}";
 
 	// 访问原版google，你懂的
-	// public url = "http://mt{s}.google.com/vt/lyrs={style}&src=app&x={x}&y={y}&z={z}";
+	public url = "http://mt{s}.google.com/vt/lyrs={style}&src=app&x={x}&y={y}&z={z}";
 
 	constructor(options?: GoogleSourceOptions) {
 		super(options);

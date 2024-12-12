@@ -43,7 +43,7 @@ export const mapBoxDemTestSource = new MapBoxSource({
 });
 
 // 中科星图
-const ZKXTKEY = "4ea7bc4e9a2efc4e76be33d9511600dfa3b4f24bb81cb69561ab0b833d9b482c";
+const ZKXTKEY = ""; //"4ea7bc4e9a2efc4e76be33d9511600dfa3b4f24bb81cb69561ab0b833d9b482c";
 export const xtImgSource = new ZKXTSource({
 	token: ZKXTKEY,
 	dataType: "image",

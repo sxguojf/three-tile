@@ -11,7 +11,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 		setZkxt: () => {
-			map.imgSource = [ms.xtImgSource, ms.xtCiaSource];
+			map.imgSource = [ms.xtImgSource];
 			map.reload();
 		},
 		setBing: () => {
