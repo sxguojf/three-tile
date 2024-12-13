@@ -77,7 +77,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	private _showing = false;
 	private _inFrustum = false;
 	private _loadState: LoadState = "empty";
-	private _sizeInWorld = -1;
+	private _sizeInWorld = 0;
+
 	private _abortController = new AbortController();
 
 	/** Index of tile, mean positon in parent.  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）	 */
@@ -123,15 +124,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this.children.filter((child) => child.isTile).length === 0;
 	}
 
-	/** Get tile diagonal length of tile in world */
+	/** Get the tile diagonal length of tile in world */
 	public get sizeInWorld() {
-		if (this._sizeInWorld > 0) {
-			return this._sizeInWorld;
-		} else {
-			const lt = new Vector3(-0.5, -0.5, 0).applyMatrix4(this.matrixWorld);
-			const rt = new Vector3(0.5, 0.5, 0).applyMatrix4(this.matrixWorld);
-			return lt.sub(rt).length();
-		}
+		return this._sizeInWorld;
+	}
+
+	/** Set the tile diagonal length of tile in world */
+	public set sizeInWorld(value) {
+		this._sizeInWorld = value;
 	}
 
 	/**
@@ -146,6 +146,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.matrixAutoUpdate = false;
 		this.matrixWorldAutoUpdate = false;
+		this.up = new Vector3(0, 0, 1);
+		this.renderOrder = 0;
 	}
 
 	/**
@@ -182,7 +184,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 *  Get the distance of tile center to camera
+	 *  Get distance of the tile center to camera
 	 */
 	private _getDistToCamera(cameraPosition: Vector3) {
 		const tilePos = this.position.clone().setZ(this.avgZ).applyMatrix4(this.matrixWorld);
@@ -235,6 +237,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				}
 			});
 		}
+		return this;
 	}
 
 	/**
@@ -291,6 +294,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
 		this.avgZ = (this.maxZ + this.minZ) / 2;
+		return this;
 	}
 
 	/**
@@ -298,6 +302,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public loadAbort() {
 		this._abortController.abort();
+		return this;
 	}
 
 	/**
