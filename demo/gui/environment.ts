@@ -13,7 +13,7 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 
 	viewer.scene.background = vm.skybox;
 
-	const folder = gui.addFolder("Environeent").close();
+	const folder = gui.addFolder("Environent").close();
 	folder.add(viewer.ambLight, "intensity", 0, 5, 0.1).name("Ambient intensity");
 	folder.add(viewer.dirLight, "intensity", 0, 5, 0.1).name("Directional intensity");
 
