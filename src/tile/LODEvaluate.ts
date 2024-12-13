@@ -30,7 +30,7 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 	const factor = 1.02;
 	if (tile.coord.z > minLevel && tile.index === 0 && tile.parent?.isTile) {
 		const dist = _getDistRatio(tile.parent);
-		if (tile.coord.z > maxLevel || dist > threshold * factor) {
+		if (tile.coord.z > maxLevel || dist > threshold * factor || !tile.parent.inFrustum) {
 			return LODAction.remove;
 		}
 	}
