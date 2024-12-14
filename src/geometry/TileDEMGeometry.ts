@@ -175,8 +175,7 @@ export class TileDEMGeometry extends PlaneGeometry {
 						normalAttribute.setXYZ(vA, 0, 0, 1);
 						normalAttribute.setXYZ(vB, 0, 0, 1);
 						normalAttribute.setXYZ(vC, 0, 0, 1);
-					}
-					{
+					} else {
 						cb.subVectors(pC, pB);
 						ab.subVectors(pA, pB);
 						cb.cross(ab);
