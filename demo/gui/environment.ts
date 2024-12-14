@@ -16,6 +16,7 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 	const folder = gui.addFolder("Environent").close();
 	folder.add(viewer.ambLight, "intensity", 0, 5, 0.1).name("Ambient intensity");
 	folder.add(viewer.dirLight, "intensity", 0, 5, 0.1).name("Directional intensity");
+	folder.add(viewer.camera, "fov", 30, 120).onChange(() => viewer.camera.updateProjectionMatrix());
 
 	folder.add(viewer.renderer, "toneMapping", {
 		NoToneMapping: 0,
