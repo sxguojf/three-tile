@@ -1,4 +1,13 @@
-import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader, Vector3 } from "three";
+import {
+	BoxHelper,
+	Color,
+	Mesh,
+	MeshLambertMaterial,
+	PlaneGeometry,
+	SRGBColorSpace,
+	TextureLoader,
+	Vector3,
+} from "three";
 import * as tt from "../src";
 import { FakeEarth } from "../src/plugin/fakeEarth";
 
@@ -34,26 +43,18 @@ export function addFakeEarth(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
  * @param map 地图
  * @returns 背景图模型
  */
-export function addMapBackground(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+export function addMapBackground(map: tt.TileMap) {
 	const backGround = new Mesh(
 		new PlaneGeometry(),
 		new MeshLambertMaterial({
 			map: new TextureLoader().load("./image/tile0.png", (texture) => (texture.colorSpace = SRGBColorSpace)),
-			transparent: true,
 		}),
 	);
 	backGround.renderOrder = -1;
 	backGround.name = "background";
 	backGround.applyMatrix4(map.rootTile.matrix);
+	backGround.translateZ(-2);
 	map.add(backGround);
-
-	// 当logarithmicDepthBuffer=true时，调整多边形偏移无效，所以直接调整背景Z坐标
-	viewer.controls.addEventListener("change", () => {
-		const dist = viewer.controls.getDistance();
-		// https://threejs.org/docs/index.html#manual/zh/introduction/FAQ
-		const dz = 2 * Math.tan(((Math.PI / 180) * viewer.camera.fov) / 2) * dist;
-		backGround.position.setZ(-dz / viewer.height / 100 - 5);
-	});
 
 	return backGround;
 }

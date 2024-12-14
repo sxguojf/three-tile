@@ -100,7 +100,7 @@ function main() {
 	// 每帧更新TWEEN
 	viewer.addEventListener("update", () => TWEEN.update());
 	// 添加地图背景
-	addMapBackground(viewer, map);
+	addMapBackground(map);
 	// 添加伪地球遮罩
 	addFakeEarth(viewer, map);
 	// 防止摄像机进入地下
