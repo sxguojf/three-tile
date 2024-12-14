@@ -146,7 +146,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.matrixAutoUpdate = false;
 		this.matrixWorldAutoUpdate = false;
-		this.up = new Vector3(0, 0, 1);
+		this.up.set(0, 0, 1);
 		this.renderOrder = 0;
 	}
 

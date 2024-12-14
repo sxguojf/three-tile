@@ -150,7 +150,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			const dist = Math.max(this.controls.getDistance(), 0.1);
 
 			// set zoom speed on dist
-			controls.zoomSpeed = Math.max(Math.log(dist), 0.2);
+			controls.zoomSpeed = Math.max(Math.log(dist), 0) + 0.5;
 
 			// set far and near on dist/polar
 			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 50000);
