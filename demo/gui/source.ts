@@ -15,11 +15,11 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 		setBing: () => {
-			map.imgSource = [ms.bingSource];
+			map.imgSource = [ms.bingSource, ms.tdtCiaSource_w];
 			map.reload();
 		},
 		setArcGis: () => {
-			map.imgSource = [ms.arcGisSource];
+			map.imgSource = [ms.arcGisSource, ms.tdtCiaSource_w];
 			map.reload();
 		},
 		setArcGisHillShader: () => {
@@ -27,7 +27,8 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 				new tt.plugin.ArcGisSource({
 					style: "Elevation/World_HillShade_Dark",
 				}),
-				ms.xtCiaSource,
+
+				ms.tdtCiaSource_w,
 			];
 			map.reload();
 		},
@@ -64,7 +65,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 		setMapTiler: () => {
-			map.imgSource = [ms.mapTilerImgSource, ms.xtCiaSource];
+			map.imgSource = [ms.mapTilerImgSource, ms.tdtCiaSource_w];
 			map.reload();
 		},
 
@@ -76,7 +77,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 
-		// 地形
+		// terrain
 		setMapBoxDem: () => {
 			map.demSource = ms.mapBoxDemSource;
 			map.reload();
@@ -99,7 +100,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 
-		// 测试
+		// test
 		setMapBoxDemTest: () => {
 			map.imgSource = [ms.mapBoxDemTestSource, ms.testSource];
 			map.reload();
@@ -172,27 +173,27 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	const folder = gui.addFolder("Map Data Source").close();
 	// 影像数据源
 	const imgFolder = folder.addFolder("Image data");
-	imgFolder.add(vm, "setMapBox").name("MapBox+天地图标注");
-	imgFolder.add(vm, "setZkxt").name("中科星图");
-	imgFolder.add(vm, "setBing").name("Bing(有偏移)");
-	imgFolder.add(vm, "setGoogle").name("Google image(大偏移)");
+	imgFolder.add(vm, "setMapBox").name("MapBox+TDT");
+	// imgFolder.add(vm, "setZkxt").name("中科星图");
+	imgFolder.add(vm, "setBing").name("Bing+TDT");
+	imgFolder.add(vm, "setGoogle").name("Google image");
 	imgFolder.add(vm, "setGoogleP").name("Google terrain image");
-	imgFolder.add(vm, "setArcGis").name("ArcGis");
-	imgFolder.add(vm, "setArcGisHillShader").name("ArcGisHillShader+中科星图标注");
-	imgFolder.add(vm, "setMapTiler").name("MapTiler+中科星图标注");
+	imgFolder.add(vm, "setArcGis").name("ArcGis+TDT");
+	imgFolder.add(vm, "setArcGisHillShader").name("ArcGisHillShader+TDT");
+	imgFolder.add(vm, "setMapTiler").name("MapTiler+TDT");
 	imgFolder.add(vm, "setStadia").name("Stadis");
-	imgFolder.add(vm, "setGD").name("高德(大偏移)");
-	imgFolder.add(vm, "setTencent").name("腾讯(大偏移)");
-	imgFolder.add(vm, "setTdt_w").name("天地图");
+	imgFolder.add(vm, "setGD").name("GadoDe");
+	imgFolder.add(vm, "setTencent").name("Tencent");
+	imgFolder.add(vm, "setTdt_w").name("TDT");
 	imgFolder.add(vm, "setOpentopomap").name("OpenTopoMap");
-	imgFolder.add(vm, "setTdt_c").name("天地图(经纬度投影)");
+	imgFolder.add(vm, "setTdt_c").name("TDT(WGS84 projection)");
 
 	// 地形数据源
 	const demFolder = folder.addFolder("Terrain data");
 	demFolder.add(vm, "setDemNull").name("None(plane)");
 	demFolder.add(vm, "setMapBoxDem").name("Mapbox terrain(maxLevel=15)");
 	demFolder.add(vm, "setMapTilerDem").name("MapTiler terrain(maxLevel=12)");
-	demFolder.add(vm, "setZkXtDem").name("中科星图(maxLevel=10)");
+	// demFolder.add(vm, "setZkXtDem").name("中科星图(maxLevel=10)");
 	demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
 
 	// 测试数据
@@ -200,7 +201,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	testFolder.add(vm, "setTileTest").name("MapBoxImage+debug");
 	testFolder.add(vm, "setMapBoxDemTest").name("MapBoxTerrain+debug");
 	testFolder.add(vm, "setMapTilerDemTest").name("MapTilerTerrain+debug");
-	testFolder.add(vm, "setZkxtDemTest").name("中科星图Terrain+debug");
+	// testFolder.add(vm, "setZkxtDemTest").name("中科星图Terrain+debug");
 	testFolder.add(vm, "setLogoTest").name("Logo test");
 	testFolder.add(vm, "setTileWire").name("Wireframe terrain");
 	testFolder.add(vm, "setTileNormal").name("Normal terrain");

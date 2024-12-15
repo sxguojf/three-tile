@@ -126,7 +126,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	}
 
 	private _createCamera(pos: Vector3) {
-		const camera = new PerspectiveCamera(60, 1, 0.1, 50000);
+		const camera = new PerspectiveCamera(70, 1, 0.1, 50000);
 		camera.position.copy(pos);
 		return camera;
 	}

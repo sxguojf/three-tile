@@ -129,7 +129,7 @@ export const tdtImgSource_c = new TDTSource({
 });
 
 // Bing
-export const bingSource = new BingSource({ style: "A,L" });
+export const bingSource = new BingSource({ style: "A" });
 
 // 高德
 export const gdImgSource = new GDSource({ style: "6" });
