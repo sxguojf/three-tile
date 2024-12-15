@@ -114,10 +114,8 @@ export class TileDEMGeometry extends PlaneGeometry {
 	 * @param tileSize dem size
 	 * @returns this
 	 */
-	public setData(dem: ArrayLike<number>, tileSize: number) {
-		if (dem.length != tileSize * tileSize) {
-			throw "DEM array size error!";
-		}
+	public setData(dem: ArrayLike<number>) {
+		const tileSize = Math.floor(Math.sqrt(dem.length));
 		this.build(dem, tileSize);
 		//计算顶点法向量
 		this.computeVertexNormals();

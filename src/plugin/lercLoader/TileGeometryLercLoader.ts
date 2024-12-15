@@ -13,15 +13,6 @@ import { ISource } from "../../source";
 import { Tile } from "../../tile";
 import * as Lerc from "./lercDecode/LercDecode.es";
 
-// Lerc.load({
-// 	locateFile: (fn, dir) => {
-// 		// const url = new URL("./lercDecode/lerc-wasm.wasm", import.meta.url).href;
-// 		const url = new URL(`../../assets/${fn}`, import.meta.url).href;
-// 		console.log(dir, fn, url);
-// 		return url;
-// 	},
-// });
-
 const emptyGeometry = new BufferGeometry();
 /**
  * ArcGis-lerc格式瓦片几何体加载器
@@ -55,7 +46,8 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 		return this._load(tile, url, bounds, onLoad);
 	}
 
-	private _load(tile: Tile, url: any, bounds: Box2, onLoad: () => void) {
+	// private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
+	private _load(tile: Tile, url: string, bounds: Box2, onLoad: () => void) {
 		// 计算瓦片图片大小（像素）
 		let tileSize = tile.coord.z * 3;
 		tileSize = MathUtils.clamp(tileSize, 2, 48);
@@ -66,10 +58,22 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 			url,
 			// onLoad
 			(buffer) => {
-				this.decode(buffer).then((value: { width: number; dem: Float32Array }) => {
-					// 从dem中取出rect范围内数据，并缩放到tileSize大小
-					const { data, size } = this.clip(value.dem, value.width, bounds, tileSize);
-					geometry.setData(data, size);
+				this.decode(buffer).then((value: { dem: Float32Array; width: number }) => {
+					// 计算剪裁区域
+					const piexlRect = rect2ImageBounds(bounds, value.width);
+					// 剪裁一部分，缩放到size大小
+					const data = clipAndResize(
+						value.dem,
+						value.width,
+						piexlRect.sx,
+						piexlRect.sy,
+						piexlRect.sw,
+						piexlRect.sh,
+						tileSize,
+						tileSize,
+					);
+					// 数据传入模型
+					geometry.setData(data);
 					onLoad();
 				});
 			},
@@ -83,96 +87,56 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 	}
 
 	private async decode(buffer: ArrayBuffer) {
-		// if (!Lerc.isLoaded()) {
-		// 	console.log("load Lerc decoder");
-		// 	await Lerc.load({ locateFile: (path, _scriptDir) => `/src/plugin/lercLoader/lercDecode/${path}` });
-		// }
-		await Lerc.load();
+		if (!Lerc.isLoaded()) {
+			await Lerc.load();
+			console.log("load Lerc decoder");
+		}
+
 		const pixelBlock = Lerc.decode(buffer);
 		const { height, width, pixels } = pixelBlock;
 		const dem = new Float32Array(height * width);
 		for (let i = 0; i < dem.length; i++) {
 			dem[i] = pixels[0][i] / 1000;
 		}
-		return { height, width, dem };
-	}
-
-	private clip(dem: Float32Array, demWidth: number, toRect: Box2, toSize: number) {
-		// 计算剪裁区域
-		const piexlRect = rect2ImageBounds(toRect, demWidth);
-		// 剪裁一部分
-		const subDem = arrayClip(dem, demWidth, piexlRect);
-		// 缩放到指定大小
-		const { data, width } = arrayResize(subDem, piexlRect.sw, piexlRect.sh, toSize, toSize);
-		return { data, size: width };
+		return { width, height, dem };
 	}
 }
 
-// 数组切片
-function arrayClip(
+// 数组剪裁并缩放
+function clipAndResize(
 	buffer: Float32Array,
 	bufferWidth: number,
-	rect: { sx: number; sy: number; sw: number; sh: number },
-): Float32Array {
-	const len = buffer.length;
-	const result = new Float32Array(rect.sw * rect.sh);
-	let index = 0;
-	for (let i = 0; i < len; i++) {
-		const ix = i % bufferWidth;
-		const iy = Math.floor(i / bufferWidth);
-		if (ix >= rect.sx && ix < rect.sx + rect.sw && iy >= rect.sy && iy < rect.sy + rect.sh) {
-			result[index] = buffer[i];
-			index++;
+	sx: number,
+	sy: number,
+	sw: number,
+	sh: number,
+	dw: number,
+	dh: number,
+) {
+	// clip
+	const cdata = new Float32Array(sw * sh);
+	for (let i = 0; i < sh; i++) {
+		for (let j = 0; j < sw; j++) {
+			const sourceIndex = (i + sy) * bufferWidth + (j + sx);
+			const destIndex = i * sw + j;
+			cdata[destIndex] = buffer[sourceIndex];
 		}
 	}
-	return result;
-}
-
-/**
- * 双线性插值缩小数组，
- * todo: 可直接取临近点
- * 1、该函数用于计算地形几何体地形高度，线性插值放大没有意义，只会徒增计算量
- * 2、双线性也没有必要，最临近即可
- * @param buffer
- * @param bufferWidth
- * @param dw
- * @param dh
- * @returns
- */
-function arrayResize(buffer: Float32Array, bufferWidth: number, bufferHeight: number, dw: number, dh: number) {
-	// 如果源小于目标大小，直接返回源
-	if (bufferWidth <= dw && bufferWidth <= dh) {
-		return { data: buffer, width: bufferWidth, height: bufferHeight };
+	if (sw <= dw || sh <= dh) {
+		return cdata;
 	}
 
-	const result = new Float32Array(dw * dh);
-
-	for (let y = 0; y < dh; y++) {
-		for (let x = 0; x < dw; x++) {
-			const source_x = Math.floor((x * bufferWidth) / dw);
-			const source_y = Math.floor((y * bufferHeight) / dh);
-
-			const source_x0 = Math.min(Math.max(source_x, 0), bufferWidth - 1);
-			const source_y0 = Math.min(Math.max(source_y, 0), bufferHeight - 1);
-			const source_x1 = source_x0 + 1;
-			const source_y1 = source_y0 + 1;
-
-			const q00 = buffer[source_y0 * bufferWidth + source_x0];
-			const q01 = buffer[source_y0 * bufferWidth + source_x1];
-			const q10 = buffer[source_y1 * bufferWidth + source_x0];
-			const q11 = buffer[source_y1 * bufferWidth + source_x1];
-
-			const fx = source_x - source_x0;
-			const fy = source_y - source_y0;
-
-			const q = q00 * (1 - fx) * (1 - fy) + q01 * fx * (1 - fy) + q10 * (1 - fx) * fy + q11 * fx * fy;
-
-			result[y * dw + x] = q;
-			if (isNaN(q)) {
-				debugger;
-			}
+	// resize
+	const sdata = new Float32Array(dh * dw);
+	for (let i = 0; i < dw; i++) {
+		for (let j = 0; j < dh; j++) {
+			const destIndex = i * dh + j;
+			const sourceX = Math.floor((j * sh) / dh);
+			const sourceY = Math.floor((i * sw) / dw);
+			const sourceIndex = sourceY * sw + sourceX;
+			sdata[destIndex] = cdata[sourceIndex];
 		}
 	}
 
-	return { data: result, width: dw, height: dh };
+	return sdata;
 }

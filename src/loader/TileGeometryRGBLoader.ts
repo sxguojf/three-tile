@@ -41,7 +41,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 		}
 	}
 
-	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
+	private _load(tile: Tile, url: string, bounds: Box2, onLoad: () => void) {
 		const tileSize = (tile.coord.z + 2) * 3;
 		const geometry = this.createGeometry();
 		this.imageLoader.load(
@@ -49,8 +49,8 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 			// onLoad
 			(image) => {
 				if (!tile.abortSignal.aborted) {
-					const imgData = getImageDataFromRect(image, rect, tileSize);
-					geometry.setData(Img2dem(imgData.data), imgData.width);
+					const imgData = getImageDataFromRect(image, bounds, tileSize);
+					geometry.setData(Img2dem(imgData.data));
 				}
 				onLoad();
 			},
@@ -75,11 +75,6 @@ function getZ(imgData: Uint8ClampedArray, i: number) {
 	if (imgData[i * 4 + 3] === 0) {
 		return 0;
 	}
-	// const r = imgData[i * 4];
-	// const g = imgData[i * 4 + 1];
-	// const b = imgData[i * 4 + 2];
-	// return (((r << 16) + (g << 8) + b) * 0.1 - 10000.0) / 1000.0;
-
 	const rgb = (imgData[i * 4] << 16) | (imgData[i * 4 + 1] << 8) | imgData[i * 4 + 2];
 	return rgb / 10000 - 10;
 }

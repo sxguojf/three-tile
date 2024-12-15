@@ -94,10 +94,10 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 
-		// setArcgisLerc() {
-		// 	map.demSource = MapSource.arcGisDemSource;
-		// 	map.reload();
-		// },
+		setArcgisLerc() {
+			map.demSource = ms.arcGisDemSource;
+			map.reload();
+		},
 
 		// 测试
 		setMapBoxDemTest: () => {
@@ -193,7 +193,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	demFolder.add(vm, "setMapBoxDem").name("Mapbox terrain(maxLevel=15)");
 	demFolder.add(vm, "setMapTilerDem").name("MapTiler terrain(maxLevel=12)");
 	demFolder.add(vm, "setZkXtDem").name("中科星图(maxLevel=10)");
-	// demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
+	demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
 
 	// 测试数据
 	const testFolder = folder.addFolder("Test data");

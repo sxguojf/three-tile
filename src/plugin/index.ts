@@ -13,9 +13,9 @@ import "./normalLoder";
 //  wireframe material loader
 import "./wireframeLoader";
 // lerc geometry loader，解决不了lerc的wasm加载问题，暂去掉该插件
-// import "./lercLoader";
+import "./lercLoader";
 // terrain-dem loader
-import "./demLoader";
+// import "./demLoader";
 
 // vierwer
 export * from "./GLViewer";
