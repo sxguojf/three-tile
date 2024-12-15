@@ -1,13 +1,4 @@
-import {
-	BoxHelper,
-	Color,
-	Mesh,
-	MeshLambertMaterial,
-	PlaneGeometry,
-	SRGBColorSpace,
-	TextureLoader,
-	Vector3,
-} from "three";
+import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader, Vector3 } from "three";
 import * as tt from "../src";
 import { FakeEarth } from "../src/plugin/fakeEarth";
 
