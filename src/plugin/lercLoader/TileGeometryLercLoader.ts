@@ -88,7 +88,9 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 
 	private async decode(buffer: ArrayBuffer) {
 		if (!Lerc.isLoaded()) {
-			await Lerc.load();
+			await Lerc.load({
+				locateFile: (wasmFileName: string | undefined, _scriptDir?: string | undefined) => `./${wasmFileName}`,
+			});
 			console.log("load Lerc decoder");
 		}
 

@@ -432,6 +432,16 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
+	 * Geo coordinates converted to map model coordinates
+	 * 地理坐标转换为地图模型坐标
+	 * @param geo 地理坐标（经纬度）
+	 * @returns 模型坐标
+	 */
+	public geo2map(geo: Vector3) {
+		return this.geo2pos(geo);
+	}
+
+	/**
 	 * Geo coordinates converted to world coordinates
 	 * 地理坐标转换为世界坐标
 	 *
@@ -449,6 +459,17 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * @returns 地理坐标（经纬度）
 	 */
 	public pos2geo(pos: Vector3) {
+		const position = this.projection.unProject(pos.x, pos.y);
+		return new Vector3(position.lon, position.lat, pos.z);
+	}
+
+	/**
+	 * Map model coordinates converted to geo coordinates
+	 * 地图模型坐标转换为地理坐标
+	 * @param map 模型坐标
+	 * @returns 地理坐标（经纬度）
+	 */
+	public map2geo(pos: Vector3) {
 		const position = this.projection.unProject(pos.x, pos.y);
 		return new Vector3(position.lon, position.lat, pos.z);
 	}

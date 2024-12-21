@@ -96,10 +96,10 @@ button:focus-visible {
 }
 #compass {
 	position: absolute;
-	height: 100px;
-	width: 100px;
+	height: 60px;
+	width: 60px;
 	left: 30px;
-	bottom: 40px;
+	bottom: 50px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -138,6 +138,7 @@ button:focus-visible {
 	grid-template-columns: 18% auto 18%;
 	grid-template-rows: 18% auto 18%;
 	text-shadow: 0px 0px 2px black;
+	font-size: 10px;
 }
 
 #compass > .circle > #compass-plane {

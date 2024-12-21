@@ -7,7 +7,7 @@ export function showCompass(viewer: tt.plugin.GLViewer) {
 	const plane = document.querySelector<HTMLElement>("#compass-plane");
 	const text = document.querySelector<HTMLElement>("#compass-text");
 	if (compass && plane && text) {
-		viewer.addEventListener("update", (_evt) => {
+		viewer.controls.addEventListener("change", () => {
 			plane.style.transform = `rotateX(${viewer.controls.getPolarAngle()}rad)`;
 			text.style.transform = `rotate(${viewer.controls.getAzimuthalAngle()}rad)`;
 		});
