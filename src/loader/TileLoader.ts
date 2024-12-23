@@ -83,6 +83,14 @@ export class TileLoader implements ITileLoader {
 		tile.geometry = geometry;
 		tile.material = materials;
 
+		// Timeout
+		setTimeout(() => {
+			if (tile.loadState === "loading") {
+				tile.loadAbort();
+				console.error("TimeOut: ", tile.name);
+			}
+		}, 5000);
+
 		return { geometry, material: materials };
 	}
 

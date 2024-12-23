@@ -77,8 +77,8 @@ export function addStats(viewer: tt.plugin.GLViewer) {
 export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void {
 	const pointer = new Vector2();
 	viewer.container.addEventListener("pointermove", (evt) => {
-		pointer.x = (evt.clientX / viewer.renderer.domElement.clientWidth) * 2 - 1;
-		pointer.y = -(evt.clientY / viewer.renderer.domElement.clientHeight) * 2 + 1;
+		pointer.x = (evt.offsetX / viewer.width) * 2 - 1;
+		pointer.y = -(evt.offsetY / viewer.height) * 2 + 1;
 
 		const info = map.getLocalInfoFromScreen(viewer.camera, pointer);
 		if (info) {
@@ -98,8 +98,8 @@ export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void 
 export function showClickedTile(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	viewer.container.addEventListener("click", (evt) => {
 		const pointer = new Vector2();
-		pointer.x = (evt.clientX / viewer.renderer.domElement.clientWidth) * 2 - 1;
-		pointer.y = -(evt.clientY / viewer.renderer.domElement.clientHeight) * 2 + 1;
+		pointer.x = (evt.offsetX / viewer.width) * 2 - 1;
+		pointer.y = -(evt.offsetY / viewer.height) * 2 + 1;
 		// 取得鼠标点击处的经纬度高度
 		const info = map.getLocalInfoFromScreen(viewer.camera, pointer);
 		if (info) {
