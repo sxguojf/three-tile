@@ -5,3 +5,4 @@
  */
 
 export * from "./TileMap";
+export type { LocationInfo } from "./util";
