@@ -146,6 +146,26 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
+	 * Get the loader timeout time(ms)
+	 * 获取加载超时时间(ms)
+	 *
+	 * @returns 返回加载器的超时时间
+	 */
+	public get loadeTimeOut() {
+		return this.loader.timeout;
+	}
+
+	/**
+	 * set the loader timeout time(ms)
+	 * 设置加载超时时间(ms)
+	 *
+	 * @param value 超时时间，单位为毫秒
+	 */
+	public set loadeTimeOut(value) {
+		this.loader.timeout = value;
+	}
+
+	/**
 	 * Get max height in view
 	 * 可视范围内瓦片的最高海拔高度
 	 */

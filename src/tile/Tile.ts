@@ -300,8 +300,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/**
 	 *  Abort download
 	 */
-	public loadAbort(reason: any = "AbortError") {
+	public loadAbort(reason: any = { name: "AbortError" }) {
 		this._abortController.abort(reason);
+		AbortController;
 
 		return this;
 	}

@@ -88,8 +88,8 @@ export class TileLoader implements ITileLoader {
 		// Timeout
 		setTimeout(() => {
 			if (tile.loadState === "loading") {
-				tile.loadAbort("TimeOut");
-				// console.error("TimeOut: ", tile.name);
+				tile.loadAbort({ name: "TimeOut" });
+				console.error("TimeOut: ", tile.name);
 			}
 		}, this.timeout);
 	}
