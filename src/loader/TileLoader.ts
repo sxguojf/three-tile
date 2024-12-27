@@ -15,8 +15,6 @@ import { LoaderFactory } from "./LoaderFactory";
  * tile loader
  */
 export class TileLoader implements ITileLoader {
-	/** timeout ms */
-	public timeout = 5000;
 	/** get loader cache size of file  */
 	public get cacheSize() {
 		return CacheEx.size;
@@ -86,12 +84,12 @@ export class TileLoader implements ITileLoader {
 		tile.material = materials;
 
 		// Timeout
-		setTimeout(() => {
-			if (tile.loadState === "loading") {
-				tile.loadAbort({ name: "TimeOut" });
-				console.error("TimeOut: ", tile.name);
-			}
-		}, this.timeout);
+		// setTimeout(() => {
+		// 	if (tile.loadState === "loading") {
+		// 		tile.loadAbort({ name: "TimeOut" });
+		// 		console.error("TimeOut: ", tile.name);
+		// 	}
+		// }, this.timeout);
 	}
 
 	/**

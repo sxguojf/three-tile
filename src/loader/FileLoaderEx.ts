@@ -124,12 +124,6 @@ export class FileLoaderEx extends Loader {
 				if (err.name != "AbortError") {
 					this.manager.itemError(url);
 				}
-				// Abort errors and other errors are handled the same
-				// if (err.name === "AbortError") {
-				//     console.log(err.message);
-				// } else {
-				//     console.error(err.message);
-				// }
 			})
 			.finally(() => {
 				this.manager.itemEnd(url);

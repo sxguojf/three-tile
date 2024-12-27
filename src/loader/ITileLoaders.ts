@@ -18,7 +18,6 @@ export interface ITileLoader {
 	imgSource: ISource[];
 	demSource: ISource | undefined;
 	cacheSize: number;
-	timeout: number;
 	load(tile: Tile, onLoad: () => void): void;
 }
 
