@@ -160,14 +160,18 @@ export class RootTile extends Tile {
 			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
 			tile.inFrustum = frustum.intersectsBox(bounds);
 
-			// LOD to get new tiles
-			const newTiles = tile._LOD(
+			// LOD to get new tiles and tiles to remove
+			const { newTiles, oldTiles } = tile._LOD(
 				cameraWorldPosition,
 				this.minLevel,
 				this.maxLevel,
 				this.LODThreshold,
 				this.isWGS,
 			);
+			// Dispose old tiles
+			if (oldTiles) {
+				oldTiles.dispose(false);
+			}
 
 			// Load data for new tiles
 			this._dataUpdate(newTiles);

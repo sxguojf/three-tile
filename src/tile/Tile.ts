@@ -178,7 +178,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * Override Obejct3D.raycast, only test the tile is showing
 	 */
 	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		if (this.showing && this.inFrustum && this.isTile) {
+		if (this.showing && this.isTile) {
 			super.raycast(raycaster, intersects);
 		}
 	}
@@ -198,7 +198,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param maxLevel max level of map
 	 * @param threshold threshold for LOD
 	 * @param isWGS is WGS projection?
-	 * @returns  new tiles
+	 * @returns  new tiles and old tiles to remove
 	 */
 	protected _LOD(
 		cameraWorldPosition: Vector3,
@@ -208,6 +208,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		isWGS: boolean,
 	) {
 		let newTiles: Tile[] = [];
+		let oldTiles: Tile | null = null;
 		this.distToCamera = this._getDistToCamera(cameraWorldPosition);
 		// LOD evaluate
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
@@ -216,14 +217,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile && !parent.showing) {
-				parent._disposeChilren();
+				oldTiles = parent;
 				parent.showing = true;
 			}
 		}
 
 		this._fadeIn();
 
-		return newTiles;
+		return { newTiles, oldTiles };
 	}
 
 	/**
@@ -302,41 +303,25 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public loadAbort(reason: any = { name: "AbortError" }) {
 		this._abortController.abort(reason);
-		AbortController;
-
 		return this;
 	}
 
 	/**
 	 * Free the tile resources
-	 *
-	 * @param removeChildren remove children?
+	 * @param disposeSelf dispose self?
 	 */
-	public dispose(removeChildren: boolean) {
-		if (this.loadState != "empty") {
+	public dispose(disposeSelf: boolean) {
+		if (this.loadState != "empty" && disposeSelf) {
 			this._loadState = "empty";
 			this.loadAbort();
 			this._dispose();
 		}
 
-		// if remove children, remove all children recursionly
-		if (removeChildren) {
-			this.children.forEach((tile) => {
-				tile.dispose(removeChildren);
-				tile.clear();
-			});
-			this.clear();
-		}
+		// remove all children recursionly
+		this.children.forEach((tile) => tile.dispose(true));
+		this.clear();
 
 		return this;
-	}
-
-	/**
-	 *  Dispose all of children
-	 */
-	private _disposeChilren() {
-		this.children.forEach((child) => child.dispose(true));
-		this.clear();
 	}
 
 	private _dispose() {
