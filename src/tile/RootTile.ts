@@ -186,7 +186,8 @@ export class RootTile extends Tile {
 	 * @returns this
 	 */
 	private _dataUpdate(tiles: Tile[]) {
-		tiles.forEach((tile) => {
+		const sortedTiles = tiles.sort((a, b) => a.distToCamera - b.distToCamera);
+		sortedTiles.forEach((tile) => {
 			this.dispatchEvent({ type: "tile-created", tile });
 			tile.load(this.loader, this.minLevel, this.maxLevel).then((loaded) => {
 				if (loaded) {

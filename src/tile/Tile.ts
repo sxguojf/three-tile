@@ -214,6 +214,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create && this.showing) {
 			newTiles = creatChildrenTile(this, isWGS);
+			newTiles.forEach((tile) => (this.distToCamera = tile._getDistToCamera(cameraWorldPosition)));
 		} else if (action === LODAction.remove) {
 			const parent = this.parent;
 			if (parent?.isTile && !parent.showing) {
