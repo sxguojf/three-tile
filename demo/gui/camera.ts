@@ -1,6 +1,6 @@
 import { CameraHelper, Vector3 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
-import { Tween } from "three/examples/jsm/libs/tween.module.js";
+import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../../src";
 
 export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
@@ -16,7 +16,7 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			// 先到10000km高空
 			.to({ y: 10000, z: 0 }, 500)
 			// 再到目标位置
-			.chain(new Tween(start).to(cameraPos, 2000))
+			.chain(new Tween(start).to(cameraPos, 2000).easing(TWEEN.Easing.Quintic.Out))
 			.start();
 	};
 
