@@ -297,7 +297,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param disposeSelf dispose self?
 	 */
 	public dispose(disposeSelf: boolean) {
-		if (this.loadState != "empty" && disposeSelf) {
+		if (this.loadState != "empty" && disposeSelf && this.isTile) {
 			this._loadState = "empty";
 			this.loadAbort();
 			this._dispose();
@@ -311,9 +311,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	private _dispose() {
-		if (!this.isTile) {
-			return;
-		}
 		// dispose material
 		this.material.forEach((mat) => mat.dispose());
 
