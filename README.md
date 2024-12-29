@@ -1,58 +1,60 @@
+[English](README.md) | [简体中文](README_CN.md)
+
 # **three-tile V0.7.0**
 
 <p align='right'>hz_gjf@163.com</p>
 
-## 1 简介
+## 1 Introduction
 
-three-tile 是一个基于 [threejs](https://threejs.org/)开发的轻量级三维瓦片地图库，具有使用简单、资源占用少等优点，它提供了一个轻量级三维地形模型，适用于给基于 threejs 开发应用添加三维地图。
+three-tile is a lightweight 3D tile map library developed based on [threejs](https://threejs.org/). It offers advantages such as ease of use and low resource consumption, and provides a lightweight 3D terrain model suitable for adding 3D maps to applications developed with threejs.
 
-详细介绍：https://blog.csdn.net/HZGJF/article/details/140280844
+For more details, please visit: [https://blog.csdn.net/HZGJF/article/details/140280844](https://blog.csdn.net/HZGJF/article/details/140280844)
 
-注意：这不是 Cesium，也不是 Mapbox-gl，跟这些三维 GIS 框架没有关系。
+Note: This is neither Cesium nor Mapbox-gl, and it has no relationship with these 3D GIS frameworks.
 
-Source: https://github.com/sxguojf/three-tile
+Source: [https://github.com/sxguojf/three-tile](https://github.com/sxguojf/three-tile)
 
-demo: https://sxguojf.github.io/mydemo/three-tile/index.html
+Demo: [https://sxguojf.github.io/mydemo/three-tile/index.html](https://sxguojf.github.io/mydemo/three-tile/index.html)
 
-提供一些开发示例：
+Some development examples are provided:
 
-Examples Source： https://github.com/sxguojf/three-tile-example
+Examples Source: [https://github.com/sxguojf/three-tile-example](https://github.com/sxguojf/three-tile-example)
 
-Examples: https://sxguojf.github.io/three-tile-example
+Examples: [https://sxguojf.github.io/three-tile-example](https://sxguojf.github.io/three-tile-example)
 
-使用 vue 开发：
+Developed using Vue:
 
-https://sxguojf.github.io/mydemo/three-tile-vue/index.html
+[https://sxguojf.github.io/mydemo/three-tile-vue/index.html](https://sxguojf.github.io/mydemo/three-tile-vue/index.html)
 
 | ![alt text](images/image-3.png)                                | ![alt text](images/image-4.png)                                |
 | -------------------------------------------------------------- | -------------------------------------------------------------- |
 | ![alt text](images/image-2.png)                                | ![image-20240715090719129](images/image-20240715090719129.png) |
 | ![image-20240715090911564](images/image-20240715090911564.png) | ![alt text](images/image-1.png)                                |
 
-免责声明：
+Disclaimer:
 
--   本框架不含任何地图数据，Example 中使用的地图均为直接调用第三方数据，使用中请遵循法律法规要求。
+-   This framework does not contain any map data. The maps used in the examples directly call third-party data. Please comply with legal and regulatory requirements when using them.
 
-### 1.1 特点
+### 1.1 Features
 
--   轻量级：地图以一个三维模型方式提供，不会对已有程序架构产生任何影响。
--   依赖少：整个框架仅有 threejs（R165）一个依赖。
--   速度快：对资源占少，核显也能轻松跑到 60FPS。
--   使用简单：熟悉 threejs 基本上没有学习成本。
--   扩展性强：数据、模型、纹理、材质、渲染过程均能根据自己需要扩展和替换。
+-   Lightweight: The map is provided as a 3D model, without any impact on the existing program architecture.
+-   Few dependencies: The entire framework only has one dependency, which is threejs (R165).
+-   Fast: Low resource consumption, capable of running smoothly at 60FPS even on integrated graphics.
+-   Easy to use: Familiarity with threejs means virtually no learning curve.
+-   Highly extensible: Data, models, textures, materials, and the rendering process can all be extended and replaced according to your needs.
 
-### 1.2 开发环境
+### 1.2 Development Environment
 
--   语言：TypeScript 100%
--   IDE： VSCode
--   打包：Vite 4.0
--   依赖：three 0.165
+-   Language: 100% TypeScript
+-   IDE: VSCode
+-   Bundler: Vite 4.0
+-   Dependency: three 0.165
 
 ---
 
-## 2 安装
+## 2 Installation
 
-### 2.1 直接引用
+### 2.1 Direct Reference
 
 ```
 <script type="importmap">
@@ -77,304 +79,205 @@ yarn add three-tile -S
 
 ---
 
-## 3 使用
+## 3 Usage
 
-和一般 threejs 应用一样，初始化 threejs 三维场景后，将地图模型加入场景即可完成地图的显示。
+Like a typical threejs application, after initializing the threejs 3D scene, you can add the map model to the scene to display the map.
 
-使用按以下步骤：
+Follow these steps for usage:
 
-1. 定义地图数据源
-2. 创建地图模型
-3. 初始化三维场景
-4. 地图模型加入三维场景
+1. Define the map data source
+2. Create the map model
+3. Initialize the 3D scene
+4. Add the map model to the 3D scene
 
-### 3.1 定义地图数据源
+### 3.1 Define the Map Data Source
 
-three-tile 内置了 Mapbox、ArcGis、Bing、天地图、高德、腾讯等多个厂商的瓦片地图源，可直接调用，也可根据根据需要自行扩展。地图切片默认使用 Google 方案，地形瓦片支持 MapBox 的 terrain-rgb 和 ArcGis 的 LERC 格式。如 MapBox 数据源创建如下：
+three-tile comes with built-in tile map sources from multiple providers such as Mapbox, ArcGis, Bing, Tianditu, Gaode, Tencent, etc. These can be directly used or extended as needed. By default, the map tiles use the Google scheme, and the terrain tiles support MapBox's terrain-rgb and ArcGis's LERC formats. For example, creating a MapBox data source is done as follows:
 
 ```typescript
 import * as tt from "three-tile";
 
-// MapBoxToken 请更换为你自己申请的key
+// MapBox Token
 const MAPBOXKEY = "xxxxxxxxxx";
 
-// mapbox 影像数据源
+// mapbox raster data source
 const mapBoxImgSource = new tt.plugin.MapBoxSource({
 	token: MAPBOXKEY,
-	dataType: "image", //影像格式数据标志
-	style: "mapbox.satellite", //mapbox卫星影像数据url参数
+	dataType: "image", // image data type flag
+	style: "mapbox.satellite", //mapbox raster data url parameter
 });
 
-// mapbox 地形数据源
+// mapbox terrain data source
 export const mapBoxDemSource = new tt.plugin.MapBoxSource({
 	token: MAPBOXKEY,
-	dataType: "terrain-rgb", //terrain-rgb格式地形数据标志
-	style: "mapbox.terrain-rgb", //mapbox地形数据url参数
+	dataType: "terrain-rgb", //terrain-rgb data type flag
+	style: "mapbox.terrain-rgb", //mapbox terrain-rgb data url parameter
 	maxLevel: 15,
 });
 ```
 
-**注意：**
+Note:
 
-1. 多数地图服务源需要申请 token 才能使用，请不要用我示例中的。
-2. 为了便于体验，demo 代码中包含部分厂家地图服务 token，但用的多了厂家会限制，如果地图出不来请更换 token。
-3. 部分国外的地图无法访问，或是速度很慢，这个需要自己想办法，你们懂的。
-4. 国内地图使用“火星坐标系”，影像图与地形有可能无法套准。
-5. 地图数据使用，请遵循法律法规要求。
+Most map service sources require a token to use, so please do not use the one in my example.
+For ease of experience, the demo code includes tokens for some map service providers, but excessive use may lead to restrictions. If the map does not load, please replace the token.
+Some foreign maps may be inaccessible or very slow. You will need to find your own solution for this, as you know.
+Chinese maps use the "Mars Coordinate System," which may result in misalignment between imagery and terrain.
+When using map data, please comply with legal and regulatory requirements.
 
-### 3.2 地图创建
+3.2 Map Creation
 
 ```typescript
 import * as tt from "three-tile";
 
-// 创建地图对象
+// Create map object
 const map = new tt.TileMap({
-	// 影像数据源
+	// Image data source
 	imgSource: imgSource,
-	// 高程数据源
+	// Elevation data source
 	demSource: demSource,
-	// 地图投影中央经线经度
+	// Central meridian longitude of map projection
 	lon0: 90,
-	// 最小缩放级别
+	// Minimum zoom level
 	minLevel: 2,
-	// 最大缩放级别
+	// Maximum zoom level
 	maxLevel: 20,
 });
 
-// 地图旋转到xz平面
+// Rotate the map to the xz plane
 map.rotateX(-Math.PI / 2);
 
-// 将地图加入三维场景
+// Add the map to the 3D scene
 viewer.scene.add(map);
 ```
 
-### 3.3 初始化三维场景
-
-three-tile 的三维场景初始化与 threejs 相同，按 threejs 的套路初始化场景、摄像机、控制器、灯光等即可。为了便于使用，three-tile 还提供一个 GLViewer 类，它封装了场景初始化过程，可直接使用它进行初始化。
+3.3 Initialize the 3D Scene
+The initialization of the 3D scene in three-tile is the same as in threejs. You can initialize the scene, camera, controls, lights, etc., following the threejs approach. For ease of use, three-tile also provides a GLViewer class that encapsulates the scene initialization process and can be used directly for initialization.
 
 ```typescript
 import * as tt from "three-tile";
 
-// 初始化三维场景(调用three-tile内置的初始化类)
+// Initialize the 3D scene (using the built-in initialization class of three-tile)
 const viewer = new tt.plugin.GLViewer("#map");
 ```
 
-与二维 webgis 不同，三维场景中平移、缩放、旋转地图模型并不是修改模型的位置和大小，而是修改摄像机（观察者）位置来实现的。包括摄像机坐标和其方向矢量（或 heading 、pitch 、roll ），即观察者在哪个坐标及朝哪个方向看。这个这个描述有些抽象，three-tile 中用摄像机坐标和地图中心坐标替代，通过将摄像机经度纬度高度和地图中心经度纬度高度转换为世界坐标，传入 GLViewer 构造函数参数来定位。
+Unlike 2D webgis, translating, scaling, and rotating the map model in a 3D scene is not achieved by modifying the model's position and size, but by adjusting the camera's (observer's) position. This includes modifying the camera's coordinates and its direction vector (or heading, pitch, roll), which determines where the observer is located and in which direction they are looking. This description may be somewhat abstract. In three-tile, camera coordinates and map center coordinates are used instead. By converting the camera's latitude, longitude, and altitude, as well as the map center's latitude, longitude, and altitude, into world coordinates, they are passed as parameters to the GLViewer constructor for positioning.
 
 ```typescript
-// 初始化三维场景
+// Initialize the 3D scene
 function initViewer(id: string, map: tt.TileMap) {
-	// 地图中心坐标(经度，纬度，高度)
+	// Map center coordinates (longitude, latitude, altitude)
 	const centerGeo = new Vector3(110, 30, 0);
-	// 摄像坐标(经度，纬度，高度)
+	// Camera coordinates (longitude, latitude, altitude)
 	const camersGeo = new Vector3(110, 0, 10000);
-	// 地图中心经纬度高度转为世界坐标
+	// Convert map center longitude, latitude, and altitude to world coordinates
 	const centerPostion = map.geo2world(centerGeo);
-	// 摄像机经纬度高度转为世界坐标
+	// Convert camera longitude, latitude, and altitude to world coordinates
 	const cameraPosition = map.geo2world(camersGeo);
-	// 初始化场景
+	// Initialize the scene
 	const viewer = new tt.plugin.GLViewer(id, { centerPostion, cameraPosition });
-	// 地图添加到场景
+	// Add the map to the scene
 	viewer.scene.add(map);
 	return viewer;
 }
 ```
 
-如果你熟悉 threejs，场景初始化最好自己写，跟普通 threejs 程序并无太大差异。以下部分需要注意：
+If you are familiar with threejs, it is best to initialize the scene yourself, as it is not much different from a regular threejs program. Here are some key points to note:
 
--   地图添加光照才能显示。一般至少要有一个环境光，另外最好加一个直射光增强凹凸感。
--   场景控制器一般应用可使用 threejs 内置的 MapControls，其它控制器如 OrbitControls、FlyControls、PointerLockControls、TransformControls、FirstPersonControls 都能完美支持。
+-   The map needs to be illuminated to be visible. Generally, at least one ambient light is required, and it is advisable to add a directional light to enhance the sense of relief.
+-   For scene controls, the built-in MapControls in threejs can be used for most applications. Other controllers such as OrbitControls, FlyControls, PointerLockControls, TransformControls, and FirstPersonControls are also fully supported.
 
-## 4. 主要类说明
+## 4. Key Class Descriptions
 
-一般使用，仅需 TileMap 类即可完成绝大部分操作，TileMap 继承于 threejs 的 Mesh 类，你可以把它当做一个普通的三维模型，加入 scene 即可使用。
+For general use, the TileMap class is sufficient for most operations. TileMap inherits from the Mesh class in threejs, so you can treat it as a regular 3D model and add it to the scene for use.
 
-### 4.1 TileMap 构造函数
+### 4.1 TileMap Constructor
 
-constructor(params: MapParams) ，地图构造函数参数：
+`constructor(params: MapParams)` - The constructor for the map. The parameters for the map constructor are as follows:
 
 ```typescript
 type MapParams = {
-	imgSource: ISource[] | ISource; //影像数据源
-	demSource?: ISource; //高程数据源
-	minLevel?: number; //最小缩放级别
-	maxLevel?: number; //最大缩放级别
-	lon0?: ProjectCenterLongitude; //地图投影中央经线经度
-	loader?: ITileLoader; //地图加载器
-	rootTile?: RootTile; //根瓦片
+	imgSource: ISource[] | ISource; // Image data source
+	demSource?: ISource; // Elevation data source
+	minLevel?: number; // Minimum zoom level
+	maxLevel?: number; // Maximum zoom level
+	lon0?: ProjectCenterLongitude; // Central meridian longitude of map projection
+	loader?: ITileLoader; // Map loader
+	rootTile?: RootTile; // Root tile
 };
 ```
 
-| 名称      | 类型                   | 说明                                                                                                                                                                                          |
-| --------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| imgSource | ISource[] \| ISource   | 必选参数，默认为[]，用来指定地图瓦片的影像数据源，如果有多层影像数据可传入影像源数组，多层影像将以叠加混合方式显示。数据源的类型为 ISource，three-tile 已内置主流瓦片数据源，可直接创建使用。 |
-| demSource | ISource                | 可选参数，默认为 undefined，用来指定地图瓦片地形数据源，如果为空，地图将不显示地形，与影像数据源一样，可使用内置的地形数据源。                                                                |
-| minLevel  | number                 | 可选参数，地图瓦片的最小缩放级别，默认为 0，当瓦片缩放级别小于它时地图瓦片将不再合并。                                                                                                        |
-| maxLevel  | number                 | 可选参数，地图瓦片的最最大放级别，默认为 19，当瓦片缩放级别小于它时地图瓦片将不再细分。                                                                                                       |
-| lon0      | ProjectCenterLongitude | 可选参数，地图投影中央经线经度，默认为 0，它用来指定投影的中央经线的经度，注意它并不是用来指定地图中心位置的。                                                                                |
-| loader    | ITileLoader            | 可选参数，地图数据加载器，默认为内置的 TileLoader 类实例，用来指定用哪个加载器加载数据生成瓦片模型和材质，高级开发者可通过自定义 loader 实现自定义数据加载、瓦片模型创建过程。                |
-| rootTile  | RootTile               | 可选参数，地图根瓦片，默认为 0 级瓦片，用来指定从哪个开始创建瓦片树，不需要手工传入。                                                                                                         |
+The parameters for the TileMap constructor are encapsulated as properties with the same names within the TileMap class, and the map state can be changed by modifying these properties during runtime.
 
-构造函数参数，均作为 TileMap 的同名属性进行封装，运行时可通过修改这些属性改变地图状态。
+Here is a detailed breakdown of the parameters:
 
-### 4.2 TileMap 主要属性
+| Name      | Type                   | Description                                                                                                                                                                                                                                                                                                                                               |
+| --------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| imgSource | ISource[] \| ISource   | Required, default is `[]`. Specifies the image data source for map tiles. If multiple image layers are needed, an array of image sources can be passed, and they will be displayed in a blended overlay manner. The data source type is `ISource`, and three-tile comes with built-in mainstream tile data sources that can be created and used directly. |
+| demSource | ISource                | Optional, default is `undefined`. Specifies the terrain data source for map tiles. If it is empty, the terrain will not be displayed on the map. Like the image data source, built-in terrain data sources can be used.                                                                                                                                   |
+| minLevel  | number                 | Optional, default is `0`. Specifies the minimum zoom level for map tiles. When the tile zoom level is less than this value, map tiles will no longer be merged.                                                                                                                                                                                           |
+| maxLevel  | number                 | Optional, default is `19`. Specifies the maximum zoom level for map tiles. When the tile zoom level exceeds this value, map tiles will no longer be subdivided.                                                                                                                                                                                           |
+| lon0      | ProjectCenterLongitude | Optional, default is `0`. Specifies the longitude of the central meridian for the map projection. Note that it is not used to specify the center position of the map.                                                                                                                                                                                     |
+| loader    | ITileLoader            | Optional, default is an instance of the built-in `TileLoader` class. Specifies which loader to use for loading data to generate tile models and materials. Advanced developers can customize the loader to implement custom data loading and tile model creation processes.                                                                               |
+| rootTile  | RootTile               | Optional, default is the level 0 tile. Specifies from which tile to start creating the tile tree. This does not need to be passed manually.                                                                                                                                                                                                               |
 
-| 名称          | 类型     | 说明                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| autoUpdate    | boolean  | 默认为 true，指定是否在每帧渲染中更新地图模型和数据。禁止更新主要有两种使用场景，一是在某些特效需要增加新摄像机离线渲染图像，如水面、反光等特效，当 autoUpdate 为 true 时，地图瓦片会根据摄像机位置做 LOD，无法取得正确的离线渲染图像，为解决这个问题可在加载特效前将 autoUpdate 设 为 false，禁止自动更新，特效渲染完成后恢复自动；二是用于瓦片树和数据加载调试，运行时禁止自动更新可查看瓦片树是否正确得被细化、合并、剔除 |
-| autoPosition  | boolean  | 默认为 false，指定是否在每帧渲染中根据视野内瓦片的平均海拔高度调整地图模型的位置（高度）。地图模型默认位置在海拔 0 米，但在高海拔地区，地面在视野里显得很高，打开自动调整会将模型位置调整为地面平均海拔高度而不是 0 米。如果你不明白它是啥意思，保持默认值                                                                                                                                                                   |
-| maxZInView    | number   | 取得视野内地形的最高高度                                                                                                                                                                                                                                                                                                                                                                                                     |
-| minZInView    | number   | 取得视野内地形的最低高度                                                                                                                                                                                                                                                                                                                                                                                                     |
-| avgZInView    | number   | 取得视野内地形的平均高度                                                                                                                                                                                                                                                                                                                                                                                                     |
-| loadCacheSize | number   | 默认为 300，设置或取得瓦片数据的缓存大小，单位为块。较大的缓存能提高运行速度，但会耗费较多内存                                                                                                                                                                                                                                                                                                                               |
-| LODThreshold  | number   | 默认为 1，设置瓦片 LOD 阈值系数。TileMap 本质上是一个动态 LOD 模型，它根据瓦片离摄像机的距离对模型进行细化或合并，该值越大瓦片细化越快，越小瓦片合并越快快                                                                                                                                                                                                                                                                   |
-| attributions  | string[] | 取得瓦片数据归属者信息，如版权等，来自瓦片数据源定义中的 attributions 属性                                                                                                                                                                                                                                                                                                                                                   |
-| tileCount     | Object   | 取得瓦片统计信息，如瓦片总数、叶子瓦片数、可视瓦片数等，主要用来进行调试                                                                                                                                                                                                                                                                                                                                                     |
+During runtime, you can change the state of the map by modifying these properties.
 
-### 4.3 TileMap 主要方法
+### 4.2 Main Properties of TileMap
 
-| 名称                                                     | 参数                             | 返回                                                                                                            | 功能                                           |
-| -------------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| geo2pos(geo: Vector3)                                    | geo: 地理坐标（经纬度）          | Vector3：地图模型局地坐标                                                                                       | 地理坐标转地图模型坐标                         |
-| pos2geo(pos: Vector3)                                    | pos: 地图模型坐标                | Vector3：地理坐标（经度、纬度、高度）                                                                           | 地图模型坐标转地理坐标                         |
-| geo2world(geo:Vector3)                                   | geo: 地理坐标（经纬度）          | Vector3：世界坐标坐标                                                                                           | 地理坐标转世界坐标                             |
-| world2geo(world:Vector)                                  | world:世界坐标                   | Vector3：地理坐标（经度、纬度、高度）                                                                           | 世界坐标转地理坐标                             |
-| getLocalInfoFromGeo(geo: Vector3)                        | geo: 地理坐标（经纬度）          | LocationInfo：它继承于 THREE.Intersection，除了交点信息，增加了 location 属性，包含地理坐标（经度、纬度、高度） | 获取指定地理坐标的地面信息（法向量、高度等）   |
-| getLocalInfoFromWorld(pos: Vector3)                      | pos: 世界坐标                    | LocationInfo：它继承于 THREE.Intersection，除了交点信息，增加了 location 属性，包含地理坐标（经度、纬度、高度） | 获取指定世界坐标的地面信息（法向量、高度等）   |
-| getLocalInfoFromScreen(camera: Camera, pointer: Vector2) | camera: 摄像机 ,pointer:屏幕坐标 | LocationInfo：它继承于 THREE.Intersection，除了交点信息，增加了 location 属性，包含地理坐标（经度、纬度、高度） | 获取指定屏幕坐标的地面信息（法向量、高度等）   |
-| reload()                                                 | void                             | void                                                                                                            | 重新加载地图，在改变地图数据源后调用它才能生效 |
-| static create(params: MapParams)                         | params:地图构建参数              | TileMap：瓦片地图对象                                                                                           | 静态工厂函数，与构造函数功能参数相同           |
+| Name          | Type     | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| autoUpdate    | boolean  | Default is `true`. Specifies whether to update the map model and data during each frame render. Disabling updates is mainly used in two scenarios: one is for offline rendering of new camera images for certain effects, such as water surfaces and reflections. When `autoUpdate` is `true`, map tiles will perform LOD based on camera position, which may not obtain correct offline rendered images. To solve this problem, set `autoUpdate` to `false` before loading the effects to disable automatic updates, and restore it after the effects are rendered. The second scenario is for debugging the tile tree and data loading, where disabling automatic updates during runtime allows you to check whether the tile tree is correctly refined, merged, or culled. |
+| autoPosition  | boolean  | Default is `false`. Specifies whether to adjust the position (height) of the map model based on the average altitude of the tiles within the view in each frame render. The default position of the map model is at sea level (0 meters), but in high-altitude areas, the ground appears high in the view. Enabling automatic adjustment will set the model position to the average ground altitude instead of 0 meters. If you are unsure what this means, keep the default value.                                                                                                                                                                                                                                                                                           |
+| maxZInView    | number   | Gets the maximum height of the terrain within the view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| minZInView    | number   | Gets the minimum height of the terrain within the view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| avgZInView    | number   | Gets the average height of the terrain within the view.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| loadCacheSize | number   | Default is `300`. Sets or gets the cache size for tile data, measured in tiles. A larger cache can improve runtime performance but will consume more memory.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| LODThreshold  | number   | Default is `1`. Sets the LOD threshold coefficient for tiles. TileMap is essentially a dynamic LOD model that refines or merges models based on the distance of the tiles from the camera. A higher value results in faster tile refinement, while a lower value results in faster tile merging.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| attributions  | string[] | Gets attribution information for the tile data, such as copyright, from the `attributions` property defined in the tile data source.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| tileCount     | Object   | Gets tile statistics information, such as the total number of tiles, the number of leaf tiles, and the number of visible tiles, primarily used for debugging.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
-### 4.4 TileMap 事件
+### 4.3 Main Methods of TileMap
 
-| 事件名称           | 参数                                                    | 说明                                                               |
-| ------------------ | ------------------------------------------------------- | ------------------------------------------------------------------ |
-| update             | delta: 时间戳                                           | 在地图每帧更新时发生，与 threejs 的渲染回调函数基本一致            |
-| tile-created       | tile: 瓦片                                              | 在每块瓦片创建完成后发生，可在此事件中修改瓦片默认属性             |
-| tile-loaded        | tile: 瓦片                                              | 在每块瓦片数据加载完成时发生，可在此事件中修改瓦片几何体和材质属性 |
-| source-changed     | source: 地图数据源                                      | 在数据源对象发生变化时发生                                         |
-| projection-changed | projection: 投影对象                                    | 在地图投影发生变化时发生                                           |
-| loading-start      | itemsLoaded: 加载完成数量<br />itemsTotal: 加载完成合计 | 在地图数据开始加载时发生（THREE.LoadingManager 事件的封装）        |
-| loading-error      | url: 瓦片 url                                           | 在地图数据加载错误时发生（THREE.LoadingManager 事件的封装）        |
-| loading-complete   | 无                                                      | 在地图数据全部加载完成时发生（THREE.LoadingManager 事件的封装）    |
+| Name                                                     | Parameters                                  | Returns                                                                                                                                             | Function                                                                                    |
+| -------------------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| geo2pos(geo: Vector3)                                    | geo: geographic coordinates (lat/lon)       | Vector3: local coordinates of the map model                                                                                                         | Convert geographic coordinates to map model coordinates                                     |
+| pos2geo(pos: Vector3)                                    | pos: map model coordinates                  | Vector3: geographic coordinates (longitude, latitude, altitude)                                                                                     | Convert map model coordinates to geographic coordinates                                     |
+| geo2world(geo: Vector3)                                  | geo: geographic coordinates (lat/lon)       | Vector3: world coordinates                                                                                                                          | Convert geographic coordinates to world coordinates                                         |
+| world2geo(world: Vector3)                                | world: world coordinates                    | Vector3: geographic coordinates (longitude, latitude, altitude)                                                                                     | Convert world coordinates to geographic coordinates                                         |
+| getLocalInfoFromGeo(geo: Vector3)                        | geo: geographic coordinates (lat/lon)       | LocationInfo: inherits from THREE.Intersection, with additional location property containing geographic coordinates (longitude, latitude, altitude) | Get ground information (normal vector, altitude, etc.) for specified geographic coordinates |
+| getLocalInfoFromWorld(pos: Vector3)                      | pos: world coordinates                      | LocationInfo: inherits from THREE.Intersection, with additional location property containing geographic coordinates (longitude, latitude, altitude) | Get ground information (normal vector, altitude, etc.) for specified world coordinates      |
+| getLocalInfoFromScreen(camera: Camera, pointer: Vector2) | camera: camera, pointer: screen coordinates | LocationInfo: inherits from THREE.Intersection, with additional location property containing geographic coordinates (longitude, latitude, altitude) | Get ground information (normal vector, altitude, etc.) for specified screen coordinates     |
+| reload()                                                 | void                                        | void                                                                                                                                                | Reload the map; call this method after changing the map data source for it to take effect   |
+| static create(params: MapParams)                         | params: map construction parameters         | TileMap: tile map object                                                                                                                            | Static factory function with the same functionality and parameters as the constructor       |
 
-## 5. 约定和限制
+### 4.4 TileMap Events
 
--   坐标系：地图模型局地坐标系为东北上坐标系，即 X 轴指向东，Y 轴指向北，Z 轴指向天顶。与 threejs 默认坐标不同需要注意。地图 的 up 值为 (0,0,1)。
--   坐标单位：角度单位为弧度，经纬度为度，3857 投影（默认）坐标单位为公里，4326 投影单位为 0.01 度，高度单位均为公里。
--   瓦片数据：内建的地图影像和地形支持 3854 和 4326 投影瓦片，暂不支持矢量瓦片。
--   瓦片属性：默认情况瓦片模型透明属性开启，renderOrder=0，请注意渲染顺序。
--   地图清晰度：清晰度与本框架无关，取决数据源精度。
--   地图偏移：大部分国内厂商地图数据的地名、边界、道路有一定偏移，与地形无法完全匹配。
--   地图 token：大部分厂商的地图数据需要申请开发 key 才能使用，three-tile 示例包含一些厂商的 token，访问次数有限，使用者一定要自己申请（又不要钱）避免直接使用。
+| Event Name         | Parameters                                                               | Description                                                                                                  |
+| ------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| update             | delta: timestamp                                                         | Occurs on each frame update of the map, similar to the render callback function in threejs                   |
+| tile-created       | tile: tile                                                               | Occurs after each tile is created, allowing modification of default tile properties                          |
+| tile-loaded        | tile: tile                                                               | Occurs when the data for each tile is loaded, allowing modification of tile geometry and material properties |
+| source-changed     | source: map data source                                                  | Occurs when the data source object changes                                                                   |
+| projection-changed | projection: projection object                                            | Occurs when the map projection changes                                                                       |
+| loading-start      | itemsLoaded: number of items loaded<br />itemsTotal: total items to load | Occurs when map data starts loading (wrapper for THREE.LoadingManager event)                                 |
+| loading-error      | url: tile URL                                                            | Occurs when an error occurs during map data loading (wrapper for THREE.LoadingManager event)                 |
+| loading-complete   | None                                                                     | Occurs when all map data is fully loaded (wrapper for THREE.LoadingManager event)                            |
 
-## 6. 运行调试程序
+## 5. Conventions and Limitations
+
+-   Coordinate System: The local coordinate system of the map model is an east-north-up (ENU) system, where the X-axis points east, the Y-axis points north, and the Z-axis points upwards. This differs from the default coordinates in threejs and should be noted. The up vector for the map is (0,0,1).
+-   Coordinate Units: Angle units are in radians, latitude and longitude are in degrees, 3857 projection (default) coordinate units are in kilometers, 4326 projection units are in 0.01 degrees, and all height units are in kilometers.
+-   Tile Data: Built-in map imagery and terrain support 3854 and 4326 projection tiles, vector tiles are not currently supported.
+-   Tile Properties: By default, tile models have transparency enabled and renderOrder=0; please pay attention to the rendering order.
+-   Map Clarity: Map clarity is unrelated to this framework and depends on the precision of the data source.
+-   Map Offset: Most domestic map data providers have certain offsets in place names, boundaries, and roads, which may not fully align with terrain.
+-   Map Tokens: Most map data providers require a development key to access their data. The three-tile examples may include tokens for some providers, but these have limited access. Users should apply for their own tokens (which are usually free) to avoid direct use.
+
+## 6. Running and Debugging the Program
 
 -   npm run dev
 
-## 7. 示例
-
-提供一个最小化示例：
-
-```html
-<!DOCTYPE html>
-<html lang="zh-cn">
-	<head>
-		<meta charset="utf-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-		/>
-		<title>three-tile最小化应用</title>
-	</head>
-	<style>
-		html,
-		body {
-			background-color: #333;
-			height: 100%;
-			width: 100%;
-			padding: 0;
-			margin: 0;
-			display: flex;
-		}
-		#map {
-			flex: 1;
-		}
-	</style>
-
-	<!-- 使用importmap导入 -->
-	<script type="importmap">
-		{
-			"imports": {
-				"three": "https://unpkg.com/three@0.165.0/build/three.module.js",
-				"three-tile": "https://unpkg.com/three-tile@0.7.0/dist/three-tile.js"
-			}
-		}
-	</script>
-
-	<body>
-		<div id="map"></div>
-		<script type="module">
-			import * as THREE from "three";
-			import * as tt from "three-tile";
-
-			console.log("three-tile start!");
-
-			// MapBoxToken 请更换为你自己申请的key
-			const MAPBOXKEY =
-				"pk.eyJ1Ijoic2hhbmUwMjIwNzIiLCJhIjoiY2p5amF6YnFiMDB0YjNkcGU1ZWxoMWl0NiJ9.TsmgK5-HJKWOE-DscbNbTA";
-
-			// mapbox影像数据源
-			const mapBoxImgSource = new tt.plugin.MapBoxSource({
-				token: MAPBOXKEY,
-				dataType: "image",
-				style: "mapbox.satellite",
-			});
-			// mapbox地形数据源
-			const mapBoxDemSource = new tt.plugin.MapBoxSource({
-				token: MAPBOXKEY,
-				dataType: "terrain-rgb",
-				style: "mapbox.terrain-rgb",
-				maxLevel: 15,
-			});
-
-			// 创建地图
-			const map = tt.TileMap.create({
-				// 影像数据源
-				imgSource: mapBoxImgSource,
-				// 地形数据源
-				demSource: mapBoxDemSource,
-				// 地图投影中心经度
-				lon0: 90,
-				// 最小缩放级别
-				minLevel: 2,
-				// 最大缩放级别
-				maxLevel: 18,
-			});
-			// 地图旋转到xz平面
-			map.rotateX(-Math.PI / 2);
-
-			// 地图中心坐标(经度，纬度，高度)
-			const centerGeo = new THREE.Vector3(105, 30, 0);
-			// 摄像坐标(经度，纬度，高度)
-			const camersGeo = new THREE.Vector3(105, 0, 5000);
-			// 地图中心转为世界坐标
-			const centerPostion = map.geo2world(centerGeo);
-			// 摄像机转为世界坐标
-			const cameraPosition = map.geo2world(camersGeo));
-			// 初始化场景
-			const viewer = new tt.plugin.GLViewer("#map", { centerPostion, cameraPosition });
-
-			// 地图添加到场景
-			viewer.scene.add(map);
-		</script>
-	</body>
-</html>
-```
-
-更多使用方法见 example https://sxguojf.github.io/three-tile-example
-
-## 8. 参考
+## 7. References
 
 -   https://github.com/CesiumGS/cesium
 -   https://github.com/mapbox/mapbox-gl-js
