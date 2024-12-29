@@ -4,18 +4,7 @@
  *@date: 2023-04-05
  */
 
-import {
-	BaseEvent,
-	BufferGeometry,
-	Intersection,
-	Material,
-	Mesh,
-	MeshBasicMaterial,
-	Object3DEventMap,
-	PlaneGeometry,
-	Raycaster,
-	Vector3,
-} from "three";
+import { BaseEvent, BufferGeometry, Intersection, Material, Mesh, Object3DEventMap, Raycaster, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { LODAction, LODEvaluate } from "./LODEvaluate";
 import { creatChildrenTile } from "./tileCreator";
@@ -29,12 +18,6 @@ export interface TTileEventMap extends Object3DEventMap {
 	"tile-created": BaseEvent & { tile: Tile };
 	"tile-loaded": BaseEvent & { tile: Tile };
 }
-
-// Default geometry of tile
-const defaultGeometry = new PlaneGeometry();
-
-// Default material of tile
-const defaultMaterial = new MeshBasicMaterial();
 
 /**
  * Type of Loading state
@@ -115,7 +98,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	public set showing(value) {
 		if (this.isTile) {
 			this._showing = value;
-			this.material.forEach((mat) => (mat.visible = value));
+			if (Array.isArray(this.material)) {
+				this.material.forEach((mat) => (mat.visible = value));
+			}
 		}
 	}
 
@@ -141,7 +126,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * * @param z tile level, default:0
 	 */
 	public constructor(x = 0, y = 0, z = 0) {
-		super(defaultGeometry, [defaultMaterial]);
+		super();
 		this.coord = { x, y, z };
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.matrixAutoUpdate = false;
@@ -232,7 +217,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * Tile Fade in
 	 */
 	private _fadeIn() {
-		if (this.showing) {
+		if (this.showing && Array.isArray(this.material)) {
 			this.material.forEach((mat) => {
 				if (mat.opacity < mat.userData.opacity) {
 					mat.opacity += 0.01;
@@ -330,17 +315,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			return;
 		}
 		// dispose material
-		if (this.material[0] != defaultMaterial) {
-			this.material.forEach((mat) => mat.dispose());
-			this.material = [defaultMaterial];
-		}
+		this.material.forEach((mat) => mat.dispose());
 
 		// dispose geometry
-		if (this.geometry != defaultGeometry) {
-			this.geometry.dispose();
-			this.geometry.groups = [];
-			this.geometry = defaultGeometry;
-		}
+		this.geometry.dispose();
+		this.geometry.groups = [];
 
 		// fire dispose
 		this.dispatchEvent({ type: "dispose" });

@@ -93,12 +93,12 @@ export class RootTile extends Tile {
 	/**
 	 * Constructor
 	 * @param loader tile data loader
-	 * @param level tile level, default:0
+	 * @param z tile level, default:0
 	 * @param x tile X-coordinate, default:0
 	 * @param y tile y-coordinate, default:0
 	 */
-	public constructor(loader: ITileLoader, level = 0, x = 0, y = 0) {
-		super(level, x, y);
+	public constructor(loader: ITileLoader, z = 0, x = 0, y = 0) {
+		super(z, x, y);
 		this.showing = true;
 		this._loader = loader;
 		this.matrixAutoUpdate = true;
