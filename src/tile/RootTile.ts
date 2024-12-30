@@ -172,7 +172,7 @@ export class RootTile extends Tile {
 
 		// LOD evaluate
 		const action = LODEvaluate(tile, this.minLevel, this.maxLevel, this.LODThreshold);
-		if (action === LODAction.create && tile.showing) {
+		if (action === LODAction.create && (tile.showing || tile.coord.z < this.minLevel)) {
 			this.creatChildrenTile(tile);
 		} else if (action === LODAction.remove) {
 			const parent = tile.parent;
@@ -261,15 +261,18 @@ export class RootTile extends Tile {
 }
 
 function createTile(root: RootTile, x: number, y: number, z: number, position: Vector3, scale: Vector3) {
-	const tile = root.loader.load1(x, y, z, () => {
-		// Parent is null mean the tile has dispose
-		if (!tile.parent) {
-			return;
-		}
-		tile.onLoaded();
-		root.calcHeightInView();
-		root.dispatchEvent({ type: "tile-loaded", tile });
-	});
+	const tile =
+		z < root.minLevel
+			? new Tile(x, y, z)
+			: root.loader.load1(x, y, z, () => {
+					// Parent is null mean the tile has dispose
+					if (!tile.parent) {
+						return;
+					}
+					tile.onLoaded();
+					root.calcHeightInView();
+					root.dispatchEvent({ type: "tile-loaded", tile });
+			  });
 	tile.position.copy(position);
 	tile.scale.copy(scale);
 	root.dispatchEvent({ type: "tile-created", tile });
