@@ -7,6 +7,8 @@
 import { Box3, Camera, Frustum, Matrix4, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { Tile } from "./Tile";
+import { LODAction, LODEvaluate } from "./LODEvaluate";
+import { creatChildrenTile } from "./tileCreator";
 
 // export interface RootTileEventMap extends TileEventMap {
 // 	tileCreated: { type: "tile-created" };
@@ -161,13 +163,14 @@ export class RootTile extends Tile {
 			tile.inFrustum = frustum.intersectsBox(bounds);
 
 			// LOD to get new tiles and tiles to remove
-			const { newTiles, oldTiles } = tile._LOD(
-				cameraWorldPosition,
-				this.minLevel,
-				this.maxLevel,
-				this.LODThreshold,
-				this.isWGS,
-			);
+			// const { newTiles, oldTiles } = tile._LOD(
+			// 	cameraWorldPosition,
+			// 	this.minLevel,
+			// 	this.maxLevel,
+			// 	this.LODThreshold,
+			// 	this.isWGS,
+			// );
+			const { newTiles, oldTiles } = this.LOD(tile, cameraWorldPosition);
 			// Dispose old tiles
 			if (oldTiles) {
 				oldTiles.dispose(false);
@@ -177,6 +180,33 @@ export class RootTile extends Tile {
 			this._dataUpdate(newTiles);
 		});
 		return this;
+	}
+
+	/**
+	 *  Get distance of the tile center to camera
+	 */
+	private _getDistToCamera(tile: Tile, cameraPosition: Vector3) {
+		const tilePos = tile.position.clone().setZ(tile.avgZ).applyMatrix4(tile.matrixWorld);
+		return cameraPosition.distanceTo(tilePos);
+	}
+
+	private LOD(tile: Tile, cameraWorldPosition: Vector3) {
+		let newTiles: Tile[] = [];
+		let oldTiles: Tile | null = null;
+		tile.distToCamera = this._getDistToCamera(tile, cameraWorldPosition);
+		// LOD evaluate
+		const action = LODEvaluate(tile, this.minLevel, this.maxLevel, this.LODThreshold);
+		if (action === LODAction.create && tile.showing) {
+			newTiles = creatChildrenTile(tile, this.isWGS);
+			newTiles.forEach((child) => (child.distToCamera = this._getDistToCamera(child, cameraWorldPosition)));
+		} else if (action === LODAction.remove) {
+			const parent = tile.parent;
+			if (parent?.isTile && !parent.showing) {
+				oldTiles = parent;
+				parent.showing = true;
+			}
+		}
+		return { newTiles, oldTiles };
 	}
 
 	/**

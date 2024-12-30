@@ -4,10 +4,8 @@
  *@date: 2023-04-05
  */
 
-import { BaseEvent, BufferGeometry, Intersection, Material, Mesh, Object3DEventMap, Raycaster, Vector3 } from "three";
+import { BaseEvent, BufferGeometry, Intersection, Material, Mesh, Object3DEventMap, Raycaster } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
-import { LODAction, LODEvaluate } from "./LODEvaluate";
-import { creatChildrenTile } from "./tileCreator";
 
 /**
  * Tile event map
@@ -169,63 +167,18 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 *  Get distance of the tile center to camera
-	 */
-	private _getDistToCamera(cameraPosition: Vector3) {
-		const tilePos = this.position.clone().setZ(this.avgZ).applyMatrix4(this.matrixWorld);
-		return cameraPosition.distanceTo(tilePos);
-	}
-
-	/**
-	 * Level Of Details
-	 * @param cameraWorldPosition
-	 * @param minLevel min level of map
-	 * @param maxLevel max level of map
-	 * @param threshold threshold for LOD
-	 * @param isWGS is WGS projection?
-	 * @returns  new tiles and old tiles to remove
-	 */
-	protected _LOD(
-		cameraWorldPosition: Vector3,
-		minLevel: number,
-		maxLevel: number,
-		threshold: number,
-		isWGS: boolean,
-	) {
-		let newTiles: Tile[] = [];
-		let oldTiles: Tile | null = null;
-		this.distToCamera = this._getDistToCamera(cameraWorldPosition);
-		// LOD evaluate
-		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
-		if (action === LODAction.create && this.showing) {
-			newTiles = creatChildrenTile(this, isWGS);
-			newTiles.forEach((tile) => (this.distToCamera = tile._getDistToCamera(cameraWorldPosition)));
-		} else if (action === LODAction.remove) {
-			const parent = this.parent;
-			if (parent?.isTile && !parent.showing) {
-				oldTiles = parent;
-				parent.showing = true;
-			}
-		}
-
-		this._fadeIn();
-
-		return { newTiles, oldTiles };
-	}
-
-	/**
 	 * Tile Fade in
 	 */
-	private _fadeIn() {
-		if (this.showing && Array.isArray(this.material)) {
-			this.material.forEach((mat) => {
-				if (mat.opacity < mat.userData.opacity) {
-					mat.opacity += 0.01;
-				}
-			});
-		}
-		return this;
-	}
+	// private _fadeIn() {
+	// 	if (this.showing && Array.isArray(this.material)) {
+	// 		this.material.forEach((mat) => {
+	// 			if (mat.opacity < mat.userData.opacity) {
+	// 				mat.opacity += 0.01;
+	// 			}
+	// 		});
+	// 	}
+	// 	return this;
+	// }
 
 	/**
 	 * Load data
@@ -312,7 +265,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	private _dispose() {
 		// dispose material
-		this.material.forEach((mat) => mat.dispose());
+		if (Array.isArray(this.material)) {
+			this.material.forEach((mat) => mat.dispose());
+		}
 
 		// dispose geometry
 		this.geometry.dispose();
