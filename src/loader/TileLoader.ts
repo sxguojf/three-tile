@@ -82,59 +82,65 @@ export class TileLoader implements ITileLoader {
 
 		tile.geometry = geometry;
 		tile.material = materials;
-
-		// Timeout
-		// setTimeout(() => {
-		// 	if (tile.loadState === "loading") {
-		// 		tile.loadAbort({ name: "TimeOut" });
-		// 		console.error("TimeOut: ", tile.name);
-		// 	}
-		// }, this.timeout);
 	}
 
 	public load1(x: number, y: number, z: number, onLoad: () => void): Tile {
 		const tile = new Tile(x, y, z);
 
 		const abortController = new AbortController();
-		tile.addEventListener("dispose", () => abortController.abort());
-
-		setTimeout(() => {
-			if (tile.parent) {
-				const onDataLoad = () => {
-					// dem and img both loaded
-					if (geoLoaded && matLoaded) {
-						if (tile.material.length > 0) {
-							debugger;
-							console.log(tile.material.length);
-						}
-
-						for (let i = 0; i < materials.length; i++) {
-							geometry.addGroup(0, Infinity, i);
-						}
-						tile.geometry = geometry;
-						tile.material = materials;
-						onLoad();
-					}
-				};
-
-				let geoLoaded = false;
-				let matLoaded = false;
-
-				const geometry = this.loadGeometry(tile, () => {
-					geoLoaded = true;
-					onDataLoad();
-				});
-
-				const materials = this.loadMaterial(tile, () => {
-					matLoaded = true;
-					onDataLoad();
-				});
-			} else {
-				console.log("parent is null", tile);
-			}
+		tile.addEventListener("dispose", () => {
+			abortController.abort();
+			tile.material.forEach((mat) => mat.dispose());
+			tile.material = [];
+			// dispose geometry
+			tile.geometry.groups = [];
+			tile.geometry.dispose();
 		});
 
+		setTimeout(() => this._load(tile, abortController.signal, onLoad));
+
 		return tile;
+	}
+
+	private _load(tile: Tile, signal: AbortSignal, onLoad: () => void) {
+		if (tile.parent) {
+			const onDataLoad = () => {
+				// dem and img both loaded
+				if (geoLoaded && matLoaded) {
+					for (let i = 0; i < materials.length; i++) {
+						geometry.addGroup(0, Infinity, i);
+					}
+					tile.geometry = geometry;
+					tile.material = materials;
+					this._checkVisible(tile);
+					onLoad();
+				}
+			};
+
+			let geoLoaded = false;
+			let matLoaded = false;
+
+			const geometry = this.loadGeometry(tile, () => {
+				geoLoaded = true;
+				onDataLoad();
+			});
+
+			const materials = this.loadMaterial(tile, () => {
+				matLoaded = true;
+				onDataLoad();
+			});
+		}
+	}
+
+	private _checkVisible(tile: Tile) {
+		const parent = tile.parent;
+		if (parent && parent.isTile) {
+			//Show children and hide parent when all children has loaded
+			const children = parent.children.filter((child) => child.isTile);
+			const loaded = children.every((child) => child.loaded);
+			parent.showing = !loaded;
+			children.forEach((child) => (child.showing = loaded));
+		}
 	}
 
 	/**
