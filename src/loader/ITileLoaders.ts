@@ -19,6 +19,7 @@ export interface ITileLoader {
 	demSource: ISource | undefined;
 	cacheSize: number;
 	load(tile: Tile, onLoad: () => void): void;
+	load1(x: number, y: number, z: number, onLoad: () => void): Tile;
 }
 
 /**  Material loader interface */

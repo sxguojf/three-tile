@@ -92,6 +92,37 @@ export class TileLoader implements ITileLoader {
 		// }, this.timeout);
 	}
 
+	public load1(x: number, y: number, z: number, onLoad: () => void): Tile {
+		const tile = new Tile(x, y, z);
+
+		const onDataLoad = () => {
+			// dem and img both loaded
+			if (geoLoaded && matLoaded) {
+				for (let i = 0; i < materials.length; i++) {
+					geometry.addGroup(0, Infinity, i);
+				}
+				onLoad();
+			}
+		};
+
+		let geoLoaded = false;
+		let matLoaded = false;
+
+		const geometry = this.loadGeometry(tile, () => {
+			geoLoaded = true;
+			onDataLoad();
+		});
+
+		const materials = this.loadMaterial(tile, () => {
+			matLoaded = true;
+			onDataLoad();
+		});
+
+		tile.geometry = geometry;
+		tile.material = materials;
+		return tile;
+	}
+
 	/**
 	 * load geometry
 	 * @param tile tile to load

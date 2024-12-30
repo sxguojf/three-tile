@@ -195,8 +195,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			this.showing = true;
 			return Promise.resolve(false);
 		}
-		// Reset the abortController
-		this._abortController = new AbortController();
 		this._loadState = "loading";
 
 		// Load data
