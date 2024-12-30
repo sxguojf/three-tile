@@ -7,8 +7,7 @@
 import { Box3, Camera, Frustum, Matrix4, Vector3 } from "three";
 import { ITileLoader } from "../loader/ITileLoaders";
 import { Tile } from "./Tile";
-import { LODAction, LODEvaluate } from "./LODEvaluate";
-import { creatChildrenTile } from "./tileCreator";
+import { getDistance, getTileSize, LODAction, LODEvaluate } from "./utils";
 
 // export interface RootTileEventMap extends TileEventMap {
 // 	tileCreated: { type: "tile-created" };
@@ -123,7 +122,8 @@ export class RootTile extends Tile {
 	 * Reload data, Called to take effect after source has changed
 	 */
 	public reload() {
-		this.dispose(true);
+		this.dispose(false);
+		this.showing = true;
 		return this;
 	}
 
@@ -136,7 +136,7 @@ export class RootTile extends Tile {
 		if (!this._ready) {
 			this._ready = true;
 			this.traverse((child) => {
-				if (child.isLeaf && child.loadState != "loaded" && child.coord.z >= this.minLevel) {
+				if (child.isLeaf && child.loaded && child.coord.z >= this.minLevel) {
 					this._ready = false;
 				}
 			});
@@ -161,52 +161,56 @@ export class RootTile extends Tile {
 		this.traverse((tile) => {
 			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
 			tile.inFrustum = frustum.intersectsBox(bounds);
-
-			// LOD to get new tiles and tiles to remove
-			// const { newTiles, oldTiles } = tile._LOD(
-			// 	cameraWorldPosition,
-			// 	this.minLevel,
-			// 	this.maxLevel,
-			// 	this.LODThreshold,
-			// 	this.isWGS,
-			// );
-			const { newTiles, oldTiles } = this.LOD(tile, cameraWorldPosition);
-			// Dispose old tiles
-			if (oldTiles) {
-				oldTiles.dispose(false);
-			}
-
-			// Load data for new tiles
-			this._dataUpdate(newTiles);
+			this.LOD(tile, cameraWorldPosition);
 		});
 		return this;
 	}
 
-	/**
-	 *  Get distance of the tile center to camera
-	 */
-	private _getDistToCamera(tile: Tile, cameraPosition: Vector3) {
-		const tilePos = tile.position.clone().setZ(tile.avgZ).applyMatrix4(tile.matrixWorld);
-		return cameraPosition.distanceTo(tilePos);
-	}
-
 	private LOD(tile: Tile, cameraWorldPosition: Vector3) {
-		let newTiles: Tile[] = [];
-		let oldTiles: Tile | null = null;
-		tile.distToCamera = this._getDistToCamera(tile, cameraWorldPosition);
+		// Get the distance of camera to tile
+		tile.distToCamera = getDistance(tile, cameraWorldPosition);
+
 		// LOD evaluate
 		const action = LODEvaluate(tile, this.minLevel, this.maxLevel, this.LODThreshold);
 		if (action === LODAction.create && tile.showing) {
-			newTiles = creatChildrenTile(tile, this.isWGS);
-			newTiles.forEach((child) => (child.distToCamera = this._getDistToCamera(child, cameraWorldPosition)));
+			this.creatChildrenTile(tile);
 		} else if (action === LODAction.remove) {
 			const parent = tile.parent;
 			if (parent?.isTile && !parent.showing) {
-				oldTiles = parent;
+				parent.dispose(false);
 				parent.showing = true;
 			}
 		}
-		return { newTiles, oldTiles };
+		return this;
+	}
+
+	private creatChildrenTile(parent: Tile) {
+		const level = parent.coord.z + 1;
+		const x = parent.coord.x * 2;
+		const z = 0;
+		const pos = 0.25;
+		// Tow childdren at level 0 when GWS projection
+		if (parent.coord.z === 0 && this.isWGS) {
+			const y = parent.coord.y;
+			const scale = new Vector3(0.5, 1.0, 1.0);
+			parent.add(createTile(this, x, y, level, new Vector3(-pos, 0, z), scale)); //left
+			parent.add(createTile(this, x + 1, y, level, new Vector3(pos, 0, z), scale)); //right
+		} else {
+			const y = parent.coord.y * 2;
+			const scale = new Vector3(0.5, 0.5, 1.0);
+			parent.add(createTile(this, x, y + 1, level, new Vector3(-pos, -pos, z), scale)); //left-bottom
+			parent.add(createTile(this, x + 1, y + 1, level, new Vector3(pos, -pos, z), scale)); // right-bottom
+			parent.add(createTile(this, x, y, level, new Vector3(-pos, pos, z), scale)); //left-top
+			parent.add(createTile(this, x + 1, y, level, new Vector3(pos, pos, z), scale)); //right-top
+		}
+		parent.children.forEach((child) => {
+			child.updateMatrix();
+			child.updateMatrixWorld();
+			child.sizeInWorld = getTileSize(child);
+			child.receiveShadow = this.receiveShadow;
+			child.castShadow = this.castShadow;
+		});
+		return parent.children;
 	}
 
 	/**
@@ -215,34 +219,34 @@ export class RootTile extends Tile {
 	 * @param tiles Tiles needs load
 	 * @returns this
 	 */
-	private _dataUpdate(tiles: Tile[]) {
-		const sortedTiles = tiles.sort((a, b) => a.distToCamera - b.distToCamera);
-		sortedTiles.forEach((tile) => {
-			this.dispatchEvent({ type: "tile-created", tile });
-			tile.load(this.loader, this.minLevel, this.maxLevel).then((loaded) => {
-				if (loaded) {
-					if (tiles.every((child) => child.loadState === "loaded")) {
-						this._calcHeightInView();
-					}
-					tile.dispatchEvent({ type: "tile-loaded", tile });
-				}
-			});
-		});
-		return this;
-	}
+	// private _dataUpdate(tiles: Tile[]) {
+	// 	const sortedTiles = tiles.sort((a, b) => a.distToCamera - b.distToCamera);
+	// 	sortedTiles.forEach((tile) => {
+	// 		this.dispatchEvent({ type: "tile-created", tile });
+	// 		tile.load(this.loader, this.minLevel, this.maxLevel).then((loaded) => {
+	// 			if (loaded) {
+	// 				if (tiles.every((child) => child.loadState === "loaded")) {
+	// 					this._calcHeightInView();
+	// 				}
+	// 				tile.dispatchEvent({ type: "tile-loaded", tile });
+	// 			}
+	// 		});
+	// 	});
+	// 	return this;
+	// }
 
 	/**
 	 * Calculate the elevation of tiles in view
 	 *
 	 * @returns this
 	 */
-	private _calcHeightInView() {
+	public calcHeightInView() {
 		let sumZ = 0,
 			count = 0;
 		this.maxZ = 0;
 		this.minZ = 9000;
 		this.traverse((child) => {
-			if (child.isLeaf && child.inFrustum && child.loadState === "loaded") {
+			if (child.isLeaf && child.inFrustum && child.loaded) {
 				this.maxZ = Math.max(this.maxZ, child.maxZ);
 				this.minZ = Math.min(this.minZ, child.minZ);
 				sumZ += child.avgZ;
@@ -254,4 +258,20 @@ export class RootTile extends Tile {
 		}
 		return this;
 	}
+}
+
+function createTile(root: RootTile, x: number, y: number, z: number, position: Vector3, scale: Vector3) {
+	const tile = root.loader.load1(x, y, z, () => {
+		// Parent is null mean the tile has dispose
+		if (!tile.parent) {
+			return;
+		}
+		tile.onLoaded();
+		root.calcHeightInView();
+		root.dispatchEvent({ type: "tile-loaded", tile });
+	});
+	tile.position.copy(position);
+	tile.scale.copy(scale);
+	root.dispatchEvent({ type: "tile-created", tile });
+	return tile;
 }

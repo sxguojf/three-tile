@@ -4,8 +4,16 @@
  *@date: 2023-04-05
  */
 
-import { BaseEvent, BufferGeometry, Intersection, Material, Mesh, Object3DEventMap, Raycaster } from "three";
-import { ITileLoader } from "../loader/ITileLoaders";
+import {
+	BaseEvent,
+	BufferGeometry,
+	InstancedBufferGeometry,
+	Intersection,
+	Material,
+	Mesh,
+	Object3DEventMap,
+	Raycaster,
+} from "three";
 
 /**
  * Tile event map
@@ -20,12 +28,15 @@ export interface TTileEventMap extends Object3DEventMap {
 /**
  * Type of Loading state
  */
-export type LoadState = "empty" | "loading" | "loaded";
+// export type LoadState = "empty" | "loading" | "loaded";
 
 /**
  * Type of coordinate of tile
  */
 export type TileCoord = { x: number; y: number; z: number };
+
+// Default geometry of tile
+const defaultGeometry = new InstancedBufferGeometry();
 
 /**
  * Class Tile, inherit of Mesh
@@ -52,12 +63,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Avg height of tile */
 	public avgZ = 0;
 
-	/** Distance of tile to camera */
 	public distToCamera = 0;
 
 	private _showing = false;
 	private _inFrustum = false;
-	private _loadState: LoadState = "empty";
+	private _loaded = false;
 	private _sizeInWorld = 0;
 
 	private _abortController = new AbortController();
@@ -73,11 +83,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/** Get load state */
-	public get loadState() {
-		return this._loadState;
+	public get loaded() {
+		return this._loaded;
 	}
 
-	/** Is tile in frustum ? */
+	/** Is tile in frustum ?*/
 	public get inFrustum() {
 		return this._inFrustum;
 	}
@@ -96,9 +106,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	public set showing(value) {
 		if (this.isTile) {
 			this._showing = value;
-			if (Array.isArray(this.material)) {
-				this.material.forEach((mat) => (mat.visible = value));
-			}
+			this.material.forEach((mat) => (mat.visible = value));
 		}
 	}
 
@@ -124,7 +132,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * * @param z tile level, default:0
 	 */
 	public constructor(x = 0, y = 0, z = 0) {
-		super();
+		super(defaultGeometry, []);
 		this.coord = { x, y, z };
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.matrixAutoUpdate = false;
@@ -185,44 +193,59 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param loader Data loader
 	 * @returns Has loaded? Promise<boolean>
 	 */
-	public load(loader: ITileLoader, minLevel: number, _maxLevel: number): Promise<boolean> {
-		if (this.loadState != "empty") {
-			return Promise.resolve(false);
+	// public load(loader: ITileLoader, minLevel: number, _maxLevel: number): Promise<boolean> {
+	// 	if (this.loadState != "empty") {
+	// 		return Promise.resolve(false);
+	// 	}
+	// 	// Don't load when tile.coord.z < minLeve
+	// 	if (this.coord.z < minLevel) {
+	// 		this._loadState = "loaded";
+	// 		this.showing = true;
+	// 		return Promise.resolve(false);
+	// 	}
+	// 	this._loadState = "loading";
+
+	// 	// Load data
+	// 	return new Promise((resolve) =>
+	// 		loader.load(this, () => {
+	// 			const parent = this.parent;
+	// 			// Parent is null mean the tile has dispose
+	// 			if (!parent) {
+	// 				return resolve(false);
+	// 			}
+
+	// 			this._loadState = "loaded";
+	// 			this._heightUpdate();
+
+	// 			// Save opacity for fade in
+	// 			this.material.forEach((material) => {
+	// 				material.userData.opacity = material.opacity;
+	// 				material.opacity -= 0.1;
+	// 			});
+
+	// 			//Show children and hide parent when all children has loaded
+	// 			const children = parent.children.filter((child) => child.isTile);
+	// 			const loaded = children.every((child) => child.loadState === "loaded");
+	// 			parent.showing = !loaded;
+	// 			children.forEach((child) => (child.showing = loaded));
+	// 			resolve(true);
+	// 		}),
+	// 	);
+	// }
+
+	public onLoaded() {
+		this._loaded = true;
+		const parent = this.parent;
+		if (parent && parent.isTile) {
+			//Show children and hide parent when all children has loaded
+			const children = parent.children.filter((child) => child.isTile);
+			const loaded = children.every((child) => child.loaded);
+			parent.showing = !loaded;
+			children.forEach((child) => (child.showing = loaded));
+
+			// Update Z
+			this._heightUpdate();
 		}
-		// Don't load when tile.coord.z < minLeve
-		if (this.coord.z < minLevel) {
-			this._loadState = "loaded";
-			this.showing = true;
-			return Promise.resolve(false);
-		}
-		this._loadState = "loading";
-
-		// Load data
-		return new Promise((resolve) =>
-			loader.load(this, () => {
-				const parent = this.parent;
-				// Parent is null mean the tile has dispose
-				if (!parent) {
-					return resolve(false);
-				}
-
-				this._loadState = "loaded";
-				this._heightUpdate();
-
-				// Save opacity for fade in
-				this.material.forEach((material) => {
-					material.userData.opacity = material.opacity;
-					material.opacity -= 0.1;
-				});
-
-				//Show children and hide parent when all children has loaded
-				const children = parent.children.filter((child) => child.isTile);
-				const loaded = children.every((child) => child.loadState === "loaded");
-				parent.showing = !loaded;
-				children.forEach((child) => (child.showing = loaded));
-				resolve(true);
-			}),
-		);
 	}
 
 	/**
@@ -248,14 +271,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param disposeSelf dispose self?
 	 */
 	public dispose(disposeSelf: boolean) {
-		if (this.loadState != "empty" && disposeSelf && this.isTile) {
-			this._loadState = "empty";
+		if (this.loaded && disposeSelf && this.isTile) {
+			this._loaded = false;
 			this.loadAbort();
 			this._dispose();
 		}
 
 		// remove all children recursionly
-		this.children.forEach((tile) => tile.dispose(true));
+		this.children.forEach((child) => child.dispose(true));
 		this.clear();
 
 		return this;
@@ -263,13 +286,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	private _dispose() {
 		// dispose material
-		if (Array.isArray(this.material)) {
-			this.material.forEach((mat) => mat.dispose());
-		}
+		this.material.forEach((mat) => mat.dispose());
 
 		// dispose geometry
-		this.geometry.dispose();
 		this.geometry.groups = [];
+		this.geometry.dispose();
 
 		// fire dispose
 		this.dispatchEvent({ type: "dispose" });

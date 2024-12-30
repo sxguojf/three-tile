@@ -14,8 +14,8 @@ function createMap() {
 	// const imgSource = [source.arcGisSource, source.testSource];
 	const imgSource = [source.arcGisSource, source.arcGisCiaSource];
 	// 地形数据源
-	// const demSource = source.mapBoxDemSource;
-	const demSource = source.arcGisDemSource;
+	const demSource = source.mapBoxDemSource;
+	// const demSource = source.arcGisDemSource;
 
 	// 创建地图对象
 	const map = new tt.TileMap({

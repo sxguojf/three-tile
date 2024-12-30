@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, LoadingManager, Material, PlaneGeometry } from "three";
+import { BufferGeometry, InstancedBufferGeometry, LoadingManager, Material, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { CacheEx } from "./CacheEx";
@@ -95,31 +95,45 @@ export class TileLoader implements ITileLoader {
 	public load1(x: number, y: number, z: number, onLoad: () => void): Tile {
 		const tile = new Tile(x, y, z);
 
-		const onDataLoad = () => {
-			// dem and img both loaded
-			if (geoLoaded && matLoaded) {
-				for (let i = 0; i < materials.length; i++) {
-					geometry.addGroup(0, Infinity, i);
-				}
-				onLoad();
+		const abortController = new AbortController();
+		tile.addEventListener("dispose", () => abortController.abort());
+
+		setTimeout(() => {
+			if (tile.parent) {
+				const onDataLoad = () => {
+					// dem and img both loaded
+					if (geoLoaded && matLoaded) {
+						if (tile.material.length > 0) {
+							debugger;
+							console.log(tile.material.length);
+						}
+
+						for (let i = 0; i < materials.length; i++) {
+							geometry.addGroup(0, Infinity, i);
+						}
+						tile.geometry = geometry;
+						tile.material = materials;
+						onLoad();
+					}
+				};
+
+				let geoLoaded = false;
+				let matLoaded = false;
+
+				const geometry = this.loadGeometry(tile, () => {
+					geoLoaded = true;
+					onDataLoad();
+				});
+
+				const materials = this.loadMaterial(tile, () => {
+					matLoaded = true;
+					onDataLoad();
+				});
+			} else {
+				console.log("parent is null", tile);
 			}
-		};
-
-		let geoLoaded = false;
-		let matLoaded = false;
-
-		const geometry = this.loadGeometry(tile, () => {
-			geoLoaded = true;
-			onDataLoad();
 		});
 
-		const materials = this.loadMaterial(tile, () => {
-			matLoaded = true;
-			onDataLoad();
-		});
-
-		tile.geometry = geometry;
-		tile.material = materials;
 		return tile;
 	}
 

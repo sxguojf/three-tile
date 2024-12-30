@@ -30,20 +30,20 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	 * @returns
 	 */
 	public load(source: ISource, tile: Tile, onLoad: () => void): BufferGeometry {
+		const geometry = this.createGeometry();
 		// get max level tile and rect
-		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
-
+		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
 		if (!url) {
-			setTimeout(onLoad);
-			return new PlaneGeometry();
+			onLoad();
 		} else {
-			return this._load(tile, url, rect, onLoad);
+			this._load(tile, url, geometry, bounds, onLoad);
 		}
+		return geometry;
 	}
 
-	private _load(tile: Tile, url: string, bounds: Box2, onLoad: () => void) {
+	private _load(tile: Tile, url: string, geometry: TileDEMGeometry, bounds: Box2, onLoad: () => void) {
 		const tileSize = (tile.coord.z + 2) * 3;
-		const geometry = this.createGeometry();
+
 		this.imageLoader.load(
 			url,
 			// onLoad

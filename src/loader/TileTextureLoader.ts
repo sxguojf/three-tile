@@ -11,7 +11,7 @@ import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
 
-const emptyTexture = new DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1, RGBAFormat);
+// const emptyTexture = new DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1, RGBAFormat);
 /**
  * texture loader
  */
@@ -31,36 +31,36 @@ export class TileTextureLoader {
 		onLoad: () => void,
 		onError: (err: ErrorEvent | DOMException | Event) => void,
 	): Texture {
+		const texture = new Texture(new Image(1, 1));
+		texture.colorSpace = SRGBColorSpace;
 		// get the max level and bounds in tile
 		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
 
 		if (!url) {
-			setTimeout(onLoad);
-			return emptyTexture;
+			// setTimeout(onLoad);
+			// return emptyTexture;
+			onLoad();
+		} else {
+			this.loader.load(
+				url,
+				// onLoad
+				(image) => {
+					// if the tile level is greater than max level, clip the max level parent of this tile image
+					if (tile.coord.z > source.maxLevel) {
+						texture.image = getSubImageFromRect(image, rect);
+					} else {
+						texture.image = image;
+					}
+					texture.needsUpdate = true;
+					onLoad();
+				},
+				// onProgress
+				undefined,
+				// onError
+				onError,
+				tile.abortSignal,
+			);
 		}
-
-		const texture = new Texture(new Image());
-		texture.colorSpace = SRGBColorSpace;
-		this.loader.load(
-			url,
-			// onLoad
-			(image) => {
-				// if the tile level is greater than max level, clip the max level parent of this tile image
-				if (tile.coord.z > source.maxLevel) {
-					texture.image = getSubImageFromRect(image, rect);
-				} else {
-					texture.image = image;
-				}
-				texture.needsUpdate = true;
-				onLoad();
-			},
-			// onProgress
-			undefined,
-			// onError
-			onError,
-			tile.abortSignal,
-		);
-
 		return texture;
 	}
 }
