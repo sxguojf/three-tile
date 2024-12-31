@@ -186,7 +186,7 @@ export class RootTile extends Tile {
 			count = 0;
 		this.maxZ = 0;
 		this.minZ = 9000;
-		this.traverse((child) => {
+		this.traverseVisible((child) => {
 			if (child.isLeaf && child.inFrustum && child.loaded) {
 				this.maxZ = Math.max(this.maxZ, child.maxZ);
 				this.minZ = Math.min(this.minZ, child.minZ);

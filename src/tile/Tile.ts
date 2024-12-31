@@ -152,7 +152,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * Override Obejct3D.raycast, only test the tile is showing
 	 */
 	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		if (this.isLeaf && this.isTile) {
+		if (this.isLeaf && this.loaded && this.isTile) {
 			super.raycast(raycaster, intersects);
 		}
 	}
@@ -160,17 +160,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Called when tile loaded  */
 	public onLoaded() {
 		// Update Z
-		this._heightUpdate();
-	}
-
-	/**
-	 * Height update
-	 */
-	private _heightUpdate() {
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
 		this.avgZ = (this.maxZ + this.minZ) / 2;
-		return this;
 	}
 
 	/**

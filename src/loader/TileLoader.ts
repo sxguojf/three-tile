@@ -12,7 +12,7 @@ import { ITileLoader } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
 
 /**
- * tile loader
+ * Tile loader
  */
 export class TileLoader implements ITileLoader {
 	/** get loader cache size of file  */
@@ -46,6 +46,15 @@ export class TileLoader implements ITileLoader {
 
 	public manager: LoadingManager = LoaderFactory.manager;
 
+	/**
+	 * Load a tile by x, y and z coordinate.
+	 *
+	 * @param x x coordinate of tile
+	 * @param y y coordinate of tile
+	 * @param z z coordinate of tile
+	 * @param onLoad tile loaded callback
+	 * @returns tile instance
+	 */
 	public load(x: number, y: number, z: number, onLoad: () => void): Tile {
 		const tile = new Tile(x, y, z);
 		const abortController = new AbortController();
@@ -60,10 +69,8 @@ export class TileLoader implements ITileLoader {
 				abortController.abort();
 			}
 		});
-		// tile.addEventListener("show", (evt) => {
-		// 	tile.material.forEach((mat) => (mat.visible = evt.show));
-		// });
 
+		// SetTimeout waiting for the tile appended into map
 		setTimeout(() => this._load(tile, onLoad, abortController.signal));
 
 		return tile;
@@ -121,6 +128,16 @@ export class TileLoader implements ITileLoader {
 		}
 	}
 
+	/**
+	 * Load the children tile from coordinate
+	 *
+	 * @param px parent tile x coordinate
+	 * @param py parent tile y coordinate
+	 * @param pz parent tile level
+	 * @param minLevel min level to load
+	 * @param onLoad callback when one tile loaded
+	 * @returns children tile array
+	 */
 	public loadChildren(px: number, py: number, pz: number, minLevel: number, onLoad: (tile: Tile) => void): Tile[] {
 		const onOneLoad = (tile: Tile) => {
 			this._checkVisible(tile);
