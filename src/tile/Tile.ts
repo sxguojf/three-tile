@@ -101,21 +101,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._inFrustum = value;
 	}
 
-	private _showing = false;
-	/** Get tile is showing ? */
-	public get showing() {
-		return this._showing;
-	}
-
-	/** Set tile showing or hiding */
-	public set showing(value) {
-		if (this.isTile) {
-			this._showing = value;
-			// Fire show event, Loader listen and execute
-			this.dispatchEvent({ type: "show", show: value });
-		}
-	}
-
 	/** Tile is a leaf ?  */
 	public get isLeaf(): boolean {
 		return this.children.filter((child) => child.isTile).length === 0;
@@ -167,7 +152,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * Override Obejct3D.raycast, only test the tile is showing
 	 */
 	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		if (this.showing && this.isTile) {
+		if (this.isLeaf && this.isTile) {
 			super.raycast(raycaster, intersects);
 		}
 	}

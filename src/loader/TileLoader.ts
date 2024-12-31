@@ -51,6 +51,7 @@ export class TileLoader implements ITileLoader {
 		const abortController = new AbortController();
 		tile.addEventListener("dispose", () => {
 			if (tile.loaded) {
+				this._checkVisible(tile);
 				tile.material.forEach((mat) => mat.dispose());
 				tile.material = [];
 				tile.geometry.groups = [];
@@ -59,9 +60,9 @@ export class TileLoader implements ITileLoader {
 				abortController.abort();
 			}
 		});
-		tile.addEventListener("show", (evt) => {
-			tile.material.forEach((mat) => (mat.visible = evt.show));
-		});
+		// tile.addEventListener("show", (evt) => {
+		// 	tile.material.forEach((mat) => (mat.visible = evt.show));
+		// });
 
 		setTimeout(() => this._load(tile, onLoad, abortController.signal));
 
@@ -78,7 +79,6 @@ export class TileLoader implements ITileLoader {
 					}
 					tile.geometry = geometry;
 					tile.material = materials;
-					// this._checkVisible(tile);
 					onLoad();
 				}
 			};
@@ -107,20 +107,23 @@ export class TileLoader implements ITileLoader {
 	}
 
 	private _checkVisible(tile: Tile) {
+		const show = (t: Tile, value: boolean) => {
+			t.material.forEach((mat) => (mat.visible = value));
+		};
+
 		const parent = tile.parent;
 		if (parent && parent.isTile) {
 			//Show children and hide parent when all children has loaded
 			const children = parent.children.filter((child) => child.isTile);
 			const loaded = children.every((child) => child.loaded);
-			parent.showing = !loaded;
-			children.forEach((child) => (child.showing = loaded));
+			show(parent, !loaded);
+			children.forEach((child) => show(child, loaded));
 		}
 	}
 
 	public loadChildren(px: number, py: number, pz: number, minLevel: number, onLoad: (tile: Tile) => void): Tile[] {
 		const onOneLoad = (tile: Tile) => {
 			this._checkVisible(tile);
-			tile.onLoaded();
 			onLoad(tile);
 		};
 

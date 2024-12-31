@@ -117,14 +117,13 @@ export class RootTile extends Tile {
 			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
 			// Tile is in frustum?
 			tile.inFrustum = frustum.intersectsBox(bounds);
-			// tile.inFrustum = frustum.intersectsObject(tile);
 			// Get the distance of camera to tile
 			tile.distToCamera = getDistance(tile, cameraWorldPosition);
 			// LOD
 			this._LOD(tile);
 		});
 
-		//fire "ready" event if ready
+		//Fire "ready" event when ready
 		this._checkReady();
 		return this;
 	}
@@ -158,10 +157,11 @@ export class RootTile extends Tile {
 	private _LOD(tile: Tile) {
 		// LOD evaluate
 		const action = LODEvaluate(tile, this.minLevel, this.maxLevel, this.LODThreshold);
-		if (action === LODAction.create && (tile.showing || tile.z < this.minLevel)) {
+		if (action === LODAction.create && (tile.loaded || tile.z < this.minLevel)) {
 			// Create children tiles
 			const newTiles = creatChildrenTile(tile, this.loader, this.minLevel, (newTile: Tile) => {
 				// onload
+				newTile.onLoaded();
 				this.calcHeightInView();
 				this.dispatchEvent({ type: "tile-loaded", tile: newTile });
 			});
@@ -171,9 +171,8 @@ export class RootTile extends Tile {
 		} else if (action === LODAction.remove) {
 			// Remove tiles
 			const parent = tile.parent;
-			if (parent?.isTile && !parent.showing) {
+			if (parent?.isTile) {
 				parent.dispose(false);
-				parent.showing = true;
 			}
 		}
 		return this;
