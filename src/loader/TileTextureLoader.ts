@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Box2, DataTexture, RGBAFormat, SRGBColorSpace, Texture } from "three";
+import { Box2, SRGBColorSpace, Texture } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ImageLoaderEx } from "./ImageLoaerEx";
@@ -30,23 +30,20 @@ export class TileTextureLoader {
 		tile: Tile,
 		onLoad: () => void,
 		onError: (err: ErrorEvent | DOMException | Event) => void,
+		abortSignal: AbortSignal,
 	): Texture {
 		const texture = new Texture(new Image(1, 1));
 		texture.colorSpace = SRGBColorSpace;
 		// get the max level and bounds in tile
 		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
 
-		if (!url) {
-			// setTimeout(onLoad);
-			// return emptyTexture;
-			onLoad();
-		} else {
+		if (url) {
 			this.loader.load(
 				url,
 				// onLoad
 				(image) => {
 					// if the tile level is greater than max level, clip the max level parent of this tile image
-					if (tile.coord.z > source.maxLevel) {
+					if (tile.z > source.maxLevel) {
 						texture.image = getSubImageFromRect(image, rect);
 					} else {
 						texture.image = image;
@@ -58,8 +55,10 @@ export class TileTextureLoader {
 				undefined,
 				// onError
 				onError,
-				tile.abortSignal,
+				abortSignal,
 			);
+		} else {
+			setTimeout(onLoad);
 		}
 		return texture;
 	}

@@ -13,10 +13,7 @@ import {
 	Mesh,
 	Object3DEventMap,
 	Raycaster,
-	Vector3,
 } from "three";
-import { creatChildrenTile, LODAction, LODEvaluate } from "./utils";
-import { ITileLoader } from "../loader";
 
 /**
  * Tile event map
@@ -24,19 +21,10 @@ import { ITileLoader } from "../loader";
 export interface TTileEventMap extends Object3DEventMap {
 	dispose: BaseEvent;
 	ready: BaseEvent;
+	show: BaseEvent & { show: boolean };
 	"tile-created": BaseEvent & { tile: Tile };
 	"tile-loaded": BaseEvent & { tile: Tile };
 }
-
-/**
- * Type of Loading state
- */
-// export type LoadState = "empty" | "loading" | "loaded";
-
-/**
- * Type of coordinate of tile
- */
-export type TileCoord = { x: number; y: number; z: number };
 
 // Default geometry of tile
 const defaultGeometry = new InstancedBufferGeometry();
@@ -46,7 +34,9 @@ const defaultGeometry = new InstancedBufferGeometry();
  */
 export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Coordinate of tile */
-	public readonly coord: TileCoord;
+	public readonly x;
+	public readonly y;
+	public readonly z;
 
 	/** Is a tile? */
 	public readonly isTile = true;
@@ -58,30 +48,41 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	public readonly children: this[] = [];
 
 	/** Max height of tile */
-	public maxZ = 0;
+	private _maxZ = 0;
+	public get maxZ() {
+		return this._maxZ;
+	}
+	protected set maxZ(value) {
+		this._maxZ = value;
+	}
 
 	/** Min height of tile */
-	public minZ = 0;
+	private _minZ = 0;
+	public get minZ() {
+		return this._minZ;
+	}
+	protected set minZ(value) {
+		this._minZ = value;
+	}
 
 	/** Avg height of tile */
-	public avgZ = 0;
+	private _avgZ = 0;
+	public get avgZ() {
+		return this._avgZ;
+	}
+	protected set avgZ(value) {
+		this._avgZ = value;
+	}
 
+	/** Distance to camera */
 	public distToCamera = 0;
 
-	private _showing = false;
-	private _inFrustum = false;
-	private _sizeInWorld = 0;
-
-	private _abortController = new AbortController();
+	/* Tile size in world */
+	public sizeInWorld = 0;
 
 	/** Index of tile, mean positon in parent.  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）	 */
 	public get index(): number {
 		return this.parent ? this.parent.children.indexOf(this) : -1;
-	}
-
-	/** Singnal of abort when downloading  */
-	public get abortSignal() {
-		return this._abortController.signal;
 	}
 
 	/** Get load state */
@@ -89,6 +90,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this.material.length > 0;
 	}
 
+	private _inFrustum = false;
 	/** Is tile in frustum ?*/
 	public get inFrustum() {
 		return this._inFrustum;
@@ -99,6 +101,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._inFrustum = value;
 	}
 
+	private _showing = false;
 	/** Get tile is showing ? */
 	public get showing() {
 		return this._showing;
@@ -108,23 +111,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	public set showing(value) {
 		if (this.isTile) {
 			this._showing = value;
-			this.material.forEach((mat) => (mat.visible = value));
+			// Fire show event, Loader listen and execute
+			this.dispatchEvent({ type: "show", show: value });
 		}
 	}
 
 	/** Tile is a leaf ?  */
 	public get isLeaf(): boolean {
 		return this.children.filter((child) => child.isTile).length === 0;
-	}
-
-	/** Get the tile diagonal length of tile in world */
-	public get sizeInWorld() {
-		return this._sizeInWorld;
-	}
-
-	/** Set the tile diagonal length of tile in world */
-	public set sizeInWorld(value) {
-		this._sizeInWorld = value;
 	}
 
 	/**
@@ -135,7 +129,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public constructor(x = 0, y = 0, z = 0) {
 		super(defaultGeometry, []);
-		this.coord = { x, y, z };
+		this.x = x;
+		this.y = y;
+		this.z = z;
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.matrixAutoUpdate = false;
 		this.matrixWorldAutoUpdate = false;
@@ -247,64 +243,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	// 	return this;
 	// }
 
-	/**
-	 * Load data
-	 * @param loader Data loader
-	 * @returns Has loaded? Promise<boolean>
-	 */
-	// public load(loader: ITileLoader, minLevel: number, _maxLevel: number): Promise<boolean> {
-	// 	if (this.loadState != "empty") {
-	// 		return Promise.resolve(false);
-	// 	}
-	// 	// Don't load when tile.coord.z < minLeve
-	// 	if (this.coord.z < minLevel) {
-	// 		this._loadState = "loaded";
-	// 		this.showing = true;
-	// 		return Promise.resolve(false);
-	// 	}
-	// 	this._loadState = "loading";
-
-	// 	// Load data
-	// 	return new Promise((resolve) =>
-	// 		loader.load(this, () => {
-	// 			const parent = this.parent;
-	// 			// Parent is null mean the tile has dispose
-	// 			if (!parent) {
-	// 				return resolve(false);
-	// 			}
-
-	// 			this._loadState = "loaded";
-	// 			this._heightUpdate();
-
-	// 			// Save opacity for fade in
-	// 			this.material.forEach((material) => {
-	// 				material.userData.opacity = material.opacity;
-	// 				material.opacity -= 0.1;
-	// 			});
-
-	// 			//Show children and hide parent when all children has loaded
-	// 			const children = parent.children.filter((child) => child.isTile);
-	// 			const loaded = children.every((child) => child.loadState === "loaded");
-	// 			parent.showing = !loaded;
-	// 			children.forEach((child) => (child.showing = loaded));
-	// 			resolve(true);
-	// 		}),
-	// 	);
-	// }
-
 	public onLoaded() {
-		// this._loaded = true;
-		// const parent = this.parent;
-		// if (parent && parent.isTile) {
-		// 	//Show children and hide parent when all children has loaded
-		// 	const children = parent.children.filter((child) => child.isTile);
-		// 	const loaded = children.every((child) => child.loaded);
-		// 	parent.showing = !loaded;
-		// 	children.forEach((child) => (child.showing = loaded));
-
-		// 	// Update Z
+		// Update Z
 		this._heightUpdate();
-		// }
 	}
 
 	/**
@@ -318,20 +259,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 *  Abort download
-	 */
-	public loadAbort() {
-		this._abortController.abort();
-		return this;
-	}
-
-	/**
 	 * Free the tile resources
 	 * @param disposeSelf dispose self?
 	 */
 	public dispose(disposeSelf: boolean) {
-		if (this.loaded && disposeSelf && this.isTile) {
-			this.loadAbort();
+		if (disposeSelf && this.isTile) {
+			// Fire dispose event, Loader listen and execute
 			this.dispatchEvent({ type: "dispose" });
 		}
 

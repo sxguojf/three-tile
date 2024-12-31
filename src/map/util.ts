@@ -113,7 +113,7 @@ export function getTileCount(tileMap: TileMap) {
 			total++;
 			tile.isLeaf && tile.inFrustum && visible++;
 			tile.isLeaf && leaf++;
-			maxLevle = Math.max(maxLevle, tile.coord.z);
+			maxLevle = Math.max(maxLevle, tile.z);
 		}
 	});
 	return { total, visible, leaf, maxLevle };

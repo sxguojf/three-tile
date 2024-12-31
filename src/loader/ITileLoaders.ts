@@ -8,28 +8,23 @@ import { BufferGeometry, LoadingManager, Material } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 
-/**
- * Tile loader interface
- * todo: 按照谁创建谁销毁的原则，Loder应该增加dispose方法，用于销毁自己创建的瓦片资源，
- * 另外增加一个show方法，用于显示隐藏瓦片，Loader创建的瓦片，按理只有它知道如何显示隐藏。
- */
+/** Tile loader interface */
 export interface ITileLoader {
 	manager: LoadingManager;
 	imgSource: ISource[];
 	demSource: ISource | undefined;
 	cacheSize: number;
-	load(tile: Tile, onLoad: () => void): void;
-	load1(x: number, y: number, z: number, onLoad: () => void): Tile;
+	load(x: number, y: number, z: number, onLoad: () => void): Tile;
 }
 
 /**  Material loader interface */
 export interface ITileMaterialLoader {
 	dataType: string;
-	load(source: ISource, tile: Tile, onLoad: () => void): Material;
+	load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): Material;
 }
 
 /** geometry loader interface */
 export interface ITileGeometryLoader {
 	dataType: string;
-	load(source: ISource, tile: Tile, onLoad: () => void): BufferGeometry;
+	load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry;
 }

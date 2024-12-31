@@ -28,9 +28,9 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 	}
 
 	// 加载瓦片几何体
-	public load(source: ISource, tile: Tile, onLoad: () => void) {
+	public load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
 		// 瓦片级别<8，不需要显示地形
-		if (tile.coord.z < 8) {
+		if (tile.z < 8) {
 			setTimeout(onLoad);
 			return new PlaneGeometry();
 		}
@@ -43,13 +43,13 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 			return emptyGeometry;
 		}
 
-		return this._load(tile, url, bounds, onLoad);
+		return this._load(tile, url, bounds, onLoad, abortSignal);
 	}
 
 	// private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
-	private _load(tile: Tile, url: string, bounds: Box2, onLoad: () => void) {
+	private _load(tile: Tile, url: string, bounds: Box2, onLoad: () => void, abortSignal: AbortSignal) {
 		// 计算瓦片图片大小（像素）
-		let tileSize = tile.coord.z * 3;
+		let tileSize = tile.z * 3;
 		tileSize = MathUtils.clamp(tileSize, 2, 48);
 
 		const geometry = new TileDEMGeometry();
@@ -81,7 +81,7 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 			undefined,
 			// onError
 			onLoad,
-			tile.abortSignal,
+			abortSignal,
 		);
 		return geometry;
 	}

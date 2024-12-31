@@ -19,7 +19,7 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	 */
 	public load(source: ISource, tile: Tile, onLoad: () => void): MeshBasicMaterial {
 		// 瓦片级别<4不绘制logo
-		if (tile.coord.z < 4) {
+		if (tile.z < 4) {
 			setTimeout(onLoad);
 			return new MeshBasicMaterial();
 		}

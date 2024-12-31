@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, InstancedBufferGeometry, LoadingManager, Material, PlaneGeometry } from "three";
+import { BufferGeometry, LoadingManager, Material, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { CacheEx } from "./CacheEx";
@@ -52,57 +52,65 @@ export class TileLoader implements ITileLoader {
 	 * @param onLoad callback on data loaded
 	 * @returns geometry, material(s)
 	 */
-	public load(tile: Tile, onLoad: () => void) {
-		if (this.imgSource.length === 0) {
-			throw new Error("imgSource can not be empty");
-		}
+	// public load(tile: Tile, onLoad: () => void) {
+	// 	if (this.imgSource.length === 0) {
+	// 		throw new Error("imgSource can not be empty");
+	// 	}
 
-		const onDataLoad = () => {
-			// dem and img both loaded
-			if (geoLoaded && matLoaded) {
-				for (let i = 0; i < materials.length; i++) {
-					geometry.addGroup(0, Infinity, i);
-				}
-				onLoad();
-			}
-		};
+	// 	const onDataLoad = () => {
+	// 		// dem and img both loaded
+	// 		if (geoLoaded && matLoaded) {
+	// 			for (let i = 0; i < materials.length; i++) {
+	// 				geometry.addGroup(0, Infinity, i);
+	// 			}
+	// 			onLoad();
+	// 		}
+	// 	};
 
-		let geoLoaded = false;
-		let matLoaded = false;
+	// 	let geoLoaded = false;
+	// 	let matLoaded = false;
 
-		const geometry = this.loadGeometry(tile, () => {
-			geoLoaded = true;
-			onDataLoad();
-		});
+	// 	const geometry = this.loadGeometry(tile, () => {
+	// 		geoLoaded = true;
+	// 		onDataLoad();
+	// 	});
 
-		const materials = this.loadMaterial(tile, () => {
-			matLoaded = true;
-			onDataLoad();
-		});
+	// 	const materials = this.loadMaterial(tile, () => {
+	// 		matLoaded = true;
+	// 		onDataLoad();
+	// 	});
 
-		tile.geometry = geometry;
-		tile.material = materials;
-	}
+	// 	tile.geometry = geometry;
+	// 	tile.material = materials;
+	// }
 
-	public load1(x: number, y: number, z: number, onLoad: () => void): Tile {
+	public load(x: number, y: number, z: number, onLoad: () => void): Tile {
 		const tile = new Tile(x, y, z);
-
 		const abortController = new AbortController();
 		tile.addEventListener("dispose", () => {
-			abortController.abort();
-			tile.material.forEach((mat) => mat.dispose());
-			tile.material = [];
-			// dispose geometry
-			tile.geometry.groups = [];
-			tile.geometry.dispose();
+			if (tile.loaded) {
+				tile.material.forEach((mat) => mat.dispose());
+				tile.material = [];
+				tile.geometry.groups = [];
+				tile.geometry.dispose();
+			} else {
+				abortController.abort();
+			}
+		});
+		tile.addEventListener("show", (evt) => {
+			tile.material.forEach((mat) => (mat.visible = evt.show));
 		});
 
-		setTimeout(() => this._load(tile, abortController.signal, onLoad));
+		setTimeout(() => this._load(tile, onLoad, abortController.signal));
 
 		return tile;
 	}
 
-	private _load(tile: Tile, signal: AbortSignal, onLoad: () => void) {
+	// private _getUrl(tile: Tile, source: ISource) {
+	// 	return getSafeTileUrlAndBounds(source, tile);
+	// }
+
+	private _load(tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
 		if (tile.parent) {
 			const onDataLoad = () => {
 				// dem and img both loaded
@@ -120,15 +128,23 @@ export class TileLoader implements ITileLoader {
 			let geoLoaded = false;
 			let matLoaded = false;
 
-			const geometry = this.loadGeometry(tile, () => {
-				geoLoaded = true;
-				onDataLoad();
-			});
+			const geometry = this.loadGeometry(
+				tile,
+				() => {
+					geoLoaded = true;
+					onDataLoad();
+				},
+				abortSignal,
+			);
 
-			const materials = this.loadMaterial(tile, () => {
-				matLoaded = true;
-				onDataLoad();
-			});
+			const materials = this.loadMaterial(
+				tile,
+				() => {
+					matLoaded = true;
+					onDataLoad();
+				},
+				abortSignal,
+			);
 		}
 	}
 
@@ -150,12 +166,13 @@ export class TileLoader implements ITileLoader {
 	 * @param onError error callback
 	 * @returns geometry
 	 */
-	protected loadGeometry(tile: Tile, onLoad: () => void): BufferGeometry {
+
+	protected loadGeometry(tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry {
 		let geometry: BufferGeometry;
 		// load dem if has dem source, else create a PlaneGeometry
 		if (this.demSource) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
-			geometry = loader.load(this.demSource, tile, onLoad);
+			geometry = loader.load(this.demSource, tile, onLoad, abortSignal);
 		} else {
 			geometry = new PlaneGeometry();
 			setTimeout(onLoad);
@@ -170,16 +187,21 @@ export class TileLoader implements ITileLoader {
 	 * @param onError error callback
 	 * @returns material
 	 */
-	protected loadMaterial(tile: Tile, onLoad: () => void): Material[] {
+	protected loadMaterial(tile: Tile, onLoad: () => void, abortSignal: AbortSignal): Material[] {
 		const materials = this.imgSource.map((source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
-			const material = loader.load(source, tile, () => {
-				material.userData.loaded = true;
-				// check all of materials loaded
-				if (materials.every((mat) => mat.userData.loaded)) {
-					onLoad();
-				}
-			});
+			const material = loader.load(
+				source,
+				tile,
+				() => {
+					material.userData.loaded = true;
+					// check all of materials loaded
+					if (materials.every((mat) => mat.userData.loaded)) {
+						onLoad();
+					}
+				},
+				abortSignal,
+			);
 			return material;
 		});
 

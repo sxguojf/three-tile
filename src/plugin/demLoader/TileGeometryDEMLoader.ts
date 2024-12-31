@@ -32,7 +32,7 @@ export class TileGeometryDEMLoader implements ITileGeometryLoader {
 	 * @param onError
 	 * @returns
 	 */
-	public load(source: ISource, tile: Tile, onLoad: () => void): BufferGeometry {
+	public load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry {
 		// get max level tile and rect
 		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
 
@@ -40,18 +40,18 @@ export class TileGeometryDEMLoader implements ITileGeometryLoader {
 			setTimeout(onLoad);
 			return new PlaneGeometry();
 		} else {
-			return this._load(tile, url, bounds, onLoad);
+			return this._load(tile, url, bounds, onLoad, abortSignal);
 		}
 	}
 
-	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
-		const tileSize = (tile.coord.z + 2) * 3;
+	private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void, abortSignal: AbortSignal) {
+		const tileSize = (tile.z + 2) * 3;
 		const geometry = this.createGeometry();
 		this.imageLoader.load(
 			url,
 			// onLoad
 			(image) => {
-				if (!tile.abortSignal.aborted) {
+				if (abortSignal.aborted) {
 					const imgData = getImageDataFromRect(image, rect, tileSize);
 					geometry.setData(Img2dem(imgData.data), imgData.width);
 				}
@@ -61,7 +61,7 @@ export class TileGeometryDEMLoader implements ITileGeometryLoader {
 			undefined,
 			// onError
 			onLoad,
-			tile.abortSignal,
+			abortSignal,
 		);
 		return geometry;
 	}

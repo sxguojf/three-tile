@@ -11,7 +11,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 		setZkxt: () => {
-			map.imgSource = [ms.xtImgSource];
+			map.imgSource = [ms.xtImgSource, ms.xtCiaSource];
 			map.reload();
 		},
 		setBing: () => {
@@ -41,6 +41,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.imgSource = [new tt.plugin.GoogleSource({ style: "p", maxLevel: 15 })];
 			map.reload();
 		},
+
 		setStadia: () => {
 			map.imgSource = [ms.stadiamaps];
 			map.reload();
@@ -174,7 +175,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	// 影像数据源
 	const imgFolder = folder.addFolder("Image data");
 	imgFolder.add(vm, "setMapBox").name("MapBox+TDT");
-	// imgFolder.add(vm, "setZkxt").name("中科星图");
+	imgFolder.add(vm, "setZkxt").name("ZKXT");
 	imgFolder.add(vm, "setBing").name("Bing+TDT");
 	imgFolder.add(vm, "setGoogle").name("Google image");
 	imgFolder.add(vm, "setGoogleP").name("Google terrain image");
@@ -193,7 +194,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	demFolder.add(vm, "setDemNull").name("None(plane)");
 	demFolder.add(vm, "setMapBoxDem").name("Mapbox terrain(maxLevel=15)");
 	demFolder.add(vm, "setMapTilerDem").name("MapTiler terrain(maxLevel=12)");
-	// demFolder.add(vm, "setZkXtDem").name("中科星图(maxLevel=10)");
+	// demFolder.add(vm, "setZkXtDem").name("ZKXT(maxLevel=10)");
 	demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
 
 	// 测试数据

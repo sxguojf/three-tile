@@ -7,6 +7,11 @@ export type ZKXTSourceOptions = SourceOptions & {
 	format?: string;
 };
 
+// https://[tiles1-tiles3].geovisearth.com/base/v1/ter/{z}/{x}/{y}
+// https://[tiles1-tiles3].geovisearth.com/base/v1/cia/{z}/{x}/{y}
+// https://[tiles1-tiles3].geovisearth.com/base/v1/vec/{z}/{x}/{y}
+// https://[tiles1-tiles3].geovisearth.com/base/v1/terrain-rgb/{z}/{x}/{y}
+
 /**
  * ZhongkeXingTu datasource
  */

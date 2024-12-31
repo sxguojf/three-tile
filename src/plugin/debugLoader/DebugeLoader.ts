@@ -50,8 +50,8 @@ export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 			ctx.shadowOffsetY = 1;
 			ctx.font = "bold 20px arial";
 			ctx.textAlign = "center";
-			ctx.fillText(`Tile Test - level: ${tile.coord.z}`, size / 2, 50);
-			ctx.fillText(`[${tile.coord.x}, ${tile.coord.y}]`, size / 2, 80);
+			ctx.fillText(`Tile Test - level: ${tile.z}`, size / 2, 50);
+			ctx.fillText(`[${tile.x}, ${tile.y}]`, size / 2, 80);
 		}
 		return canvas.transferToImageBitmap();
 	}

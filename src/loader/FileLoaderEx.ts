@@ -123,6 +123,8 @@ export class FileLoaderEx extends Loader {
 				onError && onError(err);
 				if (err.name != "AbortError") {
 					this.manager.itemError(url);
+				} else {
+					// console.log("Abort");
 				}
 			})
 			.finally(() => {

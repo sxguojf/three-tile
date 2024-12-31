@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Box2, BufferGeometry, PlaneGeometry } from "three";
+import { Box2, BufferGeometry } from "three";
 import { TileDEMGeometry } from "../geometry";
 import { ISource } from "../source";
 import { Tile } from "../tile";
@@ -13,7 +13,6 @@ import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
 
-// const EmptyGeometry = new PlaneGeometry();
 /**
  * Mapbox-RGB geometry loader
  */
@@ -29,26 +28,32 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	 * @param onError
 	 * @returns
 	 */
-	public load(source: ISource, tile: Tile, onLoad: () => void): BufferGeometry {
+	public load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry {
 		const geometry = this.createGeometry();
 		// get max level tile and rect
 		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
-		if (!url) {
-			onLoad();
+		if (url) {
+			const size = (tile.z + 2) * 3;
+			this._load(url, geometry, bounds, size, onLoad, abortSignal);
 		} else {
-			this._load(tile, url, geometry, bounds, onLoad);
+			setTimeout(onLoad);
 		}
 		return geometry;
 	}
 
-	private _load(tile: Tile, url: string, geometry: TileDEMGeometry, bounds: Box2, onLoad: () => void) {
-		const tileSize = (tile.coord.z + 2) * 3;
-
+	private _load(
+		url: string,
+		geometry: TileDEMGeometry,
+		bounds: Box2,
+		tileSize: number,
+		onLoad: () => void,
+		abortSignal: AbortSignal,
+	) {
 		this.imageLoader.load(
 			url,
 			// onLoad
 			(image) => {
-				if (!tile.abortSignal.aborted) {
+				if (!abortSignal.aborted) {
 					const imgData = getImageDataFromRect(image, bounds, tileSize);
 					geometry.setData(Img2dem(imgData.data));
 				}
@@ -58,7 +63,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 			undefined,
 			// onError
 			onLoad,
-			tile.abortSignal,
+			abortSignal,
 		);
 		return geometry;
 	}
