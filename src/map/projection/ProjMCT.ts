@@ -14,7 +14,6 @@ const EarthRad = 6378; //Earth's radius(km)
  */
 export class ProjMCT extends Projection implements IProjection {
 	public readonly ID = "3857"; // projeciton ID
-	public readonly isWGS = false; // Is linear projection of latitude and longitude
 	public mapWidth = 2 * Math.PI * EarthRad; //E-W scacle Earth's circumference(km)
 	public mapHeight = this.mapWidth; //S-N scacle Earth's circumference(km)
 	public mapDepth = 1; //Height scale

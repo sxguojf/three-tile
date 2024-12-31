@@ -14,7 +14,6 @@ export abstract class Projection implements IProjection {
 	abstract mapWidth: number;
 	abstract mapHeight: number;
 	abstract mapDepth: number;
-	abstract isWGS: boolean;
 	abstract project(lon: number, lat: number): { x: number; y: number };
 	abstract unProject(x: number, y: number): { lon: number; lat: number };
 

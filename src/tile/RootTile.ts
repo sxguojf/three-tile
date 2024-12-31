@@ -74,11 +74,6 @@ export class RootTile extends Tile {
 	}
 
 	/**
-	 * Is the map WGS projection
-	 */
-	public isWGS = false;
-
-	/**
 	 * Get tile loader
 	 */
 	public get loader(): ITileLoader {
@@ -112,7 +107,24 @@ export class RootTile extends Tile {
 	 * @returns this
 	 */
 	public update(camera: Camera) {
-		this._tileTreeUpdate(camera);
+		// Get camera frustum
+		frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+		// Get camera postion
+		const cameraWorldPosition = camera.getWorldPosition(tempVec3);
+
+		// LOD for tiles
+		this.traverse((tile) => {
+			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
+			// Tile is in frustum?
+			tile.inFrustum = frustum.intersectsBox(bounds);
+			// tile.inFrustum = frustum.intersectsObject(tile);
+			// Get the distance of camera to tile
+			tile.distToCamera = getDistance(tile, cameraWorldPosition);
+			// LOD
+			this._LOD(tile);
+		});
+
+		//fire "ready" event if ready
 		this._checkReady();
 		return this;
 	}
@@ -127,8 +139,6 @@ export class RootTile extends Tile {
 
 	/**
 	 * Check the map is ready to render
-	 *
-	 * @returns this
 	 */
 	private _checkReady() {
 		if (!this._ready) {
@@ -145,36 +155,13 @@ export class RootTile extends Tile {
 		return this;
 	}
 
-	/**
-	 * Update tile tree use LOD
-	 * @param camera  camera
-	 *
-	 * @returns this
-	 */
-	private _tileTreeUpdate(camera: Camera) {
-		frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
-		const cameraWorldPosition = camera.getWorldPosition(tempVec3);
-
-		// LOD for tiles
-		this.traverse((tile) => {
-			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
-			tile.inFrustum = frustum.intersectsBox(bounds);
-			// Get the distance of camera to tile
-			tile.distToCamera = getDistance(tile, cameraWorldPosition);
-			this._LOD(tile);
-		});
-		return this;
-	}
-
 	private _LOD(tile: Tile) {
 		// LOD evaluate
 		const action = LODEvaluate(tile, this.minLevel, this.maxLevel, this.LODThreshold);
 		if (action === LODAction.create && (tile.showing || tile.z < this.minLevel)) {
-			const newTiles = creatChildrenTile(tile, this.loader, this.isWGS, this.minLevel, (newTile: Tile) => {
+			// Create children tiles
+			const newTiles = creatChildrenTile(tile, this.loader, this.minLevel, (newTile: Tile) => {
 				// onload
-				newTile.onLoaded();
-				newTile.receiveShadow = this.receiveShadow;
-				newTile.castShadow = this.castShadow;
 				this.calcHeightInView();
 				this.dispatchEvent({ type: "tile-loaded", tile: newTile });
 			});
@@ -182,6 +169,7 @@ export class RootTile extends Tile {
 				this.dispatchEvent({ type: "tile-created", tile: newTile });
 			});
 		} else if (action === LODAction.remove) {
+			// Remove tiles
 			const parent = tile.parent;
 			if (parent?.isTile && !parent.showing) {
 				parent.dispose(false);
@@ -193,8 +181,6 @@ export class RootTile extends Tile {
 
 	/**
 	 * Calculate the elevation of tiles in view
-	 *
-	 * @returns this
 	 */
 	public calcHeightInView() {
 		let sumZ = 0,

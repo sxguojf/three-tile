@@ -172,77 +172,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		}
 	}
 
-	// private LOD2(loader: ITileLoader, minLevel: number, maxLevel: number, LODThreshold: number): Promise<boolean> {
-	// 	// LOD evaluate
-	// 	const action = LODEvaluate(this, minLevel, maxLevel, LODThreshold);
-	// 	if (action === LODAction.create && (this.showing || this.coord.z < minLevel)) {
-	// 		const newTiles = creatChildrenTile(loader, this, (newTile: Tile) => {
-	// 			// this.calcHeightInView();
-	// 			// tile.receiveShadow = this.receiveShadow;
-	// 			// tile.castShadow = this.castShadow;
-	// 			// this.dispatchEvent({ type: "tile-loaded", tile: newTile });
-	// 			newTile.onLoaded();
-	// 		});
-	// 		newTiles.forEach((newTile) => {
-	// 			this.dispatchEvent({ type: "tile-created", tile: newTile });
-	// 		});
-	// 	} else if (action === LODAction.remove) {
-	// 		const parent = tile.parent;
-	// 		if (parent?.isTile && !parent.showing) {
-	// 			parent.dispose(false);
-	// 			parent.showing = true;
-	// 		}
-	// 	}
-	// 	return this;
-	// }
-
-	// /**
-	//  * Level Of Details
-	//  * @param cameraWorldPosition
-	//  * @param minLevel min level of map
-	//  * @param maxLevel max level of map
-	//  * @param threshold threshold for LOD
-	//  * @param isWGS is WGS projection?
-	//  * @returns  new tiles and old tiles to remove
-	//  */
-	// protected _LOD1(
-	// 	cameraWorldPosition: Vector3,
-	// 	minLevel: number,
-	// 	maxLevel: number,
-	// 	threshold: number,
-	// 	isWGS: boolean,
-	// ) {
-	// 	let newTiles: Tile[] = [];
-	// 	let oldTiles: Tile | null = null;
-	// 	this.distToCamera = getDistToCamera(this, cameraWorldPosition);
-	// 	// LOD evaluate
-	// 	const action = LODEvaluate(this, minLevel, maxLevel, threshold);
-	// 	if (action === LODAction.create && (this.showing || this.coord.z < minLevel)) {
-	// 		newTiles = creatChildrenTile(this, isWGS);
-	// 	} else if (action === LODAction.remove) {
-	// 		const parent = this.parent;
-	// 		if (parent?.isTile && !parent.showing) {
-	// 			oldTiles = parent;
-	// 			parent.showing = true;
-	// 		}
-	// 	}
-	// 	return { newTiles, oldTiles };
-	// }
-
-	/**
-	 * Tile Fade in
-	 */
-	// private _fadeIn() {
-	// 	if (this.showing && Array.isArray(this.material)) {
-	// 		this.material.forEach((mat) => {
-	// 			if (mat.opacity < mat.userData.opacity) {
-	// 				mat.opacity += 0.01;
-	// 			}
-	// 		});
-	// 	}
-	// 	return this;
-	// }
-
+	/** Called when tile loaded  */
 	public onLoaded() {
 		// Update Z
 		this._heightUpdate();

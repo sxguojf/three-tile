@@ -229,7 +229,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this._projection = proj;
 		// 调整根瓦片大小
 		this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
-		this.rootTile.isWGS = proj.isWGS;
 		this.imgSource.forEach((source) => (source.projection = this.projection));
 		if (this.demSource) {
 			this.demSource.projection = this.projection;

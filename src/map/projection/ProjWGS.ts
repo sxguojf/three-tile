@@ -13,7 +13,6 @@ import { IProjection } from "./IProjection";
 
 export class ProjWGS extends Projection implements IProjection {
 	public readonly ID = "4326";
-	public readonly isWGS = true;
 	public mapWidth = 36000; //E-W scacle (*0.01°)
 	public mapHeight = 18000; //S-N scale (*0.01°)
 	public mapDepth = 1; //height scale

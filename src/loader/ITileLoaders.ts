@@ -15,6 +15,7 @@ export interface ITileLoader {
 	demSource: ISource | undefined;
 	cacheSize: number;
 	load(x: number, y: number, z: number, onLoad: () => void): Tile;
+	loadChildren(px: number, py: number, pz: number, minLevel: number, onLoad: (tile: Tile) => void): Tile[];
 }
 
 /**  Material loader interface */
