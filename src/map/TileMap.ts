@@ -8,7 +8,7 @@ import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEvent
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
-import { RootTile } from "../tile/RootTile";
+// import { RootTile } from "../tile/RootTile";
 import { SourceWithProjection } from "./SourceWithProjection";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld, getTileCount } from "./util";
@@ -45,7 +45,7 @@ type ProjectCenterLongitude = 0 | 90 | -90;
  */
 export type MapParams = {
 	loader?: ITileLoader; //地图加载器, map data loader
-	rootTile?: RootTile; //根瓦片, root Tile
+	rootTile?: Tile; //根瓦片, root Tile
 	imgSource: ISource[] | ISource; //影像数据源, image source
 	demSource?: ISource; //高程数据源, terrain source
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
@@ -76,7 +76,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * Root tile, it is the root node of tile tree.
 	 * 根瓦片
 	 */
-	public readonly rootTile: RootTile;
+	public readonly rootTile: Tile;
 
 	/**
 	 * Map data loader, it used for load tile data and create tile geometry/Material
@@ -84,34 +84,36 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public readonly loader: ITileLoader;
 
+	private _minLevel = 1;
 	/**
 	 * Get min level of map
 	 * 地图最小缩放级别，小于这个级别瓦片树不再更新
 	 */
 	public get minLevel() {
-		return this.rootTile.minLevel;
+		return this._minLevel;
 	}
 	/**
 	 * Set max level of map
 	 * 设置地图最小缩放级别，小于这个级别瓦片树不再更新
 	 */
 	public set minLevel(value: number) {
-		this.rootTile.minLevel = value;
+		this._minLevel = value;
 	}
 
+	private _maxLevel = 18;
 	/**
 	 * Get max level of map
 	 * 地图最大缩放级别，大于这个级别瓦片树不再更新
 	 */
 	public get maxLevel() {
-		return this.rootTile.maxLevel;
+		return this._maxLevel;
 	}
 	/**
 	 * Set max level of map
 	 * 设置地图最大缩放级别，大于这个级别瓦片树不再更新
 	 */
 	public set maxLevel(value: number) {
-		this.rootTile.maxLevel = value;
+		this._maxLevel = value;
 	}
 
 	private _autoPosition = false;
@@ -144,26 +146,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	public set loadCacheSize(value) {
 		this.loader.cacheSize = value;
 	}
-
-	// /**
-	//  * Get the loader timeout time(ms)
-	//  * 获取加载超时时间(ms)
-	//  *
-	//  * @returns 返回加载器的超时时间
-	//  */
-	// public get loadeTimeOut() {
-	// 	return this.loader.timeout;
-	// }
-
-	// /**
-	//  * set the loader timeout time(ms)
-	//  * 设置加载超时时间(ms)
-	//  *
-	//  * @param value 超时时间，单位为毫秒
-	//  */
-	// public set loadeTimeOut(value) {
-	// 	this.loader.timeout = value;
-	// }
 
 	/**
 	 * Get max height in view
@@ -203,7 +185,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public set lon0(value) {
 		if (this.projection.lon0 !== value) {
-			if (value != 0 && this.rootTile.minLevel < 1) {
+			if (value != 0 && this.minLevel < 1) {
 				console.warn(`Map centralMeridian is ${this.lon0}, minLevel must > 0`);
 			}
 			this.projection = ProjectFactory.createFromID(this.projection.ID, value);
@@ -310,12 +292,14 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
+	private _LODThreshold = 1;
+
 	/**
 	 * Get LOD threshold
 	 * 取得LOD阈值
 	 */
 	public get LODThreshold() {
-		return this.rootTile.LODThreshold;
+		return this._LODThreshold;
 	}
 
 	/**
@@ -323,7 +307,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * 设置LOD阈值，LOD阈值越大，瓦片细化，但耗费资源越高，建议取1-2之间
 	 */
 	public set LODThreshold(value) {
-		this.rootTile.LODThreshold = value;
+		this._LODThreshold = value;
 	}
 
 	/**
@@ -379,7 +363,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		super();
 		this.up.set(0, 0, 1);
 		this.loader = params.loader ?? new TileLoader();
-		this.rootTile = params.rootTile ?? new RootTile(this.loader);
+		this.rootTile = params.rootTile ?? new Tile();
 
 		this.minLevel = params.minLevel ?? 1;
 		this.maxLevel = params.maxLevel ?? 19;
@@ -407,7 +391,13 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	public update(camera: Camera) {
 		this.rootTile.receiveShadow = this.receiveShadow;
 		this.rootTile.castShadow = this.castShadow;
-		this.rootTile.update(camera);
+		this.rootTile.update({
+			camera,
+			loader: this.loader,
+			minLevel: this.minLevel,
+			maxLevel: this.maxLevel,
+			LODThreshold: this.LODThreshold,
+		});
 
 		// 动态调整地图高度
 		if (this.autoPosition) {

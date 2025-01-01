@@ -5,4 +5,3 @@
  */
 
 export * from "./Tile";
-export * from "./RootTile";

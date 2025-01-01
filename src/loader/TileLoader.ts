@@ -58,7 +58,8 @@ export class TileLoader implements ITileLoader {
 	public load(x: number, y: number, z: number, onLoad: () => void): Tile {
 		const tile = new Tile(x, y, z);
 		const abortController = new AbortController();
-		tile.addEventListener("dispose", () => {
+
+		const onDispose = () => {
 			if (tile.loaded) {
 				this._checkVisible(tile);
 				tile.material.forEach((mat) => mat.dispose());
@@ -68,6 +69,10 @@ export class TileLoader implements ITileLoader {
 			} else {
 				abortController.abort();
 			}
+		};
+		tile.addEventListener("dispose", () => {
+			onDispose();
+			tile.removeEventListener("dispose", onDispose);
 		});
 
 		// SetTimeout waiting for the tile appended into map
@@ -145,7 +150,7 @@ export class TileLoader implements ITileLoader {
 		};
 
 		const getTile = (x: number, y: number, level: number, minLevle: number, onLoad: (tile: Tile) => void) => {
-			const tile = level < minLevle ? new Tile(x, y, level) : this.load(x, y, level, () => onLoad(tile));
+			const tile: Tile = level < minLevle ? new Tile(x, y, level) : this.load(x, y, level, () => onLoad(tile));
 			return tile;
 		};
 

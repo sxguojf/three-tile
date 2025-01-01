@@ -6,14 +6,29 @@
 
 import {
 	BaseEvent,
+	Box3,
 	BufferGeometry,
+	Camera,
+	Frustum,
 	InstancedBufferGeometry,
 	Intersection,
 	Material,
+	Matrix4,
 	Mesh,
 	Object3DEventMap,
 	Raycaster,
+	Vector3,
 } from "three";
+import { creatChildrenTile, getDistance, LODAction, LODEvaluate } from "./util";
+import { ITileLoader } from "../loader";
+
+export type TileUpdateParames = {
+	camera: Camera;
+	loader: ITileLoader;
+	minLevel: number;
+	maxLevel: number;
+	LODThreshold: number;
+};
 
 /**
  * Tile event map
@@ -29,6 +44,10 @@ export interface TTileEventMap extends Object3DEventMap {
 // Default geometry of tile
 const defaultGeometry = new InstancedBufferGeometry();
 
+const tempVec3 = new Vector3();
+const tempMat4 = new Matrix4();
+const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
+const frustum = new Frustum();
 /**
  * Class Tile, inherit of Mesh
  */
@@ -46,6 +65,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	/** Children of tile */
 	public readonly children: this[] = [];
+
+	private _ready = false;
 
 	/** Max height of tile */
 	private _maxZ = 0;
@@ -118,10 +139,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this.y = y;
 		this.z = z;
 		this.name = `Tile ${z}-${x}-${y}`;
+		this.up.set(0, 0, 1);
 		this.matrixAutoUpdate = false;
 		this.matrixWorldAutoUpdate = false;
-		this.up.set(0, 0, 1);
-		this.renderOrder = 0;
 	}
 
 	/**
@@ -157,12 +177,128 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		}
 	}
 
+	protected LOD(
+		loader: ITileLoader,
+		minLevel: number,
+		maxLevel: number,
+		threshold: number,
+		onCreate: (tile: Tile) => void,
+		onLoad: (tile: Tile) => void,
+	) {
+		// LOD evaluate
+		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
+		if (action === LODAction.create && (this.loaded || this.z < minLevel)) {
+			// Create children tiles
+			const newTiles = creatChildrenTile(this, loader, minLevel, (newTile: Tile) => {
+				// onload
+				newTile._onLoad();
+				onLoad(newTile);
+			});
+			newTiles.forEach((newTile) => {
+				onCreate(newTile);
+			});
+		} else if (action === LODAction.remove) {
+			// Remove tiles
+			const parent = this.parent;
+			if (parent?.isTile) {
+				parent.dispose(false);
+			}
+		}
+		return this;
+	}
+
+	public update(params: TileUpdateParames) {
+		// Get camera frustum
+		frustum.setFromProjectionMatrix(
+			tempMat4.multiplyMatrices(params.camera.projectionMatrix, params.camera.matrixWorldInverse),
+		);
+		// Get camera postion
+		const cameraWorldPosition = params.camera.getWorldPosition(tempVec3);
+
+		// LOD for tiles
+		this.traverse((tile) => {
+			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
+			// Tile is in frustum?
+			tile.inFrustum = frustum.intersectsBox(bounds);
+			// Get the distance of camera to tile
+			tile.distToCamera = getDistance(tile, cameraWorldPosition);
+			// LOD
+			tile.LOD(
+				params.loader,
+				params.minLevel,
+				params.maxLevel,
+				params.LODThreshold,
+				this._onTileCreate.bind(this),
+				this._onTileLoad.bind(this),
+			);
+		});
+
+		this._checkReady(params.minLevel);
+	}
+
+	/**
+	 * Check the map is ready to render
+	 */
+	private _checkReady(minLevel: number) {
+		if (!this._ready) {
+			this._ready = true;
+			this.traverse((child) => {
+				if (child.isLeaf && child.loaded && child.z >= minLevel) {
+					this._ready = false;
+				}
+			});
+			if (this._ready) {
+				this.dispatchEvent({ type: "ready" });
+			}
+		}
+		return this;
+	}
+
 	/** Called when tile loaded  */
-	public onLoaded() {
+	private _onLoad() {
 		// Update Z
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
 		this.avgZ = (this.maxZ + this.minZ) / 2;
+	}
+
+	/**
+	 * Calculate the elevation of tiles in view
+	 */
+	private _calcHeightInView() {
+		let sumZ = 0,
+			count = 0;
+		this.maxZ = -1;
+		this.minZ = 10;
+		this.traverseVisible((child) => {
+			if (child.isLeaf && child.inFrustum && child.loaded) {
+				this.maxZ = Math.max(this.maxZ, child.maxZ);
+				this.minZ = Math.min(this.minZ, child.minZ);
+				sumZ += child.avgZ;
+				count++;
+			}
+		});
+		if (count > 0) {
+			this.avgZ = sumZ / count;
+		}
+		return this;
+	}
+
+	private _onTileCreate(newTile: Tile) {
+		this.dispatchEvent({ type: "tile-created", tile: newTile });
+	}
+
+	private _onTileLoad(newTile: Tile) {
+		this._calcHeightInView();
+		this.dispatchEvent({ type: "tile-loaded", tile: newTile });
+	}
+
+	/**
+	 * Reload data, Called to take effect after source has changed
+	 */
+	public reload() {
+		this.dispose(false);
+		return this;
 	}
 
 	/**
