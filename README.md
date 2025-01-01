@@ -1,6 +1,6 @@
 [English](README.md) | [简体中文](README_CN.md)
 
-# **three-tile V0.7.2**
+# **three-tile V0.8.0**
 
 <p align='right'>hz_gjf@163.com</p>
 

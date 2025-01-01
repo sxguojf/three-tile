@@ -1,5 +1,5 @@
 /**
- *@description: LOD Tile
+ *@description: LOD Tile mesh
  *@author: Guojf
  *@date: 2023-04-05
  */
@@ -181,6 +181,17 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		}
 	}
 
+	/**
+	 * LOD（Level of Detail）。
+	 *
+	 * @param loader
+	 * @param minLevel
+	 * @param maxLevel
+	 * @param threshold
+	 * @param onCreate
+	 * @param onLoad
+	 * @returns
+	 */
 	protected LOD(
 		loader: ITileLoader,
 		minLevel: number,
@@ -193,21 +204,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create && (this.showing || this.z < minLevel)) {
 			// Create children tiles
-			const newTiles = loader.loadChildren(this.x, this.y, this.z, minLevel, (newTile: Tile) => {
-				// onload
-				newTile._onLoad();
-				onLoad(newTile);
-			});
+			const newTiles = loader.loadChildren(this.x, this.y, this.z, minLevel, (newTile: Tile) => onLoad(newTile));
 			this.add(...newTiles);
-			// init new tiles and update matrixes
-			newTiles.forEach((newTile) => {
-				onCreate(newTile);
-				newTile.updateMatrix();
-				newTile.updateMatrixWorld();
-				newTile.sizeInWorld = getTileSize(newTile);
-				newTile.receiveShadow = this.receiveShadow;
-				newTile.castShadow = this.castShadow;
-			});
+			newTiles.forEach((newTile) => onCreate(newTile));
 		} else if (action === LODAction.remove && this.showing) {
 			// Remove tiles
 			const parent = this.parent;
@@ -296,11 +295,27 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this;
 	}
 
+	/**
+	 * Callback function triggered when a tile is created
+	 *
+	 * @param newTile The newly created tile object
+	 */
 	private _onTileCreate(newTile: Tile) {
+		newTile.updateMatrix();
+		newTile.updateMatrixWorld();
+		newTile.sizeInWorld = getTileSize(newTile);
+		newTile.receiveShadow = this.receiveShadow;
+		newTile.castShadow = this.castShadow;
 		this.dispatchEvent({ type: "tile-created", tile: newTile });
 	}
 
+	/**
+	 * Callback function triggered when a tile is loaded completely
+	 *
+	 * @param newTile The loaded tile object
+	 */
 	private _onTileLoad(newTile: Tile) {
+		newTile._onLoad();
 		this._calcHeightInView();
 		this.dispatchEvent({ type: "tile-loaded", tile: newTile });
 	}

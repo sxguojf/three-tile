@@ -81,7 +81,7 @@ export class TileLoader implements ITileLoader {
 		return tile;
 	}
 
-	private _load(tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
+	protected _load(tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
 		if (tile.parent) {
 			const onDataLoad = () => {
 				// dem and img both loaded
