@@ -22,6 +22,9 @@ import {
 import { ITileLoader } from "../loader";
 import { getDistance, getTileSize, LODAction, LODEvaluate } from "./util";
 
+/**
+ * Tile update parameters
+ */
 export type TileUpdateParames = {
 	camera: Camera;
 	loader: ITileLoader;
