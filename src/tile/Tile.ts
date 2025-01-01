@@ -1,5 +1,5 @@
 /**
- *@description: Tile of map
+ *@description: LOD Tile
  *@author: Guojf
  *@date: 2023-04-05
  */
@@ -19,8 +19,8 @@ import {
 	Raycaster,
 	Vector3,
 } from "three";
-import { creatChildrenTile, getDistance, LODAction, LODEvaluate } from "./util";
 import { ITileLoader } from "../loader";
+import { getDistance, getTileSize, LODAction, LODEvaluate } from "./util";
 
 export type TileUpdateParames = {
 	camera: Camera;
@@ -36,7 +36,6 @@ export type TileUpdateParames = {
 export interface TTileEventMap extends Object3DEventMap {
 	dispose: BaseEvent;
 	ready: BaseEvent;
-	show: BaseEvent & { show: boolean };
 	"tile-created": BaseEvent & { tile: Tile };
 	"tile-loaded": BaseEvent & { tile: Tile };
 }
@@ -65,6 +64,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	/** Children of tile */
 	public readonly children: this[] = [];
+
+	public showing = false;
 
 	private _ready = false;
 
@@ -169,10 +170,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Override Obejct3D.raycast, only test the tile is showing
+	 * Override Obejct3D.raycast, only test the tile has loaded
 	 */
 	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		if (this.isLeaf && this.loaded && this.isTile) {
+		if (this.showing && this.loaded && this.isTile) {
 			super.raycast(raycaster, intersects);
 		}
 	}
@@ -187,17 +188,24 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	) {
 		// LOD evaluate
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
-		if (action === LODAction.create && (this.loaded || this.z < minLevel)) {
+		if (action === LODAction.create && (this.showing || this.z < minLevel)) {
 			// Create children tiles
-			const newTiles = creatChildrenTile(this, loader, minLevel, (newTile: Tile) => {
+			const newTiles = loader.loadChildren(this.x, this.y, this.z, minLevel, (newTile: Tile) => {
 				// onload
 				newTile._onLoad();
 				onLoad(newTile);
 			});
+			this.add(...newTiles);
+			// init new tiles and update matrixes
 			newTiles.forEach((newTile) => {
 				onCreate(newTile);
+				newTile.updateMatrix();
+				newTile.updateMatrixWorld();
+				newTile.sizeInWorld = getTileSize(newTile);
+				newTile.receiveShadow = this.receiveShadow;
+				newTile.castShadow = this.castShadow;
 			});
-		} else if (action === LODAction.remove) {
+		} else if (action === LODAction.remove && this.showing) {
 			// Remove tiles
 			const parent = this.parent;
 			if (parent?.isTile) {
@@ -234,6 +242,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		});
 
 		this._checkReady(params.minLevel);
+		return this;
 	}
 
 	/**
@@ -294,10 +303,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Reload data, Called to take effect after source has changed
+	 * Reload data
 	 */
 	public reload() {
-		this.dispose(false);
+		this.dispose(true);
 		return this;
 	}
 
@@ -314,7 +323,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		// remove all children recursionly
 		this.children.forEach((child) => child.dispose(true));
 		this.clear();
-
 		return this;
 	}
 }

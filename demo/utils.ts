@@ -68,11 +68,12 @@ export function limitCameraHeight(viewer: tt.plugin.GLViewer, map: tt.TileMap, d
 			// 地面高度与摄像机高度差
 			return map.worldToLocal(checkPoint).z - map.worldToLocal(info.point).z;
 		} else {
-			return 10;
+			return 1;
 		}
 	}
 
-	viewer.controls.addEventListener("change", () => {
+	// viewer.controls.addEventListener("change", () => {
+	viewer.addEventListener("update", () => {
 		const h = getHightFromCamera();
 		if (h < dist) {
 			const dv = map.localToWorld(map.up.clone()).multiplyScalar(dist + 0.001 - h);

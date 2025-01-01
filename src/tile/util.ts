@@ -6,7 +6,6 @@
 
 import { Vector3 } from "three";
 import { Tile } from ".";
-import { ITileLoader } from "../loader";
 
 export enum LODAction {
 	none,
@@ -50,21 +49,9 @@ export function getDistance(tile: Tile, cameraWorldPosition: Vector3) {
 	return cameraWorldPosition.distanceTo(tilePos);
 }
 
-export function creatChildrenTile(parent: Tile, loader: ITileLoader, minLevel: number, onLoad: (tile: Tile) => void) {
-	function getTileSize(tile: Tile) {
-		const scale = tile.scale;
-		const lt = new Vector3(-scale.x, -scale.y, 0).applyMatrix4(tile.matrixWorld);
-		const rt = new Vector3(scale.x, scale.y, 0).applyMatrix4(tile.matrixWorld);
-		return lt.sub(rt).length();
-	}
-	const children = loader.loadChildren(parent.x, parent.y, parent.z, minLevel, onLoad);
-	parent.add(...children);
-	children.forEach((child) => {
-		child.updateMatrix();
-		child.updateMatrixWorld();
-		child.sizeInWorld = getTileSize(child);
-		child.receiveShadow = parent.receiveShadow;
-		child.castShadow = parent.castShadow;
-	});
-	return children;
+export function getTileSize(tile: Tile) {
+	const scale = tile.scale;
+	const lt = new Vector3(-scale.x, -scale.y, 0).applyMatrix4(tile.matrixWorld);
+	const rt = new Vector3(scale.x, scale.y, 0).applyMatrix4(tile.matrixWorld);
+	return lt.sub(rt).length();
 }

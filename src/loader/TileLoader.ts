@@ -121,6 +121,7 @@ export class TileLoader implements ITileLoader {
 	private _checkVisible(tile: Tile) {
 		const show = (t: Tile, value: boolean) => {
 			t.material.forEach((mat) => (mat.visible = value));
+			t.showing = value;
 		};
 
 		const parent = tile.parent;
