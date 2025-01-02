@@ -105,7 +105,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/* Tile size in world */
 	public sizeInWorld = 0;
 
-	/** Index of tile, mean positon in parent.  (0:left-bottom, 1:right-bottom,2:left-top、3:right-top、-1:parent is null）	 */
+	/** Index of tile, mean positon in parent.  (0:left-top, 1:right-top, 2:left-bottom, 3:right-bottom，-1:parent is null）*/
 	public get index(): number {
 		return this.parent ? this.parent.children.indexOf(this) : -1;
 	}

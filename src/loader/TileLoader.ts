@@ -176,17 +176,17 @@ export class TileLoader implements ITileLoader {
 		} else {
 			const y = py * 2;
 			const scale = new Vector3(0.5, 0.5, 1.0);
-			const t1 = getTile(x, y + 1, level, minLevel, () => onOneLoad(t1));
-			const t2 = getTile(x + 1, y + 1, level, minLevel, () => onOneLoad(t2));
-			const t3 = getTile(x, y, level, minLevel, () => onOneLoad(t3));
-			const t4 = getTile(x + 1, y, level, minLevel, () => onOneLoad(t4));
-			t1.position.set(-pos, -pos, z);
+			const t1 = getTile(x, y, level, minLevel, () => onOneLoad(t1));
+			const t2 = getTile(x + 1, y, level, minLevel, () => onOneLoad(t2));
+			const t3 = getTile(x, y + 1, level, minLevel, () => onOneLoad(t3));
+			const t4 = getTile(x + 1, y + 1, level, minLevel, () => onOneLoad(t4));
+			t1.position.set(-pos, pos, z);
 			t1.scale.copy(scale);
-			t2.position.set(pos, -pos, z);
+			t2.position.set(pos, pos, z);
 			t2.scale.copy(scale);
-			t3.position.set(-pos, pos, z);
+			t3.position.set(-pos, -pos, z);
 			t3.scale.copy(scale);
-			t4.position.set(pos, pos, z);
+			t4.position.set(pos, -pos, z);
 			t4.scale.copy(scale);
 			children.push(t1, t2, t3, t4);
 		}
