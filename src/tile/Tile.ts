@@ -20,7 +20,7 @@ import {
 	Vector3,
 } from "three";
 import { ITileLoader } from "../loader";
-import { getDistance, getTileSize, LODAction, LODEvaluate } from "./util";
+import { getDistance, getTileSize, loadChildren, LODAction, LODEvaluate } from "./util";
 
 /**
  * Tile update parameters
@@ -68,7 +68,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Children of tile */
 	public readonly children: this[] = [];
 
-	public showing = false;
+	private _showing = false;
+	public get showing() {
+		return this._showing;
+	}
+	public set showing(value) {
+		this._showing = value;
+		this.material.forEach((mat) => (mat.visible = value));
+	}
 
 	private _ready = false;
 
@@ -204,13 +211,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
 		if (action === LODAction.create && (this.showing || this.z < minLevel)) {
 			// Create children tiles
-			const newTiles = loader.loadChildren(this.x, this.y, this.z, minLevel, (newTile: Tile) => onLoad(newTile));
+			const newTiles = loadChildren(loader, this.x, this.y, this.z, minLevel, (newTile: Tile) => onLoad(newTile));
 			this.add(...newTiles);
 			newTiles.forEach((newTile) => onCreate(newTile));
 		} else if (action === LODAction.remove && this.showing) {
 			// Remove tiles
 			const parent = this.parent;
 			if (parent?.isTile) {
+				parent.showing = true;
 				parent.dispose(false);
 			}
 		}
@@ -267,6 +275,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	/** Called when tile loaded  */
 	private _onLoad() {
+		this._checkVisible();
 		// Update Z
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this.minZ = this.geometry.boundingBox?.min.z || 0;
@@ -293,6 +302,17 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			this.avgZ = sumZ / count;
 		}
 		return this;
+	}
+
+	private _checkVisible() {
+		const parent = this.parent;
+		if (parent && parent.isTile) {
+			//Show children and hide parent when all children has loaded
+			const children = parent.children.filter((child) => child.isTile);
+			const loaded = children.every((child) => child.loaded);
+			parent.showing = !loaded;
+			children.forEach((child) => (child.showing = loaded));
+		}
 	}
 
 	/**
@@ -337,7 +357,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			// Fire dispose event, Loader listen and execute
 			this.dispatchEvent({ type: "dispose" });
 		}
-
 		// remove all children recursionly
 		this.children.forEach((child) => child.dispose(true));
 		this.clear();
