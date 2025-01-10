@@ -50,6 +50,7 @@ const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
 const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
 const frustum = new Frustum();
+let downloadingCount = 0;
 /**
  * Class Tile, inherit of Mesh
  */
@@ -209,11 +210,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	) {
 		// LOD evaluate
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
-		if (action === LODAction.create && (this.showing || this.z < minLevel)) {
+		if (downloadingCount < 10 && action === LODAction.create && (this.showing || this.z < minLevel)) {
 			// Create children tiles
 			const newTiles = loadChildren(loader, this.x, this.y, this.z, minLevel, (newTile: Tile) => onLoad(newTile));
 			this.add(...newTiles);
 			newTiles.forEach((newTile) => onCreate(newTile));
+			console.log(downloadingCount);
 		} else if (action === LODAction.remove && this.showing) {
 			// Remove tiles
 			const parent = this.parent;
@@ -327,6 +329,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		newTile.receiveShadow = this.receiveShadow;
 		newTile.castShadow = this.castShadow;
 		this.dispatchEvent({ type: "tile-created", tile: newTile });
+		downloadingCount++;
 	}
 
 	/**
@@ -338,6 +341,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		newTile._onLoad();
 		this._calcHeightInView();
 		this.dispatchEvent({ type: "tile-loaded", tile: newTile });
+		downloadingCount--;
 	}
 
 	/**
@@ -345,6 +349,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public reload() {
 		this.dispose(true);
+		downloadingCount = 0;
 		return this;
 	}
 
@@ -353,8 +358,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param disposeSelf dispose self?
 	 */
 	public dispose(disposeSelf: boolean) {
-		if (disposeSelf && this.isTile) {
-			// Fire dispose event, Loader listen and execute
+		if (disposeSelf && this.isTile && this.loaded) {
+			this.material.forEach((mat) => mat.dispose());
+			this.material = [];
+			this.geometry.groups = [];
+			this.geometry.dispose();
 			this.dispatchEvent({ type: "dispose" });
 		}
 		// remove all children recursionly

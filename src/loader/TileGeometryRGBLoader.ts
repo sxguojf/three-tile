@@ -31,7 +31,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	public load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry {
 		const geometry = this.createGeometry();
 		// get max level tile and rect
-		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
+		const { url, bounds } = getSafeTileUrlAndBounds(source, tile.x, tile.y, tile.z);
 		if (url) {
 			const size = (tile.z + 2) * 3;
 			this._load(url, geometry, bounds, size, onLoad, abortSignal);

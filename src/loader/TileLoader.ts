@@ -60,12 +60,7 @@ export class TileLoader implements ITileLoader {
 		const abortController = new AbortController();
 
 		const onDispose = () => {
-			if (tile.loaded) {
-				tile.material.forEach((mat) => mat.dispose());
-				tile.material = [];
-				tile.geometry.groups = [];
-				tile.geometry.dispose();
-			} else {
+			if (!tile.loaded) {
 				abortController.abort();
 			}
 		};
@@ -74,47 +69,44 @@ export class TileLoader implements ITileLoader {
 			tile.removeEventListener("dispose", onDispose);
 		});
 
-		// SetTimeout waiting for the tile appended into map
-		setTimeout(() => this._load(tile, onLoad, abortController.signal));
+		this._load(tile, onLoad, abortController.signal);
 
 		return tile;
 	}
 
 	protected _load(tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
-		if (tile.parent) {
-			const onDataLoad = () => {
-				// dem and img both loaded
-				if (geoLoaded && matLoaded) {
-					for (let i = 0; i < materials.length; i++) {
-						geometry.addGroup(0, Infinity, i);
-					}
-					tile.geometry = geometry;
-					tile.material = materials;
-					onLoad();
+		const onDataLoad = () => {
+			// dem and img both loaded
+			if (geoLoaded && matLoaded) {
+				for (let i = 0; i < materials.length; i++) {
+					geometry.addGroup(0, Infinity, i);
 				}
-			};
+				tile.geometry = geometry;
+				tile.material = materials;
+				onLoad();
+			}
+		};
 
-			let geoLoaded = false;
-			let matLoaded = false;
+		let geoLoaded = false;
+		let matLoaded = false;
 
-			const geometry = this.loadGeometry(
-				tile,
-				() => {
-					geoLoaded = true;
-					onDataLoad();
-				},
-				abortSignal,
-			);
+		const geometry = this.loadGeometry(
+			tile,
+			() => {
+				geoLoaded = true;
+				onDataLoad();
+			},
+			abortSignal,
+		);
 
-			const materials = this.loadMaterial(
-				tile,
-				() => {
-					matLoaded = true;
-					onDataLoad();
-				},
-				abortSignal,
-			);
-		}
+		const materials = this.loadMaterial(
+			tile,
+			() => {
+				matLoaded = true;
+				onDataLoad();
+			},
+			abortSignal,
+		);
 	}
 
 	/**

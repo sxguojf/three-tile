@@ -35,23 +35,22 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 			return new PlaneGeometry();
 		}
 		// 计算最大级别瓦片和本瓦片在其中的位置
-		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
+		const { url, bounds } = getSafeTileUrlAndBounds(source, tile.x, tile.y, tile.z);
 
 		// 没有url，返回默认几何体
 		if (!url) {
 			setTimeout(onLoad);
 			return emptyGeometry;
 		}
-
-		return this._load(tile, url, bounds, onLoad, abortSignal);
-	}
-
-	// private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
-	private _load(tile: Tile, url: string, bounds: Box2, onLoad: () => void, abortSignal: AbortSignal) {
 		// 计算瓦片图片大小（像素）
 		let tileSize = tile.z * 3;
 		tileSize = MathUtils.clamp(tileSize, 2, 48);
 
+		return this._load(url, tileSize, bounds, onLoad, abortSignal);
+	}
+
+	// private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
+	private _load(url: string, tileSize: number, bounds: Box2, onLoad: () => void, abortSignal: AbortSignal) {
 		const geometry = new TileDEMGeometry();
 
 		this.fileLoader.load(

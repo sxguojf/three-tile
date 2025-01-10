@@ -35,7 +35,7 @@ export class TileTextureLoader {
 		const texture = new Texture(new Image(1, 1));
 		texture.colorSpace = SRGBColorSpace;
 		// get the max level and bounds in tile
-		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile);
+		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile.x, tile.y, tile.z);
 
 		if (url) {
 			this.loader.load(
