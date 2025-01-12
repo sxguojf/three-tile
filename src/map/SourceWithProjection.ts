@@ -34,17 +34,6 @@ export class SourceWithProjection extends TileSource {
 		this._projectionBounds = this.projection.getPorjBounds(this._source.bounds);
 	}
 
-	private _getTileBounds(x: number, y: number, z: number, s: number = 1) {
-		const p1 = this.projection.getTileXYZproj(x, y, z);
-		const p2 = this.projection.getTileXYZproj(x + s, y + s, z);
-		return {
-			minX: Math.min(p1.x, p2.x),
-			minY: Math.min(p1.y, p2.y),
-			maxX: Math.max(p1.x, p2.x),
-			maxY: Math.max(p1.y, p2.y),
-		};
-	}
-
 	constructor(source: ISource, projection: IProjection) {
 		super();
 		Object.assign(this, source);
@@ -53,20 +42,13 @@ export class SourceWithProjection extends TileSource {
 	}
 
 	public getUrl(x: number, y: number, z: number): string | undefined {
-		// 计算投影后的xyz
-		const n = Math.pow(2, z);
-		let newx = x + Math.round((n / 360) * this.projection.lon0);
-		if (newx >= n) {
-			newx -= n;
-		} else if (newx < 0) {
-			newx += n;
-		}
+		// 中心投影后的瓦片x坐标
+		const newx = this.projection.getTileXWithCenterLon(x, z);
 
 		// 判断请求的瓦片是否在数据源经纬度有效范围内
-		const s = 1;
 		const bounds = this._projectionBounds;
 		// 取得当前瓦片的bounds
-		const tileBounds = this._getTileBounds(newx, y, z, s);
+		const tileBounds = this.projection.getTileBounds(newx, y, z);
 
 		if (
 			tileBounds.maxX < bounds[0] || // minx

@@ -48,7 +48,7 @@ export abstract class Projection implements IProjection {
 	}
 
 	/**
-	 * 根据瓦片坐标计算投影坐标
+	 * 计算瓦片中心投影坐标
 	 * @param x
 	 * @param y
 	 * @param z
@@ -63,7 +63,7 @@ export abstract class Projection implements IProjection {
 	}
 
 	/**
-	 * 取得投影后的经纬度边界坐标
+	 * 取得经纬度范围的投影坐标
 	 * @param bounds 经纬度边界
 	 * @returns 投影坐标
 	 */
@@ -73,5 +73,24 @@ export abstract class Projection implements IProjection {
 		// const p1 = this.project(bounds[0], bounds[1]);
 		// const p2 = this.project(bounds[2], bounds[3]);
 		return [Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.max(p1.x, p2.x), Math.max(p1.y, p2.y)];
+	}
+
+	/**
+	 * 计算瓦片边界投影坐标范围
+
+	 * @param x 瓦片X坐标
+	 * @param y 瓦片Y坐标
+	 * @param z  瓦片层级
+	 * @returns 
+	 */
+	public getTileBounds(x: number, y: number, z: number) {
+		const p1 = this.getTileXYZproj(x, y, z);
+		const p2 = this.getTileXYZproj(x + 1, y + 1, z);
+		return {
+			minX: Math.min(p1.x, p2.x),
+			minY: Math.min(p1.y, p2.y),
+			maxX: Math.max(p1.x, p2.x),
+			maxY: Math.max(p1.y, p2.y),
+		};
 	}
 }

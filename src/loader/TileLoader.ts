@@ -91,7 +91,9 @@ export class TileLoader implements ITileLoader {
 		let matLoaded = false;
 
 		const geometry = this.loadGeometry(
-			tile,
+			tile.x,
+			tile.y,
+			tile.z,
 			() => {
 				geoLoaded = true;
 				onDataLoad();
@@ -100,7 +102,9 @@ export class TileLoader implements ITileLoader {
 		);
 
 		const materials = this.loadMaterial(
-			tile,
+			tile.x,
+			tile.y,
+			tile.z,
 			() => {
 				matLoaded = true;
 				onDataLoad();
@@ -117,12 +121,18 @@ export class TileLoader implements ITileLoader {
 	 * @returns geometry
 	 */
 
-	protected loadGeometry(tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry {
+	protected loadGeometry(
+		x: number,
+		y: number,
+		z: number,
+		onLoad: () => void,
+		abortSignal: AbortSignal,
+	): BufferGeometry {
 		let geometry: BufferGeometry;
 		// load dem if has dem source, else create a PlaneGeometry
 		if (this.demSource) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
-			geometry = loader.load(this.demSource, tile, onLoad, abortSignal);
+			geometry = loader.load(this.demSource, x, y, z, onLoad, abortSignal);
 		} else {
 			geometry = new PlaneGeometry();
 			setTimeout(onLoad);
@@ -137,12 +147,14 @@ export class TileLoader implements ITileLoader {
 	 * @param onError error callback
 	 * @returns material
 	 */
-	protected loadMaterial(tile: Tile, onLoad: () => void, abortSignal: AbortSignal): Material[] {
+	protected loadMaterial(x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material[] {
 		const materials = this.imgSource.map((source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			const material = loader.load(
 				source,
-				tile,
+				x,
+				y,
+				z,
 				() => {
 					material.userData.loaded = true;
 					// check all of materials loaded
@@ -154,7 +166,6 @@ export class TileLoader implements ITileLoader {
 			);
 			return material;
 		});
-
 		return materials;
 	}
 }

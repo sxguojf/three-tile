@@ -6,9 +6,8 @@
 
 import { CanvasTexture } from "three";
 import { ITileMaterialLoader } from "../../loader/ITileLoaders";
-import { ISource } from "../../source";
-import { Tile } from "../../tile";
 import { TileMaterial } from "../../material";
+import { ISource } from "../../source";
 
 /**
  * Debug material laoder, it draw a box and coordinate on tile
@@ -16,8 +15,8 @@ import { TileMaterial } from "../../material";
 export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "debug";
 
-	public load(source: ISource, tile: Tile, onLoad: () => void): TileMaterial {
-		const texture = new CanvasTexture(this.drawTile(tile));
+	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void): TileMaterial {
+		const texture = new CanvasTexture(this.drawTile(x, y, z));
 		texture.needsUpdate = true;
 		const material = new TileMaterial({
 			transparent: true,
@@ -33,7 +32,7 @@ export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 	 * @param tile
 	 * @returns bitmap
 	 */
-	public drawTile(tile: Tile) {
+	public drawTile(x: number, y: number, z: number) {
 		const size = 256;
 		const canvas = new OffscreenCanvas(size, size);
 		const ctx = canvas.getContext("2d")!;
@@ -50,8 +49,8 @@ export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 			ctx.shadowOffsetY = 1;
 			ctx.font = "bold 20px arial";
 			ctx.textAlign = "center";
-			ctx.fillText(`Tile Test - level: ${tile.z}`, size / 2, 50);
-			ctx.fillText(`[${tile.x}, ${tile.y}]`, size / 2, 80);
+			ctx.fillText(`Tile Test - level: ${z}`, size / 2, 50);
+			ctx.fillText(`[${x}, ${y}]`, size / 2, 80);
 		}
 		return canvas.transferToImageBitmap();
 	}

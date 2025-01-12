@@ -20,11 +20,18 @@ export interface ITileLoader {
 /**  Material loader interface */
 export interface ITileMaterialLoader {
 	dataType: string;
-	load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): Material;
+	load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material;
 }
 
 /** geometry loader interface */
 export interface ITileGeometryLoader {
 	dataType: string;
-	load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry;
+	load(
+		source: ISource,
+		x: number,
+		y: number,
+		z: number,
+		onLoad: () => void,
+		abortSignal: AbortSignal,
+	): BufferGeometry;
 }

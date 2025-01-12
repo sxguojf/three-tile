@@ -6,7 +6,6 @@
 
 import { Box2, SRGBColorSpace, Texture } from "three";
 import { ISource } from "../source";
-import { Tile } from "../tile";
 import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
@@ -27,7 +26,9 @@ export class TileTextureLoader {
 	 */
 	public load(
 		source: ISource,
-		tile: Tile,
+		x: number,
+		y: number,
+		z: number,
 		onLoad: () => void,
 		onError: (err: ErrorEvent | DOMException | Event) => void,
 		abortSignal: AbortSignal,
@@ -35,7 +36,7 @@ export class TileTextureLoader {
 		const texture = new Texture(new Image(1, 1));
 		texture.colorSpace = SRGBColorSpace;
 		// get the max level and bounds in tile
-		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, tile.x, tile.y, tile.z);
+		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, x, y, z);
 
 		if (url) {
 			this.loader.load(
@@ -43,7 +44,7 @@ export class TileTextureLoader {
 				// onLoad
 				(image) => {
 					// if the tile level is greater than max level, clip the max level parent of this tile image
-					if (tile.z > source.maxLevel) {
+					if (z > source.maxLevel) {
 						texture.image = getSubImageFromRect(image, rect);
 					} else {
 						texture.image = image;
