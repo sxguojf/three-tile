@@ -48,10 +48,10 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	public drawLogo(logo: string) {
 		const size = 256;
 		const canvas = new OffscreenCanvas(size, size);
-		const ctx = canvas.getContext("2d")!;
-		ctx.scale(1, -1);
-		ctx.translate(0, -size);
+		const ctx = canvas.getContext("2d");
 		if (ctx) {
+			ctx.scale(1, -1);
+			ctx.translate(0, -size);
 			ctx.fillStyle = "white";
 			ctx.shadowColor = "black";
 			ctx.shadowBlur = 5;

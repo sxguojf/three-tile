@@ -150,3 +150,10 @@ export const googleSource = new GoogleSource();
 
 // 测试瓦片
 export const testSource = new tt.TileSource({ dataType: "debug" });
+
+// 单张图片测试瓦片源
+export const singleImage = new tt.TileSource({
+	dataType: "single-image",
+	url: "./image/test.jpg",
+	bounds: [90, 40, 130, 10],
+});

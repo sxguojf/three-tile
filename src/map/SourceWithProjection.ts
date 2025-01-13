@@ -51,13 +51,22 @@ export class SourceWithProjection extends TileSource {
 		const tileBounds = this.projection.getTileBounds(newx, y, z);
 
 		if (
-			tileBounds.maxX < bounds[0] || // minx
-			tileBounds.maxY < bounds[1] || // miny
-			tileBounds.minX > bounds[2] || // maxx
-			tileBounds.minY > bounds[3] // maxy
+			tileBounds[2] < bounds[0] || // minx
+			tileBounds[3] < bounds[1] || // miny
+			tileBounds[0] > bounds[2] || // maxx
+			tileBounds[1] > bounds[3] // maxy
 		) {
 			return undefined;
 		}
+
+		// if (
+		// 	tileBounds.maxX < bounds[0] || // minx
+		// 	tileBounds.maxY < bounds[1] || // miny
+		// 	tileBounds.minX > bounds[2] || // maxx
+		// 	tileBounds.minY > bounds[3] // maxy
+		// ) {
+		// 	return undefined;
+		// }
 
 		return this._source.getTileUrl(newx, y, z);
 	}

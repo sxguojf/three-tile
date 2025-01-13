@@ -78,6 +78,11 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 
+		setSingleImage() {
+			map.imgSource = [ms.mapBoxImgSource, ms.singleImage];
+			map.reload();
+		},
+
 		// terrain
 		setMapBoxDem: () => {
 			map.demSource = ms.mapBoxDemSource;
@@ -187,6 +192,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	imgFolder.add(vm, "setTencent").name("Tencent");
 	imgFolder.add(vm, "setTdt_w").name("TDT");
 	imgFolder.add(vm, "setOpentopomap").name("OpenTopoMap");
+	imgFolder.add(vm, "setSingleImage").name("SingleImage");
 	imgFolder.add(vm, "setTdt_c").name("TDT(WGS84 projection)");
 
 	// 地形数据源

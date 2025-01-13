@@ -21,5 +21,5 @@ export interface IProjection {
 	unProject(x: number, y: number): { lon: number; lat: number };
 	getTileXWithCenterLon(x: number, z: number): number;
 	getPorjBounds(bounds: [number, number, number, number]): [number, number, number, number];
-	getTileBounds(x: number, y: number, z: number): { minX: number; minY: number; maxX: number; maxY: number };
+	getTileBounds(x: number, y: number, z: number): [number, number, number, number]; // { minX: number; minY: number; maxX: number; maxY: number };
 }

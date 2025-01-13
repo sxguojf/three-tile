@@ -83,14 +83,15 @@ export abstract class Projection implements IProjection {
 	 * @param z  瓦片层级
 	 * @returns 
 	 */
-	public getTileBounds(x: number, y: number, z: number) {
+	public getTileBounds(x: number, y: number, z: number): [number, number, number, number] {
 		const p1 = this.getTileXYZproj(x, y, z);
 		const p2 = this.getTileXYZproj(x + 1, y + 1, z);
-		return {
-			minX: Math.min(p1.x, p2.x),
-			minY: Math.min(p1.y, p2.y),
-			maxX: Math.max(p1.x, p2.x),
-			maxY: Math.max(p1.y, p2.y),
-		};
+		// return {
+		// 	minX: Math.min(p1.x, p2.x),
+		// 	minY: Math.min(p1.y, p2.y),
+		// 	maxX: Math.max(p1.x, p2.x),
+		// 	maxY: Math.max(p1.y, p2.y),
+		// };
+		return [Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.max(p1.x, p2.x), Math.max(p1.y, p2.y)];
 	}
 }

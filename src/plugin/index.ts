@@ -17,6 +17,8 @@ import "./lercLoader";
 // terrain-dem loader
 // import "./demLoader";
 
+import "./imageLoder";
+
 // vierwer
 export * from "./GLViewer";
 // source chunk loader
