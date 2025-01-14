@@ -48,7 +48,7 @@ export class SourceWithProjection extends TileSource {
 		// 判断请求的瓦片是否在数据源经纬度有效范围内
 		const bounds = this._projectionBounds;
 		// 取得当前瓦片的bounds
-		const tileBounds = this.projection.getTileBounds(newx, y, z);
+		const tileBounds = this.projection.getTileBounds(x, y, z);
 
 		if (
 			tileBounds[2] < bounds[0] || // minx

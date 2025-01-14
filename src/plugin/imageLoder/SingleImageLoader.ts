@@ -39,7 +39,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		if (this._image) {
 			const texture = this.getTileTexture(source, x, y, z);
 			if (!this._image?.complete) {
-				console.log("image is incomplete");
+				console.log("image is incomplete1");
 			}
 			material.map = texture;
 			texture.needsUpdate = true;
@@ -50,7 +50,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 				//this._image = this.imageLoader.load(tileUrl || "", () => {});
 				this._image = this._imageLoader.load(tileUrl, () => {
 					if (!this._image?.complete) {
-						console.log("image is incomplete");
+						console.log("image is incomplete2");
 					}
 					const texture = this.getTileTexture(source, x, y, z);
 					material.map = texture;
@@ -82,42 +82,43 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	// }
 
 	public getTileTexture(source: ISource, x: number, y: number, z: number): Texture {
-		// const size = 256;
-		// const canvas = new OffscreenCanvas(size, size);
-		// const ctx = canvas.getContext("2d")!;
-		// if (ctx) {
-		// 	const tileUrl = source.getTileUrl(x, y, z);
-		// 	if (tileUrl) {
-		// 		return fetch(tileUrl)
-		// 			.then((res) => res.blob())
-		// 			.then((blob) => createImageBitmap(blob));
-		// 	}
-		// }
-
 		const sourceProj = source as SourceWithProjection;
 
 		const newx = sourceProj.projection.getTileXWithCenterLon(x, z);
 		const imageBounds = sourceProj._projectionBounds; // 图像投影坐标范围
-		const tileBounds = sourceProj.projection.getTileBounds(newx, y, z); // 瓦片投影坐标范围
+		const tileBounds = sourceProj.projection.getTileBounds(x, y, z); // 瓦片投影坐标范围
 
 		const tileUrl = source.getTileUrl(newx, y, z);
 
 		if (
-			tileBounds[2] < imageBounds[0] || // minx
-			tileBounds[3] < imageBounds[1] || // miny
-			tileBounds[0] > imageBounds[2] || // maxx
-			tileBounds[1] > imageBounds[3] // maxy
+			tileBounds[2] < imageBounds[0] || // maxx < minx
+			tileBounds[3] < imageBounds[1] || // maxy < miny
+			tileBounds[0] > imageBounds[2] || // minx > maxx
+			tileBounds[1] > imageBounds[3] // miny > maxy
 		) {
 			return new Texture(new Image(1, 1));
 		}
 
-		return new Texture(this._image);
+		const sizeX = this._image!.width;
+		const sizeY = this._image!.height;
 
-		// const tileUrl = source.getTileUrl(x, y, z);
-		// if (tileUrl) {
-		// 	return this._texture!;
-		// } else {
-		// 	return new Texture();
-		// }
+		const scaleX = (imageBounds[2] - imageBounds[0]) / sizeX; // 图像投影坐标范围到瓦片像素范围的缩放比例
+		const scaleY = (imageBounds[3] - imageBounds[1]) / sizeY; // 图像投影坐标范围到瓦片像素范围的缩放比例
+
+		const sx = (tileBounds[0] - imageBounds[0]) / scaleX; // 瓦片投影坐标范围到图像像素范围的裁剪起始x
+		const sy = (tileBounds[1] - imageBounds[1]) / scaleY; // 瓦片投影坐标范围到图像像素范围的裁剪起始y
+
+		const swidth = (imageBounds[2] - tileBounds[0]) / scaleX; // 瓦片投影坐标范围到图像像素范围的裁剪宽度
+		const sheight = (imageBounds[3] - tileBounds[1]) / scaleY; // 瓦片投影坐标范围到图像像素范围的裁剪高度
+
+		const dwidth = (tileBounds[2] - tileBounds[0]) / scaleX; // 瓦片投影坐标范围到图像像素范围的裁剪宽度
+		const dheight = (tileBounds[3] - tileBounds[1]) / scaleY; // 瓦片投影坐标范围到图像像素范围的裁剪高度
+
+		const tileSize = 256;
+		const canvas = new OffscreenCanvas(tileSize, tileSize);
+		const ctx = canvas.getContext("2d")!;
+		ctx.drawImage(this._image!, sx, sy, swidth, sheight, 0, 0, tileSize, tileSize);
+
+		return new Texture(canvas);
 	}
 }

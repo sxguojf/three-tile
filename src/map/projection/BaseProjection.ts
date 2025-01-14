@@ -48,7 +48,7 @@ export abstract class Projection implements IProjection {
 	}
 
 	/**
-	 * 计算瓦片中心投影坐标
+	 * 取得瓦片左上角投影坐标
 	 * @param x
 	 * @param y
 	 * @param z
@@ -68,15 +68,16 @@ export abstract class Projection implements IProjection {
 	 * @returns 投影坐标
 	 */
 	public getPorjBounds(bounds: [number, number, number, number]): [number, number, number, number] {
-		const p1 = this.project(bounds[0] + this.lon0, bounds[1]);
-		const p2 = this.project(bounds[2] + this.lon0, bounds[3]);
-		// const p1 = this.project(bounds[0], bounds[1]);
-		// const p2 = this.project(bounds[2], bounds[3]);
+		// const p1 = this.project(bounds[0] + this.lon0, bounds[1]);
+		// const p2 = this.project(bounds[2] + this.lon0, bounds[3]);
+		const p1 = this.project(bounds[0], bounds[1]);
+		const p2 = this.project(bounds[2], bounds[3]);
+
 		return [Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.max(p1.x, p2.x), Math.max(p1.y, p2.y)];
 	}
 
 	/**
-	 * 计算瓦片边界投影坐标范围
+	 * 取得瓦片边界投影坐标范围
 
 	 * @param x 瓦片X坐标
 	 * @param y 瓦片Y坐标

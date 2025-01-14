@@ -38,7 +38,8 @@ export class TileSource implements ISource {
 	protected s: string = "";
 	public opacity: number = 1.0;
 	// public bounds: [number, number, number, number] = [60, 10, 140, 60];
-	public bounds: [number, number, number, number] = [-180, -85.05112877980659, 180, 85.05112877980659];
+	//public bounds: [number, number, number, number] = [-180, -85.05112877980659, 180, 85.05112877980659];
+	public bounds: [number, number, number, number] = [-180, -90, 180, 90];
 	public _projectionBounds: [number, number, number, number] = [0, 0, 0, 0];
 	/**
 	 * constructor

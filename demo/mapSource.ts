@@ -155,5 +155,5 @@ export const testSource = new tt.TileSource({ dataType: "debug" });
 export const singleImage = new tt.TileSource({
 	dataType: "single-image",
 	url: "./image/test.jpg",
-	bounds: [90, 40, 130, 10],
+	bounds: [90, 22, 112, 40],
 });

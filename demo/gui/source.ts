@@ -79,7 +79,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		},
 
 		setSingleImage() {
-			map.imgSource = [ms.mapBoxImgSource, ms.singleImage];
+			map.imgSource = [ms.arcGisSource, ms.singleImage, ms.testSource];
 			map.reload();
 		},
 
