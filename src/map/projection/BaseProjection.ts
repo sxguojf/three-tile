@@ -48,7 +48,7 @@ export abstract class Projection implements IProjection {
 	}
 
 	/**
-	 * 取得瓦片左上角投影坐标
+	 * 取得瓦片左下角投影坐标
 	 * @param x
 	 * @param y
 	 * @param z
