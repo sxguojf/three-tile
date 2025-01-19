@@ -41,33 +41,42 @@ export class SourceWithProjection extends TileSource {
 		this.projection = projection;
 	}
 
-	public getUrl(x: number, y: number, z: number): string | undefined {
-		// 中心投影后的瓦片x坐标
-		const newx = this.projection.getTileXWithCenterLon(x, z);
-
-		// 判断请求的瓦片是否在数据源经纬度有效范围内
+	/**
+	 * 判断指定瓦片是否在边界内
+	 *
+	 * @param x 瓦片的 x 坐标
+	 * @param y 瓦片的 y 坐标
+	 * @param z 瓦片的层级
+	 * @returns 如果瓦片在边界内则返回 true，否则返回 false
+	 */
+	public tileInBounds(x: number, y: number, z: number): boolean {
 		const bounds = this._projectionBounds;
 		// 取得当前瓦片的bounds
 		const tileBounds = this.projection.getTileBounds(x, y, z);
 
-		if (
+		return !(
 			tileBounds[2] < bounds[0] || // minx
 			tileBounds[3] < bounds[1] || // miny
 			tileBounds[0] > bounds[2] || // maxx
-			tileBounds[1] > bounds[3] // maxy
-		) {
+			tileBounds[1] > bounds[3]
+		);
+	}
+
+	/**
+	 * 根据给定的瓦片坐标（x, y, z）获取瓦片的URL。
+	 *
+	 * @param x 瓦片的x坐标。
+	 * @param y 瓦片的y坐标。
+	 * @param z 瓦片的层级（zoom level）。
+	 * @returns 如果瓦片在边界内，则返回瓦片的URL；否则返回undefined。
+	 */
+	public getUrl(x: number, y: number, z: number): string | undefined {
+		if (this.tileInBounds(x, y, z)) {
+			// 中心投影后的瓦片x坐标
+			const newx = this.projection.getTileXWithCenterLon(x, z);
+			return this._source.getTileUrl(newx, y, z);
+		} else {
 			return undefined;
 		}
-
-		// if (
-		// 	tileBounds.maxX < bounds[0] || // minx
-		// 	tileBounds.maxY < bounds[1] || // miny
-		// 	tileBounds.minX > bounds[2] || // maxx
-		// 	tileBounds.minY > bounds[3] // maxy
-		// ) {
-		// 	return undefined;
-		// }
-
-		return this._source.getTileUrl(newx, y, z);
 	}
 }
