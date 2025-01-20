@@ -37,5 +37,5 @@ export interface ITileGeometryLoader {
 }
 
 export interface IBoundsSource extends ISource {
-	getTileBounds(x: number, y: number, z: number): [number, number, number, number];
+	_getTileBounds(x: number, y: number, z: number): [number, number, number, number];
 }

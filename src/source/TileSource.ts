@@ -50,23 +50,6 @@ export class TileSource implements ISource {
 	}
 
 	/**
-	 * Get url from tile coordinate, public，called by TileLoader
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @returns url
-	 */
-	public getTileUrl(x: number, y: number, z: number) {
-		// get subdomains random
-		const subLen = this.subdomains.length;
-		if (subLen > 0) {
-			const index = Math.floor(Math.random() * subLen);
-			this.s = this.subdomains[index];
-		}
-		return this.getUrl(x, y, z);
-	}
-
-	/**
 	 * Get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
 	 * @param x
 	 * @param y
@@ -76,6 +59,31 @@ export class TileSource implements ISource {
 	protected getUrl(x: number, y: number, z: number): string | undefined {
 		const obj = Object.assign({}, this, { x, y, z });
 		return strTemplate(this.url, obj);
+	}
+
+	/**
+	 * Get url from tile coordinate, public，called by TileLoader
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @returns url
+	 */
+	public _getTileUrl(x: number, y: number, z: number) {
+		// get subdomains random
+		const subLen = this.subdomains.length;
+		if (subLen > 0) {
+			const index = Math.floor(Math.random() * subLen);
+			this.s = this.subdomains[index];
+		}
+		return this.getUrl(x, y, z);
+	}
+
+	public _tileInBounds(_x: number, _y: number, _z: number): boolean {
+		return true;
+	}
+
+	public _getTileBounds(_x: number, _y: number, _z: number): [number, number, number, number] {
+		return [-Infinity, -Infinity, Infinity, Infinity];
 	}
 
 	/**

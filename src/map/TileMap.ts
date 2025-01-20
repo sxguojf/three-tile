@@ -364,6 +364,9 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this.up.set(0, 0, 1);
 		this.loader = params.loader ?? new TileLoader();
 		this.rootTile = params.rootTile ?? new Tile();
+		this.rootTile.matrixAutoUpdate = true;
+		this.rootTile.matrixWorldAutoUpdate = true;
+		this.rootTile.updateMatrix();
 
 		this.minLevel = params.minLevel ?? 1;
 		this.maxLevel = params.maxLevel ?? 19;

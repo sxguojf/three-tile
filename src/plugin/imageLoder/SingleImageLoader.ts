@@ -1,6 +1,5 @@
-import { ImageLoader, MeshBasicMaterial, MeshLambertMaterial, Material, Texture } from "three";
+import { ImageLoader, Material, MeshBasicMaterial, MeshLambertMaterial, Texture } from "three";
 import { ITileMaterialLoader, LoaderFactory } from "../../loader";
-import { SourceWithProjection } from "../../map/SourceWithProjection";
 import { ISource } from "../../source";
 
 /**
@@ -39,7 +38,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 			this._setTexture(material, source, x, y, z);
 			setTimeout(onLoad);
 		} else {
-			const tileUrl = source.getTileUrl(0, 0, 0);
+			const tileUrl = source._getTileUrl(0, 0, 0);
 			if (tileUrl) {
 				if (this._isLoading) {
 					const timer = setInterval(() => {
@@ -76,12 +75,12 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	}
 
 	private _getTileTexture(source: ISource, x: number, y: number, z: number): Texture {
-		const sourceProj = source as SourceWithProjection;
+		const sourceProj = source; // as SourceWithProjection;
 
 		const imageBounds = sourceProj._projectionBounds; // 图像投影坐标范围
-		const tileBounds = sourceProj.projection.getTileBounds(x, y, z); // 瓦片投影坐标范围
+		const tileBounds = sourceProj._getTileBounds(x, y, z); // 瓦片投影坐标范围
 
-		if (sourceProj.tileInBounds(x, y, z)) {
+		if (sourceProj._tileInBounds(x, y, z)) {
 			const sizeX = this._image!.width;
 			const sizeY = this._image!.height;
 

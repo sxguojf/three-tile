@@ -72,7 +72,7 @@ export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z
 	}
 	// 请数据级别<最大级别返回图片uil已经全部图片范围
 	if (z <= source.maxLevel) {
-		const url = source.getTileUrl(x, y, z);
+		const url = source._getTileUrl(x, y, z);
 		return {
 			url,
 			bounds: new Box2(new Vector2(-0.5, -0.5), new Vector2(0.5, 0.5)),
@@ -89,7 +89,7 @@ export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z
 	// 取出数据源最大级别瓦片和当前瓦片在最大瓦片中的位置
 	const maxLevelTileAndBox = getMaxLevelTileAndBounds(x, y, z, source.maxLevel);
 	// 取得瓦片的url
-	const url = source.getTileUrl(
+	const url = source._getTileUrl(
 		maxLevelTileAndBox.parentNO.x,
 		maxLevelTileAndBox.parentNO.y,
 		maxLevelTileAndBox.parentNO.z,
