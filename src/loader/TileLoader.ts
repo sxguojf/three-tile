@@ -148,6 +148,7 @@ export class TileLoader implements ITileLoader {
 	 * @returns material
 	 */
 	protected loadMaterial(x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material[] {
+		let count = 0;
 		const materials = this.imgSource.map((source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			const material = loader.load(
@@ -156,9 +157,8 @@ export class TileLoader implements ITileLoader {
 				y,
 				z,
 				() => {
-					material.userData.loaded = true;
-					// check all of materials loaded
-					if (materials.every((mat) => mat.userData.loaded)) {
+					count++;
+					if (count >= this.imgSource.length) {
 						onLoad();
 					}
 				},
