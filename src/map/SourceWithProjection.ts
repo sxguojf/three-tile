@@ -18,9 +18,6 @@ import { IProjection } from "./projection/IProjection";
 
 /**
  * 地图数据源代理，增加投影功能
- * 1. 增加根据投影中心经度，调整瓦片xyz
- * 2. 判断请求的瓦片是否在数据源经纬度有效范围内
- *
  */
 export class SourceWithProjection extends TileSource {
 	private _source: ISource;
@@ -41,27 +38,6 @@ export class SourceWithProjection extends TileSource {
 		this.projection = projection;
 	}
 
-	/**
-	 * 判断指定瓦片是否在边界内
-	 *
-	 * @param x 瓦片的 x 坐标
-	 * @param y 瓦片的 y 坐标
-	 * @param z 瓦片的层级
-	 * @returns 如果瓦片在边界内则返回 true，否则返回 false
-	 */
-	public _tileInBounds(x: number, y: number, z: number): boolean {
-		const bounds = this._projectionBounds;
-		// 取得当前瓦片的bounds
-		const tileBounds = this._getTileBounds(x, y, z);
-
-		return !(
-			tileBounds[2] < bounds[0] || // minx
-			tileBounds[3] < bounds[1] || // miny
-			tileBounds[0] > bounds[2] || // maxx
-			tileBounds[1] > bounds[3]
-		);
-	}
-
 	public _getTileBounds(x: number, y: number, z: number): [number, number, number, number] {
 		return this.projection.getTileBounds(x, y, z);
 	}
@@ -72,15 +48,11 @@ export class SourceWithProjection extends TileSource {
 	 * @param x 瓦片的x坐标。
 	 * @param y 瓦片的y坐标。
 	 * @param z 瓦片的层级（zoom level）。
-	 * @returns 如果瓦片在边界内，则返回瓦片的URL；否则返回undefined。
+	 * @returns 返回瓦片的URL
 	 */
 	public getUrl(x: number, y: number, z: number): string | undefined {
-		if (this._tileInBounds(x, y, z)) {
-			// 中心投影后的瓦片x坐标
-			const newx = this.projection.getTileXWithCenterLon(x, z);
-			return this._source._getTileUrl(newx, y, z);
-		} else {
-			return undefined;
-		}
+		// 中心投影后的瓦片x坐标
+		const newx = this.projection.getTileXWithCenterLon(x, z);
+		return this._source._getTileUrl(newx, y, z);
 	}
 }

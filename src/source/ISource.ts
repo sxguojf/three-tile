@@ -24,8 +24,6 @@ export interface ISource {
 	_projectionBounds: [number, number, number, number];
 	/** Get url from xyz, internal use */
 	_getTileUrl: (x: number, y: number, z: number) => string | undefined;
-	/** Is the Tile in bounds , internal use*/
-	_tileInBounds(x: number, y: number, z: number): boolean;
 	/** Get the tile bounds , internal use*/
 	_getTileBounds(x: number, y: number, z: number): [number, number, number, number];
 }

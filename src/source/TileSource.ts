@@ -78,10 +78,6 @@ export class TileSource implements ISource {
 		return this.getUrl(x, y, z);
 	}
 
-	public _tileInBounds(_x: number, _y: number, _z: number): boolean {
-		return true;
-	}
-
 	public _getTileBounds(_x: number, _y: number, _z: number): [number, number, number, number] {
 		return [-Infinity, -Infinity, Infinity, Infinity];
 	}

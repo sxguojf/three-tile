@@ -148,7 +148,7 @@ export class TileLoader implements ITileLoader {
 	 * @returns material
 	 */
 	protected loadMaterial(x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material[] {
-		const sources = this.imgSource.filter((source) => source._tileInBounds(x, y, z));
+		const sources = this.imgSource.filter((source) => this._tileInBounds(x, y, z, source));
 		if (sources.length === 0) {
 			setTimeout(onLoad);
 			return [];
@@ -172,5 +172,26 @@ export class TileLoader implements ITileLoader {
 			return material;
 		});
 		return materials;
+	}
+
+	/**
+	 * 判断指定瓦片是否在边界内
+	 *
+	 * @param x 瓦片的 x 坐标
+	 * @param y 瓦片的 y 坐标
+	 * @param z 瓦片的层级
+	 * @returns 如果瓦片在边界内则返回 true，否则返回 false
+	 */
+	private _tileInBounds(x: number, y: number, z: number, source: ISource): boolean {
+		const bounds = source._projectionBounds;
+		// 取得当前瓦片的bounds
+		const tileBounds = source._getTileBounds(x, y, z);
+
+		return !(
+			tileBounds[2] < bounds[0] || // minx
+			tileBounds[3] < bounds[1] || // miny
+			tileBounds[0] > bounds[2] || // maxx
+			tileBounds[1] > bounds[3]
+		);
 	}
 }
