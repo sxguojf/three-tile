@@ -35,7 +35,3 @@ export interface ITileGeometryLoader {
 		abortSignal: AbortSignal,
 	): BufferGeometry;
 }
-
-export interface IBoundsSource extends ISource {
-	_getTileBounds(x: number, y: number, z: number): [number, number, number, number];
-}
