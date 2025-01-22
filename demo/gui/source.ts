@@ -78,11 +78,6 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 
-		setSingleImage() {
-			map.imgSource = [ms.arcGisSource, ms.singleImage];
-			map.reload();
-		},
-
 		// terrain
 		setMapBoxDem: () => {
 			map.demSource = ms.mapBoxDemSource;
@@ -153,7 +148,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 				url: urlPrefix + "/img/{z}/{x}/{y}.png",
 				bounds,
 				minLevel: 0,
-				maxLevel: 16,
+				maxLevel: 15,
 			});
 
 			const demSource = tt.TileSource.create({
@@ -161,16 +156,21 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 				url: urlPrefix + "/dem/{z}/{x}/{y}.png",
 				bounds,
 				minLevel: 5,
-				maxLevel: 17,
+				maxLevel: 15,
 			});
 
-			// map.imgSource = [ms.arcGisSource, imgSource];
-			map.imgSource = imgSource;
+			map.imgSource = [ms.arcGisSource, imgSource, ms.testSource];
+			// map.imgSource = imgSource;
 			map.demSource = demSource;
 
 			// Move the camera to the bounds
 			viewer.controls.target.copy(map.geo2world(new Vector3(108.627984, 30.66284, 0.0)));
 			viewer.camera.position.copy(map.geo2world(new Vector3(108.627139, 30.64138, 3.309163)));
+			map.reload();
+		},
+		setSingleImage() {
+			map.imgSource = [ms.arcGisSource, ms.singleImage];
+			map.demSource = ms.arcGisDemSource;
 			map.reload();
 		},
 	};
@@ -192,7 +192,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	imgFolder.add(vm, "setTencent").name("Tencent");
 	imgFolder.add(vm, "setTdt_w").name("TDT");
 	imgFolder.add(vm, "setOpentopomap").name("OpenTopoMap");
-	imgFolder.add(vm, "setSingleImage").name("SingleImage");
+
 	imgFolder.add(vm, "setTdt_c").name("TDT(WGS84 projection)");
 
 	// 地形数据源
@@ -213,6 +213,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	testFolder.add(vm, "setTileWire").name("Wireframe terrain");
 	testFolder.add(vm, "setTileNormal").name("Normal terrain");
 	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
+	testFolder.add(vm, "setSingleImage").name("SingleImage");
 
 	return gui;
 };

@@ -130,7 +130,7 @@ export class TileLoader implements ITileLoader {
 	): BufferGeometry {
 		let geometry: BufferGeometry;
 		// load dem if has dem source, else create a PlaneGeometry
-		if (this.demSource) {
+		if (this.demSource && this._tileInBounds(x, y, z, this.demSource)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			geometry = loader.load(this.demSource, x, y, z, onLoad, abortSignal);
 		} else {
