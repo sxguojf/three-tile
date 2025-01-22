@@ -504,7 +504,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * @returns 地面信息
 	 */
 	public getLocalInfoFromGeo(geo: Vector3) {
-		const pointer = this.geo2pos(geo);
+		const pointer = this.geo2world(geo);
 		return getLocalInfoFromWorld(this, pointer);
 	}
 
