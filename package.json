@@ -48,7 +48,7 @@
 		"vitest": "^2.0.5"
 	},
 	"dependencies": {
-		"three": "^0.165.0"
+		"three": "^0.166.1"
 	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/"
