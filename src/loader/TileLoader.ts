@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, LoadingManager, Material, PlaneGeometry, Vector3 } from "three";
+import { BufferGeometry, LoadingManager, Material, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { CacheEx } from "./CacheEx";
@@ -60,13 +60,7 @@ export class TileLoader implements ITileLoader {
 		const abortController = new AbortController();
 
 		const onDispose = () => {
-			if (tile.loaded) {
-				this._checkVisible(tile);
-				tile.material.forEach((mat) => mat.dispose());
-				tile.material = [];
-				tile.geometry.groups = [];
-				tile.geometry.dispose();
-			} else {
+			if (!tile.loaded) {
 				abortController.abort();
 			}
 		};
@@ -75,122 +69,48 @@ export class TileLoader implements ITileLoader {
 			tile.removeEventListener("dispose", onDispose);
 		});
 
-		// SetTimeout waiting for the tile appended into map
-		setTimeout(() => this._load(tile, onLoad, abortController.signal));
+		this._load(tile, onLoad, abortController.signal);
 
 		return tile;
 	}
 
 	protected _load(tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
-		if (tile.parent) {
-			const onDataLoad = () => {
-				// dem and img both loaded
-				if (geoLoaded && matLoaded) {
-					for (let i = 0; i < materials.length; i++) {
-						geometry.addGroup(0, Infinity, i);
-					}
-					tile.geometry = geometry;
-					tile.material = materials;
-					onLoad();
+		const onDataLoad = () => {
+			// dem and img both loaded
+			if (geoLoaded && matLoaded) {
+				for (let i = 0; i < materials.length; i++) {
+					geometry.addGroup(0, Infinity, i);
 				}
-			};
-
-			let geoLoaded = false;
-			let matLoaded = false;
-
-			const geometry = this.loadGeometry(
-				tile,
-				() => {
-					geoLoaded = true;
-					onDataLoad();
-				},
-				abortSignal,
-			);
-
-			const materials = this.loadMaterial(
-				tile,
-				() => {
-					matLoaded = true;
-					onDataLoad();
-				},
-				abortSignal,
-			);
-		}
-	}
-
-	private _checkVisible(tile: Tile) {
-		const show = (t: Tile, value: boolean) => {
-			t.material.forEach((mat) => (mat.visible = value));
-			t.showing = value;
+				tile.geometry = geometry;
+				tile.material = materials;
+				onLoad();
+			}
 		};
 
-		const parent = tile.parent;
-		if (parent && parent.isTile) {
-			//Show children and hide parent when all children has loaded
-			const children = parent.children.filter((child) => child.isTile);
-			const loaded = children.every((child) => child.loaded);
-			show(parent, !loaded);
-			children.forEach((child) => show(child, loaded));
-		}
-	}
+		let geoLoaded = false;
+		let matLoaded = false;
 
-	/**
-	 * Load the children tile from coordinate
-	 *
-	 * @param px parent tile x coordinate
-	 * @param py parent tile y coordinate
-	 * @param pz parent tile level
-	 * @param minLevel min level to load
-	 * @param onLoad callback when one tile loaded
-	 * @returns children tile array
-	 */
-	public loadChildren(px: number, py: number, pz: number, minLevel: number, onLoad: (tile: Tile) => void): Tile[] {
-		const onOneLoad = (tile: Tile) => {
-			this._checkVisible(tile);
-			onLoad(tile);
-		};
+		const geometry = this.loadGeometry(
+			tile.x,
+			tile.y,
+			tile.z,
+			() => {
+				geoLoaded = true;
+				onDataLoad();
+			},
+			abortSignal,
+		);
 
-		const getTile = (x: number, y: number, level: number, minLevle: number, onLoad: (tile: Tile) => void) => {
-			const tile: Tile = level < minLevle ? new Tile(x, y, level) : this.load(x, y, level, () => onLoad(tile));
-			return tile;
-		};
-
-		const children = [];
-
-		const level = pz + 1;
-		const x = px * 2;
-		const z = 0;
-		const pos = 0.25;
-		// Tow children at level 0 when GWS projection
-		const isWGS = this.imgSource[0].projectionID === "4326"; //ProjectionType.WGS84;
-		if (pz === 0 && isWGS) {
-			const y = py;
-			const scale = new Vector3(0.5, 1.0, 1.0);
-			const t1 = getTile(x, y, level, minLevel, () => onOneLoad(t1));
-			const t2 = getTile(x, y, level, minLevel, () => onOneLoad(t2));
-			t1.position.set(-pos, 0, z);
-			t1.scale.copy(scale);
-			t2.position.set(pos, 0, z);
-			t2.scale.copy(scale);
-			children.push(t1, t2);
-		} else {
-			const y = py * 2;
-			const scale = new Vector3(0.5, 0.5, 1.0);
-			const t1 = getTile(x, y + 1, level, minLevel, () => onOneLoad(t1));
-			const t2 = getTile(x + 1, y + 1, level, minLevel, () => onOneLoad(t2));
-			const t3 = getTile(x, y, level, minLevel, () => onOneLoad(t3));
-			const t4 = getTile(x + 1, y, level, minLevel, () => onOneLoad(t4));
-			t1.position.set(-pos, -pos, z);
-			t1.scale.copy(scale);
-			t2.position.set(pos, -pos, z);
-			t2.scale.copy(scale);
-			t3.position.set(-pos, pos, z);
-			t3.scale.copy(scale);
-			t4.position.set(pos, pos, z);
-			t4.scale.copy(scale);
-			children.push(t1, t2, t3, t4);
-		}
-		return children;
+		const materials = this.loadMaterial(
+			tile.x,
+			tile.y,
+			tile.z,
+			() => {
+				matLoaded = true;
+				onDataLoad();
+			},
+			abortSignal,
+		);
 	}
 
 	/**
@@ -201,12 +121,18 @@ export class TileLoader implements ITileLoader {
 	 * @returns geometry
 	 */
 
-	protected loadGeometry(tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry {
+	protected loadGeometry(
+		x: number,
+		y: number,
+		z: number,
+		onLoad: () => void,
+		abortSignal: AbortSignal,
+	): BufferGeometry {
 		let geometry: BufferGeometry;
 		// load dem if has dem source, else create a PlaneGeometry
-		if (this.demSource) {
+		if (this.demSource && this._tileInBounds(x, y, z, this.demSource)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
-			geometry = loader.load(this.demSource, tile, onLoad, abortSignal);
+			geometry = loader.load(this.demSource, x, y, z, onLoad, abortSignal);
 		} else {
 			geometry = new PlaneGeometry();
 			setTimeout(onLoad);
@@ -221,16 +147,23 @@ export class TileLoader implements ITileLoader {
 	 * @param onError error callback
 	 * @returns material
 	 */
-	protected loadMaterial(tile: Tile, onLoad: () => void, abortSignal: AbortSignal): Material[] {
-		const materials = this.imgSource.map((source) => {
+	protected loadMaterial(x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material[] {
+		const sources = this.imgSource.filter((source) => this._tileInBounds(x, y, z, source));
+		if (sources.length === 0) {
+			setTimeout(onLoad);
+			return [];
+		}
+		let count = 0;
+		const materials = sources.map((source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			const material = loader.load(
 				source,
-				tile,
+				x,
+				y,
+				z,
 				() => {
-					material.userData.loaded = true;
-					// check all of materials loaded
-					if (materials.every((mat) => mat.userData.loaded)) {
+					count++;
+					if (count >= sources.length) {
 						onLoad();
 					}
 				},
@@ -238,7 +171,27 @@ export class TileLoader implements ITileLoader {
 			);
 			return material;
 		});
-
 		return materials;
+	}
+
+	/**
+	 * 判断指定瓦片是否在边界内
+	 *
+	 * @param x 瓦片的 x 坐标
+	 * @param y 瓦片的 y 坐标
+	 * @param z 瓦片的层级
+	 * @returns 如果瓦片在边界内则返回 true，否则返回 false
+	 */
+	private _tileInBounds(x: number, y: number, z: number, source: ISource): boolean {
+		const bounds = source._projectionBounds;
+		// 取得当前瓦片的bounds
+		const tileBounds = source._getTileBounds(x, y, z);
+
+		return !(
+			tileBounds[2] < bounds[0] || // minx
+			tileBounds[3] < bounds[1] || // miny
+			tileBounds[0] > bounds[2] || // maxx
+			tileBounds[1] > bounds[3]
+		);
 	}
 }

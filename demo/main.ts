@@ -55,14 +55,30 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 地图添加到场景
 	viewer.scene.add(map);
 
-	// 坐标轴
-	// const helper = new AxesHelper(6e4);
-	// helper.position.copy(centerPostion);
-	// viewer.scene.add(helper);
-	// addTestModel(viewer, centerPostion);
+	// const tileBounds = map.projection.getTileBounds(17, 12, 5);
+	// const tileMesh = createBoundsMesh(tileBounds, 0xff0000);
+	// map.add(tileMesh);
+
+	// const imageBounds = map.projection.getPorjBounds([90, 22, 112, 40]);
+	// const imageMesh = createBoundsMesh(imageBounds, 0x00ff00);
+	// map.add(imageMesh);
 
 	return viewer;
 }
+
+// function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {
+// 	const points = [];
+// 	const z = 8;
+// 	points.push(new Vector3(bounds[0], bounds[1], z));
+// 	points.push(new Vector3(bounds[2], bounds[1], z));
+// 	points.push(new Vector3(bounds[2], bounds[3], z));
+// 	points.push(new Vector3(bounds[0], bounds[3], z));
+// 	points.push(new Vector3(bounds[0], bounds[1], z));
+// 	const geometry = new BufferGeometry().setFromPoints(points);
+// 	const line = new Line(geometry, new LineBasicMaterial({ color }));
+// 	line.renderOrder = 100;
+// 	return line;
+// }
 
 // 初始化GUI
 function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {

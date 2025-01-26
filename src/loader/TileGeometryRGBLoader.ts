@@ -7,7 +7,6 @@
 import { Box2, BufferGeometry } from "three";
 import { TileDEMGeometry } from "../geometry";
 import { ISource } from "../source";
-import { Tile } from "../tile";
 import { ITileGeometryLoader } from "./ITileLoaders";
 import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
@@ -28,12 +27,19 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	 * @param onError
 	 * @returns
 	 */
-	public load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry {
+	public load(
+		source: ISource,
+		x: number,
+		y: number,
+		z: number,
+		onLoad: () => void,
+		abortSignal: AbortSignal,
+	): BufferGeometry {
 		const geometry = this.createGeometry();
-		// get max level tile and rect
-		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
+		// get max level tile and bounds
+		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
-			const size = (tile.z + 2) * 3;
+			const size = (z + 2) * 3;
 			this._load(url, geometry, bounds, size, onLoad, abortSignal);
 		} else {
 			setTimeout(onLoad);

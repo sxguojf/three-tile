@@ -1,7 +1,6 @@
-import { MeshBasicMaterial, CanvasTexture } from "three";
-import { ISource } from "../../source";
+import { CanvasTexture, MeshBasicMaterial } from "three";
 import { ITileMaterialLoader } from "../../loader";
-import { Tile } from "../../tile";
+import { ISource } from "../../source";
 
 /**
  * LOGO tile Material loader
@@ -17,9 +16,9 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	 * @param onLoad 加载完成回调
 	 * @returns 材质
 	 */
-	public load(source: ISource, tile: Tile, onLoad: () => void): MeshBasicMaterial {
+	public load(source: ISource, _x: number, _y: number, z: number, onLoad: () => void): MeshBasicMaterial {
 		// 瓦片级别<4不绘制logo
-		if (tile.z < 4) {
+		if (z < 4) {
 			setTimeout(onLoad);
 			return new MeshBasicMaterial();
 		}
@@ -49,10 +48,10 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	public drawLogo(logo: string) {
 		const size = 256;
 		const canvas = new OffscreenCanvas(size, size);
-		const ctx = canvas.getContext("2d")!;
-		ctx.scale(1, -1);
-		ctx.translate(0, -size);
+		const ctx = canvas.getContext("2d");
 		if (ctx) {
+			ctx.scale(1, -1);
+			ctx.translate(0, -size);
 			ctx.fillStyle = "white";
 			ctx.shadowColor = "black";
 			ctx.shadowBlur = 5;

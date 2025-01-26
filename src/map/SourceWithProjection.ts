@@ -18,9 +18,6 @@ import { IProjection } from "./projection/IProjection";
 
 /**
  * 地图数据源代理，增加投影功能
- * 1. 增加根据投影中心经度，调整瓦片xyz
- * 2. 判断请求的瓦片是否在数据源经纬度有效范围内
- *
  */
 export class SourceWithProjection extends TileSource {
 	private _source: ISource;
@@ -34,17 +31,6 @@ export class SourceWithProjection extends TileSource {
 		this._projectionBounds = this.projection.getPorjBounds(this._source.bounds);
 	}
 
-	private _getTileBounds(x: number, y: number, z: number, s: number = 1) {
-		const p1 = this.projection.getTileXYZproj(x, y, z);
-		const p2 = this.projection.getTileXYZproj(x + s, y + s, z);
-		return {
-			minX: Math.min(p1.x, p2.x),
-			minY: Math.min(p1.y, p2.y),
-			maxX: Math.max(p1.x, p2.x),
-			maxY: Math.max(p1.y, p2.y),
-		};
-	}
-
 	constructor(source: ISource, projection: IProjection) {
 		super();
 		Object.assign(this, source);
@@ -52,31 +38,21 @@ export class SourceWithProjection extends TileSource {
 		this.projection = projection;
 	}
 
+	public _getTileBounds(x: number, y: number, z: number): [number, number, number, number] {
+		return this.projection.getTileBounds(x, y, z);
+	}
+
+	/**
+	 * 根据给定的瓦片坐标（x, y, z）获取瓦片的URL。
+	 *
+	 * @param x 瓦片的x坐标。
+	 * @param y 瓦片的y坐标。
+	 * @param z 瓦片的层级（zoom level）。
+	 * @returns 返回瓦片的URL
+	 */
 	public getUrl(x: number, y: number, z: number): string | undefined {
-		// 计算投影后的xyz
-		const n = Math.pow(2, z);
-		let newx = x + Math.round((n / 360) * this.projection.lon0);
-		if (newx >= n) {
-			newx -= n;
-		} else if (newx < 0) {
-			newx += n;
-		}
-
-		// 判断请求的瓦片是否在数据源经纬度有效范围内
-		const s = 1;
-		const bounds = this._projectionBounds;
-		// 取得当前瓦片的bounds
-		const tileBounds = this._getTileBounds(newx, y, z, s);
-
-		if (
-			tileBounds.maxX < bounds[0] || // minx
-			tileBounds.maxY < bounds[1] || // miny
-			tileBounds.minX > bounds[2] || // maxx
-			tileBounds.minY > bounds[3] // maxy
-		) {
-			return undefined;
-		}
-
-		return this._source.getTileUrl(newx, y, z);
+		// 中心投影后的瓦片x坐标
+		const newx = this.projection.getTileXWithCenterLon(x, z);
+		return this._source._getTileUrl(newx, y, z);
 	}
 }

@@ -364,6 +364,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this.up.set(0, 0, 1);
 		this.loader = params.loader ?? new TileLoader();
 		this.rootTile = params.rootTile ?? new Tile();
+		this.rootTile.matrixAutoUpdate = true;
 
 		this.minLevel = params.minLevel ?? 1;
 		this.maxLevel = params.maxLevel ?? 19;
@@ -380,7 +381,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 		// 更新地图模型矩阵
 		this.rootTile.updateMatrix();
-		this.rootTile.updateMatrixWorld();
 	}
 
 	/**
@@ -501,7 +501,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * @returns 地面信息
 	 */
 	public getLocalInfoFromGeo(geo: Vector3) {
-		const pointer = this.geo2pos(geo);
+		const pointer = this.geo2world(geo);
 		return getLocalInfoFromWorld(this, pointer);
 	}
 

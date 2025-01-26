@@ -21,7 +21,9 @@ export interface ISource {
 	/* Data bounds in lonlat [minLon,minLat,maxLon,maxLat]*/
 	bounds: [number, number, number, number];
 	/** Data bounds in Proejction, internal use */
-	_projectionBounds: [number, number, number, number] | undefined;
-	/** Get url from xyz */
-	getTileUrl: (x: number, y: number, z: number) => string | undefined;
+	_projectionBounds: [number, number, number, number];
+	/** Get url from xyz, internal use */
+	_getTileUrl: (x: number, y: number, z: number) => string | undefined;
+	/** Get the tile bounds , internal use*/
+	_getTileBounds(x: number, y: number, z: number): [number, number, number, number];
 }

@@ -10,7 +10,6 @@ import {
 
 import { TileDEMGeometry } from "../../geometry";
 import { ISource } from "../../source";
-import { Tile } from "../../tile";
 import * as Lerc from "./lercDecode/LercDecode.es";
 
 const emptyGeometry = new BufferGeometry();
@@ -28,30 +27,29 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 	}
 
 	// 加载瓦片几何体
-	public load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
+	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal) {
 		// 瓦片级别<8，不需要显示地形
-		if (tile.z < 8) {
+		if (z < 8) {
 			setTimeout(onLoad);
 			return new PlaneGeometry();
 		}
 		// 计算最大级别瓦片和本瓦片在其中的位置
-		const { url, bounds } = getSafeTileUrlAndBounds(source, tile);
+		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 
 		// 没有url，返回默认几何体
 		if (!url) {
 			setTimeout(onLoad);
 			return emptyGeometry;
 		}
+		// 计算瓦片图片大小（像素）
+		let tileSize = z * 3;
+		tileSize = MathUtils.clamp(tileSize, 2, 48);
 
-		return this._load(tile, url, bounds, onLoad, abortSignal);
+		return this._load(url, tileSize, bounds, onLoad, abortSignal);
 	}
 
 	// private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
-	private _load(tile: Tile, url: string, bounds: Box2, onLoad: () => void, abortSignal: AbortSignal) {
-		// 计算瓦片图片大小（像素）
-		let tileSize = tile.z * 3;
-		tileSize = MathUtils.clamp(tileSize, 2, 48);
-
+	private _load(url: string, tileSize: number, bounds: Box2, onLoad: () => void, abortSignal: AbortSignal) {
 		const geometry = new TileDEMGeometry();
 
 		this.fileLoader.load(

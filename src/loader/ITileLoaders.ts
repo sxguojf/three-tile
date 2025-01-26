@@ -15,17 +15,23 @@ export interface ITileLoader {
 	demSource: ISource | undefined;
 	cacheSize: number;
 	load(x: number, y: number, z: number, onLoad: () => void): Tile;
-	loadChildren(px: number, py: number, pz: number, minLevel: number, onLoad: (tile: Tile) => void): Tile[];
 }
 
 /**  Material loader interface */
 export interface ITileMaterialLoader {
 	dataType: string;
-	load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): Material;
+	load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material;
 }
 
 /** geometry loader interface */
 export interface ITileGeometryLoader {
 	dataType: string;
-	load(source: ISource, tile: Tile, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry;
+	load(
+		source: ISource,
+		x: number,
+		y: number,
+		z: number,
+		onLoad: () => void,
+		abortSignal: AbortSignal,
+	): BufferGeometry;
 }
