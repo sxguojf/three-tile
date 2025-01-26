@@ -1,4 +1,4 @@
-import { ImageLoader, Material, MeshBasicMaterial, MeshLambertMaterial, Texture } from "three";
+import { ImageLoader, Material, MeshBasicMaterial, MeshLambertMaterial, SRGBColorSpace, Texture } from "three";
 import { ITileMaterialLoader, LoaderFactory } from "../../loader";
 import { ISource } from "../../source";
 
@@ -98,9 +98,8 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		const ctx = canvas.getContext("2d")!;
 		ctx.drawImage(this._image!, sx, sy, swidth, sheight, 0, 0, tileSize, tileSize);
 
-		return new Texture(canvas);
-		// } else {
-		// 	return new Texture(new Image(1, 1));
-		// }
+		const texture = new Texture(canvas);
+		texture.colorSpace = SRGBColorSpace;
+		return texture;
 	}
 }

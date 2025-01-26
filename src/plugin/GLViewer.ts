@@ -142,7 +142,8 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		controls.dampingFactor = 0.05;
 		controls.keyPanSpeed = 5;
 
-		controls.listenToKeyEvents(window);
+		this.container.tabIndex = 0;
+		controls.listenToKeyEvents(this.container);
 		controls.addEventListener("change", () => {
 			// camera polar
 			const polar = Math.max(this.controls.getPolarAngle(), 0.1);
