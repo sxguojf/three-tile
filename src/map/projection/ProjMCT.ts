@@ -44,7 +44,9 @@ export class ProjMCT extends Projection implements IProjection {
 	public unProject(x: number, y: number) {
 		// const lon = (((x / EarthRad / Math.PI) * 180 + this.lon0 + 180) % 360) - 180;
 		// const lat = ((Math.atan(Math.exp(y / EarthRad)) * 2 - Math.PI / 2) * 180) / Math.PI;
-		const lon = (x / EarthRad) * (180 / Math.PI) + this.lon0; // 考虑中心经度偏移
+		let lon = (x / EarthRad) * (180 / Math.PI) + this.lon0; // 考虑中心经度偏移
+		if (lon > 180) lon -= 360;
+
 		const latRad = 2 * Math.atan(Math.exp(y / EarthRad)) - Math.PI / 2;
 		const lat = latRad * (180 / Math.PI);
 

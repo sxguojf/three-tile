@@ -62,10 +62,19 @@ export class SingleImageLoader implements ITileMaterialLoader {
 
 	private loadImage(url: string, onLoad: () => void) {
 		this._isLoading = true;
-		this._image = this._imageLoader.load(url, () => {
-			this._isLoading = false;
-			onLoad();
-		});
+		this._image = this._imageLoader.load(
+			url,
+			() => {
+				this._isLoading = false;
+				onLoad();
+			},
+			undefined,
+			// onError
+			() => {
+				this._isLoading = false;
+				onLoad();
+			},
+		);
 	}
 
 	private _setTexture(material: MeshLambertMaterial, source: ISource, x: number, y: number, z: number) {
@@ -96,7 +105,9 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		const tileSize = 256;
 		const canvas = new OffscreenCanvas(tileSize, tileSize);
 		const ctx = canvas.getContext("2d")!;
-		ctx.drawImage(this._image!, sx, sy, swidth, sheight, 0, 0, tileSize, tileSize);
+		if (this._image) {
+			ctx.drawImage(this._image, sx, sy, swidth, sheight, 0, 0, tileSize, tileSize);
+		}
 
 		const texture = new Texture(canvas);
 		texture.colorSpace = SRGBColorSpace;

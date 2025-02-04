@@ -173,6 +173,14 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.demSource = ms.arcGisDemSource;
 			map.reload();
 		},
+
+		// setHmeSource() {
+		// 	// map.imgSource = [ms.arcGisSource, ms.hmeSource];
+		// 	map.imgSource = [ms.hmeSource];
+		// 	map.demSource = ms.hmeDemSource;
+
+		// 	map.reload();
+		// },
 	};
 
 	// 数据源
@@ -214,6 +222,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	testFolder.add(vm, "setTileNormal").name("Normal terrain");
 	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
 	testFolder.add(vm, "setSingleImage").name("SingleImage");
+	// testFolder.add(vm, "setHmeSource").name("HME");
 
 	return gui;
 };
