@@ -67,9 +67,9 @@ export abstract class Projection implements IProjection {
 	 * @param bounds 经纬度边界
 	 * @returns 投影坐标
 	 */
-	public getPorjBounds(bounds: [number, number, number, number]): [number, number, number, number] {
-		const p1 = this.project(bounds[0] + this._lon0, bounds[1]);
-		const p2 = this.project(bounds[2] + this._lon0, bounds[3]);
+	public getPorjBounds(bounds: [number, number, number, number], withCenter: true): [number, number, number, number] {
+		const p1 = this.project(bounds[0] + (withCenter ? this._lon0 : 0), bounds[1]);
+		const p2 = this.project(bounds[2] + (withCenter ? this._lon0 : 0), bounds[3]);
 		return [Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.max(p1.x, p2.x), Math.max(p1.y, p2.y)];
 	}
 

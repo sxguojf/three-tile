@@ -25,9 +25,8 @@ export class ProjMCT extends Projection implements IProjection {
 	 * @returns projected coordinates
 	 */
 	public project(lon: number, lat: number) {
-		// let x = (lon - this.lon0) * (Math.PI / 180) * EarthRad;
-		// const y = Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 180 / 2)) * EarthRad;
 		const lonRad = (lon - this.lon0) * (Math.PI / 180); // 考虑中心经度偏移
+		// const lonRad = lon * (Math.PI / 180);
 		const latRad = lat * (Math.PI / 180);
 		const x = EarthRad * lonRad;
 		const y = EarthRad * Math.log(Math.tan(Math.PI / 4 + latRad / 2));
@@ -45,6 +44,7 @@ export class ProjMCT extends Projection implements IProjection {
 		// const lon = (((x / EarthRad / Math.PI) * 180 + this.lon0 + 180) % 360) - 180;
 		// const lat = ((Math.atan(Math.exp(y / EarthRad)) * 2 - Math.PI / 2) * 180) / Math.PI;
 		let lon = (x / EarthRad) * (180 / Math.PI) + this.lon0; // 考虑中心经度偏移
+		// let lon = (x / EarthRad) * (180 / Math.PI);
 		if (lon > 180) lon -= 360;
 
 		const latRad = 2 * Math.atan(Math.exp(y / EarthRad)) - Math.PI / 2;

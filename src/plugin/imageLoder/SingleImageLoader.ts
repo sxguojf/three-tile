@@ -1,6 +1,7 @@
 import { ImageLoader, Material, MeshBasicMaterial, MeshLambertMaterial, SRGBColorSpace, Texture } from "three";
 import { ITileMaterialLoader, LoaderFactory } from "../../loader";
 import { ISource } from "../../source";
+import { SourceWithProjection } from "../../map/SourceWithProjection";
 
 /**
  * Single image Material loader
@@ -33,6 +34,8 @@ export class SingleImageLoader implements ITileMaterialLoader {
 				material.map.dispose();
 			}
 		});
+
+		console.log(source._getTileUrl(x, y, z));
 
 		if (this._image && this._image.complete) {
 			this._setTexture(material, source, x, y, z);

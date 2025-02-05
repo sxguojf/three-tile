@@ -41,6 +41,7 @@ export class TileSource implements ISource {
 	//public bounds: [number, number, number, number] = [-180, -85.05112877980659, 180, 85.05112877980659];
 	public bounds: [number, number, number, number] = [-180, -85, 180, 85];
 	public _projectionBounds: [number, number, number, number] = [0, 0, 0, 0];
+	public _projectionBounds1: [number, number, number, number] = [0, 0, 0, 0];
 	/**
 	 * constructor
 	 * @param options
