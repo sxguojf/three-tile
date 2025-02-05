@@ -187,11 +187,12 @@ export class TileLoader implements ITileLoader {
 		// 取得当前瓦片的bounds
 		const tileBounds = source._getTileBounds(x, y, z);
 
-		return !(
+		const inBounds = !(
 			tileBounds[2] < bounds[0] || // minx
 			tileBounds[3] < bounds[1] || // miny
 			tileBounds[0] > bounds[2] || // maxx
 			tileBounds[1] > bounds[3]
 		);
+		return inBounds;
 	}
 }

@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { BufferGeometry, ColorRepresentation, Line, LineBasicMaterial, Vector3 } from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
@@ -55,11 +55,12 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 地图添加到场景
 	viewer.scene.add(map);
 
-	// const tileBounds = map.projection.getTileBounds(17, 12, 5);
+	// const tileBounds = map.projection.getTileBounds(7, 2, 3);
 	// const tileMesh = createBoundsMesh(tileBounds, 0xff0000);
 	// map.add(tileMesh);
 
-	// const imageBounds = map.projection.getPorjBounds([90, 22, 112, 40]);
+	// // const imageBounds = map.projection.getPorjBounds([200, 22, 250, 40]);
+	// const imageBounds = map.imgSource[0]._projectionBounds;
 	// const imageMesh = createBoundsMesh(imageBounds, 0x00ff00);
 	// map.add(imageMesh);
 
