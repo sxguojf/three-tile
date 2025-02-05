@@ -55,6 +55,7 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 地图添加到场景
 	viewer.scene.add(map);
 
+	// 测试
 	const imageBounds = map.projection.getPorjBounds([105, 33, 109, 37]);
 	const imageMesh = createBoundsMesh(imageBounds, 0xffff00);
 	map.add(imageMesh);

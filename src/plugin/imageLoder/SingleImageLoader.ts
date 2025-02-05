@@ -35,10 +35,10 @@ export class SingleImageLoader implements ITileMaterialLoader {
 			}
 		});
 
-		console.log(source._getTileUrl(x, y, z));
+		const newX = x; //(source as SourceWithProjection).projection.getTileXWithCenterLon(x, z);
 
 		if (this._image && this._image.complete) {
-			this._setTexture(material, source, x, y, z);
+			this._setTexture(material, source, newX, y, z);
 			setTimeout(onLoad);
 		} else {
 			const tileUrl = source._getTileUrl(0, 0, 0);
@@ -46,14 +46,14 @@ export class SingleImageLoader implements ITileMaterialLoader {
 				if (this._isLoading) {
 					const timer = setInterval(() => {
 						if (this._image && this._image.complete) {
-							this._setTexture(material, source, x, y, z);
+							this._setTexture(material, source, newX, y, z);
 							onLoad();
 							clearInterval(timer);
 						}
 					}, 100);
 				} else {
 					this.loadImage(tileUrl, () => {
-						this._setTexture(material, source, x, y, z);
+						this._setTexture(material, source, newX, y, z);
 						onLoad();
 					});
 				}
