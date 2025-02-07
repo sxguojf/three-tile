@@ -42,7 +42,7 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 			return emptyGeometry;
 		}
 		// 计算瓦片图片大小（像素）
-		let tileSize = z * 3;
+		let tileSize = (z + 2) * 3;
 		tileSize = MathUtils.clamp(tileSize, 2, 48);
 
 		return this._load(url, tileSize, bounds, onLoad, abortSignal);

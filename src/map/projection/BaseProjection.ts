@@ -68,8 +68,12 @@ export abstract class Projection implements IProjection {
 	 * @returns 投影坐标
 	 */
 	public getPorjBounds(bounds: [number, number, number, number]): [number, number, number, number] {
-		const p1 = this.project(bounds[0], bounds[1]);
-		const p2 = this.project(bounds[2], bounds[3]);
+		// 加上投影中心经度后，投影x坐标范围与设置的经度范围不一定相等，所以判断是否为全球范围投影
+		const withCenter = bounds[0] === -180 && bounds[2] === 180;
+		const p1 = this.project(bounds[0] + (withCenter ? this._lon0 : 0), bounds[1]);
+		const p2 = this.project(bounds[2] + (withCenter ? this._lon0 : 0), bounds[3]);
+		// const p1 = this.project(bounds[0], bounds[1]);
+		// const p2 = this.project(bounds[2], bounds[3]);
 		return [Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.max(p1.x, p2.x), Math.max(p1.y, p2.y)];
 	}
 

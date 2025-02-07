@@ -34,8 +34,10 @@ export class SingleImageLoader implements ITileMaterialLoader {
 			}
 		});
 
+		const newX = x; //(source as SourceWithProjection).projection.getTileXWithCenterLon(x, z);
+
 		if (this._image && this._image.complete) {
-			this._setTexture(material, source, x, y, z);
+			this._setTexture(material, source, newX, y, z);
 			setTimeout(onLoad);
 		} else {
 			const tileUrl = source._getTileUrl(0, 0, 0);
@@ -43,14 +45,14 @@ export class SingleImageLoader implements ITileMaterialLoader {
 				if (this._isLoading) {
 					const timer = setInterval(() => {
 						if (this._image && this._image.complete) {
-							this._setTexture(material, source, x, y, z);
+							this._setTexture(material, source, newX, y, z);
 							onLoad();
 							clearInterval(timer);
 						}
 					}, 100);
 				} else {
 					this.loadImage(tileUrl, () => {
-						this._setTexture(material, source, x, y, z);
+						this._setTexture(material, source, newX, y, z);
 						onLoad();
 					});
 				}
@@ -62,10 +64,19 @@ export class SingleImageLoader implements ITileMaterialLoader {
 
 	private loadImage(url: string, onLoad: () => void) {
 		this._isLoading = true;
-		this._image = this._imageLoader.load(url, () => {
-			this._isLoading = false;
-			onLoad();
-		});
+		this._image = this._imageLoader.load(
+			url,
+			() => {
+				this._isLoading = false;
+				onLoad();
+			},
+			undefined,
+			// onError
+			() => {
+				this._isLoading = false;
+				onLoad();
+			},
+		);
 	}
 
 	private _setTexture(material: MeshLambertMaterial, source: ISource, x: number, y: number, z: number) {
@@ -96,7 +107,9 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		const tileSize = 256;
 		const canvas = new OffscreenCanvas(tileSize, tileSize);
 		const ctx = canvas.getContext("2d")!;
-		ctx.drawImage(this._image!, sx, sy, swidth, sheight, 0, 0, tileSize, tileSize);
+		if (this._image) {
+			ctx.drawImage(this._image, sx, sy, swidth, sheight, 0, 0, tileSize, tileSize);
+		}
 
 		const texture = new Texture(canvas);
 		texture.colorSpace = SRGBColorSpace;

@@ -431,7 +431,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Geo coordinates converted to map model coordinates
-	 * 地理坐标转换为地图模型坐标
+	 * 地理坐标转换为地图模型坐标(与geo2map同功能)
 	 * @param geo 地理坐标（经纬度）
 	 * @returns 模型坐标
 	 */
@@ -442,7 +442,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Geo coordinates converted to map model coordinates
-	 * 地理坐标转换为地图模型坐标
+	 * 地理坐标转换为地图模型坐标(与geo2pos同功能)
 	 * @param geo 地理坐标（经纬度）
 	 * @returns 模型坐标
 	 */
@@ -463,7 +463,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Map model coordinates converted to geo coordinates
-	 * 地图模型坐标转换为地理坐标
+	 * 地图模型坐标转换为地理坐标(与map2geo同功能)
 	 * @param pos 模型坐标
 	 * @returns 地理坐标（经纬度）
 	 */
@@ -474,13 +474,12 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Map model coordinates converted to geo coordinates
-	 * 地图模型坐标转换为地理坐标
+	 * 地图模型坐标转换为地理坐标(与pos2geo同功能)
 	 * @param map 模型坐标
 	 * @returns 地理坐标（经纬度）
 	 */
 	public map2geo(pos: Vector3) {
-		const position = this.projection.unProject(pos.x, pos.y);
-		return new Vector3(position.lon, position.lat, pos.z);
+		return this.pos2geo(pos);
 	}
 
 	/**

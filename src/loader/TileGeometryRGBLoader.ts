@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Box2, BufferGeometry } from "three";
+import { Box2, BufferGeometry, MathUtils } from "three";
 import { TileDEMGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileGeometryLoader } from "./ITileLoaders";
@@ -39,8 +39,9 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 		// get max level tile and bounds
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
-			const size = (z + 2) * 3;
-			this._load(url, geometry, bounds, size, onLoad, abortSignal);
+			let tileSize = (z + 2) * 3;
+			tileSize = MathUtils.clamp(tileSize, 2, 48);
+			this._load(url, geometry, bounds, tileSize, onLoad, abortSignal);
 		} else {
 			setTimeout(onLoad);
 		}

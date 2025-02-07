@@ -103,6 +103,12 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			const center = new Vector3(126.62495629765102, 45.7399914201275, 9.6509323421991e-16);
 			flyToGeo(camera, center);
 		},
+		// toHME: () => {
+		// 	const camera = new Vector3(120.44694986586572, -29.169419011880095, 1.466339416442329);
+		// 	const center = new Vector3(120.44854935362576, -29.15362549430602, 1.5315887252160664e-12);
+		// 	flyToGeo(camera, center);
+		// },
+
 		cameraInfoToConsole: () => {
 			const cameraGeo = getGeo(viewer.camera.getWorldPosition(new Vector3()));
 			const targetGeo = getGeo(viewer.controls.target);
@@ -148,4 +154,5 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	folder.add(vm, "toFuji");
 	folder.add(vm, "toUluru");
 	folder.add(vm, "toNewyork");
+	// folder.add(vm, "toHME");
 };

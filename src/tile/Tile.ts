@@ -120,9 +120,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this.parent ? this.parent.children.indexOf(this) : -1;
 	}
 
+	private _loaded = false;
+
 	/** Get load state */
 	public get loaded() {
-		return this.material.length > 0;
+		//return this.material.length > 0;
+		return this._loaded;
 	}
 
 	private _inFrustum = false;
@@ -278,6 +281,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	/** Called when tile loaded  */
 	private _onLoad() {
+		this._loaded = true;
 		this._checkVisible();
 		// Update Z
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;

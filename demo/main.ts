@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { BufferGeometry, ColorRepresentation, Line, LineBasicMaterial, Vector3 } from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
@@ -55,30 +55,35 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 地图添加到场景
 	viewer.scene.add(map);
 
-	// const tileBounds = map.projection.getTileBounds(17, 12, 5);
-	// const tileMesh = createBoundsMesh(tileBounds, 0xff0000);
-	// map.add(tileMesh);
+	// 测试
+	const imageBounds = map.projection.getPorjBounds([105, 33, 109, 37]);
+	const imageMesh = createBoundsMesh(imageBounds, 0xffff00);
+	map.add(imageMesh);
 
-	// const imageBounds = map.projection.getPorjBounds([90, 22, 112, 40]);
-	// const imageMesh = createBoundsMesh(imageBounds, 0x00ff00);
-	// map.add(imageMesh);
+	const tileBounds = map.projection.getTileBounds(7, 2, 3);
+	const tileMesh = createBoundsMesh(tileBounds, 0xff0000);
+	map.add(tileMesh);
+
+	const mapBounds = map.imgSource[0]._projectionBounds;
+	const mapMesh = createBoundsMesh(mapBounds, 0x00ff00);
+	map.add(mapMesh);
 
 	return viewer;
 }
 
-// function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {
-// 	const points = [];
-// 	const z = 8;
-// 	points.push(new Vector3(bounds[0], bounds[1], z));
-// 	points.push(new Vector3(bounds[2], bounds[1], z));
-// 	points.push(new Vector3(bounds[2], bounds[3], z));
-// 	points.push(new Vector3(bounds[0], bounds[3], z));
-// 	points.push(new Vector3(bounds[0], bounds[1], z));
-// 	const geometry = new BufferGeometry().setFromPoints(points);
-// 	const line = new Line(geometry, new LineBasicMaterial({ color }));
-// 	line.renderOrder = 100;
-// 	return line;
-// }
+function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {
+	const points = [];
+	const z = 8;
+	points.push(new Vector3(bounds[0], bounds[1], z));
+	points.push(new Vector3(bounds[2], bounds[1], z));
+	points.push(new Vector3(bounds[2], bounds[3], z));
+	points.push(new Vector3(bounds[0], bounds[3], z));
+	points.push(new Vector3(bounds[0], bounds[1], z));
+	const geometry = new BufferGeometry().setFromPoints(points);
+	const line = new Line(geometry, new LineBasicMaterial({ color }));
+	line.renderOrder = 100;
+	return line;
+}
 
 // 初始化GUI
 function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
