@@ -25,7 +25,7 @@ export class ProjMCT extends Projection implements IProjection {
 	 * @returns projected coordinates
 	 */
 	public project(lon: number, lat: number) {
-		if (lon < 0) lon += 180; // 考虑经度跨度（-180~+180
+		// if (lon < 0) lon += 180; // 考虑经度跨度（-180~+180
 		const lonRad = (lon - this.lon0) * (Math.PI / 180); // 考虑中心经度偏移
 		// const lonRad = lon * (Math.PI / 180);
 		const latRad = lat * (Math.PI / 180);

@@ -1,7 +1,6 @@
 import { ImageLoader, Material, MeshBasicMaterial, MeshLambertMaterial, SRGBColorSpace, Texture } from "three";
 import { ITileMaterialLoader, LoaderFactory } from "../../loader";
 import { ISource } from "../../source";
-import { SourceWithProjection } from "../../map/SourceWithProjection";
 
 /**
  * Single image Material loader
