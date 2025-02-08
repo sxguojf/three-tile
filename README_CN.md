@@ -4,6 +4,10 @@
 
 <p align='right'>hz_gjf@163.com</p>
 
+<img src="./images/wechat.jpg" width = 300 height = 400>
+
+
+
 ## 1 简介
 
 three-tile 是一个基于 [threejs](https://threejs.org/)开发的轻量级三维瓦片地图库，具有使用简单、资源占用少等优点，它提供了一个轻量级三维地形模型，适用于给基于 threejs 开发应用添加三维地图。
