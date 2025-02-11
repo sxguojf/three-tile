@@ -180,7 +180,7 @@ export class QuantizedMeshLoader {
 }
 
 const loader = new QuantizedMeshLoader();
-const url = "https://t0.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk=d083e4cf30bfc438ef93436c10c2c20a&x=1&y=1&l=1";
+const url = "./tiles//test.terrain";
 loader.load(
 	url,
 	(data) => {

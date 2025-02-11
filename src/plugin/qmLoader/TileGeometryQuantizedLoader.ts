@@ -2,6 +2,7 @@ import { BufferAttribute, BufferGeometry, PlaneGeometry } from "three";
 import { ITileGeometryLoader } from "../../loader";
 import { QuantizedMeshData, QuantizedMeshLoader } from "./QuantizedMeshLoader";
 import { ISource } from "../../source";
+// import decode from "./quantized-mesh-decoder.js";
 
 // 使用示例
 export class QuantizedMeshTileLoader implements ITileGeometryLoader {
