@@ -5,6 +5,6 @@
  */
 
 import { LoaderFactory } from "../../loader/LoaderFactory";
-import { QuantizedMeshTileLoader } from "./TileGeometryQuantizedLoader";
+import { QuantizedMeshTileLoader } from "./TileGeometryQmLoader";
 
 LoaderFactory.registerGeometryLoader(new QuantizedMeshTileLoader());
