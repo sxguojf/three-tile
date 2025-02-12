@@ -84,6 +84,9 @@ function decodeIndex(buffer, position, indicesCount, bytesPerIndex, encoded = tr
 
 	for (let i = 0; i < indices.length; ++i) {
 		let code = indices[i];
+		// if (highest - code < 0) {
+		// 	console.log(highest, code);
+		// }
 
 		indices[i] = highest - code;
 

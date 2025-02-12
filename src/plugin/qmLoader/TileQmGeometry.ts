@@ -17,10 +17,6 @@ export class TileQmGeometry extends PlaneGeometry {
 				vertices[i] = changeRange(meshData.vertexData[i]) - 0.5;
 				vertices[i + 1] = changeRange(meshData.vertexData[i + 1]) - 0.5;
 				vertices[i + 2] = changeRange(meshData.vertexData[i + 2] + meshData.header.minHeight) / 1000;
-
-				// if (isNaN(vertices[i + 2])) {
-				// 	debugger;
-				// }
 			}
 
 			// for (let i = 0; i < len; i++) {
@@ -50,12 +46,21 @@ export class TileQmGeometry extends PlaneGeometry {
 			// 		++highest;
 			// 	}
 			// }
+
+			// if (!indices) {
+			// indices = new Float32Array(meshData.triangleIndices);
+			// }
 			this.setIndex(new BufferAttribute(meshData.triangleIndices, 1));
 		}
 	}
 
 	public setData(data: ArrayBuffer) {
+		Object.freeze(data);
 		const meshData = decode(data);
+		// Object.freeze(meshData.vertexData);
+		// Object.freeze(meshData.triangleIndices);
+
+		// Object.freeze(meshData);
 		if (!meshData.vertexData || !meshData.triangleIndices) {
 			return;
 		}
@@ -80,5 +85,5 @@ function changeRange(value: number) {
 	const NEW_MIN = 0;
 	const NEW_MAX = 1;
 	const result = ((value - OLD_MIN) * (NEW_MAX - NEW_MIN)) / (OLD_MAX - OLD_MIN) + NEW_MIN;
-	return result;
+	return value / 32767;
 }
