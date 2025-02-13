@@ -174,8 +174,13 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 
-		setXTQm() {
-			map.demSource = ms.xtQmSource;
+		setQm() {
+			map.demSource = TileSource.create({
+				dataType: "quantized-mesh",
+				url: "./tiles/{z}/{x}/{y}.terrain",
+				// bounds: [-124.7333, 24.5333, -67.95, 49.3833],
+				// minLevel: 7,
+			});
 			map.reload();
 		},
 	};
@@ -219,7 +224,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	testFolder.add(vm, "setTileNormal").name("Normal terrain");
 	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
 	testFolder.add(vm, "setSingleImage").name("SingleImage");
-	testFolder.add(vm, "setXTQm").name("TDT QM");
+	testFolder.add(vm, "setQm").name("quantized-mesh");
 
 	return gui;
 };
