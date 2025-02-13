@@ -21,7 +21,7 @@ export class QuantizedMeshTileLoader implements ITileGeometryLoader {
 		abortSignal: AbortSignal,
 	): BufferGeometry {
 		// const url = source._getTileUrl(x, y, z);
-		const url = "./tiles/test3.terrain";
+		const url = "./tiles/test1.terrain";
 		const geometry = new TileQmGeometry();
 		if (!url) {
 			setTimeout(onLoad);

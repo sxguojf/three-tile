@@ -1,4 +1,24 @@
-const QUANTIZED_MESH_HEADER = new Map([
+// Copyright (C) 2018-2019 HERE Europe B.V.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+const QUANTIZED_MESH_HEADER = new Map<string, number>([
 	["centerX", Float64Array.BYTES_PER_ELEMENT],
 	["centerY", Float64Array.BYTES_PER_ELEMENT],
 	["centerZ", Float64Array.BYTES_PER_ELEMENT],
@@ -16,15 +36,24 @@ const QUANTIZED_MESH_HEADER = new Map([
 	["horizonOcclusionPointZ", Float64Array.BYTES_PER_ELEMENT],
 ]);
 
-function decodeZigZag(value) {
+function decodeZigZag(value: number): number {
 	return (value >> 1) ^ -(value & 1);
 }
 
-function decodeHeader(dataView) {
-	let position = 0;
-	const header = {};
+interface Header {
+	[key: string]: number;
+}
 
-	for (let [key, bytesCount] of QUANTIZED_MESH_HEADER) {
+interface DecodeHeaderResult {
+	header: Header;
+	headerEndPosition: number;
+}
+
+function decodeHeader(dataView: DataView): DecodeHeaderResult {
+	let position = 0;
+	const header: Header = {};
+
+	for (const [key, bytesCount] of QUANTIZED_MESH_HEADER) {
 		const getter = bytesCount === 8 ? dataView.getFloat64 : dataView.getFloat32;
 
 		header[key] = getter.call(dataView, position, true);
@@ -34,7 +63,12 @@ function decodeHeader(dataView) {
 	return { header, headerEndPosition: position };
 }
 
-function decodeVertexData(dataView, headerEndPosition) {
+interface DecodeVertexDataResult {
+	vertexData: Uint16Array;
+	vertexDataEndPosition: number;
+}
+
+function decodeVertexData(dataView: DataView, headerEndPosition: number): DecodeVertexDataResult {
 	let position = headerEndPosition;
 	const elementsPerVertex = 3;
 	const vertexCount = dataView.getUint32(position, true);
@@ -67,8 +101,14 @@ function decodeVertexData(dataView, headerEndPosition) {
 	return { vertexData, vertexDataEndPosition: position };
 }
 
-function decodeIndex(buffer, position, indicesCount, bytesPerIndex, encoded = true) {
-	let indices;
+function decodeIndex(
+	buffer: ArrayBufferLike,
+	position: number,
+	indicesCount: number,
+	bytesPerIndex: number,
+	encoded = true,
+): Uint16Array | Uint32Array {
+	let indices: Uint16Array | Uint32Array;
 
 	if (bytesPerIndex === 2) {
 		indices = new Uint16Array(buffer, position, indicesCount);
@@ -83,10 +123,7 @@ function decodeIndex(buffer, position, indicesCount, bytesPerIndex, encoded = tr
 	let highest = 0;
 
 	for (let i = 0; i < indices.length; ++i) {
-		let code = indices[i];
-		// if (highest - code < 0) {
-		// 	console.log(highest, code);
-		// }
+		const code = indices[i];
 
 		indices[i] = highest - code;
 
@@ -98,7 +135,16 @@ function decodeIndex(buffer, position, indicesCount, bytesPerIndex, encoded = tr
 	return indices;
 }
 
-function decodeTriangleIndices(dataView, vertexData, vertexDataEndPosition) {
+interface DecodeTriangleIndicesResult {
+	triangleIndicesEndPosition: number;
+	triangleIndices: Uint16Array | Uint32Array;
+}
+
+function decodeTriangleIndices(
+	dataView: DataView,
+	vertexData: Uint16Array,
+	vertexDataEndPosition: number,
+): DecodeTriangleIndicesResult {
 	let position = vertexDataEndPosition;
 	const elementsPerVertex = 3;
 	const vertexCount = vertexData.length / elementsPerVertex;
@@ -121,7 +167,19 @@ function decodeTriangleIndices(dataView, vertexData, vertexDataEndPosition) {
 	};
 }
 
-function decodeEdgeIndices(dataView, vertexData, triangleIndicesEndPosition) {
+interface DecodeEdgeIndicesResult {
+	edgeIndicesEndPosition: number;
+	westIndices: Uint16Array | Uint32Array;
+	southIndices: Uint16Array | Uint32Array;
+	eastIndices: Uint16Array | Uint32Array;
+	northIndices: Uint16Array | Uint32Array;
+}
+
+function decodeEdgeIndices(
+	dataView: DataView,
+	vertexData: Uint16Array,
+	triangleIndicesEndPosition: number,
+): DecodeEdgeIndicesResult {
 	let position = triangleIndicesEndPosition;
 	const elementsPerVertex = 3;
 	const vertexCount = vertexData.length / elementsPerVertex;
@@ -160,30 +218,30 @@ function decodeEdgeIndices(dataView, vertexData, triangleIndicesEndPosition) {
 	};
 }
 
-function decodeVertexNormalsExtension(extensionDataView) {
+function decodeVertexNormalsExtension(extensionDataView: DataView): Uint8Array {
 	return new Uint8Array(extensionDataView.buffer, extensionDataView.byteOffset, extensionDataView.byteLength);
 }
 
-function decodeWaterMaskExtension(extensionDataView) {
+function decodeWaterMaskExtension(extensionDataView: DataView): ArrayBuffer {
 	return extensionDataView.buffer.slice(
 		extensionDataView.byteOffset,
 		extensionDataView.byteOffset + extensionDataView.byteLength,
-	);
+	) as ArrayBuffer;
 }
 
-function decodeMetadataExtension(extensionDataView) {
-	const jsonLength = extensionDataView.getUint32(0, true);
-
-	let jsonString = "";
-	for (let i = 0; i < jsonLength; ++i) {
-		jsonString += String.fromCharCode(extensionDataView.getUint8(Uint32Array.BYTES_PER_ELEMENT + i));
-	}
-
-	return JSON.parse(jsonString);
+interface Extensions {
+	vertexNormals?: Uint8Array;
+	waterMask?: ArrayBuffer;
+	[key: string]: any;
 }
 
-function decodeExtensions(dataView, indicesEndPosition) {
-	const extensions = {};
+interface DecodeExtensionsResult {
+	extensions: Extensions;
+	extensionsEndPosition: number;
+}
+
+function decodeExtensions(dataView: DataView, indicesEndPosition: number): DecodeExtensionsResult {
+	const extensions: Extensions = {};
 
 	if (dataView.byteLength <= indicesEndPosition) {
 		return { extensions, extensionsEndPosition: indicesEndPosition };
@@ -192,7 +250,7 @@ function decodeExtensions(dataView, indicesEndPosition) {
 	let position = indicesEndPosition;
 
 	while (position < dataView.byteLength) {
-		const extensionId = dataView.getUint8(position, true);
+		const extensionId = dataView.getUint8(position);
 		position += Uint8Array.BYTES_PER_ELEMENT;
 
 		const extensionLength = dataView.getUint32(position, true);
@@ -203,21 +261,14 @@ function decodeExtensions(dataView, indicesEndPosition) {
 		switch (extensionId) {
 			case 1: {
 				extensions.vertexNormals = decodeVertexNormalsExtension(extensionView);
-
 				break;
 			}
 			case 2: {
 				extensions.waterMask = decodeWaterMaskExtension(extensionView);
-
-				break;
-			}
-			case 4: {
-				extensions.metadata = decodeMetadataExtension(extensionView);
-
 				break;
 			}
 			default: {
-				console.warn(`Unknown extension with id ${extensionId}`);
+				// console.warn(`Unknown extension with id ${extensionId}`)
 			}
 		}
 
@@ -227,7 +278,7 @@ function decodeExtensions(dataView, indicesEndPosition) {
 	return { extensions, extensionsEndPosition: position };
 }
 
-const DECODING_STEPS = {
+export const DECODING_STEPS = {
 	header: 0,
 	vertices: 1,
 	triangleIndices: 2,
@@ -239,8 +290,23 @@ const DEFAULT_OPTIONS = {
 	maxDecodingStep: DECODING_STEPS.extensions,
 };
 
-function decode(data, userOptions) {
-	const options = Object.assign({}, DEFAULT_OPTIONS, userOptions);
+interface DecodeOptions {
+	maxDecodingStep?: number;
+}
+
+export interface DecodeResult {
+	header: Header;
+	vertexData?: Uint16Array;
+	triangleIndices?: Uint16Array | Uint32Array;
+	westIndices?: Uint16Array | Uint32Array;
+	southIndices?: Uint16Array | Uint32Array;
+	eastIndices?: Uint16Array | Uint32Array;
+	northIndices?: Uint16Array | Uint32Array;
+	extensions?: Extensions;
+}
+
+export default function decode(data: ArrayBuffer, userOptions: DecodeOptions = DEFAULT_OPTIONS): DecodeResult {
+	const options = { ...DEFAULT_OPTIONS, ...userOptions };
 	const view = new DataView(data);
 	const { header, headerEndPosition } = decodeHeader(view);
 
@@ -295,5 +361,3 @@ function decode(data, userOptions) {
 		extensions,
 	};
 }
-
-export { DECODING_STEPS, decode };
