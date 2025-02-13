@@ -5,7 +5,7 @@ import decode, { DecodeResult } from "./qm-decoder";
  * Geomety from rules grid DEM, it has gap between tiles
  */
 
-let meshData: DecodeResult;
+// let meshData: DecodeResult;
 export class TileQmGeometry extends PlaneGeometry {
 	protected build(meshData: DecodeResult) {
 		this.dispose();
@@ -17,12 +17,6 @@ export class TileQmGeometry extends PlaneGeometry {
 				this.setAttribute("position", new BufferAttribute(attributes.positions.value, 3));
 				this.setAttribute("uv", new BufferAttribute(attributes.uvs.value, 2));
 			}
-			// const positionAttribute = constructPositionAttribute(meshData);
-			// if (positionAttribute) {
-			// 	this.setAttribute("position", positionAttribute);
-			// 	const uvAttribute = constructUvAttribute(positionAttribute.array);
-			// 	this.setAttribute("uv", uvAttribute);
-			// }
 		}
 
 		// 设置索引
@@ -32,60 +26,19 @@ export class TileQmGeometry extends PlaneGeometry {
 	}
 
 	public setData(data: ArrayBuffer) {
-		if (!meshData) {
-			meshData = decode(data);
-		}
-		// console.log("raw", new Uint16Array(data));
-		// console.log("idx", meshData.triangleIndices);
+		// if (!meshData) {
+		const meshData = decode(data);
 		// }
-		if (!meshData.vertexData || !meshData.triangleIndices) {
-			return;
+		if (meshData.vertexData && meshData.triangleIndices) {
+			this.build(meshData);
+			this.computeBoundingBox();
+			this.computeBoundingSphere();
+			this.computeVertexNormals();
 		}
-		this.build(meshData);
-		this.computeBoundingBox();
-		this.computeBoundingSphere();
-		this.computeVertexNormals();
+
 		return this;
 	}
 }
-/*
-function constructPositionAttribute(data: DecodeResult) {
-	const vertexData = data.vertexData;
-	if (vertexData) {
-		const vertexCount = vertexData.length / 3;
-		const positionAttributeArray = new Float32Array(vertexData.length);
-		const scale = 1 / 32767;
-		for (let i = 0; i < vertexData.length / 3; i++) {
-			positionAttributeArray[i * 3] = vertexData[i] * scale - 0.5;
-			positionAttributeArray[i * 3 + 1] = vertexData[i + vertexCount] * scale - 0.5;
-			positionAttributeArray[i * 3 + 2] =
-				(data.header.minHeight + vertexData[i + vertexCount * 2] * scale) / 1000;
-		}
-
-		return new Float32BufferAttribute(positionAttributeArray, 3);
-	} else {
-		return;
-	}
-}
-
-function constructUvAttribute(verticesArray: TypedArray) {
-	const uvArray = new Float32Array((verticesArray.length / 3) * 2);
-	for (let i = 0, uvIndex = 0; i < verticesArray.length; i++) {
-		switch (i % 3) {
-			case 0: {
-				uvArray[uvIndex] = verticesArray[i] + 0.5;
-				uvIndex++;
-				break;
-			}
-			case 1: {
-				uvArray[uvIndex] = verticesArray[i] + 0.5;
-				uvIndex++;
-			}
-		}
-	}
-
-	return new BufferAttribute(uvArray, 2);
-}*/
 
 function getMeshAttributes(data: DecodeResult) {
 	if (!data.vertexData) return;

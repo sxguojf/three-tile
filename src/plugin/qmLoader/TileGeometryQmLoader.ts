@@ -21,7 +21,9 @@ export class QuantizedMeshTileLoader implements ITileGeometryLoader {
 		abortSignal: AbortSignal,
 	): BufferGeometry {
 		// const url = source._getTileUrl(x, y, z);
-		const url = "./tiles/test1.terrain";
+		// const url = "./tiles/test1.terrain";
+		const url = x === 8 && y === 6 && z === 4 ? "./tiles/test1.terrain" : "";
+
 		const geometry = new TileQmGeometry();
 		if (!url) {
 			setTimeout(onLoad);
@@ -44,35 +46,10 @@ export class QuantizedMeshTileLoader implements ITileGeometryLoader {
 	}
 }
 
-// const OLD_MIN = 0;
-// const OLD_MAX = 32767;
-
-// const NEW_MIN = 0;
-// const NEW_MAX = 1;
-// const changeRange = (value: number) => ((value - OLD_MIN) * (NEW_MAX - NEW_MIN)) / (OLD_MAX - OLD_MIN) + NEW_MIN;
-
-// const loader = new FileLoaderEx(LoaderFactory.manager);
-// loader.setResponseType("arraybuffer");
-// loader.load("./tiles/test.terrain", (data: ArrayBuffer) => {
-// 	console.log(data.byteLength);
-// 	const meshData = decode(data);
-// 	console.log(meshData);
-// 	const geometry = new BufferGeometry();
-// 	// 设置顶点位置
-// 	if (meshData.vertexData) {
-// 		const len = meshData.vertexData.length;
-// 		const dataAsFloat32Array = new Float32Array(len);
-// 		for (let i = 0; i < len; i += 3) {
-// 			dataAsFloat32Array[i] = changeRange(meshData.vertexData[i]);
-// 			dataAsFloat32Array[i + 1] = changeRange(meshData.vertexData[i + 1]);
-// 			dataAsFloat32Array[i + 2] = (meshData.vertexData[i + 2] + meshData.header.minHeight) / 1000;
-// 		}
-// 		geometry.setAttribute("position", new BufferAttribute(new Float32Array(meshData.vertexData.buffer), 3));
-// 	}
-
-// 	// 设置索引
-// 	meshData.triangleIndices && geometry.setIndex(new BufferAttribute(meshData.triangleIndices, 1));
-
-// 	// 计算法线
-// 	geometry.computeVertexNormals();
-// });
+function sum(array: Uint8Array) {
+	let s = 0;
+	for (var i = 0; i < array.byteLength; i++) {
+		s = s + array[i];
+	}
+	return s;
+}
