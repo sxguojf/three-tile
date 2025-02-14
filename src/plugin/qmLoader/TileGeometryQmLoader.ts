@@ -5,11 +5,12 @@ import { TileQmGeometry } from "./TileQmGeometry";
 
 // Cesium quantized-mesh tile loader
 export class QuantizedMeshTileLoader implements ITileGeometryLoader {
-	public dataType = "quantized-mesh";
-	private loader: FileLoaderEx = new FileLoaderEx(LoaderFactory.manager);
+	public readonly dataType = "quantized-mesh";
+	// 图像加载器
+	private fileLoader = new FileLoaderEx(LoaderFactory.manager);
 
-	constructor() {
-		this.loader.setResponseType("arraybuffer");
+	public constructor() {
+		this.fileLoader.setResponseType("arraybuffer");
 	}
 
 	load(
@@ -20,18 +21,17 @@ export class QuantizedMeshTileLoader implements ITileGeometryLoader {
 		onLoad: () => void,
 		abortSignal: AbortSignal,
 	): BufferGeometry {
-		// const url = source._getTileUrl(x, y, z);
+		const url = source._getTileUrl(x, y, z);
 		// const url = "./tiles/test1.terrain";
-		const url = x === 8 && y === 6 && z === 4 ? "./tiles/test1.terrain" : "";
-
+		// const url = x === 8 && y === 6 && z === 4 ? "./tiles/test1.terrain" : "";
 		const geometry = new TileQmGeometry();
 		if (!url) {
 			setTimeout(onLoad);
 			return geometry;
 		} else {
-			this.loader.load(
+			this.fileLoader.load(
 				url,
-				(data: ArrayBuffer) => {
+				(data) => {
 					geometry.setData(data);
 					onLoad();
 				},
@@ -44,12 +44,4 @@ export class QuantizedMeshTileLoader implements ITileGeometryLoader {
 			return geometry;
 		}
 	}
-}
-
-function sum(array: Uint8Array) {
-	let s = 0;
-	for (var i = 0; i < array.byteLength; i++) {
-		s = s + array[i];
-	}
-	return s;
 }

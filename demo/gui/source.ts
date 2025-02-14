@@ -175,12 +175,13 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		},
 
 		setQm() {
+			map.imgSource = [ms.arcGisSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
 			map.demSource = TileSource.create({
 				dataType: "quantized-mesh",
-				// url: "./tiles/{z}/{x}/{y}.terrain",
-				url: " https://assets.ion.cesium.com/ap-northeast-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=octvertexnormals-watermask-metadata&v=1.2.0&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjOWM3MzYxZS0xNDg5LTRhYzgtOTE3ZS1hMTgyNmFmNzY5ZDIiLCJpZCI6MTYwNTYsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1Njk0NzMxMjl9.QT-UwdXK6VZyYMhtznEEIru0AEQEzMPxDlxQw96mTlA",
-
+				url: "./tiles/test1.terrain",
+				//url: " https://assets.ion.cesium.com/ap-northeast-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=octvertexnormals-watermask-metadata&v=1.2.0&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjOWM3MzYxZS0xNDg5LTRhYzgtOTE3ZS1hMTgyNmFmNzY5ZDIiLCJpZCI6MTYwNTYsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1Njk0NzMxMjl9.QT-UwdXK6VZyYMhtznEEIru0AEQEzMPxDlxQw96mTlA",
 				// bounds: [-124.7333, 24.5333, -67.95, 49.3833],
+				bounds: [70, 10, 150, 60],
 				// minLevel: 7,
 			});
 			map.reload();
@@ -226,7 +227,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	testFolder.add(vm, "setTileNormal").name("Normal terrain");
 	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
 	testFolder.add(vm, "setSingleImage").name("SingleImage");
-	testFolder.add(vm, "setQm").name("quantized-mesh");
+	testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;
 };

@@ -1,32 +1,67 @@
-// https://github.com/visgl/loaders.gl/blob/4ffe878050461d751028c77d33dcc56a05c6fdee/modules/terrain/src/lib/helpers/skirt.ts
 // import { concatenateTypedArrays } from "@loaders.gl/loader-utils";
 
+/**
+ * Concatenate arbitrary count of typed arrays
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays
+ * @param - list of arrays. All arrays should be the same type
+ * @return A concatenated TypedArray
+ */
+export function concatenateTypedArrays<T>(...typedArrays: T[]): T {
+	// @ts-ignore
+	const arrays = typedArrays as TypedArray[];
+	const TypedArrayConstructor = (arrays && arrays.length > 1 && arrays[0].constructor) || null;
+	if (!TypedArrayConstructor) {
+		throw new Error(
+			'"concatenateTypedArrays" - incorrect quantity of arguments or arguments have incompatible data types',
+		);
+	}
+
+	const sumLength = arrays.reduce((acc, value) => acc + value.length, 0);
+	const result = new TypedArrayConstructor(sumLength);
+	let offset = 0;
+	for (const array of arrays) {
+		result.set(array, offset);
+		offset += array.length;
+	}
+	return result;
+}
+
 export type EdgeIndices = {
-	westIndices: number[];
-	northIndices: number[];
-	eastIndices: number[];
-	southIndices: number[];
+	westIndices: Uint16Array | Uint32Array;
+	southIndices: Uint16Array | Uint32Array;
+	eastIndices: Uint16Array | Uint32Array;
+	northIndices: Uint16Array | Uint32Array;
+};
+
+export type Attributes = {
+	POSITION: { value: Float32Array };
+	TEXCOORD_0: { value: Float32Array };
 };
 
 /**
  * Add skirt to existing mesh
- * @param {object} attributes - POSITION and TEXCOOD_0 attributes data
- * @param {any} triangles - indices array of the mesh geometry
- * @param skirtHeight - height of the skirt geometry
- * @param outsideIndices - edge indices from quantized mesh data
+ * @param {Attributes} attributes - POSITION and TEXCOOD_0 attributes data
+ * @param {Uint16Array | Uint32Array} triangles - indices array of the mesh geometry
+ * @param {number} skirtHeight - height of the skirt geometry
+ * @param {EdgeIndices} [outsideIndices] - edge indices from quantized mesh data
  * @returns - geometry data with added skirt
  */
-export function addSkirt(attributes, triangles, skirtHeight: number, outsideIndices?: EdgeIndices) {
+export function addSkirt(
+	attributes: Attributes,
+	triangles: Uint16Array | Uint32Array,
+	skirtHeight: number,
+	outsideIndices?: EdgeIndices,
+) {
 	const outsideEdges = outsideIndices
 		? getOutsideEdgesFromIndices(outsideIndices, attributes.POSITION.value)
 		: getOutsideEdgesFromTriangles(triangles);
 
 	// 2 new vertices for each outside edge
-	const newPosition = new attributes.POSITION.value.constructor(outsideEdges.length * 6);
-	const newTexcoord0 = new attributes.TEXCOORD_0.value.constructor(outsideEdges.length * 4);
+	const newPosition = new Float32Array(outsideEdges.length * 6);
+	const newTexcoord0 = new Float32Array(outsideEdges.length * 4);
 
 	// 2 new triangles for each outside edge
-	const newTriangles = new triangles.constructor(outsideEdges.length * 6);
+	const newTriangles = new (triangles instanceof Uint32Array ? Uint32Array : Uint16Array)(outsideEdges.length * 6);
 
 	for (let i = 0; i < outsideEdges.length; i++) {
 		const edge = outsideEdges[i];
@@ -55,10 +90,10 @@ export function addSkirt(attributes, triangles, skirtHeight: number, outsideIndi
 
 /**
  * Get geometry edges that located on a border of the mesh
- * @param {any} triangles - indices array of the mesh geometry
+ * @param {Uint16Array | Uint32Array | number[]} triangles - indices array of the mesh geometry
  * @returns {number[][]} - outside edges data
  */
-function getOutsideEdgesFromTriangles(triangles) {
+function getOutsideEdgesFromTriangles(triangles: Uint16Array | Uint32Array | number[]): number[][] {
 	const edges: number[][] = [];
 	for (let i = 0; i < triangles.length; i += 3) {
 		edges.push([triangles[i], triangles[i + 1]]);
@@ -83,11 +118,11 @@ function getOutsideEdgesFromTriangles(triangles) {
 
 /**
  * Get geometry edges that located on a border of the mesh
- * @param {object} indices - edge indices from quantized mesh data
- * @param {TypedArray} position - position attribute geometry data
+ * @param {EdgeIndices} indices - edge indices from quantized mesh data
+ * @param {Float32Array} position - position attribute geometry data
  * @returns {number[][]} - outside edges data
  */
-function getOutsideEdgesFromIndices(indices: EdgeIndices, position) {
+function getOutsideEdgesFromIndices(indices: EdgeIndices, position: Float32Array): number[][] {
 	// Sort skirt indices to create adjacent triangles
 	indices.westIndices.sort((a, b) => position[3 * a + 1] - position[3 * b + 1]);
 	// Reverse (b - a) to match triangle winding
@@ -98,7 +133,7 @@ function getOutsideEdgesFromIndices(indices: EdgeIndices, position) {
 
 	const edges: number[][] = [];
 	for (const index in indices) {
-		const indexGroup = indices[index];
+		const indexGroup = indices[index as keyof EdgeIndices];
 		for (let i = 0; i < indexGroup.length - 1; i++) {
 			edges.push([indexGroup[i], indexGroup[i + 1]]);
 		}
@@ -106,16 +141,19 @@ function getOutsideEdgesFromIndices(indices: EdgeIndices, position) {
 	return edges;
 }
 
+type UpdateAttributesArgs = {
+	edge: number[];
+	edgeIndex: number;
+	attributes: Attributes;
+	skirtHeight: number;
+	newPosition: Float32Array;
+	newTexcoord0: Float32Array;
+	newTriangles: Uint16Array | Uint32Array | number[];
+};
+
 /**
  * Get geometry edges that located on a border of the mesh
- * @param {object} args
- * @param {number[]} args.edge - edge indices in geometry
- * @param {number} args.edgeIndex - edge index in outsideEdges array
- * @param {object} args.attributes - POSITION and TEXCOORD_0 attributes
- * @param {number} args.skirtHeight - height of the skirt geometry
- * @param {TypedArray} args.newPosition - POSITION array for skirt data
- * @param {TypedArray} args.newTexcoord0 - TEXCOORD_0 array for skirt data
- * @param {TypedArray | Array} args.newTriangles - trinagle indices array for skirt data
+ * @param {UpdateAttributesArgs} args
  * @returns {void}
  */
 function updateAttributesForNewEdge({
@@ -126,7 +164,7 @@ function updateAttributesForNewEdge({
 	newPosition,
 	newTexcoord0,
 	newTriangles,
-}) {
+}: UpdateAttributesArgs): void {
 	const positionsLength = attributes.POSITION.value.length;
 	const vertex1Offset = edgeIndex * 2;
 	const vertex2Offset = edgeIndex * 2 + 1;

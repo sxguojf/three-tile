@@ -1,34 +1,45 @@
 import { BufferAttribute, PlaneGeometry } from "three";
 import decode, { DecodeResult } from "./qm-decoder";
+import { addSkirt } from "./skirt";
 
 /**
  * Geomety from rules grid DEM, it has gap between tiles
  */
 
-// let meshData: DecodeResult;
 export class TileQmGeometry extends PlaneGeometry {
 	protected build(meshData: DecodeResult) {
 		this.dispose();
 
-		// 设置顶点位置
-		if (meshData.vertexData) {
+		if (meshData.vertexData && meshData.triangleIndices) {
 			const attributes = getMeshAttributes(meshData);
-			if (attributes) {
-				this.setAttribute("position", new BufferAttribute(attributes.positions.value, 3));
-				this.setAttribute("uv", new BufferAttribute(attributes.uvs.value, 2));
-			}
-		}
+			const { westIndices, northIndices, eastIndices, southIndices } = meshData;
+			const edges =
+				westIndices && northIndices && eastIndices && southIndices
+					? { westIndices, northIndices, eastIndices, southIndices }
+					: undefined;
 
-		// 设置索引
-		if (meshData.triangleIndices) {
-			this.setIndex(new BufferAttribute(meshData.triangleIndices, 1));
+			if (attributes) {
+				let triangleIndices = meshData.triangleIndices;
+				const { attributes: newAttributes, triangles: newTriangles } = addSkirt(
+					attributes,
+					triangleIndices,
+					1,
+					edges,
+				);
+
+				if (attributes) {
+					this.setAttribute("position", new BufferAttribute(newAttributes.POSITION.value, 3));
+					this.setAttribute("uv", new BufferAttribute(newAttributes.TEXCOORD_0.value, 2));
+					attributes.POSITION.value.length;
+				}
+				this.setIndex(new BufferAttribute(newTriangles as any, 1));
+				this.setAttribute("normal", new BufferAttribute(new Float32Array(attributes.POSITION.value.length), 3));
+			}
 		}
 	}
 
 	public setData(data: ArrayBuffer) {
-		// if (!meshData) {
 		const meshData = decode(data);
-		// }
 		if (meshData.vertexData && meshData.triangleIndices) {
 			this.build(meshData);
 			this.computeBoundingBox();
@@ -72,7 +83,7 @@ function getMeshAttributes(data: DecodeResult) {
 	}
 
 	return {
-		positions: { value: positions, size: 3 },
-		uvs: { value: texCoords, size: 2 },
+		POSITION: { value: positions, size: 3 },
+		TEXCOORD_0: { value: texCoords, size: 2 },
 	};
 }

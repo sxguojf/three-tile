@@ -90,10 +90,12 @@ function decodeIndex(
 ): Uint16Array | Uint32Array {
 	let indices: Uint16Array | Uint32Array;
 
+	// 增加此行以避免在解码过程中修改原始缓冲区
+	const bufferCopy = structuredClone(buffer);
 	if (bytesPerIndex === 2) {
-		indices = new Uint16Array(buffer, position, indicesCount);
+		indices = new Uint16Array(bufferCopy, position, indicesCount);
 	} else {
-		indices = new Uint32Array(buffer, position, indicesCount);
+		indices = new Uint32Array(bufferCopy, position, indicesCount);
 	}
 
 	if (!encoded) {
@@ -265,7 +267,7 @@ export const DECODING_STEPS = {
 };
 
 const DEFAULT_OPTIONS = {
-	maxDecodingStep: DECODING_STEPS.triangleIndices,
+	maxDecodingStep: DECODING_STEPS.extensions,
 };
 
 interface DecodeOptions {
