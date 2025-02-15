@@ -6,3 +6,4 @@
 
 export * from "./TileSimpleGeometry";
 export * from "./TileDEMGeometry";
+export * from "./TileMartiniGeometry";

@@ -2,9 +2,9 @@ export class Martini {
 	gridSize: number;
 	numTriangles = 0;
 	numParentTriangles = 0;
-	indices: Uint32Array<ArrayBuffer>;
-	coords: Uint16Array<ArrayBuffer>;
-	uv: Uint16Array<ArrayBuffer>;
+	indices: Uint32Array;
+	coords: Uint16Array;
+	uv: Uint16Array;
 
 	constructor(gridSize = 257) {
 		this.gridSize = gridSize;
@@ -65,16 +65,16 @@ export class Martini {
 		}
 	}
 
-	createTile(terrain: any[]) {
+	createTile(terrain: ArrayLike<number>) {
 		return new Tile(terrain, this);
 	}
 }
 
 class Tile {
-	terrain: any[];
+	terrain: ArrayLike<number>;
 	martini: Martini;
 	errors: Float32Array;
-	constructor(terrain: any[], martini: Martini) {
+	constructor(terrain: ArrayLike<number>, martini: Martini) {
 		const size = martini.gridSize;
 		if (terrain.length !== size * size)
 			throw new Error(
@@ -165,7 +165,7 @@ class Tile {
 		// 计算左下三角形
 		countElements(max, max, 0, 0, 0, max);
 
-		const vertices = new Uint16Array(numVertices * 2);
+		const vertices = new Float32Array(numVertices * 2);
 		const triangles = new Uint32Array(numTriangles * 3);
 		let triIndex = 0;
 
