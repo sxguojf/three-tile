@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferAttribute, Float16BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three";
+import { BufferAttribute, PlaneGeometry, Vector3 } from "three";
 import { Martini } from "./Martini";
 
 /**
