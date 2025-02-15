@@ -1,4 +1,4 @@
-import { ImageLoader, Material, MeshBasicMaterial, MeshLambertMaterial, SRGBColorSpace, Texture } from "three";
+import { ImageLoader, Material, MeshLambertMaterial, SRGBColorSpace, Texture } from "three";
 import { ITileMaterialLoader, LoaderFactory } from "../../loader";
 import { ISource } from "../../source";
 
@@ -9,7 +9,10 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "single-image";
 	private _image?: HTMLImageElement;
 	private _imageLoader = new ImageLoader(LoaderFactory.manager);
-	private _isLoading = false;
+
+	public async update() {
+		console.log("init single image loader");
+	}
 
 	/**
 	 * 加载材质
@@ -19,11 +22,6 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	 * @returns 材质
 	 */
 	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void): Material {
-		if (z < source.minLevel || z > source.maxLevel) {
-			setTimeout(onLoad);
-			return new MeshBasicMaterial();
-		}
-
 		const material = new MeshLambertMaterial({
 			transparent: true,
 			opacity: source.opacity,
@@ -34,49 +32,32 @@ export class SingleImageLoader implements ITileMaterialLoader {
 			}
 		});
 
-		const newX = x; //(source as SourceWithProjection).projection.getTileXWithCenterLon(x, z);
+		const tileUrl = source._getTileUrl(0, 0, 0);
 
-		if (this._image && this._image.complete) {
-			this._setTexture(material, source, newX, y, z);
+		// 请求的瓦片不在数据源范围内或没有url，直接返回材质
+		if (z < source.minLevel || z > source.maxLevel || !tileUrl) {
 			setTimeout(onLoad);
-		} else {
-			const tileUrl = source._getTileUrl(0, 0, 0);
-			if (tileUrl) {
-				if (this._isLoading) {
-					const timer = setInterval(() => {
-						if (this._image && this._image.complete) {
-							this._setTexture(material, source, newX, y, z);
-							onLoad();
-							clearInterval(timer);
-						}
-					}, 100);
-				} else {
-					this.loadImage(tileUrl, () => {
-						this._setTexture(material, source, newX, y, z);
-						onLoad();
-					});
-				}
-			}
+			return material;
 		}
+
+		// 如果图片已加载，则设置纹理后返回材质
+		if (this._image && this._image.complete) {
+			this._setTexture(material, source, x, y, z);
+			setTimeout(onLoad);
+			return material;
+		}
+
+		// 加载纹理
+		this._loadImage(tileUrl, () => {
+			this._setTexture(material, source, x, y, z);
+			onLoad();
+		});
 
 		return material;
 	}
 
-	private loadImage(url: string, onLoad: () => void) {
-		this._isLoading = true;
-		this._image = this._imageLoader.load(
-			url,
-			() => {
-				this._isLoading = false;
-				onLoad();
-			},
-			undefined,
-			// onError
-			() => {
-				this._isLoading = false;
-				onLoad();
-			},
-		);
+	private _loadImage(url: string, onLoad: () => void) {
+		this._image = this._imageLoader.load(url, onLoad, undefined, onLoad);
 	}
 
 	private _setTexture(material: MeshLambertMaterial, source: ISource, x: number, y: number, z: number) {
