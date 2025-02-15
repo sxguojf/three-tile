@@ -10,10 +10,6 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	private _image?: HTMLImageElement;
 	private _imageLoader = new ImageLoader(LoaderFactory.manager);
 
-	public async update() {
-		console.log("init single image loader");
-	}
-
 	/**
 	 * 加载材质
 	 * @param source 数据源
