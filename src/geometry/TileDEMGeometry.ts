@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferAttribute, Float32BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three";
+import { BufferAttribute, Float16BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three";
 
 /**
  * create geomety from rules grid dem and it has a skrit
@@ -42,7 +42,7 @@ export class TileDEMGeometry extends PlaneGeometry {
 		// 顶点数量
 		const numVertices = gridX1 * gridY1;
 		// 索引数组
-		const indices = new Uint32Array(numVertices * 6);
+		const indices = new Uint16Array(numVertices * 6);
 		// 顶点数组
 		const vertices = new Float32Array(numVertices * 3);
 		// uv数组
@@ -101,9 +101,9 @@ export class TileDEMGeometry extends PlaneGeometry {
 		}
 
 		this.setIndex(new BufferAttribute(indices, 1));
-		this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
-		this.setAttribute("normal", new Float32BufferAttribute(new Float32Array(numVertices * 3), 3));
-		this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+		this.setAttribute("position", new BufferAttribute(vertices, 3));
+		this.setAttribute("normal", new Float16BufferAttribute(new Float32Array(numVertices * 3), 3));
+		this.setAttribute("uv", new BufferAttribute(uvs, 2));
 
 		return this;
 	}
@@ -135,13 +135,11 @@ export class TileDEMGeometry extends PlaneGeometry {
 
 		if (positionAttribute !== undefined) {
 			let normalAttribute = this.getAttribute("normal");
-
 			if (normalAttribute === undefined) {
 				normalAttribute = new BufferAttribute(new Float32Array(positionAttribute.count * 3), 3);
 				this.setAttribute("normal", normalAttribute);
 			} else {
 				// reset existing normals to zero
-
 				for (let i = 0, il = normalAttribute.count; i < il; i++) {
 					normalAttribute.setXYZ(i, 0, 0, 0);
 				}

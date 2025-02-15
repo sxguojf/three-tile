@@ -25,3 +25,16 @@ export class TDTSource extends TileSource {
 		Object.assign(this, options);
 	}
 }
+
+export class TDTQMSource extends TileSource {
+	public dataType: string = "quantized-mesh";
+	public attribution = "天地图[GS(2023)336号]";
+	public token: string = "";
+	public subdomains = "01234";
+	public url = "https://t{s}.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk={token}&x={x}&y={y}&l={z}";
+
+	constructor(options?: TDTSourceOptins) {
+		super(options);
+		Object.assign(this, options);
+	}
+}

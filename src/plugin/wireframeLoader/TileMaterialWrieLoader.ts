@@ -15,6 +15,7 @@ export class TileMaterialWrieLoader implements ITileMaterialLoader {
 			wireframe: true,
 			color,
 			opacity: source.opacity,
+			depthTest: false,
 		});
 		setTimeout(onLoad);
 		return material;

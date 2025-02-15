@@ -8,8 +8,10 @@ import {
 	MapBoxSource,
 	MapTilerSource,
 	StadiaSource,
+	TDTQMSource,
 	TDTSource,
 	TXSource,
+	ZKXTQMSource,
 	ZKXTSource,
 } from "../src/plugin";
 
@@ -72,6 +74,10 @@ export const xtDemTestSource = new ZKXTSource({
 	maxLevel: 10,
 });
 
+export const xtQmSource = new ZKXTQMSource({
+	token: ZKXTKEY,
+});
+
 // MapTiler
 const MAPTILERKEY = "get_your_own_key_QmavnBrQwNGsQ8YvPzZg";
 export const mapTilerImgSource = new MapTilerSource({
@@ -126,6 +132,10 @@ export const tdtImgSource_c = new TDTSource({
 	token: TDTKEY,
 	style: "img_c",
 	projectionID: "4326",
+});
+
+export const tdtQMSource = new TDTQMSource({
+	token: TDTKEY,
 });
 
 // Bing

@@ -174,13 +174,21 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 
-		// setHmeSource() {
-		// 	// map.imgSource = [ms.arcGisSource, ms.hmeSource];
-		// 	map.imgSource = [ms.hmeSource];
-		// 	map.demSource = ms.hmeDemSource;
+		setQm() {
+			map.imgSource = [ms.arcGisSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
+			// map.imgSource = [ms.tdtImgSource_c, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
 
-		// 	map.reload();
-		// },
+			map.demSource = TileSource.create({
+				dataType: "quantized-mesh",
+				url: "https://assets.ion.cesium.com/ap-northeast-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=octvertexnormals-watermask-metadata&v=1.2.0",
+				//url: "/cesium/ap-northeast-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=octvertexnormals-watermask-metadata&v=1.2.0",
+				// url: "/qm/terrain/{z}/{x}/{y}.terrain",
+				// bounds: [-124.7333, 24.5333, -67.95, 49.3833],
+				// bounds: [70, 10, 150, 60],
+				maxLevel: 15,
+			});
+			map.reload();
+		},
 	};
 
 	// 数据源
@@ -201,7 +209,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	imgFolder.add(vm, "setTdt_w").name("TDT");
 	imgFolder.add(vm, "setOpentopomap").name("OpenTopoMap");
 
-	imgFolder.add(vm, "setTdt_c").name("TDT(WGS84 projection)");
+	imgFolder.add(vm, "setTdt_c").name("TDT(4326 projection)");
 
 	// 地形数据源
 	const demFolder = folder.addFolder("Terrain data");
@@ -222,7 +230,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	testFolder.add(vm, "setTileNormal").name("Normal terrain");
 	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
 	testFolder.add(vm, "setSingleImage").name("SingleImage");
-	// testFolder.add(vm, "setHmeSource").name("HME");
+	testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;
 };

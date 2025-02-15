@@ -28,3 +28,18 @@ export class ZKXTSource extends TileSource {
 		Object.assign(this, options);
 	}
 }
+
+// https://[tiles1-tiles3].geovisearth.com/base/v1/terrain/{z}/{x}/{y}.terrain
+
+export class ZKXTQMSource extends TileSource {
+	public dataType: string = "quantized-mesh";
+	public attribution = "中科星图[GS(2022)3995号]";
+	public token: string = "";
+	public subdomains = "012";
+	public url = "https://tiles{s}.geovisearth.com/base/v1/terrain/{z}/{x}/{y}.terrain&token={token}";
+
+	constructor(options?: ZKXTSourceOptions) {
+		super(options);
+		Object.assign(this, options);
+	}
+}
