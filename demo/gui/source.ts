@@ -176,13 +176,16 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 
 		setQm() {
 			map.imgSource = [ms.arcGisSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
+			// map.imgSource = [ms.tdtImgSource_c, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
+
 			map.demSource = TileSource.create({
 				dataType: "quantized-mesh",
-				url: "./tiles/test1.terrain",
-				//url: " https://assets.ion.cesium.com/ap-northeast-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=octvertexnormals-watermask-metadata&v=1.2.0&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjOWM3MzYxZS0xNDg5LTRhYzgtOTE3ZS1hMTgyNmFmNzY5ZDIiLCJpZCI6MTYwNTYsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1Njk0NzMxMjl9.QT-UwdXK6VZyYMhtznEEIru0AEQEzMPxDlxQw96mTlA",
+				url: "https://assets.ion.cesium.com/ap-northeast-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=octvertexnormals-watermask-metadata&v=1.2.0",
+				//url: "/cesium/ap-northeast-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=octvertexnormals-watermask-metadata&v=1.2.0",
+				// url: "/qm/terrain/{z}/{x}/{y}.terrain",
 				// bounds: [-124.7333, 24.5333, -67.95, 49.3833],
-				bounds: [70, 10, 150, 60],
-				// minLevel: 7,
+				// bounds: [70, 10, 150, 60],
+				maxLevel: 15,
 			});
 			map.reload();
 		},
@@ -206,7 +209,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	imgFolder.add(vm, "setTdt_w").name("TDT");
 	imgFolder.add(vm, "setOpentopomap").name("OpenTopoMap");
 
-	imgFolder.add(vm, "setTdt_c").name("TDT(WGS84 projection)");
+	imgFolder.add(vm, "setTdt_c").name("TDT(4326 projection)");
 
 	// 地形数据源
 	const demFolder = folder.addFolder("Terrain data");
