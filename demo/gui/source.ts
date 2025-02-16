@@ -3,6 +3,7 @@ import * as tt from "../../src";
 import * as ms from "../mapSource";
 import { TileSource } from "../../src";
 import { Vector3 } from "three";
+import { MapBoxSource } from "../../src/plugin";
 
 export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
@@ -130,7 +131,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 		setTileWire: () => {
-			map.imgSource = [tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
+			map.imgSource = [ms.arcGisSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
 
 			map.reload();
 		},
@@ -171,6 +172,13 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		setSingleImage() {
 			map.imgSource = [ms.arcGisSource, ms.singleImage];
 			map.demSource = ms.arcGisDemSource;
+			map.reload();
+		},
+
+		setMarini() {
+			// map.imgSource = [ms.arcGisSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
+			map.imgSource = [ms.arcGisSource];
+			map.demSource = ms.mapBoxMartiniSource;
 			map.reload();
 		},
 
@@ -230,6 +238,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	testFolder.add(vm, "setTileNormal").name("Normal terrain");
 	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
 	testFolder.add(vm, "setSingleImage").name("SingleImage");
+	testFolder.add(vm, "setMarini").name("Martini terrain test");
 	testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;

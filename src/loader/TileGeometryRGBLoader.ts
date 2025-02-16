@@ -35,7 +35,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 		onLoad: () => void,
 		abortSignal: AbortSignal,
 	): BufferGeometry {
-		const geometry = this.createGeometry();
+		const geometry = new TileDEMGeometry();
 		// get max level tile and bounds
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
@@ -73,10 +73,6 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 			abortSignal,
 		);
 		return geometry;
-	}
-
-	protected createGeometry() {
-		return new TileDEMGeometry();
 	}
 }
 

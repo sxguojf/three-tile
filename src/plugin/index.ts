@@ -15,9 +15,11 @@ import "./wireframeLoader";
 // lerc geometry loader
 import "./lercLoader";
 // Quantized-Mesh loader
-// import "./qmLoader";
+import "./qmLoader";
 // Single image loader
 import "./singleImageLoader";
+
+import "./martiniLoader";
 
 // vierwer
 export * from "./GLViewer";

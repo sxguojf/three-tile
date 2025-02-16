@@ -36,11 +36,17 @@ export const mapBoxDemSource = new MapBoxSource({
 	dataType: "terrain-rgb",
 	style: "mapbox.terrain-rgb",
 	maxLevel: 15,
-	bounds: [-180, -60, 180, 85],
 });
 export const mapBoxDemTestSource = new MapBoxSource({
 	token: MAPBOXKEY,
 	dataType: "image",
+	style: "mapbox.terrain-rgb",
+	maxLevel: 15,
+});
+
+export const mapBoxMartiniSource = new MapBoxSource({
+	token: MAPBOXKEY,
+	dataType: "terrain-rgb-martini",
 	style: "mapbox.terrain-rgb",
 	maxLevel: 15,
 });
