@@ -56,10 +56,10 @@ export function getTerrain(imageData: Uint8ClampedArray, tileSize: number): Floa
  * @returns The position and UV coordinates of the mesh.
  */
 export function getMeshAttributes(
-	vertices: number[],
+	vertices: Uint16Array,
 	terrain: Float32Array,
 	tileSize: number,
-): { position: { value: Float32Array; size: number }; uv: { value: Float32Array; size: number } } {
+): { position: { value: Float32Array; size: number }; texcoord: { value: Float32Array; size: number } } {
 	const gridSize = tileSize + 1;
 	const numOfVerticies = vertices.length / 2;
 
@@ -84,6 +84,6 @@ export function getMeshAttributes(
 
 	return {
 		position: { value: positions, size: 3 },
-		uv: { value: texCoords, size: 2 },
+		texcoord: { value: texCoords, size: 2 },
 	};
 }

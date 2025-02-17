@@ -4,9 +4,10 @@
  *@date: 2023-04-06
  */
 
-import { Float16BufferAttribute, Float32BufferAttribute, PlaneGeometry, Uint32BufferAttribute } from "three";
+import { BufferAttribute, PlaneGeometry } from "three";
 import { Martini } from "./Martini";
 import { getMeshAttributes, getTerrain } from "./martiniUtils";
+import { addSkirt } from "./skirt";
 
 const maxErrors: { [key: number]: number } = {
 	0: 10,
@@ -21,13 +22,13 @@ const maxErrors: { [key: number]: number } = {
 	9: 0.5,
 	10: 0.2,
 	11: 0.1,
-	12: 0.05,
-	13: 0.02,
-	14: 0.01,
-	15: 0.005,
-	16: 0.002,
-	17: 0.001,
-	18: 0.0005,
+	12: 0.02,
+	13: 0.01,
+	14: 0.004,
+	15: 0.002,
+	16: 0.001,
+	17: 0.0005,
+	18: 0.0002,
 	19: 0.0001,
 	20: 0.0,
 	21: 0.0,
@@ -50,14 +51,16 @@ export class TileMartiniGeometry extends PlaneGeometry {
 		const terrain = getTerrain(dem, tileSize);
 		const tile = martini.createTile(terrain);
 		const maxError = maxErrors[z] || 0;
-		const { vertices, triangles } = tile.getMesh(maxError, false);
+		const { vertices, triangles } = tile.getMesh(maxError);
 
 		const attributes = getMeshAttributes(vertices, terrain, tileSize);
 
-		this.setIndex(new Uint32BufferAttribute(triangles, 1));
-		this.setAttribute("position", new Float32BufferAttribute(attributes.position.value, attributes.position.size));
-		this.setAttribute("normal", new Float16BufferAttribute(new Float32Array(vertices.length * 3), 3));
-		this.setAttribute("uv", new Float32BufferAttribute(attributes.uv.value, attributes.uv.size));
+		const { attributes: newAttributes, triangles: newTriangles } = addSkirt(attributes, triangles, 1);
+
+		this.setIndex(new BufferAttribute(newTriangles as any, 1));
+		this.setAttribute("position", new BufferAttribute(newAttributes.position.value, 3));
+		this.setAttribute("uv", new BufferAttribute(newAttributes.texcoord.value, 2));
+		this.setAttribute("normal", new BufferAttribute(new Float32Array(vertices.length * 3), 3));
 
 		return this;
 	}
@@ -82,7 +85,7 @@ export class TileMartiniGeometry extends PlaneGeometry {
 	// 瓦片边缘法向量计算比较复杂，需要根据相邻瓦片高程计算，暂未完美实现
 	// 考虑使用Mapbox Terrain-DEM v1格式地形 https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-dem-v1/
 
-	// computeVertexNormals() {
+	// computeVertexNormals1() {
 	// 	const index = this.index;
 	// 	const positionAttribute = this.getAttribute("position");
 

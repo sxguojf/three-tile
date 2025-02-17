@@ -165,10 +165,7 @@ class Tile {
 		}
 	}
 
-	public getMesh(
-		maxError: number = 0,
-		withSkirts: boolean = false,
-	): { vertices: any; triangles: any; numVerticesWithoutSkirts: number } {
+	public getMesh(maxError: number = 0) {
 		const { gridSize: size, indices } = this.martini;
 		const { errors } = this;
 		let numVertices = 0;
@@ -178,13 +175,6 @@ class Tile {
 			bIndex,
 			cIndex = 0;
 
-		// Skirt indices
-		const leftSkirtIndices: number[] = [];
-		const rightSkirtIndices: number[] = [];
-		const bottomSkirtIndices: number[] = [];
-		const topSkirtIndices: number[] = [];
-
-		// Use an index grid to keep track of vertices that were already used to avoid duplication
 		indices.fill(0);
 
 		// Retrieve mesh in two stages that both traverse the error map:
@@ -202,51 +192,13 @@ class Tile {
 				bIndex = by * size + bx;
 				cIndex = cy * size + cx;
 
-				// 取得裙边索引
 				if (indices[aIndex] === 0) {
-					if (withSkirts) {
-						if (ax === 0) {
-							leftSkirtIndices.push(numVertices);
-						} else if (ax === max) {
-							rightSkirtIndices.push(numVertices);
-						}
-						if (ay === 0) {
-							bottomSkirtIndices.push(numVertices);
-						} else if (ay === max) {
-							topSkirtIndices.push(numVertices);
-						}
-					}
-
 					indices[aIndex] = ++numVertices;
 				}
 				if (indices[bIndex] === 0) {
-					if (withSkirts) {
-						if (bx === 0) {
-							leftSkirtIndices.push(numVertices);
-						} else if (bx === max) {
-							rightSkirtIndices.push(numVertices);
-						}
-						if (by === 0) {
-							bottomSkirtIndices.push(numVertices);
-						} else if (by === max) {
-							topSkirtIndices.push(numVertices);
-						}
-					}
 					indices[bIndex] = ++numVertices;
 				}
 				if (indices[cIndex] === 0) {
-					if (withSkirts) {
-						if (cx === 0) {
-							leftSkirtIndices.push(numVertices);
-						} else if (cx === max) {
-							rightSkirtIndices.push(numVertices);
-						}
-						if (cy === 0) {
-							bottomSkirtIndices.push(numVertices);
-						} else if (cy === max) {
-							topSkirtIndices.push(numVertices);
-						}
-					}
 					indices[cIndex] = ++numVertices;
 				}
 				numTriangles++;
@@ -258,22 +210,6 @@ class Tile {
 
 		let numTotalVertices = numVertices * 2;
 		let numTotalTriangles = numTriangles * 3;
-
-		// 计算裙边顶点和三角形数量
-		if (withSkirts) {
-			numTotalVertices +=
-				(leftSkirtIndices.length +
-					rightSkirtIndices.length +
-					bottomSkirtIndices.length +
-					topSkirtIndices.length) *
-				2;
-			numTotalTriangles +=
-				((leftSkirtIndices.length - 1) * 2 +
-					(rightSkirtIndices.length - 1) * 2 +
-					(bottomSkirtIndices.length - 1) * 2 +
-					(topSkirtIndices.length - 1) * 2) *
-				3;
-		}
 
 		const vertices = new Uint16Array(numTotalVertices);
 		const triangles = new Uint32Array(numTotalTriangles);
@@ -311,63 +247,6 @@ class Tile {
 		processTriangle(0, 0, max, max, max, 0);
 		processTriangle(max, max, 0, 0, 0, max);
 
-		if (withSkirts) {
-			// Sort skirt indices to create adjacent triangles
-			leftSkirtIndices.sort((a, b) => {
-				return vertices[2 * a + 1] - vertices[2 * b + 1];
-			});
-
-			// Reverse (b - a) to match triangle winding
-			rightSkirtIndices.sort((a, b) => {
-				return vertices[2 * b + 1] - vertices[2 * a + 1];
-			});
-
-			bottomSkirtIndices.sort((a, b) => {
-				return vertices[2 * b] - vertices[2 * a];
-			});
-
-			// Reverse (b - a) to match triangle winding
-			topSkirtIndices.sort((a, b) => {
-				return vertices[2 * a] - vertices[2 * b];
-			});
-
-			let skirtIndex = numVertices * 2;
-
-			// Add skirt vertices from index of last mesh vertex
-			function constructSkirt(skirt: number[]): void {
-				const skirtLength = skirt.length;
-
-				// Loop through indices in groups of two to generate triangles
-				for (let i = 0; i < skirtLength - 1; i++) {
-					const currIndex = skirt[i];
-					const nextIndex = skirt[i + 1];
-					const currentSkirt = skirtIndex / 2;
-					const nextSkirt = (skirtIndex + 2) / 2;
-
-					vertices[skirtIndex++] = vertices[2 * currIndex];
-					vertices[skirtIndex++] = vertices[2 * currIndex + 1];
-
-					triangles[triIndex++] = currIndex;
-					triangles[triIndex++] = currentSkirt;
-					triangles[triIndex++] = nextIndex;
-
-					triangles[triIndex++] = currentSkirt;
-					triangles[triIndex++] = nextSkirt;
-					triangles[triIndex++] = nextIndex;
-				}
-
-				// Add vertices of last skirt not added above (i < skirtLength - 1)
-				vertices[skirtIndex++] = vertices[2 * skirt[skirtLength - 1]];
-				vertices[skirtIndex++] = vertices[2 * skirt[skirtLength - 1] + 1];
-			}
-
-			constructSkirt(leftSkirtIndices);
-			constructSkirt(rightSkirtIndices);
-			constructSkirt(bottomSkirtIndices);
-			constructSkirt(topSkirtIndices);
-		}
-
-		// Return vertices and triangles and index into vertices array where skirts start
-		return { vertices: vertices, triangles: triangles, numVerticesWithoutSkirts: numVertices };
+		return { vertices: vertices, triangles: triangles };
 	}
 }

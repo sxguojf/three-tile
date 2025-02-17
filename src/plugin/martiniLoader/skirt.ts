@@ -79,8 +79,7 @@ export function addSkirt(
 
 	attributes.position.value = concatenateTypedArrays(attributes.position.value, newPosition);
 	attributes.texcoord.value = concatenateTypedArrays(attributes.texcoord.value, newTexcoord0);
-	const resultTriangles =
-		triangles instanceof Array ? triangles.concat(newTriangles) : concatenateTypedArrays(triangles, newTriangles);
+	const resultTriangles = concatenateTypedArrays(triangles, newTriangles);
 
 	return {
 		attributes,
@@ -110,7 +109,7 @@ function getOutsideEdgesFromTriangles(triangles: Uint16Array | Uint32Array | num
 
 	const outsideEdges: number[][] = [];
 	let index = 0;
-	while (index < edges.length) {
+	while (index < edges.length - 1) {
 		const a = edges[index][0];
 		const b = edges[index][1];
 		const c = edges[index + 1][1];

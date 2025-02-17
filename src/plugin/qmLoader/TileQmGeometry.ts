@@ -27,13 +27,10 @@ export class TileQmGeometry extends PlaneGeometry {
 					edges,
 				);
 
-				if (attributes) {
-					this.setAttribute("position", new BufferAttribute(newAttributes.POSITION.value, 3));
-					this.setAttribute("uv", new BufferAttribute(newAttributes.TEXCOORD_0.value, 2));
-					attributes.POSITION.value.length;
-				}
 				this.setIndex(new BufferAttribute(newTriangles as any, 1));
-				this.setAttribute("normal", new BufferAttribute(new Float32Array(attributes.POSITION.value.length), 3));
+				this.setAttribute("position", new BufferAttribute(newAttributes.position.value, 3));
+				this.setAttribute("uv", new BufferAttribute(newAttributes.texcoord.value, 2));
+				this.setAttribute("normal", new BufferAttribute(new Float32Array(attributes.position.value.length), 3));
 			}
 		}
 	}
@@ -83,7 +80,7 @@ function getMeshAttributes(data: DecodeResult) {
 	}
 
 	return {
-		POSITION: { value: positions, size: 3 },
-		TEXCOORD_0: { value: texCoords, size: 2 },
+		position: { value: positions, size: 3 },
+		texcoord: { value: texCoords, size: 2 },
 	};
 }
