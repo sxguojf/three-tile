@@ -22,6 +22,8 @@ export interface ISource {
 	bounds: [number, number, number, number];
 	/** Data bounds in Proejction, internal use */
 	_projectionBounds: [number, number, number, number];
+	/** User data */
+	userData: { [key: string]: any };
 	/** Get url from xyz, internal use */
 	_getTileUrl: (x: number, y: number, z: number) => string | undefined;
 	/** Get the tile bounds , internal use*/

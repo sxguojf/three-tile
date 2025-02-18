@@ -1,11 +1,7 @@
-// import { concatenateTypedArrays } from "@loaders.gl/loader-utils";
+// 给瓦片加上裙边
 
-/**
- * Concatenate arbitrary count of typed arrays
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Typed_arrays
- * @param - list of arrays. All arrays should be the same type
- * @return A concatenated TypedArray
- */
+// https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
+
 export function concatenateTypedArrays<T>(...typedArrays: T[]): T {
 	// @ts-ignore
 	const arrays = typedArrays as TypedArray[];
@@ -33,34 +29,35 @@ export type EdgeIndices = {
 	northIndices: Uint16Array | Uint32Array;
 };
 
-export type Attributes = {
+export type GeometryAttributes = {
 	position: { value: Float32Array };
 	texcoord: { value: Float32Array };
 };
 
 /**
  * Add skirt to existing mesh
- * @param {Attributes} attributes - POSITION and TEXCOOD_0 attributes data
+ * @param {GeometryAttributes} attributes - POSITION and TEXCOOD_0 attributes data
  * @param {Uint16Array | Uint32Array} triangles - indices array of the mesh geometry
  * @param {number} skirtHeight - height of the skirt geometry
  * @param {EdgeIndices} [outsideIndices] - edge indices from quantized mesh data
  * @returns - geometry data with added skirt
  */
 export function addSkirt(
-	attributes: Attributes,
+	attributes: GeometryAttributes,
 	triangles: Uint16Array | Uint32Array,
 	skirtHeight: number,
 	outsideIndices?: EdgeIndices,
 ) {
+	// 如果传入边缘边顶点索引，从边缘顶点计算边缘边，否则根据顶点坐标计算边缘边
 	const outsideEdges = outsideIndices
 		? getOutsideEdgesFromIndices(outsideIndices, attributes.position.value)
 		: getOutsideEdgesFromTriangles(triangles);
 
-	// 2 new vertices for each outside edge
+	// 边缘边顶点坐标
 	const newPosition = new Float32Array(outsideEdges.length * 6);
+	// 边缘边纹理坐标
 	const newTexcoord0 = new Float32Array(outsideEdges.length * 4);
-
-	// 2 new triangles for each outside edge
+	// 边缘三角形
 	const newTriangles = new (triangles instanceof Uint32Array ? Uint32Array : Uint16Array)(outsideEdges.length * 6);
 
 	for (let i = 0; i < outsideEdges.length; i++) {
@@ -77,6 +74,7 @@ export function addSkirt(
 		});
 	}
 
+	// 边缘顶点坐标、纹理坐标、三角形合并到原有属性
 	attributes.position.value = concatenateTypedArrays(attributes.position.value, newPosition);
 	attributes.texcoord.value = concatenateTypedArrays(attributes.texcoord.value, newTexcoord0);
 	const resultTriangles = concatenateTypedArrays(triangles, newTriangles);
@@ -93,30 +91,35 @@ export function addSkirt(
  * @returns {number[][]} - outside edges data
  */
 function getOutsideEdgesFromTriangles(triangles: Uint16Array | Uint32Array | number[]): number[][] {
-	const edges: number[][] = []; // 所有边
+	// 取出所有的三角形
+	const edges: number[][] = [];
 	for (let i = 0; i < triangles.length; i += 3) {
 		const a = triangles[i];
 		const b = triangles[i + 1];
 		const c = triangles[i + 2];
 
-		edges.push([a, b]);
-		edges.push([b, c]);
-		edges.push([c, a]);
+		edges.push([a, b]); // 第1条边
+		edges.push([b, c]); // 第2条边
+		edges.push([c, a]); // 第3条边
 	}
 
-	// 边排序
+	// 三角形按顶点坐标排序
 	edges.sort((a, b) => Math.min(...a) - Math.min(...b) || Math.max(...a) - Math.max(...b));
 
+	// 取出所有在边缘的三角形
 	const outsideEdges: number[][] = [];
 	let index = 0;
 	while (index < edges.length - 1) {
-		const a = edges[index][0];
-		const b = edges[index][1];
-		const c = edges[index + 1][1];
-		const d = edges[index + 1][0];
+		// 取出相邻两条边
+		const a = edges[index][0]; // 第1条边的起点
+		const b = edges[index][1]; // 第1条边的终点
+		const c = edges[index + 1][1]; // 第2条边的终点
+		const d = edges[index + 1][0]; // 第2条边的起点
+		// 如果相邻两个三角形有共用边，那么不是边缘边，否则是边缘边
 		if (a === c && b === d) {
 			index += 2;
 		} else {
+			// 是边缘边，三角形加入数组
 			outsideEdges.push(edges[index]);
 			index++;
 		}
@@ -152,7 +155,7 @@ function getOutsideEdgesFromIndices(indices: EdgeIndices, position: Float32Array
 type UpdateAttributesArgs = {
 	edge: number[];
 	edgeIndex: number;
-	attributes: Attributes;
+	attributes: GeometryAttributes;
 	skirtHeight: number;
 	newPosition: Float32Array;
 	newTexcoord0: Float32Array;
@@ -175,21 +178,19 @@ function updateAttributesForNewEdge({
 }: UpdateAttributesArgs): void {
 	const positionsLength = attributes.position.value.length;
 	const vertex1Offset = edgeIndex * 2;
-	const vertex2Offset = edgeIndex * 2 + 1;
+	const vertex2Offset = vertex1Offset + 1;
 
-	// Define POSITION for new 1st vertex
-	newPosition.set(attributes.position.value.subarray(edge[0] * 3, edge[0] * 3 + 3), vertex1Offset * 3);
-	newPosition[vertex1Offset * 3 + 2] = newPosition[vertex1Offset * 3 + 2] - skirtHeight; // put down elevation on the skirt height
-
-	// Define POSITION for new 2nd vertex
+	// 增加2个裙边顶点坐标
+	newPosition.set(attributes.position.value.subarray(edge[0] * 3, edge[0] * 3 + 3), vertex1Offset * 3); // 复制三个顶点坐标
+	newPosition[vertex1Offset * 3 + 2] = newPosition[vertex1Offset * 3 + 2] - skirtHeight; // 修改裙边高度
 	newPosition.set(attributes.position.value.subarray(edge[1] * 3, edge[1] * 3 + 3), vertex2Offset * 3);
 	newPosition[vertex2Offset * 3 + 2] = newPosition[vertex2Offset * 3 + 2] - skirtHeight; // put down elevation on the skirt height
 
-	// Use same TEXCOORDS for skirt vertices
+	// 增加2个裙边纹理坐标
 	newTexcoord0.set(attributes.texcoord.value.subarray(edge[0] * 2, edge[0] * 2 + 2), vertex1Offset * 2);
 	newTexcoord0.set(attributes.texcoord.value.subarray(edge[1] * 2, edge[1] * 2 + 2), vertex2Offset * 2);
 
-	// Define new triangles
+	// 增加2个裙边三角形（6个顶点）
 	const triangle1Offset = edgeIndex * 2 * 3;
 	newTriangles[triangle1Offset] = edge[0];
 	newTriangles[triangle1Offset + 1] = positionsLength / 3 + vertex2Offset;
