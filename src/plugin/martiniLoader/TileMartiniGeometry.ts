@@ -5,31 +5,22 @@
  */
 
 import { BufferAttribute, PlaneGeometry, Vector3 } from "three";
-import { Martini } from "./Martini";
-import { addSkirt } from "./skirt";
 
-const maxErrors: { [key: number]: number } = {
-	0: 7000,
-	1: 6000,
-	2: 5000,
-	3: 4000,
-	4: 3000,
-	5: 2500,
-	6: 2000,
-	7: 1500,
-	8: 800,
-	9: 500,
-	10: 200,
-	11: 100,
-	12: 30,
-	13: 12,
-	14: 5,
-	15: 2,
-	16: 1,
-	17: 0.5,
-	18: 0.2,
-	19: 0.1,
-	20: 0.05,
+export type Attributes = {
+	position: {
+		value: Float32Array;
+		size: number;
+	};
+	texcoord: {
+		value: Float32Array;
+		size: number;
+	};
+};
+
+export type GeometryInfo = {
+	attributes: Attributes;
+	indices: Uint16Array | Uint32Array;
+	skirtIndex: number;
 };
 
 /**
@@ -37,48 +28,30 @@ const maxErrors: { [key: number]: number } = {
  */
 export class TileMartiniGeometry extends PlaneGeometry {
 	private _edgeIndex = 0;
-	/**
-	 * Build grid geometry from dem
-	 * @param dem 2d array of dem
-	 * @param tileSize tile size
-	 */
-	protected build(dem: Float32Array, _x: number, _y: number, z: number) {
-		this.dispose();
-		const gridSize = Math.floor(Math.sqrt(dem.length));
-
-		// 构建Martin
-		const martini = new Martini(gridSize);
-		// 简化
-		const tile = martini.createTile(dem);
-		// 几何误差
-		const maxError = maxErrors[z] / 1000 || 0;
-		// 取得顶点和索引
-		const { vertices, triangles } = tile.getMesh(maxError);
-
-		// 取得属性
-		const attributes = getMeshAttributes(vertices, dem);
-
-		// 记录不包括裙边顶点在内的顶点数量
-		this._edgeIndex = attributes.position.value.length;
-
-		// 添加裙边
-		const { attributes: newAttributes, triangles: newTriangles } = addSkirt(attributes, triangles, 0.3);
-
-		this.setIndex(new BufferAttribute(newTriangles as any, 1));
-		this.setAttribute("position", new BufferAttribute(newAttributes.position.value, 3));
-		this.setAttribute("uv", new BufferAttribute(newAttributes.texcoord.value, 2));
-		this.setAttribute("normal", new BufferAttribute(new Float32Array(vertices.length * 3), 3));
-
-		return this;
-	}
 
 	/**
 	 * set the tile dem data
-	 * @param dem 2d dem array
+	 * @param geoInfo: any; 瓦片网格数据，包含position, uv, indices属性
 	 * @returns this
 	 */
-	public setData(imageData: Float32Array, x: number, y: number, z: number) {
-		this.build(imageData, x, y, z);
+	public setData(geoInfo: GeometryInfo) {
+		// 包括裙边顶点在内的顶点数量
+		this._edgeIndex = geoInfo.skirtIndex;
+
+		this.setIndex(new BufferAttribute(geoInfo.indices, 1));
+		this.setAttribute(
+			"position",
+			new BufferAttribute(geoInfo.attributes.position.value, geoInfo.attributes.position.size),
+		);
+		this.setAttribute(
+			"uv",
+			new BufferAttribute(geoInfo.attributes.texcoord.value, geoInfo.attributes.texcoord.size),
+		);
+		this.setAttribute(
+			"normal",
+			new BufferAttribute(new Float32Array(geoInfo.attributes.position.value.length * 3), 3),
+		);
+
 		//计算顶点法向量
 		this.computeVertexNormals();
 		//修改顶点后必须重新计算包围矩形和包围球
@@ -173,45 +146,4 @@ export class TileMartiniGeometry extends PlaneGeometry {
 			normalAttribute.needsUpdate = true;
 		}
 	}
-}
-
-/**
- * Get the attributes that compose the mesh.
- *
- * @param vertices - Vertices.
- * @param terrain  - Terrain
- * @param tileSize - Size of each tile.
- * @param bounds - Array with the bound of the map.
- * @param exageration - Vertical exageration of the map scale.
- * @returns The position and UV coordinates of the mesh.
- */
-export function getMeshAttributes(vertices: Uint16Array, terrain: Float32Array) {
-	const gridSize = Math.floor(Math.sqrt(terrain.length));
-	const tileSize = gridSize - 1;
-	const numOfVerticies = vertices.length / 2;
-
-	// vec3. x, y in pixels, z in meters
-	const positions = new Float32Array(numOfVerticies * 3);
-
-	// vec2. 1 to 1 relationship with position. represents the uv on the texture image. 0,0 to 1,1.
-	const texCoords = new Float32Array(numOfVerticies * 2);
-
-	// 转换顶点坐标到-0.5到0.5之间，计算纹理坐标0-1之间
-	for (let i = 0; i < numOfVerticies; i++) {
-		const x = vertices[i * 2];
-		const y = vertices[i * 2 + 1];
-		const pixelIdx = y * gridSize + x;
-
-		positions[3 * i + 0] = x / tileSize - 0.5;
-		positions[3 * i + 1] = 0.5 - y / tileSize;
-		positions[3 * i + 2] = terrain[pixelIdx];
-
-		texCoords[2 * i + 0] = x / tileSize;
-		texCoords[2 * i + 1] = 1 - y / tileSize;
-	}
-
-	return {
-		position: { value: positions, size: 3 },
-		texcoord: { value: texCoords, size: 2 },
-	};
 }

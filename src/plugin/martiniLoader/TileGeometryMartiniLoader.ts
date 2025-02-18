@@ -5,7 +5,6 @@
  */
 
 import { Box2, BufferGeometry } from "three";
-import { ISource } from "../../source";
 import {
 	ITileGeometryLoader,
 	ImageLoaderEx,
@@ -13,10 +12,13 @@ import {
 	getSafeTileUrlAndBounds,
 	rect2ImageBounds,
 } from "../../loader";
+import { ISource } from "../../source";
 import { TileMartiniGeometry } from "./TileMartiniGeometry";
+// @ts-ignore
+import Worker from "./parse.worker?worker";
 
 /**
- * Mapbox-RGB geometry loader
+ * Mapbox-RGB Martini geometry loader
  */
 export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 	public readonly dataType = "terrain-rgb-martini";
@@ -51,8 +53,8 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 
 	private _load(
 		url: string,
-		x: number,
-		y: number,
+		_x: number,
+		_y: number,
 		z: number,
 		geometry: TileMartiniGeometry,
 		bounds: Box2,
@@ -62,10 +64,19 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 		this.imageLoader.load(
 			url,
 			(image) => {
+				// 取得图像数据
 				const imgData = getImageDataFromRect(image, bounds);
+				// 解析为dem数组
 				const dem = getTerrain(imgData);
-				geometry.setData(dem, x, y, z);
-				onLoad();
+				// worker生成Martini geometry数据
+				const worker = new Worker();
+				worker.postMessage({ dem, z });
+				worker.onmessage = (e: MessageEvent) => {
+					// 设置geometry数据并回调onLoad()
+					geometry.setData(e.data);
+					onLoad();
+					worker.terminate();
+				};
 			},
 			undefined,
 			onLoad,
