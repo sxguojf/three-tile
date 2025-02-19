@@ -240,7 +240,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
 	testFolder.add(vm, "setSingleImage").name("SingleImage");
 	testFolder.add(vm, "setMarini").name("Martini terrain test");
-	testFolder.add(vm, "setQm").name("quantized-mesh test");
+	// testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;
 };

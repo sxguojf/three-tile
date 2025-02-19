@@ -30,8 +30,8 @@ export type EdgeIndices = {
 };
 
 export type GeometryAttributes = {
-	position: { value: Float32Array };
-	texcoord: { value: Float32Array };
+	position: { value: Float32Array; size: number };
+	texcoord: { value: Float32Array; size: number };
 };
 
 /**

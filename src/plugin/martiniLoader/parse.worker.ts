@@ -2,8 +2,14 @@ import { Martini } from "./Martini";
 import { addSkirt } from "./skirt";
 
 // worker.ts
-self.onmessage = (event: MessageEvent) => {
-	const mesh = parse(event.data.dem, event.data.z);
+self.onmessage = (msg: MessageEvent) => {
+	const { imgData, z } = msg.data;
+	// console.time("parse");
+	const dem = getTerrain(imgData);
+	const mesh = parse(dem, z);
+	// console.timeEnd("parse");
+	// console.log(msg.type, mesh);
+
 	// 将结果发送回主线程
 	self.postMessage(mesh);
 	self.close();
@@ -64,6 +70,51 @@ function parse(dem: Float32Array, z: number) {
 		attributes: geoInfo.attributes,
 		skirtIndex: vertices.length,
 	};
+}
+
+/**
+ * Get terrain points from image data.
+ *
+ * @param data - Terrain data encoded as image.
+ * @returns The terrain elevation as a Float32 array.
+ */
+function getTerrain(imageData: ImageData): Float32Array {
+	const data = imageData.data;
+	const tileSize = imageData.width;
+	const gridSize = tileSize + 1;
+
+	// From Martini demo
+	// https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh
+	const terrain = new Float32Array(gridSize * gridSize);
+
+	// Decode terrain values
+	for (let i = 0, y = 0; y < tileSize; y++) {
+		for (let x = 0; x < tileSize; x++, i++) {
+			// 透明像素直接返回高度0
+			if (data[i * 4 + 3] === 0) {
+				terrain[i + y] = 0;
+			}
+			const k = i * 4;
+			const r = data[k + 0];
+			const g = data[k + 1];
+			const b = data[k + 2];
+
+			const rgb = (r << 16) | (g << 8) | b;
+			terrain[i + y] = rgb / 10000 - 10;
+		}
+	}
+
+	// Backfill bottom border
+	for (let i = gridSize * (gridSize - 1), x = 0; x < gridSize - 1; x++, i++) {
+		terrain[i] = terrain[i - gridSize];
+	}
+
+	// Backfill right border
+	for (let i = gridSize - 1, y = 0; y < gridSize; y++, i += gridSize) {
+		terrain[i] = terrain[i - 1];
+	}
+
+	return terrain;
 }
 
 /**
