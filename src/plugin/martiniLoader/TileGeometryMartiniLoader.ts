@@ -14,7 +14,6 @@ import {
 } from "../../loader";
 import { ISource } from "../../source";
 import { GeometryInfo, TileMartiniGeometry } from "./TileMartiniGeometry";
-//@ts-ignore
 import ParseWorker from "./parse.worker?worker";
 
 /**
@@ -73,7 +72,7 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 					geometry.setData(e.data);
 					onLoad();
 				};
-				worker.postMessage({ z, imgData }, imgData);
+				worker.postMessage({ z, imgData }, imgData as any);
 			},
 			undefined,
 			onLoad,
