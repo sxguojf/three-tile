@@ -5,11 +5,12 @@
  */
 
 import { Box2, BufferGeometry, MathUtils } from "three";
-import { TileDEMGeometry } from "../geometry";
+import { GeometryInfo, TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileGeometryLoader } from "./ITileLoaders";
 import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
+import ParseWorker from "./worker/RGBGeometryParse.worker?worker";
 import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
 
 /**
@@ -35,7 +36,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 		onLoad: () => void,
 		abortSignal: AbortSignal,
 	): BufferGeometry {
-		const geometry = new TileDEMGeometry();
+		const geometry = new TileGeometry();
 		// get max level tile and bounds
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
@@ -50,7 +51,7 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 
 	private _load(
 		url: string,
-		geometry: TileDEMGeometry,
+		geometry: TileGeometry,
 		bounds: Box2,
 		tileSize: number,
 		onLoad: () => void,
@@ -60,11 +61,17 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 			url,
 			// onLoad
 			(image) => {
-				if (!abortSignal.aborted) {
-					const imgData = getImageDataFromRect(image, bounds, tileSize);
-					geometry.setData(Img2dem(imgData.data));
-				}
-				onLoad();
+				const imgData = getImageDataFromRect(image, bounds, tileSize);
+				// geometry.setData(Img2dem(imgData.data));
+				// onLoad();
+				// worker生成Martini geometry数据
+				const worker = new ParseWorker();
+				worker.onmessage = (e: MessageEvent<GeometryInfo>) => {
+					// 设置geometry数据并回调onLoad()
+					geometry.setData(e.data);
+					onLoad();
+				};
+				worker.postMessage({ imgData }, imgData as any);
 			},
 			// onProgress
 			undefined,
@@ -76,25 +83,25 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 	}
 }
 
-// RGB to dem (Mapbox Terrain-RGB v1)
-// https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-rgb-v1/
-function getZ(imgData: Uint8ClampedArray, i: number) {
-	// 透明像素直接返回高度0
-	if (imgData[i * 4 + 3] === 0) {
-		return 0;
-	}
-	const rgb = (imgData[i * 4] << 16) | (imgData[i * 4 + 1] << 8) | imgData[i * 4 + 2];
-	return rgb / 10000 - 10;
-}
+// // RGB to dem (Mapbox Terrain-RGB v1)
+// // https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-rgb-v1/
+// function getZ(imgData: Uint8ClampedArray, i: number) {
+// 	// 透明像素直接返回高度0
+// 	if (imgData[i * 4 + 3] === 0) {
+// 		return 0;
+// 	}
+// 	const rgb = (imgData[i * 4] << 16) | (imgData[i * 4 + 1] << 8) | imgData[i * 4 + 2];
+// 	return rgb / 10000 - 10;
+// }
 
-function Img2dem(imgData: Uint8ClampedArray) {
-	const count = Math.floor(imgData.length / 4);
-	const dem = new Float32Array(count);
-	for (let i = 0; i < dem.length; i++) {
-		dem[i] = getZ(imgData, i);
-	}
-	return dem;
-}
+// function Img2dem(imgData: Uint8ClampedArray) {
+// 	const count = Math.floor(imgData.length / 4);
+// 	const dem = new Float32Array(count);
+// 	for (let i = 0; i < dem.length; i++) {
+// 		dem[i] = getZ(imgData, i);
+// 	}
+// 	return dem;
+// }
 
 /**
  * Get pixels in bounds from image and resize to targetSize

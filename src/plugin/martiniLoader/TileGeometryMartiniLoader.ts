@@ -13,7 +13,7 @@ import {
 	rect2ImageBounds,
 } from "../../loader";
 import { ISource } from "../../source";
-import { GeometryInfo, TileMartiniGeometry } from "./TileMartiniGeometry";
+import { GeometryInfo, TileGeometry } from "../../geometry";
 import ParseWorker from "./parse.worker?worker";
 
 /**
@@ -39,7 +39,7 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 		onLoad: () => void,
 		abortSignal: AbortSignal,
 	): BufferGeometry {
-		const geometry = new TileMartiniGeometry();
+		const geometry = new TileGeometry();
 		// get max level tile and bounds
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
@@ -55,7 +55,7 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 		_x: number,
 		_y: number,
 		z: number,
-		geometry: TileMartiniGeometry,
+		geometry: TileGeometry,
 		bounds: Box2,
 		onLoad: () => void,
 		abortSignal: AbortSignal,

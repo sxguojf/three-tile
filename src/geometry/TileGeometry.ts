@@ -26,7 +26,7 @@ export type GeometryInfo = {
 /**
  * create geomety from rules grid dem and it has a skrit
  */
-export class TileMartiniGeometry extends PlaneGeometry {
+export class TileGeometry extends PlaneGeometry {
 	private _edgeIndex = -1;
 
 	/**
@@ -35,6 +35,7 @@ export class TileMartiniGeometry extends PlaneGeometry {
 	 * @returns this
 	 */
 	public setData(geoInfo: GeometryInfo) {
+		this.dispose();
 		// 包括裙边顶点在内的顶点数量
 		this._edgeIndex = geoInfo.skirtIndex ?? -1;
 

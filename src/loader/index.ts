@@ -8,6 +8,7 @@
 export * from "./FileLoaderEx";
 export * from "./ITileLoaders";
 export * from "./ImageLoaerEx";
+export * from "./worker/skirt";
 
 // tile factory
 export * from "./LoaderFactory";

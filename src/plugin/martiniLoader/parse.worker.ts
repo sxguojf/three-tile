@@ -1,5 +1,5 @@
 import { Martini } from "./Martini";
-import { addSkirt } from "./skirt";
+import { addSkirt } from "../../loader";
 
 // worker.ts
 self.onmessage = (msg: MessageEvent) => {
