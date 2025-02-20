@@ -1,6 +1,6 @@
 import { addSkirt } from "../../geometry/skirt";
 
-export async function parse(dem: Float32Array<ArrayBuffer>) {
+export async function parse(dem: Float32Array) {
 	const size = dem.length;
 	const width = Math.sqrt(size);
 	const height = width;
