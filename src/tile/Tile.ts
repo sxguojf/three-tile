@@ -232,6 +232,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	public update(params: TileUpdateParames) {
+		if (Math.random() < 0.8 || !this.parent) {
+			return this;
+		}
 		// Get camera frustum
 		frustum.setFromProjectionMatrix(
 			tempMat4.multiplyMatrices(params.camera.projectionMatrix, params.camera.matrixWorldInverse),
