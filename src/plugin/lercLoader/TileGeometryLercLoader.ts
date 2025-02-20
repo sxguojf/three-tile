@@ -12,7 +12,7 @@ import { GeometryInfo, TileGeometry } from "../../geometry";
 import { ISource } from "../../source";
 import * as Lerc from "./lercDecode/LercDecode.es";
 import { parse } from "./parse";
-import ParseWorker from "./parse.worker?worker";
+import ParseWorker from "./parse.worker?worker&inline";
 
 const emptyGeometry = new BufferGeometry();
 /**
@@ -110,9 +110,9 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 							geometry.setData(e.data);
 							onLoad();
 						};
-						worker.postMessage({ buffer: data, height: tileSize, width: tileSize });
+						worker.postMessage({ buffer: data });
 					} else {
-						parse(data, tileSize, tileSize).then((geoInfo) => {
+						parse(data).then((geoInfo) => {
 							geometry.setData(geoInfo);
 							onLoad();
 						});

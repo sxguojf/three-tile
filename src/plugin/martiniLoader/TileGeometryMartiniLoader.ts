@@ -15,7 +15,7 @@ import {
 import { ISource } from "../../source";
 import { GeometryInfo, TileGeometry } from "../../geometry";
 import { parse } from "./parse";
-import ParseWorker from "./parse.worker?worker";
+import ParseWorker from "./parse.worker?worker&inline";
 
 /**
  * Mapbox-RGB Martini geometry loader
