@@ -1,5 +1,7 @@
 // 给瓦片加上裙边
 
+import { Attributes } from "./TileGeometry";
+
 // https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
 
 export function concatenateTypedArrays<T>(...typedArrays: T[]): T {
@@ -29,21 +31,16 @@ export type EdgeIndices = {
 	northIndices: Uint16Array | Uint32Array;
 };
 
-export type GeometryAttributes = {
-	position: { value: Float32Array; size: number };
-	texcoord: { value: Float32Array; size: number };
-};
-
 /**
  * Add skirt to existing mesh
- * @param {GeometryAttributes} attributes - POSITION and TEXCOOD_0 attributes data
- * @param {Uint16Array | Uint32Array} triangles - indices array of the mesh geometry
- * @param {number} skirtHeight - height of the skirt geometry
- * @param {EdgeIndices} [outsideIndices] - edge indices from quantized mesh data
+ * @param attributes - POSITION and TEXCOOD_0 attributes data
+ * @param  triangles - indices array of the mesh geometry
+ * @param  skirtHeight - height of the skirt geometry
+ * @param  outsideIndices - edge indices from quantized mesh data
  * @returns - geometry data with added skirt
  */
 export function addSkirt(
-	attributes: GeometryAttributes,
+	attributes: Attributes,
 	triangles: Uint16Array | Uint32Array,
 	skirtHeight: number,
 	outsideIndices?: EdgeIndices,
@@ -155,7 +152,7 @@ function getOutsideEdgesFromIndices(indices: EdgeIndices, position: Float32Array
 type UpdateAttributesArgs = {
 	edge: number[];
 	edgeIndex: number;
-	attributes: GeometryAttributes;
+	attributes: Attributes;
 	skirtHeight: number;
 	newPosition: Float32Array;
 	newTexcoord0: Float32Array;

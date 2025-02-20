@@ -39,11 +39,6 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 
 	// 加载瓦片几何体
 	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal) {
-		if (!Lerc.isLoaded()) {
-			Lerc.load({
-				locateFile: (wasmFileName?: string | undefined, _scriptDir?: string | undefined) => `./${wasmFileName}`,
-			});
-		}
 		// 瓦片级别<8，不需要显示地形
 		if (z < 8) {
 			setTimeout(onLoad);
@@ -88,13 +83,13 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 			url,
 			// onLoad
 			(buffer) => {
-				this.decode(buffer).then((value: { dem: Float32Array; width: number }) => {
+				this.decode(buffer).then((decodedData: { dem: Float32Array; width: number }) => {
 					// 计算剪裁区域
-					const piexlRect = rect2ImageBounds(bounds, value.width);
+					const piexlRect = rect2ImageBounds(bounds, decodedData.width);
 					// 剪裁一部分，缩放到size大小
 					const data = clipAndResize(
-						value.dem,
-						value.width,
+						decodedData.dem,
+						decodedData.width,
 						piexlRect.sx,
 						piexlRect.sy,
 						piexlRect.sw,
@@ -112,10 +107,9 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 						};
 						worker.postMessage({ buffer: data });
 					} else {
-						parse(data).then((geoInfo) => {
-							geometry.setData(geoInfo);
-							onLoad();
-						});
+						const geoInfo = parse(data);
+						geometry.setData(geoInfo);
+						onLoad();
 					}
 				});
 			},
