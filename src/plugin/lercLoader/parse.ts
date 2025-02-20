@@ -1,6 +1,10 @@
 import { addSkirt } from "../../geometry/skirt";
 
-export async function parse(dem: any, width: number, height: number) {
+export async function parse(dem: Float32Array<ArrayBuffer>) {
+	const size = dem.length;
+	const width = Math.sqrt(size);
+	const height = width;
+
 	const numVertices = width * height;
 	const numIndices = 6 * (width - 1) * (height - 1);
 
@@ -18,6 +22,9 @@ export async function parse(dem: any, width: number, height: number) {
 			vertices[index * 3 + 1] = y / (height - 1) - 0.5;
 			vertices[index * 3 + 2] = dem[(height - y - 1) * width + x];
 
+			if (isNaN(vertices[index * 3 + 2])) {
+				debugger;
+			}
 			// Set UV coordinate
 			uvs[index * 2] = vertices[index * 3] + 0.5;
 			uvs[index * 2 + 1] = vertices[index * 3 + 1] + 0.5;

@@ -110,9 +110,9 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 							geometry.setData(e.data);
 							onLoad();
 						};
-						worker.postMessage({ buffer: data, height: tileSize, width: tileSize });
+						worker.postMessage({ buffer: data });
 					} else {
-						parse(data, tileSize, tileSize).then((geoInfo) => {
+						parse(data).then((geoInfo) => {
 							geometry.setData(geoInfo);
 							onLoad();
 						});
