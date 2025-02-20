@@ -6,6 +6,17 @@ import { TileQmGeometry } from "./TileQmGeometry";
 // Cesium quantized-mesh tile loader
 export class QuantizedMeshTileLoader implements ITileGeometryLoader {
 	public readonly dataType = "quantized-mesh";
+
+	private _useWorker = true;
+	/** get use worker */
+	public get useWorker() {
+		return this._useWorker;
+	}
+	/** set use worker */
+	public set useWorker(value: boolean) {
+		this._useWorker = value;
+	}
+
 	// 图像加载器
 	private fileLoader = new FileLoaderEx(LoaderFactory.manager);
 

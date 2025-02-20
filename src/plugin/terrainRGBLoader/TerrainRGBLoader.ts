@@ -5,19 +5,34 @@
  */
 
 import { Box2, BufferGeometry, MathUtils } from "three";
-import { GeometryInfo, TileGeometry } from "../geometry";
-import { ISource } from "../source";
-import { ITileGeometryLoader } from "./ITileLoaders";
-import { ImageLoaderEx } from "./ImageLoaerEx";
-import { LoaderFactory } from "./LoaderFactory";
-import ParseWorker from "./worker/RGBGeometryParse.worker?worker";
-import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
+import { GeometryInfo, TileGeometry } from "../../geometry";
+import { ISource } from "../../source";
+import {
+	LoaderFactory,
+	ImageLoaderEx,
+	ITileGeometryLoader,
+	getSafeTileUrlAndBounds,
+	rect2ImageBounds,
+} from "../../loader";
+import { parse } from "./parse";
+import ParseWorker from "./parse.worker?worker";
 
 /**
  * Mapbox-RGB geometry loader
  */
-class TileGeometryRGBLoader implements ITileGeometryLoader {
+export class TerrainRGBLoader implements ITileGeometryLoader {
 	public readonly dataType = "terrain-rgb";
+
+	private _useWorker = true;
+	/** get use worker */
+	public get useWorker() {
+		return this._useWorker;
+	}
+	/** set use worker */
+	public set useWorker(value: boolean) {
+		this._useWorker = value;
+	}
+
 	private imageLoader = new ImageLoaderEx(LoaderFactory.manager);
 
 	/**
@@ -62,16 +77,19 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 			// onLoad
 			(image) => {
 				const imgData = getImageDataFromRect(image, bounds, tileSize);
-				// geometry.setData(Img2dem(imgData.data));
-				// onLoad();
-				// worker生成Martini geometry数据
-				const worker = new ParseWorker();
-				worker.onmessage = (e: MessageEvent<GeometryInfo>) => {
-					// 设置geometry数据并回调onLoad()
-					geometry.setData(e.data);
+
+				// 是否使用worker解析
+				if (this.useWorker) {
+					const worker = new ParseWorker();
+					worker.onmessage = (e: MessageEvent<GeometryInfo>) => {
+						geometry.setData(e.data);
+						onLoad();
+					};
+					worker.postMessage({ imgData }, imgData as any);
+				} else {
+					geometry.setData(parse(imgData));
 					onLoad();
-				};
-				worker.postMessage({ imgData }, imgData as any);
+				}
 			},
 			// onProgress
 			undefined,
@@ -82,26 +100,6 @@ class TileGeometryRGBLoader implements ITileGeometryLoader {
 		return geometry;
 	}
 }
-
-// // RGB to dem (Mapbox Terrain-RGB v1)
-// // https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-rgb-v1/
-// function getZ(imgData: Uint8ClampedArray, i: number) {
-// 	// 透明像素直接返回高度0
-// 	if (imgData[i * 4 + 3] === 0) {
-// 		return 0;
-// 	}
-// 	const rgb = (imgData[i * 4] << 16) | (imgData[i * 4 + 1] << 8) | imgData[i * 4 + 2];
-// 	return rgb / 10000 - 10;
-// }
-
-// function Img2dem(imgData: Uint8ClampedArray) {
-// 	const count = Math.floor(imgData.length / 4);
-// 	const dem = new Float32Array(count);
-// 	for (let i = 0; i < dem.length; i++) {
-// 		dem[i] = getZ(imgData, i);
-// 	}
-// 	return dem;
-// }
 
 /**
  * Get pixels in bounds from image and resize to targetSize
@@ -121,5 +119,3 @@ function getImageDataFromRect(image: HTMLImageElement, bounds: Box2, targetSize:
 	ctx.drawImage(image, cropRect.sx, cropRect.sy, cropRect.sw, cropRect.sh, 0, 0, targetSize, targetSize);
 	return ctx.getImageData(0, 0, targetSize, targetSize);
 }
-
-LoaderFactory.registerGeometryLoader(new TileGeometryRGBLoader());

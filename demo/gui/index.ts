@@ -4,7 +4,7 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 
 import * as tt from "../../src";
 import { createCameraGui } from "./camera";
-import { createControlGui } from "./control";
+import { createMapOptionsGui } from "./mapOptions";
 import { createEnvironmentGui } from "./environment";
 import { createLoaderGui } from "./loader";
 import { createSourceGui } from "./source";
@@ -16,7 +16,7 @@ export function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	// 数据源
 	createSourceGui(gui, viewer, map);
 	// 地图控制
-	createControlGui(gui, viewer, map);
+	createMapOptionsGui(gui, viewer, map);
 	// 加载器
 	createLoaderGui(gui, viewer, map);
 	// 环境控制

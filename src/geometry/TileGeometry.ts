@@ -27,7 +27,7 @@ export type GeometryInfo = {
  * create geomety from rules grid dem and it has a skrit
  */
 export class TileGeometry extends PlaneGeometry {
-	private _edgeIndex = -1;
+	private _skirtIndex = -1;
 
 	/**
 	 * set the tile dem data
@@ -36,8 +36,8 @@ export class TileGeometry extends PlaneGeometry {
 	 */
 	public setData(geoInfo: GeometryInfo) {
 		this.dispose();
-		// 包括裙边顶点在内的顶点数量
-		this._edgeIndex = geoInfo.skirtIndex ?? -1;
+		// 裙边顶点索引，-1为不带裙边
+		this._skirtIndex = geoInfo.skirtIndex ?? -1;
 
 		this.setIndex(new BufferAttribute(geoInfo.indices, 1));
 		this.setAttribute(
@@ -63,10 +63,8 @@ export class TileGeometry extends PlaneGeometry {
 
 	// set normal on edge(skrit)
 	// 瓦片边缘法向量计算比较复杂，需要根据相邻瓦片高程计算，暂未完美实现
-	// 考虑使用Mapbox Terrain-DEM v1格式地形 https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-dem-v1/
-
 	computeVertexNormals() {
-		if (this._edgeIndex < 0) {
+		if (this._skirtIndex < 0) {
 			return super.computeVertexNormals();
 		}
 		const index = this.index;
@@ -104,7 +102,7 @@ export class TileGeometry extends PlaneGeometry {
 					pB.fromBufferAttribute(positionAttribute, vB);
 					pC.fromBufferAttribute(positionAttribute, vC);
 
-					if (i >= this._edgeIndex) {
+					if (i >= this._skirtIndex) {
 						// 边缘顶点索引重置法向量
 						normalAttribute.setXYZ(vA, 0, 0, 1);
 						normalAttribute.setXYZ(vB, 0, 0, 1);

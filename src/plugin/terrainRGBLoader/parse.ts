@@ -1,17 +1,6 @@
-import { addSkirt } from "./skirt";
+import { addSkirt } from "../../geometry/skirt";
 
-// worker.ts
-self.onmessage = (msg: MessageEvent) => {
-	const mesh = parseRGBGeometry(msg.data.imgData);
-	// console.timeEnd("parse");
-	// console.log(msg.type, mesh);
-
-	// 将结果发送回主线程
-	self.postMessage(mesh);
-	self.close();
-};
-
-function parseRGBGeometry(imgData: ImageData) {
+export function parse(imgData: ImageData) {
 	const dem = Img2dem(imgData.data);
 
 	const width = imgData.width;

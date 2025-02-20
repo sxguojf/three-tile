@@ -1,6 +1,6 @@
 import { BufferAttribute, PlaneGeometry } from "three";
 import decode, { DecodeResult } from "./qm-decoder";
-import { addSkirt } from "../../loader/worker/skirt";
+import { addSkirt } from "../../geometry/skirt";
 
 /**
  * Geomety from rules grid DEM, it has gap between tiles

@@ -14,6 +14,7 @@ import {
 } from "../../loader";
 import { ISource } from "../../source";
 import { GeometryInfo, TileGeometry } from "../../geometry";
+import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker";
 
 /**
@@ -21,6 +22,17 @@ import ParseWorker from "./parse.worker?worker";
  */
 export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 	public readonly dataType = "terrain-rgb-martini";
+
+	private _useWorker = true;
+	/** get use worker */
+	public get useWorker() {
+		return this._useWorker;
+	}
+	/** set use worker */
+	public set useWorker(value: boolean) {
+		this._useWorker = value;
+	}
+
 	private imageLoader = new ImageLoaderEx(LoaderFactory.manager);
 
 	/**
@@ -65,14 +77,20 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 			(image) => {
 				// 取得图像数据
 				const imgData = getImageDataFromRect(image, bounds);
-				// worker生成Martini geometry数据
-				const worker = new ParseWorker();
-				worker.onmessage = (e: MessageEvent<GeometryInfo>) => {
-					// 设置geometry数据并回调onLoad()
-					geometry.setData(e.data);
+
+				// 是否使用worker解析
+				if (this.useWorker) {
+					const worker = new ParseWorker();
+					worker.onmessage = (e: MessageEvent<GeometryInfo>) => {
+						geometry.setData(e.data);
+						onLoad();
+					};
+					worker.postMessage({ z, imgData }, imgData as any);
+				} else {
+					const geometryInfo = parse(imgData, z);
+					geometry.setData(geometryInfo);
 					onLoad();
-				};
-				worker.postMessage({ z, imgData }, imgData as any);
+				}
 			},
 			undefined,
 			onLoad,

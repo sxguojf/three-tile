@@ -8,7 +8,7 @@
 export * from "./FileLoaderEx";
 export * from "./ITileLoaders";
 export * from "./ImageLoaerEx";
-export * from "./worker/skirt";
+export * from "../geometry/skirt";
 
 // tile factory
 export * from "./LoaderFactory";
@@ -21,9 +21,3 @@ export * from "./TileLoader";
 
 // texture loader
 export * from "./TileTextureLoader";
-
-// material loader
-import "./TileMaterialImageLoader";
-
-// geometry loader
-import "./TileGeometryRGBLoader";

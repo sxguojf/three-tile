@@ -7,6 +7,7 @@ import { ISource } from "../../source";
  */
 export class SingleImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "single-image";
+
 	private _image?: HTMLImageElement;
 	private _imageLoader = new ImageLoader(LoaderFactory.manager);
 

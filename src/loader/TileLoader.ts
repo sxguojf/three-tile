@@ -44,6 +44,16 @@ export class TileLoader implements ITileLoader {
 		this._demSource = value;
 	}
 
+	private _useWorker = true;
+	/** get use worker */
+	public get useWorker() {
+		return this._useWorker;
+	}
+	/** set use worker */
+	public set useWorker(value: boolean) {
+		this._useWorker = value;
+	}
+
 	public manager: LoadingManager = LoaderFactory.manager;
 
 	/**
@@ -132,6 +142,7 @@ export class TileLoader implements ITileLoader {
 		// load dem if has dem source, else create a PlaneGeometry
 		if (this.demSource && z >= this.demSource.minLevel && this._tileInBounds(x, y, z, this.demSource)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
+			loader.useWorker = this.useWorker;
 			geometry = loader.load(this.demSource, x, y, z, onLoad, abortSignal);
 		} else {
 			geometry = new PlaneGeometry();
@@ -156,6 +167,7 @@ export class TileLoader implements ITileLoader {
 		let count = 0;
 		const materials = sources.map((source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
+			loader.useWorker = this.useWorker;
 			const material = loader.load(
 				source,
 				x,

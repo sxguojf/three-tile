@@ -5,17 +5,17 @@
  */
 
 import { Material } from "three";
-import { TileMaterial } from "../material";
-import { ISource } from "../source";
-import { ITileMaterialLoader } from "./ITileLoaders";
-import { LoaderFactory } from "./LoaderFactory";
-import { TileTextureLoader } from "./TileTextureLoader";
+import { ITileMaterialLoader } from "../../loader/ITileLoaders";
+import { TileTextureLoader } from "../../loader/TileTextureLoader";
+import { TileMaterial } from "../../material";
+import { ISource } from "../../source";
 
 /**
  * image material loader
  */
-class TileMaterialImageLoader implements ITileMaterialLoader {
+export class TileImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "image";
+	public useWorker = false;
 
 	public load(
 		source: ISource,
@@ -49,5 +49,3 @@ class TileMaterialImageLoader implements ITileMaterialLoader {
 		return new TileMaterial();
 	}
 }
-
-LoaderFactory.registerMaterialLoader(new TileMaterialImageLoader());

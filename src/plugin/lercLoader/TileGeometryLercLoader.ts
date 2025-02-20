@@ -8,9 +8,11 @@ import {
 	rect2ImageBounds,
 } from "../../loader";
 
-import { TileDEMGeometry } from "../../geometry";
+import { GeometryInfo, TileGeometry } from "../../geometry";
 import { ISource } from "../../source";
 import * as Lerc from "./lercDecode/LercDecode.es";
+import { parse } from "./parse";
+import ParseWorker from "./parse.worker?worker";
 
 const emptyGeometry = new BufferGeometry();
 /**
@@ -19,6 +21,15 @@ const emptyGeometry = new BufferGeometry();
  */
 export class TileGeometryLercLoader implements ITileGeometryLoader {
 	public readonly dataType = "lerc";
+	private _useWorker = true;
+	/** get use worker */
+	public get useWorker() {
+		return this._useWorker;
+	}
+	/** set use worker */
+	public set useWorker(value: boolean) {
+		this._useWorker = value;
+	}
 	// 图像加载器
 	private fileLoader = new FileLoaderEx(LoaderFactory.manager);
 
@@ -28,6 +39,11 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 
 	// 加载瓦片几何体
 	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal) {
+		if (!Lerc.isLoaded()) {
+			Lerc.load({
+				locateFile: (wasmFileName?: string | undefined, _scriptDir?: string | undefined) => `./${wasmFileName}`,
+			});
+		}
 		// 瓦片级别<8，不需要显示地形
 		if (z < 8) {
 			setTimeout(onLoad);
@@ -48,9 +64,25 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 		return this._load(url, tileSize, bounds, onLoad, abortSignal);
 	}
 
+	private async decode(buffer: ArrayBuffer) {
+		if (!Lerc.isLoaded()) {
+			await Lerc.load({
+				locateFile: (wasmFileName?: string | undefined, _scriptDir?: string | undefined) => `./${wasmFileName}`,
+			});
+		}
+
+		const pixelBlock = Lerc.decode(buffer);
+		const { height, width, pixels } = pixelBlock;
+		const dem = new Float32Array(height * width);
+		for (let i = 0; i < dem.length; i++) {
+			dem[i] = pixels[0][i] / 1000;
+		}
+		return { width, height, dem };
+	}
+
 	// private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
 	private _load(url: string, tileSize: number, bounds: Box2, onLoad: () => void, abortSignal: AbortSignal) {
-		const geometry = new TileDEMGeometry();
+		const geometry = new TileGeometry();
 
 		this.fileLoader.load(
 			url,
@@ -70,34 +102,28 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 						tileSize,
 						tileSize,
 					);
-					// 数据传入模型
-					geometry.setData(data);
-					onLoad();
+
+					// 是否使用worker解析
+					if (this.useWorker) {
+						const worker = new ParseWorker();
+						worker.onmessage = (e: MessageEvent<GeometryInfo>) => {
+							geometry.setData(e.data);
+							onLoad();
+						};
+						worker.postMessage({ buffer: data, height: tileSize, width: tileSize });
+					} else {
+						parse(data, tileSize, tileSize).then((geoInfo) => {
+							geometry.setData(geoInfo);
+							onLoad();
+						});
+					}
 				});
 			},
-			// onProgress
-			undefined,
-			// onError
-			onLoad,
+			undefined, // onProgress
+			onLoad, // onError
 			abortSignal,
 		);
 		return geometry;
-	}
-
-	private async decode(buffer: ArrayBuffer) {
-		if (!Lerc.isLoaded()) {
-			await Lerc.load({
-				locateFile: (wasmFileName?: string | undefined, _scriptDir?: string | undefined) => `./${wasmFileName}`,
-			});
-		}
-
-		const pixelBlock = Lerc.decode(buffer);
-		const { height, width, pixels } = pixelBlock;
-		const dem = new Float32Array(height * width);
-		for (let i = 0; i < dem.length; i++) {
-			dem[i] = pixels[0][i] / 1000;
-		}
-		return { width, height, dem };
 	}
 }
 

@@ -310,6 +310,15 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this._LODThreshold = value;
 	}
 
+	/** get use worker */
+	public get useWorker() {
+		return this.loader.useWorker;
+	}
+	/** set use worker */
+	public set useWorker(value: boolean) {
+		this.loader.useWorker = value;
+	}
+
 	/**
      * Create a map using factory function
      * 地图创建工厂函数
