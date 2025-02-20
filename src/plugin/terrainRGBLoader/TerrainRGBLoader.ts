@@ -15,7 +15,7 @@ import {
 	rect2ImageBounds,
 } from "../../loader";
 import { parse } from "./parse";
-import ParseWorker from "./parse.worker?worker";
+import ParseWorker from "./parse.worker?worker&inline";
 
 /**
  * Mapbox-RGB geometry loader

@@ -12,7 +12,7 @@ import { GeometryInfo, TileGeometry } from "../../geometry";
 import { ISource } from "../../source";
 import * as Lerc from "./lercDecode/LercDecode.es";
 import { parse } from "./parse";
-import ParseWorker from "./parse.worker?worker";
+import ParseWorker from "./parse.worker?worker&inline";
 
 const emptyGeometry = new BufferGeometry();
 /**
