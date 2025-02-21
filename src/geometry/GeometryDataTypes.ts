@@ -7,7 +7,7 @@ export type AttributesType = {
 		value: Float32Array;
 		size: number;
 	};
-	normal?: {
+	normal: {
 		value: Float32Array;
 		size: number;
 	};
@@ -16,5 +16,4 @@ export type AttributesType = {
 export type GeometryDataType = {
 	attributes: AttributesType;
 	indices: Uint16Array | Uint32Array;
-	skirtIndex?: number;
 };

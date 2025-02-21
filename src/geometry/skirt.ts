@@ -56,6 +56,8 @@ export function addSkirt(
 	const newTexcoord0 = new Float32Array(outsideEdges.length * 4);
 	// 边缘三角形
 	const newTriangles = new (triangles instanceof Uint32Array ? Uint32Array : Uint16Array)(outsideEdges.length * 6);
+	// 法向量
+	const newNormals = new Float32Array(outsideEdges.length * 6);
 
 	for (let i = 0; i < outsideEdges.length; i++) {
 		const edge = outsideEdges[i];
@@ -68,12 +70,14 @@ export function addSkirt(
 			newPosition,
 			newTexcoord0,
 			newTriangles,
+			newNormals,
 		});
 	}
 
 	// 边缘顶点坐标、纹理坐标、三角形合并到原有属性
 	attributes.position.value = concatenateTypedArrays(attributes.position.value, newPosition);
 	attributes.texcoord.value = concatenateTypedArrays(attributes.texcoord.value, newTexcoord0);
+	attributes.normal.value = concatenateTypedArrays(attributes.normal.value, newNormals);
 	const resultTriangles = concatenateTypedArrays(triangles, newTriangles);
 
 	return {
@@ -157,6 +161,7 @@ type UpdateAttributesArgs = {
 	newPosition: Float32Array;
 	newTexcoord0: Float32Array;
 	newTriangles: Uint16Array | Uint32Array | number[];
+	newNormals: Float32Array;
 };
 
 /**
@@ -172,6 +177,7 @@ function updateAttributesForNewEdge({
 	newPosition,
 	newTexcoord0,
 	newTriangles,
+	newNormals,
 }: UpdateAttributesArgs): void {
 	const positionsLength = attributes.position.value.length;
 	const vertex1Offset = edgeIndex * 2;
@@ -196,4 +202,11 @@ function updateAttributesForNewEdge({
 	newTriangles[triangle1Offset + 3] = positionsLength / 3 + vertex2Offset;
 	newTriangles[triangle1Offset + 4] = edge[0];
 	newTriangles[triangle1Offset + 5] = positionsLength / 3 + vertex1Offset;
+
+	newNormals[triangle1Offset] = 0;
+	newNormals[triangle1Offset + 1] = 0;
+	newNormals[triangle1Offset + 2] = 1;
+	newNormals[triangle1Offset + 3] = 0;
+	newNormals[triangle1Offset + 4] = 0;
+	newNormals[triangle1Offset + 5] = 1;
 }

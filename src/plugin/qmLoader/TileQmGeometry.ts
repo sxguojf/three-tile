@@ -20,7 +20,7 @@ export class TileQmGeometry extends PlaneGeometry {
 
 			if (attributes) {
 				let triangleIndices = meshData.triangleIndices;
-				const { attributes: newAttributes, triangles: newTriangles } = addSkirt(
+				const { attributes: newAttributes, indices: newTriangles } = addSkirt(
 					attributes,
 					triangleIndices,
 					1,
@@ -82,5 +82,6 @@ function getMeshAttributes(data: DecodeResult) {
 	return {
 		position: { value: positions, size: 3 },
 		texcoord: { value: texCoords, size: 2 },
+		normal: { value: new Float32Array(positions.length * 2), size: 3 },
 	};
 }
