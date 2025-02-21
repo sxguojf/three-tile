@@ -1,6 +1,11 @@
-// 给瓦片加上裙边
+/**
+ *@description:给瓦片加上裙边
+ *@author: Guojf
+ *@date: 2025-02-20
+ 参考：https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
+ */
 
-// https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
+import { AttributesType, GeometryDataType } from "./GeometryDataTypes";
 
 export function concatenateTypedArrays<T>(...typedArrays: T[]): T {
 	// @ts-ignore
@@ -29,25 +34,20 @@ export type EdgeIndices = {
 	northIndices: Uint16Array | Uint32Array;
 };
 
-export type GeometryAttributes = {
-	position: { value: Float32Array; size: number };
-	texcoord: { value: Float32Array; size: number };
-};
-
 /**
  * Add skirt to existing mesh
- * @param {GeometryAttributes} attributes - POSITION and TEXCOOD_0 attributes data
- * @param {Uint16Array | Uint32Array} triangles - indices array of the mesh geometry
- * @param {number} skirtHeight - height of the skirt geometry
- * @param {EdgeIndices} [outsideIndices] - edge indices from quantized mesh data
+ * @param attributes - POSITION and TEXCOOD_0 attributes data
+ * @param  triangles - indices array of the mesh geometry
+ * @param  skirtHeight - height of the skirt geometry
+ * @param  outsideIndices - edge indices from quantized mesh data
  * @returns - geometry data with added skirt
  */
 export function addSkirt(
-	attributes: GeometryAttributes,
+	attributes: AttributesType,
 	triangles: Uint16Array | Uint32Array,
 	skirtHeight: number,
 	outsideIndices?: EdgeIndices,
-) {
+): GeometryDataType {
 	// 如果传入边缘边顶点索引，从边缘顶点计算边缘边，否则根据顶点坐标计算边缘边
 	const outsideEdges = outsideIndices
 		? getOutsideEdgesFromIndices(outsideIndices, attributes.position.value)
@@ -59,6 +59,8 @@ export function addSkirt(
 	const newTexcoord0 = new Float32Array(outsideEdges.length * 4);
 	// 边缘三角形
 	const newTriangles = new (triangles instanceof Uint32Array ? Uint32Array : Uint16Array)(outsideEdges.length * 6);
+	// 法向量
+	const newNormals = new Float32Array(outsideEdges.length * 6);
 
 	for (let i = 0; i < outsideEdges.length; i++) {
 		const edge = outsideEdges[i];
@@ -71,17 +73,19 @@ export function addSkirt(
 			newPosition,
 			newTexcoord0,
 			newTriangles,
+			newNormals,
 		});
 	}
 
 	// 边缘顶点坐标、纹理坐标、三角形合并到原有属性
 	attributes.position.value = concatenateTypedArrays(attributes.position.value, newPosition);
 	attributes.texcoord.value = concatenateTypedArrays(attributes.texcoord.value, newTexcoord0);
+	attributes.normal.value = concatenateTypedArrays(attributes.normal.value, newNormals);
 	const resultTriangles = concatenateTypedArrays(triangles, newTriangles);
 
 	return {
 		attributes,
-		triangles: resultTriangles,
+		indices: resultTriangles,
 	};
 }
 
@@ -155,11 +159,12 @@ function getOutsideEdgesFromIndices(indices: EdgeIndices, position: Float32Array
 type UpdateAttributesArgs = {
 	edge: number[];
 	edgeIndex: number;
-	attributes: GeometryAttributes;
+	attributes: AttributesType;
 	skirtHeight: number;
 	newPosition: Float32Array;
 	newTexcoord0: Float32Array;
 	newTriangles: Uint16Array | Uint32Array | number[];
+	newNormals: Float32Array;
 };
 
 /**
@@ -175,6 +180,7 @@ function updateAttributesForNewEdge({
 	newPosition,
 	newTexcoord0,
 	newTriangles,
+	newNormals,
 }: UpdateAttributesArgs): void {
 	const positionsLength = attributes.position.value.length;
 	const vertex1Offset = edgeIndex * 2;
@@ -199,4 +205,11 @@ function updateAttributesForNewEdge({
 	newTriangles[triangle1Offset + 3] = positionsLength / 3 + vertex2Offset;
 	newTriangles[triangle1Offset + 4] = edge[0];
 	newTriangles[triangle1Offset + 5] = positionsLength / 3 + vertex1Offset;
+
+	newNormals[triangle1Offset] = 0;
+	newNormals[triangle1Offset + 1] = 0;
+	newNormals[triangle1Offset + 2] = 1;
+	newNormals[triangle1Offset + 3] = 0;
+	newNormals[triangle1Offset + 4] = 0;
+	newNormals[triangle1Offset + 5] = 1;
 }

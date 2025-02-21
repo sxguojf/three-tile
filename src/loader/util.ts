@@ -79,13 +79,6 @@ export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z
 		};
 	}
 
-	// 请求数据级别>最大级别，取数据源的最大级别瓦片url和子瓦片其中的范围
-
-	// 取出数据源最大级别瓦片和当前瓦片在最大瓦片中的位置
-	// const maxLevelTileAndBox = getMaxLevelTileAndBounds(tile, source.maxLevel);
-	// // 取得瓦片的url
-	// const url = source.getTileUrl(maxLevelTileAndBox.tile.x, maxLevelTileAndBox.tile.y, maxLevelTileAndBox.tile.z);
-
 	// 取出数据源最大级别瓦片和当前瓦片在最大瓦片中的位置
 	const maxLevelTileAndBox = getMaxLevelTileAndBounds(x, y, z, source.maxLevel);
 	// 取得瓦片的url
@@ -97,49 +90,6 @@ export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z
 
 	return { url, bounds: maxLevelTileAndBox.bounds };
 }
-
-// function getMaxLevelTileAndBounds(tile: Tile, maxLevel: number) {
-// 	const center = new Vector3();
-// 	const size = new Vector2(1, 1);
-// 	const dl = tile.z - maxLevel;
-// 	const s = Math.pow(0.5, dl);
-// 	const parentNO = { x: tile.x >> dl, y: tile.y >> dl, z: tile.z - dl };
-// 	const sep = Math.pow(2, dl);
-// 	const x = (tile.x % sep) / sep - 0.5 + s / 2;
-// 	const y = (tile.y % sep) / sep - 0.5 + s / 2;
-// 	const parentCenter = new Vector2(x, y);
-
-// 	// console.log(dl, parentNO, parentCenter, s);
-
-// 	// 循环找到最高级别瓦片，并取得瓦片中点相对于最高级别瓦片的中点和大小
-// 	while (tile.z > maxLevel) {
-// 		// 瓦片中点转为相对本瓦片坐标（Mesh.positon为相对父瓦片坐标系中的坐标）
-// 		center.applyMatrix4(tile.matrix);
-// 		// 一级是上一级0.5倍大小
-// 		size.multiplyScalar(0.5);
-// 		if (tile.parent instanceof Tile) {
-// 			tile = tile.parent;
-// 		} else {
-// 			break;
-// 		}
-// 	}
-// 	// 因坐瓦片坐标与图像坐标系Y轴相反，所以取反
-// 	center.setY(-center.y);
-// 	const bounds = new Box2().setFromCenterAndSize(new Vector2(center.x, center.y), size);
-// 	console.log("true: ", dl, tile.x, tile.y, tile.z, center);
-// 	console.log("pred: ", dl, parentNO.x, parentNO.y, parentNO.z, parentCenter);
-
-// 	if (tile.x !== parentNO.x || tile.y !== parentNO.y || tile.z !== parentNO.z) {
-// 		throw new Error("tile NO error");
-// 	}
-
-// 	if (Math.abs(parentCenter.x - center.x) > 0.0001 || Math.abs(parentCenter.y - center.y) > 0.0001) {
-// 		// throw new Error("tile center error");
-// 		console.warn("tile center error", dl, parentCenter, center);
-// 	}
-
-// 	return { tile, bounds };
-// }
 
 function getMaxLevelTileAndBounds(x: number, y: number, z: number, maxLevel: number) {
 	const dl = z - maxLevel;

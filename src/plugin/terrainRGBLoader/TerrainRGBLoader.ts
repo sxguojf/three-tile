@@ -5,7 +5,7 @@
  */
 
 import { Box2, BufferGeometry, MathUtils } from "three";
-import { GeometryInfo, TileGeometry } from "../../geometry";
+import { GeometryDataType, TileGeometry } from "../../geometry";
 import { ISource } from "../../source";
 import {
 	LoaderFactory,
@@ -81,7 +81,7 @@ export class TerrainRGBLoader implements ITileGeometryLoader {
 				// 是否使用worker解析
 				if (this.useWorker) {
 					const worker = new ParseWorker();
-					worker.onmessage = (e: MessageEvent<GeometryInfo>) => {
+					worker.onmessage = (e: MessageEvent<GeometryDataType>) => {
 						geometry.setData(e.data);
 						onLoad();
 					};

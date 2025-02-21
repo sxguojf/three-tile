@@ -1,7 +1,7 @@
 import { PlaneGeometry } from "three";
 
 /**
- * Geomety from rules grid DEM, it has gap between tiles
+ * Geomety from DEM, it has gap between tiles，未加裙边的瓦片几何体，仅实验未使用
  */
 export class TileSimpleGeometry extends PlaneGeometry {
 	protected build(dem: ArrayLike<number>, tileSize: number) {
