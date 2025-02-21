@@ -7,7 +7,7 @@
 import { BufferAttribute, Float16BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three";
 
 /**
- * create geomety from rules grid dem and it has a skrit
+ * create geomety from rules grid dem and it has a skrit,  废弃
  */
 export class TileDEMGeometry extends PlaneGeometry {
 	private _min = 0;

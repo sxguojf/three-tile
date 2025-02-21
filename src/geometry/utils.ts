@@ -1,8 +1,14 @@
+/**
+ *@description: 一些几何体数据生成工具函数
+ *@author: Guojf
+ *@date: 2023-04-06
+ */
+
 import { GeometryDataType } from "./GeometryDataTypes";
 import { addSkirt } from "./skirt";
 
 /**
- * 根据DEM数组计算gemetry的顶点、UV、法向量和三角形索引
+ * 根据DEM数组计算瓦片gemetry的顶点、UV、法向量和三角形索引
  * @param dem - DEM
  * @param skirt - 是否加裙边
  * @returns - 顶点、UV、法向量和索引

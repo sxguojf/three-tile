@@ -1,8 +1,11 @@
-// 给瓦片加上裙边
+/**
+ *@description:给瓦片加上裙边
+ *@author: Guojf
+ *@date: 2025-02-20
+ 参考：https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
+ */
 
 import { AttributesType, GeometryDataType } from "./GeometryDataTypes";
-
-// https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
 
 export function concatenateTypedArrays<T>(...typedArrays: T[]): T {
 	// @ts-ignore

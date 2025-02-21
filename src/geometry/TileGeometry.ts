@@ -1,5 +1,5 @@
 /**
- *@description: Martini geomety with skrit
+ *@description: 瓦片几何体
  *@author: Guojf
  *@date: 2023-04-06
  */
@@ -18,7 +18,6 @@ export class TileGeometry extends PlaneGeometry {
 	 * @returns this
 	 */
 	public setData(geoInfo: GeometryDataType) {
-		// this.dispose();
 		this.setIndex(new BufferAttribute(geoInfo.indices, 1));
 		this.setAttribute(
 			"position",
@@ -35,6 +34,7 @@ export class TileGeometry extends PlaneGeometry {
 			);
 		}
 
+		// 感觉加上这两句速度会快一点, 幻觉?
 		this.computeBoundingBox();
 		this.computeBoundingSphere();
 		return this;
