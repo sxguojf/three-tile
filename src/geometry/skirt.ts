@@ -1,6 +1,6 @@
 // 给瓦片加上裙边
 
-import { Attributes } from "./TileGeometry";
+import { AttributesType, GeometryDataType } from "./GeometryDataTypes";
 
 // https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
 
@@ -40,11 +40,11 @@ export type EdgeIndices = {
  * @returns - geometry data with added skirt
  */
 export function addSkirt(
-	attributes: Attributes,
+	attributes: AttributesType,
 	triangles: Uint16Array | Uint32Array,
 	skirtHeight: number,
 	outsideIndices?: EdgeIndices,
-) {
+): GeometryDataType {
 	// 如果传入边缘边顶点索引，从边缘顶点计算边缘边，否则根据顶点坐标计算边缘边
 	const outsideEdges = outsideIndices
 		? getOutsideEdgesFromIndices(outsideIndices, attributes.position.value)
@@ -78,7 +78,7 @@ export function addSkirt(
 
 	return {
 		attributes,
-		triangles: resultTriangles,
+		indices: resultTriangles,
 	};
 }
 
@@ -152,7 +152,7 @@ function getOutsideEdgesFromIndices(indices: EdgeIndices, position: Float32Array
 type UpdateAttributesArgs = {
 	edge: number[];
 	edgeIndex: number;
-	attributes: Attributes;
+	attributes: AttributesType;
 	skirtHeight: number;
 	newPosition: Float32Array;
 	newTexcoord0: Float32Array;

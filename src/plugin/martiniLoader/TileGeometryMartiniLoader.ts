@@ -13,7 +13,7 @@ import {
 	rect2ImageBounds,
 } from "../../loader";
 import { ISource } from "../../source";
-import { GeometryInfo, TileGeometry } from "../../geometry";
+import { GeometryDataType, TileGeometry } from "../../geometry";
 import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
@@ -81,7 +81,7 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 				// 是否使用worker解析
 				if (this.useWorker) {
 					const worker = new ParseWorker();
-					worker.onmessage = (e: MessageEvent<GeometryInfo>) => {
+					worker.onmessage = (e: MessageEvent<GeometryDataType>) => {
 						geometry.setData(e.data);
 						onLoad();
 					};

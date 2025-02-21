@@ -4,41 +4,21 @@
  *@date: 2023-04-06
  */
 
-import { BufferAttribute, PlaneGeometry, Vector3 } from "three";
-
-export type Attributes = {
-	position: {
-		value: Float32Array;
-		size: number;
-	};
-	texcoord: {
-		value: Float32Array;
-		size: number;
-	};
-};
-
-export type GeometryInfo = {
-	attributes: Attributes;
-	indices: Uint16Array | Uint32Array;
-	skirtIndex?: number;
-};
+import { BufferAttribute, PlaneGeometry } from "three";
+import { GeometryDataType } from "./GeometryDataTypes";
 
 /**
- * create geomety from rules grid dem and it has a skrit
+ * Inherit of PlaneGeometry, add setData method
  */
 export class TileGeometry extends PlaneGeometry {
-	private _skirtIndex = -1;
-
+	public readonly type = "TileGeometry";
 	/**
-	 * set the tile dem data
-	 * @param geoInfo: any; 瓦片网格数据，包含position, uv, indices属性
+	 * set the tile geometry data
+	 * @param geoInfo 瓦片网格数据，包含position, uv, indices等属性
 	 * @returns this
 	 */
-	public setData(geoInfo: GeometryInfo) {
-		this.dispose();
-		// 裙边顶点索引，-1为不带裙边
-		this._skirtIndex = geoInfo.skirtIndex ?? -1;
-
+	public setData(geoInfo: GeometryDataType) {
+		// this.dispose();
 		this.setIndex(new BufferAttribute(geoInfo.indices, 1));
 		this.setAttribute(
 			"position",
@@ -48,104 +28,15 @@ export class TileGeometry extends PlaneGeometry {
 			"uv",
 			new BufferAttribute(geoInfo.attributes.texcoord.value, geoInfo.attributes.texcoord.size),
 		);
-		this.setAttribute(
-			"normal",
-			new BufferAttribute(new Float32Array(geoInfo.attributes.position.value.length * 3), 3),
-		);
+		if (geoInfo.attributes.normal) {
+			this.setAttribute(
+				"normal",
+				new BufferAttribute(geoInfo.attributes.normal.value, geoInfo.attributes.normal.size),
+			);
+		}
 
-		//计算顶点法向量
-		this.computeVertexNormals();
-		//修改顶点后必须重新计算包围矩形和包围球
 		this.computeBoundingBox();
 		this.computeBoundingSphere();
 		return this;
-	}
-
-	// set normal on edge(skrit)
-	// 瓦片边缘法向量计算比较复杂，需要根据相邻瓦片高程计算，暂未完美实现
-	computeVertexNormals() {
-		if (this._skirtIndex < 0) {
-			return super.computeVertexNormals();
-		}
-		const index = this.index;
-		const positionAttribute = this.getAttribute("position");
-
-		if (positionAttribute !== undefined) {
-			let normalAttribute = this.getAttribute("normal");
-			if (normalAttribute === undefined) {
-				normalAttribute = new BufferAttribute(new Float32Array(positionAttribute.count * 3), 3);
-				this.setAttribute("normal", normalAttribute);
-			} else {
-				// reset existing normals to zero
-				for (let i = 0, il = normalAttribute.count; i < il; i++) {
-					normalAttribute.setXYZ(i, 0, 0, 0);
-				}
-			}
-
-			const pA = new Vector3(),
-				pB = new Vector3(),
-				pC = new Vector3();
-			const nA = new Vector3(),
-				nB = new Vector3(),
-				nC = new Vector3();
-			const cb = new Vector3(),
-				ab = new Vector3();
-
-			// indexed elements
-			if (index) {
-				for (let i = 0, il = index.count; i < il; i += 3) {
-					const vA = index.getX(i + 0);
-					const vB = index.getX(i + 1);
-					const vC = index.getX(i + 2);
-
-					pA.fromBufferAttribute(positionAttribute, vA);
-					pB.fromBufferAttribute(positionAttribute, vB);
-					pC.fromBufferAttribute(positionAttribute, vC);
-
-					if (i >= this._skirtIndex) {
-						// 边缘顶点索引重置法向量
-						normalAttribute.setXYZ(vA, 0, 0, 1);
-						normalAttribute.setXYZ(vB, 0, 0, 1);
-						normalAttribute.setXYZ(vC, 0, 0, 1);
-					} else {
-						cb.subVectors(pC, pB);
-						ab.subVectors(pA, pB);
-						cb.cross(ab);
-
-						nA.fromBufferAttribute(normalAttribute, vA);
-						nB.fromBufferAttribute(normalAttribute, vB);
-						nC.fromBufferAttribute(normalAttribute, vC);
-
-						nA.add(cb);
-						nB.add(cb);
-						nC.add(cb);
-
-						normalAttribute.setXYZ(vA, nA.x, nA.y, nA.z);
-						normalAttribute.setXYZ(vB, nB.x, nB.y, nB.z);
-						normalAttribute.setXYZ(vC, nC.x, nC.y, nC.z);
-					}
-				}
-			} else {
-				// non-indexed elements (unconnected triangle soup)
-
-				for (let i = 0, il = positionAttribute.count; i < il; i += 3) {
-					pA.fromBufferAttribute(positionAttribute, i + 0);
-					pB.fromBufferAttribute(positionAttribute, i + 1);
-					pC.fromBufferAttribute(positionAttribute, i + 2);
-
-					cb.subVectors(pC, pB);
-					ab.subVectors(pA, pB);
-					cb.cross(ab);
-
-					normalAttribute.setXYZ(i + 0, cb.x, cb.y, cb.z);
-					normalAttribute.setXYZ(i + 1, cb.x, cb.y, cb.z);
-					normalAttribute.setXYZ(i + 2, cb.x, cb.y, cb.z);
-				}
-			}
-
-			this.normalizeNormals();
-
-			normalAttribute.needsUpdate = true;
-		}
 	}
 }

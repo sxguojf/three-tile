@@ -1,4 +1,4 @@
-import { Box2, BufferGeometry, MathUtils, PlaneGeometry } from "three";
+import { Box2, MathUtils } from "three";
 
 import {
 	FileLoaderEx,
@@ -8,13 +8,12 @@ import {
 	rect2ImageBounds,
 } from "../../loader";
 
-import { GeometryInfo, TileGeometry } from "../../geometry";
+import { GeometryDataType, TileGeometry } from "../../geometry";
 import { ISource } from "../../source";
 import * as Lerc from "./lercDecode/LercDecode.es";
-import { parse } from "./parse";
+import { ArrayclipAndResize, parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
-const emptyGeometry = new BufferGeometry();
 /**
  * ArcGis-lerc格式瓦片几何体加载器
  * @link https://github.com/Esri/lerc
@@ -39,24 +38,19 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 
 	// 加载瓦片几何体
 	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal) {
-		// 瓦片级别<8，不需要显示地形
-		if (z < 8) {
-			setTimeout(onLoad);
-			return new PlaneGeometry();
-		}
+		const geometry = new TileGeometry();
 		// 计算最大级别瓦片和本瓦片在其中的位置
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 
 		// 没有url，返回默认几何体
 		if (!url) {
 			setTimeout(onLoad);
-			return emptyGeometry;
+			return geometry;
 		}
 		// 计算瓦片图片大小（像素）
-		let tileSize = (z + 2) * 3;
-		tileSize = MathUtils.clamp(tileSize, 2, 48);
-
-		return this._load(url, tileSize, bounds, onLoad, abortSignal);
+		const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);
+		// 加载瓦片
+		return this._load(url, geometry, targetSize, bounds, onLoad, abortSignal);
 	}
 
 	private async decode(buffer: ArrayBuffer) {
@@ -75,10 +69,14 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 		return { width, height, dem };
 	}
 
-	// private _load(tile: Tile, url: any, rect: Box2, onLoad: () => void) {
-	private _load(url: string, tileSize: number, bounds: Box2, onLoad: () => void, abortSignal: AbortSignal) {
-		const geometry = new TileGeometry();
-
+	private _load(
+		url: string,
+		geometry: TileGeometry,
+		targetSize: number,
+		bounds: Box2,
+		onLoad: () => void,
+		abortSignal: AbortSignal,
+	) {
 		this.fileLoader.load(
 			url,
 			// onLoad
@@ -86,22 +84,22 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 				this.decode(buffer).then((decodedData: { dem: Float32Array; width: number }) => {
 					// 计算剪裁区域
 					const piexlRect = rect2ImageBounds(bounds, decodedData.width);
-					// 剪裁一部分，缩放到size大小
-					const data = clipAndResize(
+					// 剪裁一部分，缩放到targetSize大小
+					const data = ArrayclipAndResize(
 						decodedData.dem,
 						decodedData.width,
 						piexlRect.sx,
 						piexlRect.sy,
 						piexlRect.sw,
 						piexlRect.sh,
-						tileSize,
-						tileSize,
+						targetSize,
+						targetSize,
 					);
 
 					// 是否使用worker解析
 					if (this.useWorker) {
 						const worker = new ParseWorker();
-						worker.onmessage = (e: MessageEvent<GeometryInfo>) => {
+						worker.onmessage = (e: MessageEvent<GeometryDataType>) => {
 							geometry.setData(e.data);
 							onLoad();
 						};
@@ -119,43 +117,4 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 		);
 		return geometry;
 	}
-}
-
-// 数组剪裁并缩放
-function clipAndResize(
-	buffer: Float32Array,
-	bufferWidth: number,
-	sx: number,
-	sy: number,
-	sw: number,
-	sh: number,
-	dw: number,
-	dh: number,
-) {
-	// clip
-	const cdata = new Float32Array(sw * sh);
-	for (let i = 0; i < sh; i++) {
-		for (let j = 0; j < sw; j++) {
-			const sourceIndex = (i + sy) * bufferWidth + (j + sx);
-			const destIndex = i * sw + j;
-			cdata[destIndex] = buffer[sourceIndex];
-		}
-	}
-	if (sw <= dw || sh <= dh) {
-		return cdata;
-	}
-
-	// resize
-	const sdata = new Float32Array(dh * dw);
-	for (let i = 0; i < dw; i++) {
-		for (let j = 0; j < dh; j++) {
-			const destIndex = i * dh + j;
-			const sourceX = Math.floor((j * sh) / dh);
-			const sourceY = Math.floor((i * sw) / dw);
-			const sourceIndex = sourceY * sw + sourceX;
-			sdata[destIndex] = cdata[sourceIndex];
-		}
-	}
-
-	return sdata;
 }
