@@ -27,12 +27,10 @@ export class TileGeometry extends PlaneGeometry {
 			"uv",
 			new BufferAttribute(geoInfo.attributes.texcoord.value, geoInfo.attributes.texcoord.size),
 		);
-		if (geoInfo.attributes.normal) {
-			this.setAttribute(
-				"normal",
-				new BufferAttribute(geoInfo.attributes.normal.value, geoInfo.attributes.normal.size),
-			);
-		}
+		this.setAttribute(
+			"normal",
+			new BufferAttribute(geoInfo.attributes.normal.value, geoInfo.attributes.normal.size),
+		);
 
 		// 感觉加上这两句速度会快一点, 幻觉?
 		this.computeBoundingBox();

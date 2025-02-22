@@ -5,7 +5,7 @@ export function parse(dem: Float32Array) {
 }
 
 // 数组剪裁并缩放
-export function ArrayclipAndResize(
+export function arrayclipAndResize(
 	buffer: Float32Array,
 	bufferWidth: number,
 	sx: number,
@@ -16,29 +16,29 @@ export function ArrayclipAndResize(
 	dh: number,
 ) {
 	// clip
-	const cdata = new Float32Array(sw * sh);
-	for (let i = 0; i < sh; i++) {
-		for (let j = 0; j < sw; j++) {
-			const sourceIndex = (i + sy) * bufferWidth + (j + sx);
-			const destIndex = i * sw + j;
-			cdata[destIndex] = buffer[sourceIndex];
+	const clippedData = new Float32Array(sw * sh);
+	for (let row = 0; row < sh; row++) {
+		for (let col = 0; col < sw; col++) {
+			const sourceIndex = (row + sy) * bufferWidth + (col + sx);
+			const destIndex = row * sw + col;
+			clippedData[destIndex] = buffer[sourceIndex];
 		}
 	}
 	if (sw <= dw || sh <= dh) {
-		return cdata;
+		return clippedData;
 	}
 
 	// resize
-	const sdata = new Float32Array(dh * dw);
-	for (let i = 0; i < dw; i++) {
-		for (let j = 0; j < dh; j++) {
-			const destIndex = i * dh + j;
-			const sourceX = Math.floor((j * sh) / dh);
-			const sourceY = Math.floor((i * sw) / dw);
+	const resizedData = new Float32Array(dh * dw);
+	for (let row = 0; row < dw; row++) {
+		for (let col = 0; col < dh; col++) {
+			const destIndex = row * dh + col;
+			const sourceX = Math.floor((col * sh) / dh);
+			const sourceY = Math.floor((row * sw) / dw);
 			const sourceIndex = sourceY * sw + sourceX;
-			sdata[destIndex] = cdata[sourceIndex];
+			resizedData[destIndex] = clippedData[sourceIndex];
 		}
 	}
 
-	return sdata;
+	return resizedData;
 }

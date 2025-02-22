@@ -61,6 +61,7 @@ export type MapParams = {
 export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	// 渲染时钟计时器
 	private readonly _clock = new Clock();
+	private readonly _clock2 = new Clock();
 
 	// 是否为LOD模型（LOD模型，当autoUpdate为真时渲染时会自动调用update方法）
 	public readonly isLOD = true;
@@ -208,16 +209,15 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * 设置地图投影对象
 	 */
 	private set projection(proj: IProjection) {
-		this._projection = proj;
-		// 调整根瓦片大小
-		this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
-		this.imgSource.forEach((source) => (source.projection = this.projection));
-		if (this.demSource) {
-			this.demSource.projection = this.projection;
-		}
-		if (proj.ID != this.projection.ID && proj.lon0 != this.lon0) {
+		if (proj.ID != this.projection.ID || proj.lon0 != this.lon0) {
+			this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
+			this.imgSource.forEach((source) => (source.projection = proj));
+			if (this.demSource) {
+				this.demSource.projection = proj;
+			}
+			this._projection = proj;
 			this.reload();
-			console.log("Map Projection Changed:", proj.ID);
+			console.log("Map Projection Changed:", proj.ID, proj.lon0);
 			this.dispatchEvent({
 				type: "projection-changed",
 				projection: proj,
@@ -381,6 +381,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this.imgSource = params.imgSource;
 		this.demSource = params.demSource;
 		this.lon0 = params.lon0 ?? 0;
+		this.rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
 
 		// 绑定事件
 		attachEvent(this);
@@ -398,15 +399,21 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * @param camera
 	 */
 	public update(camera: Camera) {
-		this.rootTile.receiveShadow = this.receiveShadow;
-		this.rootTile.castShadow = this.castShadow;
-		this.rootTile.update({
-			camera,
-			loader: this.loader,
-			minLevel: this.minLevel,
-			maxLevel: this.maxLevel,
-			LODThreshold: this.LODThreshold,
-		});
+		const delta = this._clock2.getElapsedTime();
+		// 控制瓦片树更新速率 10fps
+		if (delta > 1 / 10) {
+			this.rootTile.receiveShadow = this.receiveShadow;
+			this.rootTile.castShadow = this.castShadow;
+			this.rootTile.update({
+				camera,
+				loader: this.loader,
+				minLevel: this.minLevel,
+				maxLevel: this.maxLevel,
+				LODThreshold: this.LODThreshold,
+			});
+			this._clock2.start();
+		}
+		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 
 		// 动态调整地图高度
 		if (this.autoPosition) {
@@ -416,8 +423,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 			const dv = this.position.clone().add(hv).multiplyScalar(0.01);
 			this.position.sub(dv);
 		}
-
-		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 	}
 
 	/**

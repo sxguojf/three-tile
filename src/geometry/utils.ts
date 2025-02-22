@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { GeometryDataType } from "./GeometryDataTypes";
+import { AttributesType, GeometryDataType } from "./GeometryDataTypes";
 import { addSkirt } from "./skirt";
 
 /**
@@ -19,9 +19,9 @@ export function getGeometryInfoFromDem(dem: Float32Array, skirt: boolean = true)
 	const height = size;
 
 	// 计算三角形索引
-	const indices = getIndices(height, width);
-	// 计算顶点、UV和法向量
-	const attributes = getAttributes(dem, height, width, indices);
+	const indices = getGridIndices(height, width);
+	// 计算顶点坐标、UV坐标和法向量
+	const attributes = getAttributes(dem, height, width);
 
 	// // 构建Martin
 	// const martini = new Martini(gridSize);
@@ -35,9 +35,11 @@ export function getGeometryInfoFromDem(dem: Float32Array, skirt: boolean = true)
 	// const attributes = getMeshAttributes(vertices, dem);
 
 	// 添加裙边
-	const mesh = skirt ? addSkirt(attributes, indices, 0.3) : { attributes, indices };
-
-	return mesh;
+	if (skirt) {
+		return addSkirt(attributes, indices, 1);
+	} else {
+		return { attributes, indices };
+	}
 }
 
 /**
@@ -47,59 +49,66 @@ export function getGeometryInfoFromDem(dem: Float32Array, skirt: boolean = true)
  * @param width
  * @returns Vertices and UV
  */
-function getAttributes(dem: Float32Array, height: number, width: number, indices: Uint16Array | Uint32Array) {
+function getAttributes(dem: Float32Array, height: number, width: number): AttributesType {
 	const numVertices = width * height;
+	// 创建顶点数组
 	const vertices = new Float32Array(numVertices * 3);
+	// 创建UV坐标数组
 	const uvs = new Float32Array(numVertices * 2);
 	let index = 0;
+	// 遍历高度和宽度
 	for (let y = 0; y < height; y++) {
 		for (let x = 0; x < width; x++) {
-			// Vert
-			vertices[index * 3] = x / (width - 1) - 0.5;
-			vertices[index * 3 + 1] = y / (height - 1) - 0.5;
+			// 归一化坐标
+			const xNorm = x / (width - 1);
+			const yNorm = y / (height - 1);
+			// 设置UV坐标
+			uvs[index * 2] = xNorm;
+			uvs[index * 2 + 1] = yNorm;
+			// 设置顶点位置
+			vertices[index * 3] = xNorm - 0.5;
+			vertices[index * 3 + 1] = yNorm - 0.5;
 			vertices[index * 3 + 2] = dem[(height - y - 1) * width + x];
-
-			// UV
-			uvs[index * 2] = vertices[index * 3] + 0.5;
-			uvs[index * 2 + 1] = vertices[index * 3 + 1] + 0.5;
 
 			index++;
 		}
 	}
 	return {
+		// 顶点位置属性
 		position: { value: vertices, size: 3 },
+		// UV坐标属性
 		texcoord: { value: uvs, size: 2 },
-		normal: { value: getNormals(vertices, indices), size: 3 },
+		// 法线属性
+		normal: { value: getNormals(vertices, getGridIndices(height, width)), size: 3 },
 	};
 }
 
 /**
- * 计算三角形索引
- * @param height
- * @param width
- * @returns
+ * 获取网格索引数组
+ *
+ * @param height 高度
+ * @param width 宽度
+ * @returns 网格索引数组
  */
-function getIndices(height: number, width: number) {
+export function getGridIndices(height: number, width: number) {
 	const numIndices = 6 * (width - 1) * (height - 1);
 	const indices = new Uint16Array(numIndices);
 
 	let index = 0;
 	for (let y = 0; y < height - 1; y++) {
 		for (let x = 0; x < width - 1; x++) {
-			// 矩形四个顶点索引
 			const a = y * width + x;
 			const b = a + 1;
 			const c = a + width;
 			const d = c + 1;
 
-			// 每个矩形两个三角形
-			indices[index * 6] = a;
-			indices[index * 6 + 1] = b;
-			indices[index * 6 + 2] = c;
-
-			indices[index * 6 + 3] = c;
-			indices[index * 6 + 4] = b;
-			indices[index * 6 + 5] = d;
+			const baseIndex = index * 6;
+			indices[baseIndex] = a;
+			indices[baseIndex + 1] = b;
+			indices[baseIndex + 2] = c;
+			indices[baseIndex + 3] = c;
+			indices[baseIndex + 4] = b;
+			indices[baseIndex + 5] = d;
 
 			index++;
 		}
@@ -108,55 +117,56 @@ function getIndices(height: number, width: number) {
 }
 
 /**
- * 计算法向量
+ * 根据顶点、索引计算法向量
  * @param vertices
  * @param indices
  * @param skirtIndex
  * @returns
  */
-function getNormals(vertices: Float32Array, indices: Uint16Array | Uint32Array): Float32Array {
-	// 每个顶点一个法向量
+export function getNormals(vertices: Float32Array, indices: Uint16Array | Uint32Array): Float32Array {
+	// 初始化一个和顶点数组相同长度的法线数组
 	const normals = new Float32Array(vertices.length);
-	// 遍历三角形索引，每次处理三个索引（一个三角形）
+
+	// 遍历索引数组
 	for (let i = 0; i < indices.length; i += 3) {
+		// 获取三个顶点的索引并转换为对应的顶点索引位置
 		const i0 = indices[i] * 3;
 		const i1 = indices[i + 1] * 3;
 		const i2 = indices[i + 2] * 3;
-		// 获取三角形的三个顶点
-		const v0 = [vertices[i0], vertices[i0 + 1], vertices[i0 + 2]];
-		const v1 = [vertices[i1], vertices[i1 + 1], vertices[i1 + 2]];
-		const v2 = [vertices[i2], vertices[i2 + 1], vertices[i2 + 2]];
+
+		// 获取三个顶点的坐标
+		const v0x = vertices[i0];
+		const v0y = vertices[i0 + 1];
+		const v0z = vertices[i0 + 2];
+		const v1x = vertices[i1];
+		const v1y = vertices[i1 + 1];
+		const v1z = vertices[i1 + 2];
+		const v2x = vertices[i2];
+		const v2y = vertices[i2 + 1];
+		const v2z = vertices[i2 + 2];
+
 		// 计算两个边向量
-		const edge1 = [v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]];
-		const edge2 = [v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2]];
-		// 计算法向量（叉积）
-		const normal = [
-			edge1[1] * edge2[2] - edge1[2] * edge2[1],
-			edge1[2] * edge2[0] - edge1[0] * edge2[2],
-			edge1[0] * edge2[1] - edge1[1] * edge2[0],
-		];
-		// 归一化法向量
-		const length = Math.sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
+		const edge1x = v1x - v0x;
+		const edge1y = v1y - v0y;
+		const edge1z = v1z - v0z;
+		const edge2x = v2x - v0x;
+		const edge2y = v2y - v0y;
+		const edge2z = v2z - v0z;
+
+		// 使用叉乘计算法向量
+		const normalX = edge1y * edge2z - edge1z * edge2y;
+		const normalY = edge1z * edge2x - edge1x * edge2z;
+		const normalZ = edge1x * edge2y - edge1y * edge2x;
+
+		// 计算法向量的长度
+		const length = Math.sqrt(normalX * normalX + normalY * normalY + normalZ * normalZ);
 		if (length > 0) {
-			normal[0] /= length;
-			normal[1] /= length;
-			normal[2] /= length;
+			// 计算法向量的单位化
+			const invLength = 1 / length;
+			normals[i0] = normals[i1] = normals[i2] = normalX * invLength;
+			normals[i0 + 1] = normals[i1 + 1] = normals[i2 + 1] = normalY * invLength;
+			normals[i0 + 2] = normals[i + 21] = normals[i2 + 2] = normalZ * invLength;
 		}
-		// console.assert(Math.sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2])>0.99, 'Noramls error');
-
-		// 将法向量加到每个顶点的法向量上
-		normals[i0] += normal[0];
-		normals[i0 + 1] += normal[1];
-		normals[i0 + 2] += normal[2];
-
-		normals[i1] += normal[0];
-		normals[i1 + 1] += normal[1];
-		normals[i1 + 2] += normal[2];
-
-		normals[i2] += normal[0];
-		normals[i2 + 1] += normal[1];
-		normals[i2 + 2] += normal[2];
 	}
-
 	return normals;
 }

@@ -64,48 +64,43 @@ export function getLocalInfoFromScreen(camera: Camera, map: TileMap, pointer: Ve
 
 export function attachEvent(tileMap: TileMap) {
 	const loadingManager = tileMap.loader.manager;
+
+	const dispatchLoadingEvent = (type: string, payload?: any) => {
+		tileMap.dispatchEvent({ type, ...payload });
+	};
+
 	// 添加瓦片加载事件
 	loadingManager.onStart = (_url, itemsLoaded, itemsTotal) => {
-		tileMap.dispatchEvent({
-			type: "loading-start",
-			itemsLoaded,
-			itemsTotal,
-		});
+		dispatchLoadingEvent("loading-start", { itemsLoaded, itemsTotal });
 	};
 	loadingManager.onError = (url) => {
-		tileMap.dispatchEvent({ type: "loading-error", url });
+		dispatchLoadingEvent("loading-error", { url });
 	};
 	loadingManager.onLoad = () => {
-		tileMap.dispatchEvent({ type: "loading-complete" });
+		dispatchLoadingEvent("loading-complete");
 	};
 	loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-		tileMap.dispatchEvent({
-			type: "loading-progress",
-			url,
-			itemsLoaded,
-			itemsTotal,
-		});
+		dispatchLoadingEvent("loading-progress", { url, itemsLoaded, itemsTotal });
 	};
 
 	// 地图准备就绪事件
-	tileMap.rootTile.addEventListener("ready", () => tileMap.dispatchEvent({ type: "ready" }));
+	tileMap.rootTile.addEventListener("ready", () => dispatchLoadingEvent("ready"));
 
 	// 瓦片创建完成事件
 	tileMap.rootTile.addEventListener("tile-created", (evt) => {
-		tileMap.dispatchEvent({ type: "tile-created", tile: evt.tile });
-	});
-	// 瓦片加载完成事件
-	tileMap.rootTile.addEventListener("tile-loaded", (evt) => {
-		tileMap.dispatchEvent({ type: "tile-loaded", tile: evt.tile });
+		dispatchLoadingEvent("tile-created", { tile: evt.tile });
 	});
 
-	return tileMap;
+	// 瓦片加载完成事件
+	tileMap.rootTile.addEventListener("tile-loaded", (evt) => {
+		dispatchLoadingEvent("tile-loaded", { tile: evt.tile });
+	});
 }
 
 export function getTileCount(tileMap: TileMap) {
 	let total = 0,
 		visible = 0,
-		maxLevle = 0,
+		maxLevel = 0,
 		leaf = 0;
 
 	tileMap.rootTile.traverse((tile) => {
@@ -113,19 +108,16 @@ export function getTileCount(tileMap: TileMap) {
 			total++;
 			tile.isLeaf && tile.inFrustum && visible++;
 			tile.isLeaf && leaf++;
-			maxLevle = Math.max(maxLevle, tile.z);
+			maxLevel = Math.max(maxLevel, tile.z);
 		}
 	});
-	return { total, visible, leaf, maxLevle };
+	return { total, visible, leaf, maxLevle: maxLevel };
 }
 
 export function getAttributions(tileMap: TileMap) {
 	const attributions: string[] = [];
-	let imgSource = tileMap.imgSource;
-	if (!Array.isArray(imgSource)) {
-		imgSource = [imgSource];
-	}
-	imgSource.forEach((source) => {
+	const imgSources = Array.isArray(tileMap.imgSource) ? tileMap.imgSource : [tileMap.imgSource];
+	imgSources.forEach((source) => {
 		const attr = source.attribution;
 		attr && attributions.push(attr);
 	});
@@ -133,5 +125,5 @@ export function getAttributions(tileMap: TileMap) {
 		const attr = tileMap.demSource.attribution;
 		attr && attributions.push(attr);
 	}
-	return Array.from(new Set(attributions));
+	return [...new Set(attributions)];
 }

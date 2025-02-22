@@ -67,7 +67,7 @@ export abstract class Projection implements IProjection {
 	 * @param bounds 经纬度边界
 	 * @returns 投影坐标
 	 */
-	public getPorjBounds(bounds: [number, number, number, number]): [number, number, number, number] {
+	public getProjBounds(bounds: [number, number, number, number]): [number, number, number, number] {
 		// 加上投影中心经度后，投影x坐标范围与设置的经度范围不一定相等，所以判断是否为全球范围投影
 		const withCenter = bounds[0] === -180 && bounds[2] === 180;
 		const p1 = this.project(bounds[0] + (withCenter ? this._lon0 : 0), bounds[1]);

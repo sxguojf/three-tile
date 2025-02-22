@@ -232,7 +232,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	public update(params: TileUpdateParames) {
-		if (Math.random() < 0.8 || !this.parent) {
+		if (!this.parent) {
 			return this;
 		}
 		// Get camera frustum
@@ -273,6 +273,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			this.traverse((child) => {
 				if (child.isLeaf && child.loaded && child.z >= minLevel) {
 					this._ready = false;
+					return;
 				}
 			});
 			if (this._ready) {
@@ -317,11 +318,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	private _checkVisible() {
 		const parent = this.parent;
 		if (parent && parent.isTile) {
-			//Show children and hide parent when all children has loaded
 			const children = parent.children.filter((child) => child.isTile);
-			const loaded = children.every((child) => child.loaded);
-			parent.showing = !loaded;
-			children.forEach((child) => (child.showing = loaded));
+			const allLoaded = children.every((child) => child.loaded);
+			parent.showing = !allLoaded;
+			children.forEach((child) => (child.showing = allLoaded));
 		}
 	}
 

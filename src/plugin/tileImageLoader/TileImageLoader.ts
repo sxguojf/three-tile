@@ -11,7 +11,7 @@ import { TileMaterial } from "../../material";
 import { ISource } from "../../source";
 
 /**
- * image material loader
+ * Image tile material loader
  */
 export class TileImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "image";
@@ -25,7 +25,7 @@ export class TileImageLoader implements ITileMaterialLoader {
 		onLoad: () => void,
 		abortSignal: AbortSignal,
 	): Material {
-		const material = this.createMaterial();
+		const material = new TileMaterial();
 		material.opacity = source.opacity;
 		const textureLoader = new TileTextureLoader();
 		const texture = textureLoader.load(
@@ -43,9 +43,5 @@ export class TileImageLoader implements ITileMaterialLoader {
 		);
 
 		return material;
-	}
-
-	public createMaterial() {
-		return new TileMaterial();
 	}
 }

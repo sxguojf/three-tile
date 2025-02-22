@@ -238,6 +238,7 @@ class Tile {
 
 				vertices[2 * c] = cx;
 				vertices[2 * c + 1] = cy;
+
 				triangles[triIndex++] = a;
 				triangles[triIndex++] = b;
 				triangles[triIndex++] = c;

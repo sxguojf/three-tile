@@ -28,7 +28,7 @@ export class SourceWithProjection extends TileSource {
 	}
 	public set projection(value: IProjection) {
 		this._projection = value;
-		this._projectionBounds = this.projection.getPorjBounds(this._source.bounds);
+		this._projectionBounds = this.projection.getProjBounds(this._source.bounds);
 	}
 
 	constructor(source: ISource, projection: IProjection) {

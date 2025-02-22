@@ -11,7 +11,7 @@ import {
 import { GeometryDataType, TileGeometry } from "../../geometry";
 import { ISource } from "../../source";
 import * as Lerc from "./lercDecode/LercDecode.es";
-import { ArrayclipAndResize, parse } from "./parse";
+import { arrayclipAndResize as ArrayClipAndResize, parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
 /**
@@ -55,9 +55,10 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 
 	private async decode(buffer: ArrayBuffer) {
 		if (!Lerc.isLoaded()) {
-			await Lerc.load({
-				locateFile: (wasmFileName?: string | undefined, _scriptDir?: string | undefined) => `./${wasmFileName}`,
-			});
+			// await Lerc.load({
+			// 	locateFile: (wasmFileName?: string | undefined, _scriptDir?: string | undefined) => `./${wasmFileName}`,
+			// });
+			await Lerc.load();
 		}
 
 		const pixelBlock = Lerc.decode(buffer);
@@ -85,7 +86,7 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 					// 计算剪裁区域
 					const piexlRect = rect2ImageBounds(bounds, decodedData.width);
 					// 剪裁一部分，缩放到targetSize大小
-					const data = ArrayclipAndResize(
+					const data = ArrayClipAndResize(
 						decodedData.dem,
 						decodedData.width,
 						piexlRect.sx,

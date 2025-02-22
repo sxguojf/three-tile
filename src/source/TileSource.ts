@@ -41,6 +41,7 @@ export class TileSource implements ISource {
 	//public bounds: [number, number, number, number] = [-180, -85.05112877980659, 180, 85.05112877980659];
 	public bounds: [number, number, number, number] = [-180, -85, 180, 85];
 	public _projectionBounds: [number, number, number, number] = [0, 0, 0, 0];
+	public useData: { [key: string]: any } = {};
 	/**
 	 * constructor
 	 * @param options
@@ -99,14 +100,13 @@ export class TileSource implements ISource {
 // `('Hello foo, bar')`. You can also specify functions instead of strings for
 // data values — they will be evaluated passing `data` as an argument.
 function strTemplate(str: string, data: { [name: string]: any }) {
-	const templateRe = /\{ *([\w_ -]+) *\}/g;
+	const templateRe = /\{ *([\w_-]+) *\}/g;
 	return str.replace(templateRe, (str, key) => {
-		let value = data[key];
-		if (value === undefined) {
-			throw new Error(`source url template error, No value provided for variable: ${str}`);
-		} else if (typeof value === "function") {
-			value = value(data);
-		}
-		return value;
+		const value =
+			data[key] ??
+			(() => {
+				throw new Error(`source url template error, No value provided for variable: ${str}`);
+			})();
+		return typeof value === "function" ? value(data) : value;
 	});
 }

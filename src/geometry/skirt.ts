@@ -48,25 +48,19 @@ export function addSkirt(
 	skirtHeight: number,
 	outsideIndices?: EdgeIndices,
 ): GeometryDataType {
-	// 如果传入边缘边顶点索引，从边缘顶点计算边缘边，否则根据顶点坐标计算边缘边
 	const outsideEdges = outsideIndices
 		? getOutsideEdgesFromIndices(outsideIndices, attributes.position.value)
 		: getOutsideEdgesFromTriangles(triangles);
 
-	// 边缘边顶点坐标
-	const newPosition = new Float32Array(outsideEdges.length * 6);
-	// 边缘边纹理坐标
-	const newTexcoord0 = new Float32Array(outsideEdges.length * 4);
-	// 边缘三角形
-	const newTriangles = new (triangles instanceof Uint32Array ? Uint32Array : Uint16Array)(outsideEdges.length * 6);
-	// 法向量
-	const newNormals = new Float32Array(outsideEdges.length * 6);
+	const edgeCount = outsideEdges.length;
+	const newPosition = new Float32Array(edgeCount * 6);
+	const newTexcoord0 = new Float32Array(edgeCount * 4);
+	const newTriangles = new (triangles.constructor as Uint16ArrayConstructor | Uint32ArrayConstructor)(edgeCount * 6);
+	const newNormals = new Float32Array(edgeCount * 6);
 
-	for (let i = 0; i < outsideEdges.length; i++) {
-		const edge = outsideEdges[i];
-
+	for (let i = 0; i < edgeCount; i++) {
 		updateAttributesForNewEdge({
-			edge,
+			edge: outsideEdges[i],
 			edgeIndex: i,
 			attributes,
 			skirtHeight,
@@ -77,7 +71,6 @@ export function addSkirt(
 		});
 	}
 
-	// 边缘顶点坐标、纹理坐标、三角形合并到原有属性
 	attributes.position.value = concatenateTypedArrays(attributes.position.value, newPosition);
 	attributes.texcoord.value = concatenateTypedArrays(attributes.texcoord.value, newTexcoord0);
 	attributes.normal.value = concatenateTypedArrays(attributes.normal.value, newNormals);
@@ -95,42 +88,45 @@ export function addSkirt(
  * @returns {number[][]} - outside edges data
  */
 function getOutsideEdgesFromTriangles(triangles: Uint16Array | Uint32Array | number[]): number[][] {
-	// 取出所有的三角形
+	// 存储边的数组
 	const edges: number[][] = [];
-	for (let i = 0; i < triangles.length; i += 3) {
-		const a = triangles[i];
-		const b = triangles[i + 1];
-		const c = triangles[i + 2];
 
-		edges.push([a, b]); // 第1条边
-		edges.push([b, c]); // 第2条边
-		edges.push([c, a]); // 第3条边
+	// 将输入转换为数组形式
+	const triArray = Array.isArray(triangles) ? triangles : Array.from(triangles);
+
+	// 遍历每个三角形
+	for (let i = 0; i < triArray.length; i += 3) {
+		const a = triArray[i];
+		const b = triArray[i + 1];
+		const c = triArray[i + 2];
+
+		// 将每条边添加到edges数组中
+		edges.push([a, b], [b, c], [c, a]);
 	}
 
-	// 三角形按顶点坐标排序
-	edges.sort((a, b) => Math.min(...a) - Math.min(...b) || Math.max(...a) - Math.max(...b));
+	// 对边进行排序
+	edges.sort(([a1, b1], [a2, b2]) => {
+		const minA = Math.min(a1, b1);
+		const minB = Math.min(a2, b2);
+		return minA !== minB ? minA - minB : Math.max(a1, b1) - Math.max(a2, b2);
+	});
 
-	// 取出所有在边缘的三角形
+	// 存储外部边的数组
 	const outsideEdges: number[][] = [];
-	let index = 0;
-	while (index < edges.length - 1) {
-		// 取出相邻两条边
-		const a = edges[index][0]; // 第1条边的起点
-		const b = edges[index][1]; // 第1条边的终点
-		const c = edges[index + 1][1]; // 第2条边的终点
-		const d = edges[index + 1][0]; // 第2条边的起点
-		// 如果相邻两个三角形有共用边，那么不是边缘边，否则是边缘边
-		if (a === c && b === d) {
-			index += 2;
+
+	// 遍历排序后的边数组
+	for (let i = 0; i < edges.length; i++) {
+		// 如果当前边与下一条边是相邻的，则跳过下一条边
+		if (i + 1 < edges.length && edges[i][0] === edges[i + 1][1] && edges[i][1] === edges[i + 1][0]) {
+			i++;
 		} else {
-			// 是边缘边，三角形加入数组
-			outsideEdges.push(edges[index]);
-			index++;
+			// 否则，将当前边添加到外部边数组中
+			outsideEdges.push(edges[i]);
 		}
 	}
+
 	return outsideEdges;
 }
-
 /**
  * Get geometry edges that located on a border of the mesh
  * @param {EdgeIndices} indices - edge indices from quantized mesh data
@@ -138,21 +134,35 @@ function getOutsideEdgesFromTriangles(triangles: Uint16Array | Uint32Array | num
  * @returns {number[][]} - outside edges data
  */
 function getOutsideEdgesFromIndices(indices: EdgeIndices, position: Float32Array): number[][] {
-	// Sort skirt indices to create adjacent triangles
-	indices.westIndices.sort((a, b) => position[3 * a + 1] - position[3 * b + 1]);
-	// Reverse (b - a) to match triangle winding
-	indices.eastIndices.sort((a, b) => position[3 * b + 1] - position[3 * a + 1]);
-	indices.southIndices.sort((a, b) => position[3 * b] - position[3 * a]);
-	// Reverse (b - a) to match triangle winding
-	indices.northIndices.sort((a, b) => position[3 * a] - position[3 * b]);
+	// 定义排序函数
+	const sortIndices = (array: Uint16Array | Uint32Array, compareFn: (a: number, b: number) => number) => {
+		array.sort(compareFn);
+	};
 
+	// 对西边边界的索引按 y 坐标排序
+	sortIndices(indices.westIndices, (a, b) => position[3 * a + 1] - position[3 * b + 1]);
+	// 对东边边界的索引按 y 坐标降序排序
+	sortIndices(indices.eastIndices, (a, b) => position[3 * b + 1] - position[3 * a + 1]);
+	// 对南边边界的索引按 x 坐标排序
+	sortIndices(indices.southIndices, (a, b) => position[3 * b] - position[3 * a]);
+	// 对北边边界的索引按 x 坐标降序排序
+	sortIndices(indices.northIndices, (a, b) => position[3 * a] - position[3 * b]);
+
+	// 用于存储边缘的数组
 	const edges: number[][] = [];
-	for (const index in indices) {
-		const indexGroup = indices[index as keyof EdgeIndices];
-		for (let i = 0; i < indexGroup.length - 1; i++) {
-			edges.push([indexGroup[i], indexGroup[i + 1]]);
+
+	// 遍历索引对象的值
+	Object.values(indices).forEach((indexGroup) => {
+		// 如果索引组长度大于1
+		if (indexGroup.length > 1) {
+			// 遍历索引组，除了最后一个索引
+			for (let i = 0; i < indexGroup.length - 1; i++) {
+				// 将相邻索引组成边缘，并添加到边缘数组中
+				edges.push([indexGroup[i], indexGroup[i + 1]]);
+			}
 		}
-	}
+	});
+
 	return edges;
 }
 
@@ -187,29 +197,33 @@ function updateAttributesForNewEdge({
 	const vertex2Offset = vertex1Offset + 1;
 
 	// 增加2个裙边顶点坐标
-	newPosition.set(attributes.position.value.subarray(edge[0] * 3, edge[0] * 3 + 3), vertex1Offset * 3); // 复制三个顶点坐标
-	newPosition[vertex1Offset * 3 + 2] = newPosition[vertex1Offset * 3 + 2] - skirtHeight; // 修改裙边高度
-	newPosition.set(attributes.position.value.subarray(edge[1] * 3, edge[1] * 3 + 3), vertex2Offset * 3);
-	newPosition[vertex2Offset * 3 + 2] = newPosition[vertex2Offset * 3 + 2] - skirtHeight; // put down elevation on the skirt height
+	const setPosition = (vertexIndex: number, offset: number) => {
+		newPosition.set(attributes.position.value.subarray(vertexIndex * 3, vertexIndex * 3 + 3), offset * 3);
+		newPosition[offset * 3 + 2] = newPosition[offset * 3 + 2] - skirtHeight;
+	};
+	setPosition(edge[0], vertex1Offset);
+	setPosition(edge[1], vertex2Offset);
 
 	// 增加2个裙边纹理坐标
-	newTexcoord0.set(attributes.texcoord.value.subarray(edge[0] * 2, edge[0] * 2 + 2), vertex1Offset * 2);
-	newTexcoord0.set(attributes.texcoord.value.subarray(edge[1] * 2, edge[1] * 2 + 2), vertex2Offset * 2);
+	const setTexcoord = (vertexIndex: number, offset: number) => {
+		newTexcoord0.set(attributes.texcoord.value.subarray(vertexIndex * 2, vertexIndex * 2 + 2), offset * 2);
+	};
+	setTexcoord(edge[0], vertex1Offset);
+	setTexcoord(edge[1], vertex2Offset);
 
 	// 增加2个裙边三角形（6个顶点）
 	const triangle1Offset = edgeIndex * 2 * 3;
-	newTriangles[triangle1Offset] = edge[0];
-	newTriangles[triangle1Offset + 1] = positionsLength / 3 + vertex2Offset;
-	newTriangles[triangle1Offset + 2] = edge[1];
+	const triangles = [
+		edge[0],
+		positionsLength / 3 + vertex2Offset,
+		edge[1],
+		positionsLength / 3 + vertex2Offset,
+		edge[0],
+		positionsLength / 3 + vertex1Offset,
+	];
+	triangles.forEach((value, index) => (newTriangles[triangle1Offset + index] = value));
 
-	newTriangles[triangle1Offset + 3] = positionsLength / 3 + vertex2Offset;
-	newTriangles[triangle1Offset + 4] = edge[0];
-	newTriangles[triangle1Offset + 5] = positionsLength / 3 + vertex1Offset;
-
-	newNormals[triangle1Offset] = 0;
-	newNormals[triangle1Offset + 1] = 0;
-	newNormals[triangle1Offset + 2] = 1;
-	newNormals[triangle1Offset + 3] = 0;
-	newNormals[triangle1Offset + 4] = 0;
-	newNormals[triangle1Offset + 5] = 1;
+	// 增加法向量
+	const normals = [0, 0, 1, 0, 0, 1];
+	normals.forEach((value, index) => (newNormals[triangle1Offset + index] = value));
 }

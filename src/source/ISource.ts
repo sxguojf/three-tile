@@ -26,4 +26,5 @@ export interface ISource {
 	_getTileUrl: (x: number, y: number, z: number) => string | undefined;
 	/** Get the tile bounds , internal use*/
 	_getTileBounds(x: number, y: number, z: number): [number, number, number, number];
+	useData: { [key: string]: any };
 }
