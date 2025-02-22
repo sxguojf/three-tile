@@ -138,9 +138,11 @@ export function getNormals(vertices: Float32Array, indices: Uint16Array | Uint32
 		const v0x = vertices[i0];
 		const v0y = vertices[i0 + 1];
 		const v0z = vertices[i0 + 2];
+
 		const v1x = vertices[i1];
 		const v1y = vertices[i1 + 1];
 		const v1z = vertices[i1 + 2];
+
 		const v2x = vertices[i2];
 		const v2y = vertices[i2 + 1];
 		const v2z = vertices[i2 + 2];
@@ -149,6 +151,7 @@ export function getNormals(vertices: Float32Array, indices: Uint16Array | Uint32
 		const edge1x = v1x - v0x;
 		const edge1y = v1y - v0y;
 		const edge1z = v1z - v0z;
+
 		const edge2x = v2x - v0x;
 		const edge2y = v2y - v0y;
 		const edge2z = v2z - v0z;
@@ -160,12 +163,16 @@ export function getNormals(vertices: Float32Array, indices: Uint16Array | Uint32
 
 		// 计算法向量的长度
 		const length = Math.sqrt(normalX * normalX + normalY * normalY + normalZ * normalZ);
+		const ns = [0, 0, 1];
 		if (length > 0) {
-			// 计算法向量的单位化
+			// 归一化法向量
 			const invLength = 1 / length;
-			normals[i0] = normals[i1] = normals[i2] = normalX * invLength;
-			normals[i0 + 1] = normals[i1 + 1] = normals[i2 + 1] = normalY * invLength;
-			normals[i0 + 2] = normals[i + 21] = normals[i2 + 2] = normalZ * invLength;
+			ns[0] = normalX * invLength;
+			ns[1] = normalY * invLength;
+			ns[2] = normalZ * invLength;
+		}
+		for (let i = 0; i < 3; i++) {
+			normals[i0 + i] = normals[i1 + i] = normals[i2 + i] = ns[i];
 		}
 	}
 	return normals;

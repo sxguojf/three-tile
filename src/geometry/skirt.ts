@@ -197,33 +197,29 @@ function updateAttributesForNewEdge({
 	const vertex2Offset = vertex1Offset + 1;
 
 	// 增加2个裙边顶点坐标
-	const setPosition = (vertexIndex: number, offset: number) => {
-		newPosition.set(attributes.position.value.subarray(vertexIndex * 3, vertexIndex * 3 + 3), offset * 3);
-		newPosition[offset * 3 + 2] = newPosition[offset * 3 + 2] - skirtHeight;
-	};
-	setPosition(edge[0], vertex1Offset);
-	setPosition(edge[1], vertex2Offset);
+	newPosition.set(attributes.position.value.subarray(edge[0] * 3, edge[0] * 3 + 3), vertex1Offset * 3); // 复制三个顶点坐标
+	newPosition[vertex1Offset * 3 + 2] = newPosition[vertex1Offset * 3 + 2] - skirtHeight; // 修改裙边高度
+	newPosition.set(attributes.position.value.subarray(edge[1] * 3, edge[1] * 3 + 3), vertex2Offset * 3);
+	newPosition[vertex2Offset * 3 + 2] = newPosition[vertex2Offset * 3 + 2] - skirtHeight; // put down elevation on the skirt height
 
 	// 增加2个裙边纹理坐标
-	const setTexcoord = (vertexIndex: number, offset: number) => {
-		newTexcoord0.set(attributes.texcoord.value.subarray(vertexIndex * 2, vertexIndex * 2 + 2), offset * 2);
-	};
-	setTexcoord(edge[0], vertex1Offset);
-	setTexcoord(edge[1], vertex2Offset);
+	newTexcoord0.set(attributes.texcoord.value.subarray(edge[0] * 2, edge[0] * 2 + 2), vertex1Offset * 2);
+	newTexcoord0.set(attributes.texcoord.value.subarray(edge[1] * 2, edge[1] * 2 + 2), vertex2Offset * 2);
 
 	// 增加2个裙边三角形（6个顶点）
 	const triangle1Offset = edgeIndex * 2 * 3;
-	const triangles = [
-		edge[0],
-		positionsLength / 3 + vertex2Offset,
-		edge[1],
-		positionsLength / 3 + vertex2Offset,
-		edge[0],
-		positionsLength / 3 + vertex1Offset,
-	];
-	triangles.forEach((value, index) => (newTriangles[triangle1Offset + index] = value));
+	newTriangles[triangle1Offset] = edge[0];
+	newTriangles[triangle1Offset + 1] = positionsLength / 3 + vertex2Offset;
+	newTriangles[triangle1Offset + 2] = edge[1];
 
-	// 增加法向量
-	const normals = [0, 0, 1, 0, 0, 1];
-	normals.forEach((value, index) => (newNormals[triangle1Offset + index] = value));
+	newTriangles[triangle1Offset + 3] = positionsLength / 3 + vertex2Offset;
+	newTriangles[triangle1Offset + 4] = edge[0];
+	newTriangles[triangle1Offset + 5] = positionsLength / 3 + vertex1Offset;
+
+	newNormals[triangle1Offset] = 0;
+	newNormals[triangle1Offset + 1] = 0;
+	newNormals[triangle1Offset + 2] = 1;
+	newNormals[triangle1Offset + 3] = 0;
+	newNormals[triangle1Offset + 4] = 0;
+	newNormals[triangle1Offset + 5] = 1;
 }

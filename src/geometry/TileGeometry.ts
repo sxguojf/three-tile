@@ -32,6 +32,8 @@ export class TileGeometry extends PlaneGeometry {
 			new BufferAttribute(geoInfo.attributes.normal.value, geoInfo.attributes.normal.size),
 		);
 
+		// this.computeVertexNormals();
+
 		// 感觉加上这两句速度会快一点, 幻觉?
 		this.computeBoundingBox();
 		this.computeBoundingSphere();

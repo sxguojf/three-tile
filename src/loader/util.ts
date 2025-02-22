@@ -14,7 +14,10 @@ import { ISource } from "../source";
  * @returns
  */
 export function rect2ImageBounds(rect: Box2, imgSize: number) {
-	rect.translate(new Vector2(0.5, 0.5));
+	rect.min.x += 0.5;
+	rect.max.x += 0.5;
+	rect.min.y += 0.5;
+	rect.max.y += 0.5;
 	// left-top
 	const sx = Math.floor(rect.min.x * imgSize);
 	const sy = Math.floor(rect.min.y * imgSize);

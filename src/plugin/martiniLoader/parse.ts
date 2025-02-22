@@ -1,4 +1,6 @@
-import { Martini } from "./Martini";
+// https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh
+
+import { Martini } from "../../geometry/Martini";
 import { AttributesType, addSkirt, getNormals } from "../../geometry";
 
 const maxErrors: { [key: number]: number } = {
@@ -44,13 +46,13 @@ export function parse(imgData: ImageData, z: number) {
 	// 几何误差
 	const maxError = maxErrors[z] / 1000 || 0;
 	// 取得顶点和索引
-	const { vertices, triangles } = tile.getMesh(maxError);
+	const { vertices, triangles: indices } = tile.getMesh(maxError);
 
 	// 取得属性
-	const attributes = getMeshAttributes(dem, vertices, triangles);
+	const attributes = getMeshAttributes(dem, vertices, indices);
 
 	// 添加裙边
-	const mesh = addSkirt(attributes, triangles, 1);
+	const mesh = addSkirt(attributes, indices, 1);
 
 	return mesh;
 }
@@ -66,8 +68,6 @@ function getTerrain(imageData: ImageData): Float32Array {
 	const tileSize = imageData.width;
 	const gridSize = tileSize + 1;
 
-	// From Martini demo
-	// https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh
 	const terrain = new Float32Array(gridSize * gridSize);
 
 	// Decode terrain values
@@ -99,6 +99,7 @@ function getTerrain(imageData: ImageData): Float32Array {
 
 	return terrain;
 }
+
 function getMeshAttributes(
 	terrain: Float32Array,
 	vertices: Uint16Array,

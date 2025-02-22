@@ -1,17 +1,11 @@
-import { Box2, MathUtils } from "three";
+import { Box2 } from "three";
 
-import {
-	FileLoaderEx,
-	ITileGeometryLoader,
-	LoaderFactory,
-	getSafeTileUrlAndBounds,
-	rect2ImageBounds,
-} from "../../loader";
+import { FileLoaderEx, ITileGeometryLoader, LoaderFactory, getSafeTileUrlAndBounds } from "../../loader";
 
 import { GeometryDataType, TileGeometry } from "../../geometry";
 import { ISource } from "../../source";
 import * as Lerc from "./lercDecode/LercDecode.es";
-import { arrayclipAndResize as ArrayClipAndResize, parse } from "./parse";
+import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
 /**
@@ -47,10 +41,9 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 			setTimeout(onLoad);
 			return geometry;
 		}
-		// 计算瓦片图片大小（像素）
-		const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);
+
 		// 加载瓦片
-		return this._load(url, geometry, targetSize, bounds, onLoad, abortSignal);
+		return this._load(url, geometry, z, bounds, onLoad, abortSignal);
 	}
 
 	private async decode(buffer: ArrayBuffer) {
@@ -67,13 +60,13 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 		for (let i = 0; i < dem.length; i++) {
 			dem[i] = pixels[0][i] / 1000;
 		}
-		return { width, height, dem };
+		return { dem, width, height };
 	}
 
 	private _load(
 		url: string,
 		geometry: TileGeometry,
-		targetSize: number,
+		z: number,
 		bounds: Box2,
 		onLoad: () => void,
 		abortSignal: AbortSignal,
@@ -82,20 +75,23 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 			url,
 			// onLoad
 			(buffer) => {
-				this.decode(buffer).then((decodedData: { dem: Float32Array; width: number }) => {
-					// 计算剪裁区域
-					const piexlRect = rect2ImageBounds(bounds, decodedData.width);
-					// 剪裁一部分，缩放到targetSize大小
-					const data = ArrayClipAndResize(
-						decodedData.dem,
-						decodedData.width,
-						piexlRect.sx,
-						piexlRect.sy,
-						piexlRect.sw,
-						piexlRect.sh,
-						targetSize,
-						targetSize,
-					);
+				this.decode(buffer).then((decodedData: { dem: Float32Array; width: number; height: number }) => {
+					const data = {
+						dem: decodedData.dem,
+						width: decodedData.width,
+						height: decodedData.height,
+						z: z,
+					};
+					// 地形从父瓦片取需要剪裁
+					if (bounds.max.x - bounds.min.x < 1) {
+						// 从父瓦片取地形数据
+						const subDEM = getSubDEM(decodedData, bounds);
+						data.dem = subDEM.dem;
+						data.width = subDEM.width;
+						data.height = subDEM.height;
+					}
+
+					console.assert(data.dem.length === data.width * data.height);
 
 					// 是否使用worker解析
 					if (this.useWorker) {
@@ -104,7 +100,7 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 							geometry.setData(e.data);
 							onLoad();
 						};
-						worker.postMessage({ buffer: data });
+						worker.postMessage(data);
 					} else {
 						const geoInfo = parse(data);
 						geometry.setData(geoInfo);
@@ -118,4 +114,73 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 		);
 		return geometry;
 	}
+}
+
+function getSubDEM(decodedData: { dem: Float32Array; width: number; height: number }, bounds: Box2) {
+	function rect2ImageBounds(rect: Box2, width: number, height: number) {
+		rect.min.x += 0.5;
+		rect.max.x += 0.5;
+		rect.min.y += 0.5;
+		rect.max.y += 0.5;
+		// left-top
+		const sx = Math.floor(rect.min.x * width);
+		const sy = Math.floor(rect.min.y * height);
+		// w and h
+		const sw = Math.floor((rect.max.x - rect.min.x) * width);
+		const sh = Math.floor((rect.max.y - rect.min.y) * height);
+		return { sx, sy, sw, sh };
+	}
+
+	// 数组剪裁并缩放
+	function arrayclipAndResize(
+		buffer: Float32Array,
+		bufferWidth: number,
+		sx: number,
+		sy: number,
+		sw: number,
+		sh: number,
+		dw: number,
+		dh: number,
+	) {
+		// clip
+		const clippedData = new Float32Array(dw * dh);
+		for (let row = 0; row < sh; row++) {
+			for (let col = 0; col < sw; col++) {
+				const sourceIndex = (row + sy) * bufferWidth + (col + sx);
+				const destIndex = row * sw + col;
+				clippedData[destIndex] = buffer[sourceIndex];
+			}
+		}
+
+		// resize
+		const resizedData = new Float32Array(dh * dw);
+		for (let row = 0; row < dw; row++) {
+			for (let col = 0; col < dh; col++) {
+				const destIndex = row * dh + col;
+				const sourceX = Math.floor((col * sh) / dh);
+				const sourceY = Math.floor((row * sw) / dw);
+				const sourceIndex = sourceY * sw + sourceX;
+				resizedData[destIndex] = clippedData[sourceIndex];
+			}
+		}
+
+		return resizedData;
+	}
+
+	const piexlRect = rect2ImageBounds(bounds, decodedData.width, decodedData.height);
+	// Martini需要瓦片大小为n*2+1
+	const width = piexlRect.sw + 1;
+	const height = piexlRect.sh + 1;
+	// 瓦片剪裁并缩放
+	const dem = arrayclipAndResize(
+		decodedData.dem,
+		decodedData.width,
+		piexlRect.sx,
+		piexlRect.sy,
+		piexlRect.sw,
+		piexlRect.sh,
+		width,
+		height,
+	);
+	return { dem, width, height };
 }

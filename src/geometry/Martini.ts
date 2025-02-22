@@ -46,7 +46,6 @@ export class Martini {
 
 		this.numTriangles = tileSize * tileSize * 2 - 2;
 		this.numParentTriangles = this.numTriangles - tileSize * tileSize;
-
 		this.indices = new Uint32Array(this.gridSize * this.gridSize);
 
 		// coordinates for all possible triangles in an RTIN tile
@@ -248,6 +247,6 @@ class Tile {
 		processTriangle(0, 0, max, max, max, 0);
 		processTriangle(max, max, 0, 0, 0, max);
 
-		return { vertices: vertices, triangles: triangles };
+		return { vertices, triangles };
 	}
 }

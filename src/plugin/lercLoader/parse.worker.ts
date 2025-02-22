@@ -1,8 +1,8 @@
 import { parse } from "./parse";
 
 self.onmessage = (msg: MessageEvent) => {
-	const { buffer } = msg.data;
-	const mesh = parse(buffer);
+	const data = msg.data;
+	const mesh = parse(data);
 	self.postMessage(mesh);
 	self.close();
 };
