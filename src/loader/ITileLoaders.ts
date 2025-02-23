@@ -22,6 +22,7 @@ export interface ITileLoader {
 export interface ITileMaterialLoader {
 	dataType: string;
 	useWorker?: boolean;
+	author?: string;
 	load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material;
 }
 
@@ -29,6 +30,7 @@ export interface ITileMaterialLoader {
 export interface ITileGeometryLoader {
 	dataType: string;
 	useWorker?: boolean;
+	author?: string;
 	load(
 		source: ISource,
 		x: number,

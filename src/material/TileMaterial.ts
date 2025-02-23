@@ -1,4 +1,4 @@
-import { FrontSide, MeshStandardMaterial, MeshStandardMaterialParameters } from "three";
+import { FrontSide, MeshStandardMaterial, MeshStandardMaterialParameters, Texture } from "three";
 
 /**
  * Tile material
@@ -6,6 +6,11 @@ import { FrontSide, MeshStandardMaterial, MeshStandardMaterialParameters } from 
 export class TileMaterial extends MeshStandardMaterial {
 	constructor(params: MeshStandardMaterialParameters = {}) {
 		super({ ...{ transparent: true, side: FrontSide }, ...params });
+	}
+
+	public setTexture(texture: Texture) {
+		this.map = texture;
+		this.needsUpdate = true;
 	}
 
 	public dispose(): void {

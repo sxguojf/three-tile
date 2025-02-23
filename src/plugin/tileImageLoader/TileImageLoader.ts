@@ -34,8 +34,7 @@ export class TileImageLoader implements ITileMaterialLoader {
 			y,
 			z,
 			() => {
-				material.map = texture;
-				texture.needsUpdate = true;
+				material.setTexture(texture);
 				onLoad();
 			},
 			onLoad,

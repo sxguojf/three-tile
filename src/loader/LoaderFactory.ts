@@ -7,37 +7,38 @@
 import { LoadingManager } from "three";
 import { ISource } from "../source";
 import { ITileGeometryLoader, ITileMaterialLoader } from "./ITileLoaders";
+import { author } from "..";
 
 /**
- * factory for loader
+ * Factory for loader
  */
 export const LoaderFactory = {
 	manager: new LoadingManager(),
-	// dict of dem loader
+	// Dict of dem loader
 	demLoaderMap: new Map<string, ITileGeometryLoader>(),
-	// dict of img loader
+	// Dict of img loader
 	imgLoaderMap: new Map<string, ITileMaterialLoader>(),
 
 	/**
-	 * register material loader
+	 * Register material loader
 	 * @param loader material loader
 	 */
 	registerMaterialLoader(loader: ITileMaterialLoader) {
 		LoaderFactory.imgLoaderMap.set(loader.dataType, loader);
-		console.log(`* Register imageLoader: ${loader.dataType}`);
+		console.log(`* Register imageLoader: '${loader.dataType}', Author: '${loader.author || author.name}'`);
 	},
 
 	/**
-	 * register geometry loader
+	 * Register geometry loader
 	 * @param loader geometry loader
 	 */
 	registerGeometryLoader(loader: ITileGeometryLoader) {
 		LoaderFactory.demLoaderMap.set(loader.dataType, loader);
-		console.log(`* Register terrainLoader: ${loader.dataType}`);
+		console.log(`* Register terrainLoader: '${loader.dataType}', Author: '${loader.author || author.name}'`);
 	},
 
 	/**
-	 * get material loader from datasource
+	 * Get material loader from datasource
 	 * @param source datasource
 	 * @returns material loader
 	 */
@@ -51,7 +52,7 @@ export const LoaderFactory = {
 	},
 
 	/**
-	 * get geometry loader from datasource
+	 * Get geometry loader from datasource
 	 * @param source datasouce
 	 * @returns geometry loader
 	 */
