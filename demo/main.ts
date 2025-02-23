@@ -5,7 +5,7 @@ import * as gui from "./gui";
 import * as source from "./mapSource";
 import { addFakeEarth, addMapBackground, limitCameraHeight } from "./utils";
 
-console.log("===========================================================");
+console.log("===================================================================");
 console.log(`three-tile V${tt.version}, ${tt.author.email}`);
 document.querySelector<HTMLSpanElement>("#version")!.innerText = tt.version;
 

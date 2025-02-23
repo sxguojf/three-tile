@@ -7,7 +7,9 @@
 import { LoadingManager } from "three";
 import { ISource } from "../source";
 import { ITileGeometryLoader, ITileMaterialLoader } from "./ITileLoaders";
-import { author } from "..";
+import { author, version } from "..";
+
+console.log(`====================three-tile V${version}==============================`);
 
 /**
  * Factory for loader
