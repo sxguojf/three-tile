@@ -13,7 +13,7 @@ export class TileMateriaNormalLoader implements ITileMaterialLoader {
 			opacity: source.opacity,
 			flatShading: true,
 		});
-		setTimeout(onLoad);
+		onLoad();
 		return material;
 	}
 }

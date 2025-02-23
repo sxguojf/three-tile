@@ -79,12 +79,12 @@ export class TileLoader implements ITileLoader {
 			tile.removeEventListener("dispose", onDispose);
 		});
 
-		this._load(tile, onLoad, abortController.signal);
+		this.onLoad(tile, onLoad, abortController.signal);
 
 		return tile;
 	}
 
-	protected _load(tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
+	protected onLoad(tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
 		const onDataLoad = () => {
 			// dem and img both loaded
 			if (geoLoaded && matLoaded) {
@@ -146,7 +146,7 @@ export class TileLoader implements ITileLoader {
 			geometry = loader.load(this.demSource, x, y, z, onLoad, abortSignal);
 		} else {
 			geometry = new PlaneGeometry();
-			setTimeout(onLoad);
+			onLoad();
 		}
 		return geometry;
 	}
@@ -161,7 +161,7 @@ export class TileLoader implements ITileLoader {
 	protected loadMaterial(x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material[] {
 		const sources = this.imgSource.filter((source) => z >= source.minLevel && this._tileInBounds(x, y, z, source));
 		if (sources.length === 0) {
-			setTimeout(onLoad);
+			onLoad();
 			return [];
 		}
 		let count = 0;

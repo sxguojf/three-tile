@@ -17,7 +17,7 @@ export class TileMaterialWrieLoader implements ITileMaterialLoader {
 			opacity: source.opacity,
 			depthTest: false,
 		});
-		setTimeout(onLoad);
+		onLoad();
 		return material;
 	}
 }

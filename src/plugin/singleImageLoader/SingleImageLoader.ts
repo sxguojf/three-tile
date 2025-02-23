@@ -33,14 +33,14 @@ export class SingleImageLoader implements ITileMaterialLoader {
 
 		// 请求的瓦片不在数据源范围内或没有url，直接返回材质
 		if (z < source.minLevel || z > source.maxLevel || !tileUrl) {
-			setTimeout(onLoad);
+			onLoad();
 			return material;
 		}
 
 		// 如果图片已加载，则设置纹理后返回材质
 		if (this._image?.complete) {
 			this._setTexture(material, source, x, y, z);
-			setTimeout(onLoad);
+			onLoad();
 			return material;
 		}
 

@@ -59,7 +59,7 @@ export class TileTextureLoader {
 				abortSignal,
 			);
 		} else {
-			setTimeout(onLoad);
+			onLoad();
 		}
 		return texture;
 	}

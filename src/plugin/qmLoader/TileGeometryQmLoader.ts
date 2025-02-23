@@ -45,7 +45,7 @@ export class QuantizedMeshTileLoader implements ITileGeometryLoader {
 		// const url = x === 8 && y === 6 && z === 4 ? "./tiles/test1.terrain" : "";
 		const geometry = new TileQmGeometry();
 		if (!url) {
-			setTimeout(onLoad);
+			onLoad();
 			return geometry;
 		} else {
 			this.fileLoader.load(

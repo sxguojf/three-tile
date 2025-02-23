@@ -24,7 +24,7 @@ export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 			map: texture,
 			opacity: source.opacity,
 		});
-		setTimeout(onLoad);
+		onLoad();
 		return material;
 	}
 

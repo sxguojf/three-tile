@@ -59,7 +59,7 @@ export class TerrainRGBLoader implements ITileGeometryLoader {
 			tileSize = MathUtils.clamp(tileSize, 2, 48);
 			this._load(url, geometry, bounds, tileSize, onLoad, abortSignal);
 		} else {
-			setTimeout(onLoad);
+			onLoad();
 		}
 		return geometry;
 	}

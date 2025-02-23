@@ -38,7 +38,7 @@ export class TileGeometryLercLoader implements ITileGeometryLoader {
 
 		// 没有url，返回默认几何体
 		if (!url) {
-			setTimeout(onLoad);
+			onLoad();
 			return geometry;
 		}
 

@@ -57,7 +57,7 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 		if (url) {
 			this._load(url, x, y, z, geometry, bounds, onLoad, abortSignal);
 		} else {
-			setTimeout(onLoad);
+			onLoad();
 		}
 		return geometry;
 	}

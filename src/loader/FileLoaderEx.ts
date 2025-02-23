@@ -42,7 +42,6 @@ export class FileLoaderEx extends Loader {
 
 		if (cached) {
 			// console.log("Hit net cache...");
-
 			this.manager.itemStart(url);
 			setTimeout(() => {
 				if (onLoad) onLoad(cached);
