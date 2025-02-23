@@ -15,7 +15,6 @@ import { ISource } from "../../source";
  */
 export class TileImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "image";
-	public useWorker = false;
 
 	public load(
 		source: ISource,
