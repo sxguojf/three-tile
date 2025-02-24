@@ -20,3 +20,4 @@ export * from "./TileLoader";
 
 // texture loader
 export * from "./TileTextureLoader";
+export * from "./TileGeometryLoader";

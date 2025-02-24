@@ -1,7 +1,7 @@
 import { parse } from "./parse";
 
 self.onmessage = (msg: MessageEvent) => {
-	const mesh = parse(msg.data.imgData);
-	self.postMessage(mesh);
+	const geometryData = parse(msg.data.imgData);
+	self.postMessage(geometryData);
 	self.close();
 };

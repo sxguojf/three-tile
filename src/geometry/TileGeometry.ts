@@ -6,6 +6,7 @@
 
 import { BufferAttribute, PlaneGeometry } from "three";
 import { GeometryDataType } from "./GeometryDataTypes";
+import { getGeometryDataFromDem } from "./utils";
 
 /**
  * Inherit of PlaneGeometry, add setData method
@@ -14,22 +15,22 @@ export class TileGeometry extends PlaneGeometry {
 	public readonly type = "TileGeometry";
 	/**
 	 * set the tile geometry data
-	 * @param geoInfo 瓦片网格数据，包含position, uv, indices等属性
+	 * @param geoData 瓦片网格数据，包含position, uv, indices等属性
 	 * @returns this
 	 */
-	public setData(geoInfo: GeometryDataType) {
-		this.setIndex(new BufferAttribute(geoInfo.indices, 1));
+	public setData(geoData: GeometryDataType) {
+		this.setIndex(new BufferAttribute(geoData.indices, 1));
 		this.setAttribute(
 			"position",
-			new BufferAttribute(geoInfo.attributes.position.value, geoInfo.attributes.position.size),
+			new BufferAttribute(geoData.attributes.position.value, geoData.attributes.position.size),
 		);
 		this.setAttribute(
 			"uv",
-			new BufferAttribute(geoInfo.attributes.texcoord.value, geoInfo.attributes.texcoord.size),
+			new BufferAttribute(geoData.attributes.texcoord.value, geoData.attributes.texcoord.size),
 		);
 		this.setAttribute(
 			"normal",
-			new BufferAttribute(geoInfo.attributes.normal.value, geoInfo.attributes.normal.size),
+			new BufferAttribute(geoData.attributes.normal.value, geoData.attributes.normal.size),
 		);
 
 		// this.computeVertexNormals();
@@ -38,5 +39,10 @@ export class TileGeometry extends PlaneGeometry {
 		this.computeBoundingBox();
 		this.computeBoundingSphere();
 		return this;
+	}
+
+	public setDEM(dem: Float32Array) {
+		const geoData = getGeometryDataFromDem(dem, true);
+		return this.setData(geoData);
 	}
 }

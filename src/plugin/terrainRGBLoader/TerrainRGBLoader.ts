@@ -4,118 +4,63 @@
  *@date: 2023-04-06
  */
 
-import { Box2, BufferGeometry, MathUtils } from "three";
-import { GeometryDataType, TileGeometry } from "../../geometry";
-import { ISource } from "../../source";
-import {
-	LoaderFactory,
-	ImageLoaderEx,
-	ITileGeometryLoader,
-	getSafeTileUrlAndBounds,
-	rect2ImageBounds,
-} from "../../loader";
-import { parse } from "./parse";
+import { MathUtils } from "three";
+import { GeometryDataType } from "../../geometry";
+import { ImageLoaderEx, LoaderFactory, TileGeometryLoader } from "../../loader";
+import { getImageDataFromRect, parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
 /**
  * Mapbox-RGB geometry loader
  */
-export class TerrainRGBLoader implements ITileGeometryLoader {
+export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
+	// 数据类型标识
 	public readonly dataType = "terrain-rgb";
-
-	private _useWorker = true;
-	/** get use worker */
-	public get useWorker() {
-		return this._useWorker;
-	}
-	/** set use worker */
-	public set useWorker(value: boolean) {
-		this._useWorker = value;
-	}
-
+	// 使用imageLoader下载
 	private imageLoader = new ImageLoaderEx(LoaderFactory.manager);
 
-	/**
-	 * load tile's data from source
-	 * @param source
-	 * @param tile
-	 * @param onLoad
-	 * @param onError
-	 * @returns
-	 */
-	public load(
-		source: ISource,
-		x: number,
-		y: number,
-		z: number,
-		onLoad: () => void,
-		abortSignal: AbortSignal,
-	): BufferGeometry {
-		const geometry = new TileGeometry();
-		// get max level tile and bounds
-		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
-		if (url) {
-			let tileSize = (z + 2) * 3;
-			tileSize = MathUtils.clamp(tileSize, 2, 48);
-			this._load(url, geometry, bounds, tileSize, onLoad, abortSignal);
-		} else {
-			onLoad();
-		}
-		return geometry;
-	}
-
-	private _load(
+	// 下载数据
+	protected doLoad(
 		url: string,
-		geometry: TileGeometry,
-		bounds: Box2,
-		tileSize: number,
-		onLoad: () => void,
+		onLoad: (data: HTMLImageElement) => void,
+		onError: (event: ErrorEvent | Event | DOMException) => void,
 		abortSignal: AbortSignal,
-	) {
+	): void {
+		// 下载图像
 		this.imageLoader.load(
 			url,
-			// onLoad
-			(image) => {
-				const imgData = getImageDataFromRect(image, bounds, tileSize);
-
-				// 是否使用worker解析
-				if (this.useWorker) {
-					const worker = new ParseWorker();
-					worker.onmessage = (e: MessageEvent<GeometryDataType>) => {
-						geometry.setData(e.data);
-						onLoad();
-					};
-					worker.postMessage({ imgData }, imgData as any);
-				} else {
-					geometry.setData(parse(imgData));
-					onLoad();
-				}
-			},
-			// onProgress
-			undefined,
-			// onError
-			onLoad,
-			abortSignal,
+			(image) => onLoad(image), // onLoad, 加载完成
+			undefined, // onProgress, 加载进度，不支持
+			onError, // onError, 加载错误
+			abortSignal, // 下载中止信号
 		);
-		return geometry;
 	}
-}
 
-/**
- * Get pixels in bounds from image and resize to targetSize
- * 从image中截取bounds区域子图像，缩放到targetSize大小，返回其中的像素数组
- * @param image 源图像
- * @param bounds clip bounds
- * @param targetSize dest size
- * @returns imgData
- */
-function getImageDataFromRect(image: HTMLImageElement, bounds: Box2, targetSize: number) {
-	// 取得子图像范围
-	const cropRect = rect2ImageBounds(bounds, image.width);
-	targetSize = Math.min(targetSize, cropRect.sw);
-	const canvas = new OffscreenCanvas(targetSize, targetSize);
-	const ctx = canvas.getContext("2d")!;
-	ctx.imageSmoothingEnabled = false;
-	ctx.drawImage(image, cropRect.sx, cropRect.sy, cropRect.sw, cropRect.sh, 0, 0, targetSize, targetSize);
-	return ctx.getImageData(0, 0, targetSize, targetSize);
+	// 解析数据
+	protected doPrase(
+		image: HTMLImageElement,
+		_x: number,
+		_y: number,
+		z: number,
+		clipBounds: [number, number, number, number],
+		onParse: (GeometryData: GeometryDataType) => void,
+	) {
+		// 抽稀像素点
+		const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);
+		// 图像剪裁缩放
+		const imgData = getImageDataFromRect(image, clipBounds, targetSize);
+		// 是否使用worker
+		if (this.useWorker) {
+			const worker = new ParseWorker();
+			// 解析完成收到geometry数据
+			worker.onmessage = (e: MessageEvent<GeometryDataType>) => {
+				onParse(e.data);
+			};
+			// 向workder传递参数
+			worker.postMessage({ imgData }, imgData as any);
+		} else {
+			// 将imageData解析成geometry数据
+			onParse(parse(imgData));
+		}
+	}
 }

@@ -13,7 +13,7 @@ import { addSkirt } from "./skirt";
  * @param skirt - 是否加裙边
  * @returns - 顶点、UV、法向量和索引
  */
-export function getGeometryInfoFromDem(dem: Float32Array, skirt: boolean = true): GeometryDataType {
+export function getGeometryDataFromDem(dem: Float32Array, skirt: boolean = true): GeometryDataType {
 	const size = Math.floor(Math.sqrt(dem.length));
 	const width = size;
 	const height = size;
@@ -22,17 +22,6 @@ export function getGeometryInfoFromDem(dem: Float32Array, skirt: boolean = true)
 	const indices = getGridIndices(height, width);
 	// 计算顶点坐标、UV坐标和法向量
 	const attributes = getAttributes(dem, height, width);
-
-	// // 构建Martin
-	// const martini = new Martini(gridSize);
-	// // 简化
-	// const tile = martini.createTile(dem);
-	// // 几何误差
-	// const maxError = maxErrors[z] / 1000 || 0;
-	// // 取得顶点和索引
-	// const { vertices, triangles } = tile.getMesh(maxError);
-	// // 取得属性
-	// const attributes = getMeshAttributes(vertices, dem);
 
 	// 添加裙边
 	if (skirt) {
