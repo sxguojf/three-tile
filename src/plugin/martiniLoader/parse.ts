@@ -1,6 +1,6 @@
 // https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh
 
-import { AttributesType, addSkirt, getNormals } from "../../geometry";
+import { addSkirt } from "../../geometry";
 import { Martini } from "../../geometry/Martini";
 
 const maxErrors: { [key: number]: number } = {

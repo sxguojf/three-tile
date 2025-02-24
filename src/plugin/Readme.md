@@ -34,7 +34,7 @@ hz_gjf@163.com
 
 ### 5.1 three-tile 总体架构
 
--   三维瓦片地图和二维瓦片地图在设计理念上是类似的，都是为了解决海量地图数据下载显示问题，将地图切片分块保存为瓦片数据文件，根据层级使用金字塔结构（四叉树）管理，运行时仅加载和渲染可视区域的瓦片以节省资源，最后将多块瓦片模型拼接成一张完整的地图。
+-   三维瓦片地图和二维瓦片地图在设计理念上类似，都是为了解决海量地图数据下载显示问题，将地图切片分块保存为瓦片数据文件，根据层级使用金字塔结构（四叉树）管理，运行时仅加载和渲染可视区域的瓦片以节省资源，最后将多块瓦片模型拼接成一张完整的地图。
 
 -   three-tile 的核心是一个动态 LOD 模型，该模型根据摄像机位置和与瓦片的距离，确定需要渲染的瓦片编号，并调用的加载器创建对应的瓦片 Mesh 模型。
 
@@ -51,9 +51,9 @@ hz_gjf@163.com
 
 -   总结：加载器插件只需要实现一个 load 函数，根据输入参数（数据源、瓦片 x、y、z 坐标）返回一个材质（影像）或一个几何体（地形），three-tile 会根据数据源的 dataType 属性，选取 dataType 值相同的加载器来生成瓦片。
 
-### 5.2 影像加载器插件开发
+### 5.2 影像图加载器插件开发
 
-影像加载器实现卫星影像等图像类瓦片加载，它的开发相对简单，先看内置的影像加载器：
+影像加载器实现卫星影像等图像类瓦片加载，它的开发很简单，目标就是创建一个材质，其纹理为瓦片图像。先看内置的影像加载器：
 
 https://github.com/sxguojf/three-tile/blob/master/src/plugin/tileImageLoader/TileImageLoader.ts
 
@@ -88,7 +88,7 @@ export class TileImageLoader implements ITileMaterialLoader {
 				onLoad();
 			},
 			onLoad, // 加载失败回调函数
-			abortSignal, // 加载中断信号，用于取消加载
+			abortSignal, // 加载中断信号，用于中止加载
 		);
 
 		return material;
@@ -135,8 +135,7 @@ export interface ITileMaterialLoader {
 -   onLoad： 加载完成回调函数，当瓦片影像加载完成后，调用该函数通知主程序渲染
 -   abortSignal：加载中断信号，用于取消加载
 
-影像为图片（jpg、png、webp 等），所以它的加载比较简单: 先创建一个 TileMaterial 材质，然后下载瓦片图像生成纹理，下载完成将纹理赋给材质的 map 属性。
-瓦片纹理的下载已封装在 TileTextureLoader 中，只需调用即可。
+影像为图片（jpg、png、webp 等），所以它的加载比较简单: 先创建一个 TileMaterial 材质，然后下载瓦片图像生成纹理，下载完成将纹理赋给材质的 map 属性。瓦片纹理下载已封装在 TileTextureLoader 中，只需调用即可。
 
 #### 5.2.2 内置影像材质
 
@@ -231,39 +230,70 @@ export interface ITileGeometryLoader {
 
 地形瓦片数据没有统一的规范，cesium、mapbox、arcgis、google 等厂商均有自己的一套地形数据格式。不同厂家的地形通过编写相应的地形加载器插件支持。
 
+#### 5.3.1 地形加载器抽象基类
+
+为简化地形加载器的开发，three-tile提供了一个地形加载器抽象类TileGeometryLoader，封装了地形加载通用过程，插件只需继承TileGeometryLoader，并实现doLoad和doParse两个方法即可。
+
+- onLoad：数据下载
+- onParse：数据解析
+
+需要注意的是，TileGeometryLoader为泛型类，继承时需要指明下载的数据类型，如果下载的为图像，那么泛型参数为HTMLImageElement，如果下载的二进制数据，泛型参数为ArrayBuffer，还有json..xml..等。
+
+```ts
+/**
+	 * Download terrain data
+	 * @param url url
+	 * @param onLoad callback on loaded
+	 * @param onError callback on error
+	 * @param abortSignal donwnload abort signal
+	 */
+	protected abstract doLoad(
+		url: string,
+		onLoad: (buffer: TBuffer) => void,
+		onError: (event: ErrorEvent | Event | DOMException) => void,
+		abortSignal: AbortSignal,
+	): void;
+
+	/**
+	 * Parse the buffer data to geometry data
+	 * @param buffer the data of download
+	 * @param x tile x condition
+	 * @param y tile y condition
+	 * @param z tile z condition
+	 * @param clipBounds the bounds of it parent
+	 * @param onParse callback when parsed
+	 */
+	protected abstract doPrase(
+		buffer: TBuffer,
+		x: number,
+		y: number,
+		z: number,
+		clipBounds: [number, number, number, number],
+		onParse: (GeometryData: GeometryDataType | Float32Array) => void,
+	): void;
+```
+
 #### 5.3.1 Mapbox 的 terrain-rgb 地形加载器
 
 terrain-RGB 格式说明见：
 
 https://docs.mapbox.com/data/tilesets/reference/mapbox-terrain-rgb-v1/
 
-terrain-RGB 使用图像 RGB 三个通道来保存地形海拔高度信息,下载瓦片图像后，需要读出瓦片 RGB 三个分量，然后组合成一个高度值，再根据高度值生成瓦片 geometry：
+terrain-RGB 使用图像 RGB 三个通道来保存地形海拔高度信息,下载瓦片图像后，需要读出瓦片 RGB 三个分量，然后组合成一个海拔高度。
 
 https://github.com/sxguojf/three-tile/blob/master/src/plugin/terrainRGBLoader/TerrainRGBLoader.ts
 
-1. **瓦片 url 的获取**：load 方法接收一个 source 参数，使用 source.\_getTileUrl(x,y,z)即可返回瓦片的 url。
+1. **泛型参数**：terrain-RGB数据实际上就是图片，使用ImageLoaderEx下载， 泛型参数为HTMLImageElement。
 
-    > 需要注意的是，当瓦片的层级大于数据数据源的最大层级时，需要从数据源最大层级瓦片中取出当前瓦片对应区域的数据，比如 mapbox 地形的瓦片的最大层级只到 15 级，当地图缩放的 15 级以上时，就需要从 15 级的瓦片中裁剪出当前瓦片的区域数据。three-tile 封装了一个函数 getSafeTileUrlAndBounds(source, x, y, z)，用于取得最大层级的瓦片 url 和当前瓦片在最大层级瓦片中的位置。
+2. **数据下载**: doLoader中直接调用ImageLoaderEx.loade()下载数据。
 
-2. **瓦片的下载**： 瓦片数据的下载本身没有特殊要求，你可以使用 ajax、axios、fetch 等任意方式下载瓦片数据,下载完成后调用 onLoad 回调函数通知主程序渲染。
-
-    > three-tile 封装了两个下载工具类：FileLoaderEx 和 ImageLoaderEx，它扩充了 threejs 内置的 FileLoader 和 ImageLoader，增加了中断加载的功能，并且使用一个全局的的 LoaderManager 对下载过程进行管理。建议使用内置的 FileLoaderEx 和 ImageLoaderEx 下载瓦片数据，一个可以及时中止下载，另一个可以取得瓦片下载进度信息。
-
-3. **瓦片的解析**：Mapbox 地形瓦片是一张图片，下载后需要提取图片 RGB 分量计算地形高度取得高程数组。然后根据高程数组生成地形瓦片的几何体，RGB 分量计算高程相对简单，使用 Mapbox 提供的公式即可。
-
+3. **数据解析**：实现doParse方法，将图片RGB数据转换为高程数组（DEM）。RGB转高程公式：
     $$height = -10000 + ((R * 256 * 256 + G * 256 + B) * 0.1)$$
 
-    > 前面说了，当瓦片的层级大于数据数据源的最大层级时，需要从数据源最大层级瓦片中，取出当前瓦片对应区域的数据，getImageDataFromRect 函数实现从父瓦片中剪裁出当前瓦片对应区域的数据。
+    > 需要注意的是，当瓦片的层级大于数据数据源的最大层级时，需要从数据源最大层级瓦片中取出当前瓦片对应区域的数据，比如 mapbox 地形的瓦片的最大层级只到 15 级，当地图缩放的 15 级以上时，就需要从 15 级的瓦片中裁剪出当前瓦片的区域数据，所以，doParse方法中有clipBounds的参数，表示需要从父瓦片中剪裁的范围。
 
-4. **瓦片几何体 geometry 生成**：拿到地形高度数组（DEM）后，需要根据 DEM 计算几何体的顶点坐标、纹理坐标、法向量和三角形索引，使用 TileGeometry.setData 将这些信息传入即可生成地形瓦片的几何体。
-
-    > 根据高程生成几何体相对复杂，不过，three-tile 也封装了根据高程数组生成地形瓦片几何体的函数 getGeometryInfoFromDem，直接调用即可。
-
-    > 地形几何体并不需要也没必要每个像素都对应一个顶点，大量的顶点会极大影响渲染速度，这需要对顶点重采样抽稀，本插件目前采用简单地图像缩小来实现重采样。
-
-    > 不同格式瓦片数据解析，根据瓦片格式复杂度耗费 cpu 资源不同，如果在主线程中解析有可能造成卡顿，可以使用 worker 开个线程进行解析。
-
-    > 地图是由若干个瓦片几何体拼接而成，不同级别瓦片几何体拼接时会出现接缝，需要给瓦片加一个“裙边”遮掩。TileGeometry.setData 在内部实现了此功能。
+	> 另外，地形几何体并不需要也没必要每个像素都对应一个顶点，大量的顶点会极大影响渲染速度，而效果也不会因为顶点多好多少。需要对顶点重采样抽稀，本插件目前采用简单地图像缩小来实现重采样。
+	
 
 #### 5.3.3 ArcGIS 的 lerc 地形加载器
 
@@ -274,12 +304,6 @@ https://github.com/sxguojf/three-tile/blob/master/src/plugin/terrainRGBLoader/Te
 https://github.com/sxguojf/three-tile/blob/master/src/plugin/lercLoader/TileGeometryLercLoader.ts
 
 lerc 格式地形瓦片格式相对复杂，但 ESRI 提供了一个开源的 lerc 库，使用 C 编写，提供 wasm 和浏览器绑定，用它即可将瓦片解析为高程数组（DEM）：https://github.com/Esri/lerc
-
-1. 瓦片的 url 获取：与 Mapbox 地形加载器类似，使用 source.\_getTileUrl(x,y,z)即可返回瓦片的 url。
-2. 瓦片的下载： 与 Mapbox 地形加载器类似，但它的瓦片数据是二进制格式，需要使用 FileLoaderEx，并设置请求类型为"
-   arraybuffer"。
-   = 瓦片的解析：使用 lerc 解码库将瓦片数据解码后即为高程数组（DEM），但仍需剪裁缩放才能使用。
-3. 瓦片几何体 geometry 生成：与 Mapbox 地形加载器类似，这里使用了 Martini 算法对瓦片 DEM 进行重采样
 
 #### 5.3.4 Cesium 的 quantized-mesh 地形加载器
 

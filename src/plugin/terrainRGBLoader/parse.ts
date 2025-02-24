@@ -1,7 +1,5 @@
 export function parse(imgData: ImageData) {
-	const dem = getDEMFromImage(imgData.data);
-	// return getGeometryDataFromDem(dem, true);
-	return dem;
+	return getDEMFromImage(imgData.data);
 }
 
 /**
