@@ -47,7 +47,11 @@ export abstract class TileGeometryLoader<TBuffer> implements ITileGeometryLoader
 							bounds.max.y,
 						];
 						this.doPrase(data, x, y, z, clipBounds, (geometryData) => {
-							geometry.setData(geometryData);
+							if (geometryData instanceof Float32Array) {
+								geometry.setDEM(geometryData);
+							} else {
+								geometry.setData(geometryData);
+							}
 							onLoad();
 						});
 					}
@@ -90,6 +94,6 @@ export abstract class TileGeometryLoader<TBuffer> implements ITileGeometryLoader
 		y: number,
 		z: number,
 		clipBounds: [number, number, number, number],
-		onParse: (GeometryData: GeometryDataType) => void,
+		onParse: (GeometryData: GeometryDataType | Float32Array) => void,
 	): void;
 }

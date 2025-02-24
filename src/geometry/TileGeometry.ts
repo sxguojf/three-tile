@@ -1,5 +1,5 @@
 /**
- *@description: 瓦片几何体
+ *@description: Tile Geometry
  *@author: Guojf
  *@date: 2023-04-06
  */
@@ -9,13 +9,13 @@ import { GeometryDataType } from "./GeometryDataTypes";
 import { getGeometryDataFromDem } from "./utils";
 
 /**
- * Inherit of PlaneGeometry, add setData method
+ * Inherit of PlaneGeometry, add setData and setDEM method
  */
 export class TileGeometry extends PlaneGeometry {
 	public readonly type = "TileGeometry";
 	/**
 	 * set the tile geometry data
-	 * @param geoData 瓦片网格数据，包含position, uv, indices等属性
+	 * @param geoData geometry data
 	 * @returns this
 	 */
 	public setData(geoData: GeometryDataType) {
@@ -32,8 +32,6 @@ export class TileGeometry extends PlaneGeometry {
 			"normal",
 			new BufferAttribute(geoData.attributes.normal.value, geoData.attributes.normal.size),
 		);
-
-		// this.computeVertexNormals();
 
 		// 感觉加上这两句速度会快一点, 幻觉?
 		this.computeBoundingBox();

@@ -5,7 +5,6 @@
  */
 
 import { MathUtils } from "three";
-import { GeometryDataType } from "../../geometry";
 import { ImageLoaderEx, LoaderFactory, TileGeometryLoader } from "../../loader";
 import { getImageDataFromRect, parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
@@ -43,7 +42,7 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 		_y: number,
 		z: number,
 		clipBounds: [number, number, number, number],
-		onParse: (GeometryData: GeometryDataType) => void,
+		onParse: (GeometryData: Float32Array) => void,
 	) {
 		// 抽稀像素点
 		const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);
@@ -52,14 +51,14 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 		// 是否使用worker
 		if (this.useWorker) {
 			const worker = new ParseWorker();
-			// 解析完成收到geometry数据
-			worker.onmessage = (e: MessageEvent<GeometryDataType>) => {
+			// 解析完成收到DEM
+			worker.onmessage = (e: MessageEvent<Float32Array>) => {
 				onParse(e.data);
 			};
 			// 向workder传递参数
 			worker.postMessage({ imgData }, imgData as any);
 		} else {
-			// 将imageData解析成geometry数据
+			// 将imageData解析成DEM
 			onParse(parse(imgData));
 		}
 	}

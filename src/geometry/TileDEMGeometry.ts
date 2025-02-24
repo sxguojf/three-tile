@@ -4,6 +4,8 @@
  *@date: 2023-04-06
  */
 
+// 废弃，使用TileGometry代替
+
 import { BufferAttribute, Float16BufferAttribute, MathUtils, PlaneGeometry, Vector3 } from "three";
 
 /**
