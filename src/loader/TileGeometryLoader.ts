@@ -94,6 +94,6 @@ export abstract class TileGeometryLoader<TBuffer> implements ITileGeometryLoader
 		y: number,
 		z: number,
 		clipBounds: [number, number, number, number],
-		onParse: (GeometryData: GeometryDataType | Float32Array) => void,
+		onParse: (GeometryData: GeometryDataType | Float32Array, dem?: Uint8Array) => void,
 	): void;
 }

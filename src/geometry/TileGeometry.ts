@@ -13,6 +13,7 @@ import { getGeometryDataFromDem } from "./utils";
  */
 export class TileGeometry extends PlaneGeometry {
 	public readonly type = "TileGeometry";
+
 	/**
 	 * set the tile geometry data
 	 * @param geoData geometry data
@@ -20,18 +21,10 @@ export class TileGeometry extends PlaneGeometry {
 	 */
 	public setData(geoData: GeometryDataType) {
 		this.setIndex(new BufferAttribute(geoData.indices, 1));
-		this.setAttribute(
-			"position",
-			new BufferAttribute(geoData.attributes.position.value, geoData.attributes.position.size),
-		);
-		this.setAttribute(
-			"uv",
-			new BufferAttribute(geoData.attributes.texcoord.value, geoData.attributes.texcoord.size),
-		);
-		this.setAttribute(
-			"normal",
-			new BufferAttribute(geoData.attributes.normal.value, geoData.attributes.normal.size),
-		);
+		const { attributes } = geoData;
+		this.setAttribute("position", new BufferAttribute(attributes.position.value, attributes.position.size));
+		this.setAttribute("uv", new BufferAttribute(attributes.texcoord.value, attributes.texcoord.size));
+		this.setAttribute("normal", new BufferAttribute(attributes.normal.value, attributes.normal.size));
 
 		// 感觉加上这两句速度会快一点, 幻觉?
 		this.computeBoundingBox();

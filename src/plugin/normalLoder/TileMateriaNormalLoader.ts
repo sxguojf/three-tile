@@ -9,7 +9,7 @@ export class TileMateriaNormalLoader implements ITileMaterialLoader {
 
 	public load(source: ISource, _x: number, _y: number, _z: number, onLoad: () => void): MeshNormalMaterial {
 		const material = new MeshNormalMaterial({
-			transparent: true,
+			// transparent: true,
 			opacity: source.opacity,
 			flatShading: true,
 		});
