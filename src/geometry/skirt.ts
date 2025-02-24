@@ -200,7 +200,7 @@ function updateAttributesForNewEdge({
 	newPosition.set(attributes.position.value.subarray(edge[0] * 3, edge[0] * 3 + 3), vertex1Offset * 3); // 复制三个顶点坐标
 	newPosition[vertex1Offset * 3 + 2] = newPosition[vertex1Offset * 3 + 2] - skirtHeight; // 修改裙边高度
 	newPosition.set(attributes.position.value.subarray(edge[1] * 3, edge[1] * 3 + 3), vertex2Offset * 3);
-	newPosition[vertex2Offset * 3 + 2] = newPosition[vertex2Offset * 3 + 2] - skirtHeight; // put down elevation on the skirt height
+	newPosition[vertex2Offset * 3 + 2] = newPosition[vertex2Offset * 3 + 2] - skirtHeight; // 修改裙边高度
 
 	// 增加2个裙边纹理坐标
 	newTexcoord0.set(attributes.texcoord.value.subarray(edge[0] * 2, edge[0] * 2 + 2), vertex1Offset * 2);
@@ -216,6 +216,7 @@ function updateAttributesForNewEdge({
 	newTriangles[triangle1Offset + 4] = edge[0];
 	newTriangles[triangle1Offset + 5] = positionsLength / 3 + vertex1Offset;
 
+	// 添加2个三角形法向量（6个顶点）
 	newNormals[triangle1Offset] = 0;
 	newNormals[triangle1Offset + 1] = 0;
 	newNormals[triangle1Offset + 2] = 1;

@@ -46,13 +46,9 @@ export function parse(imgData: ImageData, z: number) {
 	// 几何误差
 	const maxError = maxErrors[z] / 1000 || 0;
 	// 取得顶点和索引
-	const { vertices, triangles: indices } = tile.getMesh(maxError);
-
-	// 取得属性
-	const attributes = getMeshAttributes(dem, vertices, indices);
-
+	const geoDta = tile.getGeometryData(maxError);
 	// 添加裙边
-	const mesh = addSkirt(attributes, indices, 1);
+	const mesh = addSkirt(geoDta.attributes, geoDta.indices, 1);
 
 	return mesh;
 }
