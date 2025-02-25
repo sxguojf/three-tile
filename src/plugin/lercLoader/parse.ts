@@ -1,5 +1,5 @@
 /**
- *@description: ArcGis-lerc data parse
+ *@description: ArcGis-lerc data parser
  *@author: 郭江峰
  *@date: 2023-04-05
  */

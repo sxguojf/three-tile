@@ -8,10 +8,10 @@ describe("getGeometryDataFromDem", () => {
 
 		expect(result).toHaveProperty("attributes");
 		expect(result).toHaveProperty("indices");
-		expect(result.attributes.position.value).toHaveLength(12); // 一个顶点3个坐标 4*3
-		expect(result.attributes.texcoord.value).toHaveLength(8); // 一个顶点2个纹理坐标 4*2
-		expect(result.attributes.normal.value).toHaveLength(12); // 一个顶点3个法向量分量 4*3
-		expect(result.indices).toHaveLength(6); // 2个三角形 2*3
+		expect(result.attributes.position.value).toHaveLength(3 * 4); // 一个顶点3个坐标 4*3
+		expect(result.attributes.texcoord.value).toHaveLength(2 * 4); // 一个顶点2个纹理坐标 4*2
+		expect(result.attributes.normal.value).toHaveLength(3 * 4); // 一个顶点3个法向量分量 4*3
+		expect(result.indices).toHaveLength(3 * 2); // 2个三角形 2*3
 	});
 
 	it("带裙边的几何体", () => {
@@ -20,10 +20,10 @@ describe("getGeometryDataFromDem", () => {
 
 		expect(result).toHaveProperty("attributes");
 		expect(result).toHaveProperty("indices");
-		expect(result.attributes.position.value).toHaveLength(36); // 4*3 vertices + 8*3 skirt vertices
-		expect(result.attributes.texcoord.value).toHaveLength(24); // 4*2 uvs + 8*2 skirt uvs
-		expect(result.attributes.normal.value).toHaveLength(36); // 12 normals + 8*3 skirt normals
-		expect(result.indices).toHaveLength(30); // 6 indices + 24 skirt indices
+		expect(result.attributes.position.value).toHaveLength(3 * 4 + 3 * 8); // 4*3 vertices + 8*3 skirt vertices
+		expect(result.attributes.texcoord.value).toHaveLength(2 * 4 + 2 * 8); // 4*2 uvs + 8*2 skirt uvs
+		expect(result.attributes.normal.value).toHaveLength(3 * 4 + 3 * 8); // 12 normals + 8*3 skirt normals
+		expect(result.indices).toHaveLength(3 * 2 + 3 * 8); // 6 indices + 24 skirt indices
 	});
 
 	it("空数据抛出异常", () => {

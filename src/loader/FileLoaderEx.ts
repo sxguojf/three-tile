@@ -1,5 +1,6 @@
 /**
  *@description: File loader with abort, base threejs
+ *@reference https://github.com/mrdoob/three.js/blob/master/src/loaders/FileLoader.js
  *@author: 郭江峰
  *@date: 2023-04-06
  */

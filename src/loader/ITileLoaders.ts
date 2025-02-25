@@ -1,5 +1,5 @@
 /**
- *@description: Loader interface
+ *@description: Tile loader interface
  *@author: 郭江峰
  *@date: 2023-04-06
  */

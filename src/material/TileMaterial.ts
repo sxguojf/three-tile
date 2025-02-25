@@ -11,6 +11,7 @@ import { FrontSide, MeshStandardMaterial, MeshStandardMaterialParameters, Textur
  */
 export class TileMaterial extends MeshStandardMaterial {
 	constructor(params: MeshStandardMaterialParameters = {}) {
+		// super({ ...{ transparent: true, side: FrontSide, roughness: 0.3, metalness: 0.8 }, ...params });
 		super({ ...{ transparent: true, side: FrontSide }, ...params });
 	}
 

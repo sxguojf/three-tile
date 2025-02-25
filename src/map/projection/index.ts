@@ -1,5 +1,5 @@
 /**
- *@description: Moduels for map projection
+ *@description: Moduels of map projection
  *@author: Gujof
  *@date: 2023-04-05
  */

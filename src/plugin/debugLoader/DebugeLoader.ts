@@ -10,7 +10,7 @@ import { TileMaterial } from "../../material";
 import { ISource } from "../../source";
 
 /**
- * Debug material laoder, it draw a box and coordinate on tile
+ * Debug material laoder, Tt draw a rectangle and coordinate on the tile
  */
 export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "debug";

@@ -242,7 +242,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 			}
 			this._projection = proj;
 			this.reload();
-			console.log("Map Projection Changed:", proj.ID, proj.lon0);
+			// console.log("Map Projection Changed:", proj.ID, proj.lon0);
 			this.dispatchEvent({
 				type: "projection-changed",
 				projection: proj,

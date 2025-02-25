@@ -1,5 +1,5 @@
 /**
- *@description: Geometry loader baseclass
+ *@description: Geometry loader abstrace baseclass
  *@author: 郭江峰
  *@date: 2023-04-06
  */

@@ -1,5 +1,5 @@
 /**
- *@description: TileLoader
+ *@description: Tile Loader
  *@author: 郭江峰
  *@date: 2023-04-06
  */
@@ -79,48 +79,32 @@ export class TileLoader implements ITileLoader {
 			tile.removeEventListener("dispose", onDispose);
 		});
 
-		this.onLoad(tile, onLoad, abortController.signal);
+		this.doLoad(tile, onLoad, abortController.signal);
 
 		return tile;
 	}
 
-	protected onLoad(tile: Tile, onLoad: () => void, abortSignal: AbortSignal) {
-		const onDataLoad = () => {
-			// dem and img both loaded
-			if (geoLoaded && matLoaded) {
-				for (let i = 0; i < materials.length; i++) {
-					geometry.addGroup(0, Infinity, i);
-				}
-				tile.geometry = geometry;
-				tile.material = materials;
-				onLoad();
+	protected doLoad(tile: Tile, onLoad: () => void, abortSignal: AbortSignal): void {
+		const loadMaterial = (geometry: BufferGeometry, materials: Material[]) => {
+			for (let i = 0; i < materials.length; i++) {
+				geometry.addGroup(0, Infinity, i);
 			}
+			tile.geometry = geometry;
+			tile.material = materials;
+			onLoad();
 		};
 
-		let geoLoaded = false;
-		let matLoaded = false;
+		const loadGeometry = () => {
+			const materials = this.loadMaterial(
+				tile.x,
+				tile.y,
+				tile.z,
+				() => loadMaterial(geometry, materials),
+				abortSignal,
+			);
+		};
 
-		const geometry = this.loadGeometry(
-			tile.x,
-			tile.y,
-			tile.z,
-			() => {
-				geoLoaded = true;
-				onDataLoad();
-			},
-			abortSignal,
-		);
-
-		const materials = this.loadMaterial(
-			tile.x,
-			tile.y,
-			tile.z,
-			() => {
-				matLoaded = true;
-				onDataLoad();
-			},
-			abortSignal,
-		);
+		const geometry = this.loadGeometry(tile.x, tile.y, tile.z, loadGeometry, abortSignal);
 	}
 
 	/**

@@ -1,5 +1,6 @@
 /**
  *@description: Image loader whit abort, base threejs
+ *@refrence https://threejs.org/docs/index.html?q=image#api/zh/loaders/ImageLoader @
  *@author: 郭江峰
  *@date: 2023-04-06
  */
