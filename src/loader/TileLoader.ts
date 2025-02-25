@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, LoadingManager, Material, PlaneGeometry } from "three";
+import { BufferGeometry, Material, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { CacheEx } from "./CacheEx";
@@ -54,7 +54,7 @@ export class TileLoader implements ITileLoader {
 		this._useWorker = value;
 	}
 
-	public manager: LoadingManager = LoaderFactory.manager;
+	public manager = LoaderFactory.manager;
 
 	/**
 	 * Load a tile by x, y and z coordinate.

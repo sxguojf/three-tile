@@ -5,7 +5,7 @@
  */
 
 import { BufferGeometry } from "three";
-import { ITileGeometryLoader } from ".";
+import { ITileGeometryLoader, LoaderFactory } from ".";
 import { GeometryDataType, TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { getSafeTileUrlAndBounds } from "./util";
@@ -41,12 +41,14 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 				url,
 				(data) => {
 					if (data) {
+						LoaderFactory.manager.parseStart(url);
 						this.doPrase(data, x, y, z, bounds, (geometryData) => {
 							if (geometryData instanceof Float32Array) {
 								geometry.setDEM(geometryData);
 							} else {
 								geometry.setData(geometryData);
 							}
+							LoaderFactory.manager.parseEnd(url);
 							onLoad();
 						});
 					}

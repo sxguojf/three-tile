@@ -31,6 +31,9 @@ export interface TileMapEventMap extends Object3DEventMap {
 	"loading-error": BaseEvent & { url: string };
 	"loading-complete": BaseEvent;
 	"loading-progress": BaseEvent & { url: string; itemsLoaded: number; itemsTotal: number };
+
+	"parsing-start": BaseEvent & { url: string };
+	"parsing-end": BaseEvent & { url: string };
 }
 
 /**

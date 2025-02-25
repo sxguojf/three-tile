@@ -70,8 +70,8 @@ export function attachEvent(tileMap: TileMap) {
 	};
 
 	// 添加瓦片加载事件
-	loadingManager.onStart = (_url, itemsLoaded, itemsTotal) => {
-		dispatchLoadingEvent("loading-start", { itemsLoaded, itemsTotal });
+	loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
+		dispatchLoadingEvent("loading-start", { url, itemsLoaded, itemsTotal });
 	};
 	loadingManager.onError = (url) => {
 		dispatchLoadingEvent("loading-error", { url });
@@ -81,6 +81,13 @@ export function attachEvent(tileMap: TileMap) {
 	};
 	loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
 		dispatchLoadingEvent("loading-progress", { url, itemsLoaded, itemsTotal });
+	};
+	// 添加瓦片解析事件
+	loadingManager.onParseStart = (url) => {
+		dispatchLoadingEvent("parsing-start", { url });
+	};
+	loadingManager.onParseEnd = (url) => {
+		dispatchLoadingEvent("parsing-end", { url });
 	};
 
 	// 地图准备就绪事件

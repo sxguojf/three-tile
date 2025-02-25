@@ -4,9 +4,15 @@
  *@date: 2023-04-05
  */
 
-import { parse } from "./parse";
+import { DEMType, parse } from "./parse";
 
-self.onmessage = (msg: MessageEvent) => {
+type MessageType = {
+	demData: DEMType;
+	clipBounds: [number, number, number, number];
+	z: number;
+};
+
+self.onmessage = (msg: MessageEvent<MessageType>) => {
 	const data = msg.data;
 	const mesh = parse(data.demData, data.z, data.clipBounds);
 	self.postMessage(mesh);

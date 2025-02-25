@@ -67,7 +67,8 @@ export function loadChildren(
 	minLevel: number,
 	onLoad: (tile: Tile) => void,
 ): Tile[] {
-	const getTile = (x: number, y: number, level: number, minLevel: number) => {
+	const createTile = (x: number, y: number, level: number, minLevel: number) => {
+		// Do not load data when leve<minLeve
 		const tile: Tile = level < minLevel ? new Tile(x, y, level) : loader.load(x, y, level, () => onLoad(tile));
 		return tile;
 	};
@@ -83,8 +84,8 @@ export function loadChildren(
 	if (pz === 0 && isWGS) {
 		const y = py;
 		const scale = new Vector3(0.5, 1.0, 1.0);
-		const t1 = getTile(x, y, level, minLevel);
-		const t2 = getTile(x, y, level, minLevel);
+		const t1 = createTile(x, y, level, minLevel);
+		const t2 = createTile(x, y, level, minLevel);
 		t1.position.set(-pos, 0, z);
 		t1.scale.copy(scale);
 		t2.position.set(pos, 0, z);
@@ -93,10 +94,10 @@ export function loadChildren(
 	} else {
 		const y = py * 2;
 		const scale = new Vector3(0.5, 0.5, 1.0);
-		const t1 = getTile(x, y, level, minLevel);
-		const t2 = getTile(x + 1, y, level, minLevel);
-		const t3 = getTile(x, y + 1, level, minLevel);
-		const t4 = getTile(x + 1, y + 1, level, minLevel);
+		const t1 = createTile(x, y, level, minLevel);
+		const t2 = createTile(x + 1, y, level, minLevel);
+		const t3 = createTile(x, y + 1, level, minLevel);
+		const t4 = createTile(x + 1, y + 1, level, minLevel);
 		t1.position.set(-pos, pos, z);
 		t1.scale.copy(scale);
 		t2.position.set(pos, pos, z);

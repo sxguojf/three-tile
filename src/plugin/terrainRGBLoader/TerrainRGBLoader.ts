@@ -56,7 +56,7 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 				onParse(e.data);
 			};
 			// 向workder传递参数
-			worker.postMessage({ imgData }, imgData as any);
+			worker.postMessage({ imgData }, imgData.data as any);
 		} else {
 			// 将imageData解析成DEM
 			onParse(parse(imgData));
@@ -73,12 +73,6 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
  * @returns imgData
  */
 function getImageDataFromRect(image: HTMLImageElement, bounds: [number, number, number, number], targetSize: number) {
-	/**
-	 * Get bounds from rect
-	 * @param rect
-	 * @param imgSize
-	 * @returns
-	 */
 	const cropRect = getBoundsCoord(bounds, image.width);
 	targetSize = Math.min(targetSize, cropRect.sw);
 	const canvas = new OffscreenCanvas(targetSize, targetSize);

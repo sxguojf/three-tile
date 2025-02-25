@@ -4,13 +4,14 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, LoadingManager, Material } from "three";
+import { BufferGeometry, Material } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
+import { TileLoadingManager } from "./LoaderFactory";
 
 /** Tile loader interface */
 export interface ITileLoader {
-	manager: LoadingManager;
+	manager: TileLoadingManager;
 	imgSource: ISource[];
 	demSource: ISource | undefined;
 	cacheSize: number;

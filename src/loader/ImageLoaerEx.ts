@@ -12,7 +12,7 @@ import { LoaderFactory } from "./LoaderFactory";
 const EMPTYIMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 /**
- *  image load with abording
+ *  Image load with abording
  *
  * orverwrite threejs.ImageLoader，load using fetch，added abortSignal to abort load.
  *

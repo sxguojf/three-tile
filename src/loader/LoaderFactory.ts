@@ -11,11 +11,24 @@ import { author, version } from "..";
 
 console.log(`====================three-tile V${version}==============================`);
 
+export class TileLoadingManager extends LoadingManager {
+	public onParseStart?: (url: string) => void = undefined;
+	public onParseEnd?: (url: string) => void = undefined;
+
+	public parseStart(url: string) {
+		this.onParseStart && this.onParseStart(url);
+		// console.log(url);
+	}
+	public parseEnd(url: string) {
+		this.onParseEnd && this.onParseEnd(url);
+	}
+}
+
 /**
  * Factory for loader
  */
 export const LoaderFactory = {
-	manager: new LoadingManager(),
+	manager: new TileLoadingManager(),
 	// Dict of dem loader
 	demLoaderMap: new Map<string, ITileGeometryLoader>(),
 	// Dict of img loader

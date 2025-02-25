@@ -33,7 +33,7 @@ describe("getGeometryDataFromDem", () => {
 	});
 
 	describe("getGridIndices", () => {
-		it("生成正确的网格索引数组", () => {
+		it("根据网格生成多边形索引数组", () => {
 			const height = 3;
 			const width = 3;
 			const indices = getGridIndices(height, width);
@@ -54,7 +54,7 @@ describe("getGeometryDataFromDem", () => {
 		});
 
 		describe("getNormals", () => {
-			it("计算正确的法向量", () => {
+			it("计算法向量", () => {
 				const vertices = new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0]);
 				const indices = new Uint16Array([0, 1, 2, 2, 1, 3]);
 				const normals = getNormals(vertices, indices);
