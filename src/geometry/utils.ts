@@ -14,6 +14,9 @@ import { addSkirt } from "./skirt";
  * @returns - 顶点、UV、法向量和索引
  */
 export function getGeometryDataFromDem(dem: Float32Array, skirt: boolean = true): GeometryDataType {
+	if (dem.length < 4) {
+		throw new Error(`DEM array must > 4, got ${dem.length}!`);
+	}
 	const size = Math.floor(Math.sqrt(dem.length));
 	const width = size;
 	const height = size;

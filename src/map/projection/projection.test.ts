@@ -1,5 +1,5 @@
 import { test, expect } from "vitest";
-import { ProjMCT } from "../map/projection/ProjMCT";
+import { ProjMCT } from "./ProjMCT";
 
 test("墨卡托投影", () => {
 	// lon：[-180,180]
