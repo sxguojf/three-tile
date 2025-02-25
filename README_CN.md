@@ -392,3 +392,5 @@ type MapParams = {
 -   https://github.com/NASA-AMMOS/3DTilesRendererJS
 -   https://github.com/wlgys8/GPUDrivenTerrainLearn
 -   https://github.com/lijundacom/LeoGPUDriven
+-   https://github.com/mapbox/martini
+-   https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
