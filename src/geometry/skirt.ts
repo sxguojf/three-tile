@@ -1,6 +1,6 @@
 /**
  *@description: Add skirt to geometry
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2025-02-20
  *https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
  */

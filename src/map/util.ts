@@ -1,6 +1,6 @@
 /**
  *@description: Map function
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2024-04-08
  */
 

@@ -1,6 +1,6 @@
 /**
  *@description: tile material, not used. Multiple textures are currently used instead.
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 

@@ -1,6 +1,6 @@
 /**
  *@description: Cache for File loader, base threejs
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 

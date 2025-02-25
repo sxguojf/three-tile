@@ -1,6 +1,6 @@
 /**
  *@description: Fake earth material
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2023-04-05
  */
 

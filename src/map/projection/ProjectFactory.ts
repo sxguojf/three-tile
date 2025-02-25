@@ -1,6 +1,6 @@
 /**
  *@description: Map projection factory
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 

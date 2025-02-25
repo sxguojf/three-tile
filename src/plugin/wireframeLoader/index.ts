@@ -1,6 +1,6 @@
 /**
  *@description: Plugin for Wireframe material loader
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2023-04-05
  */
 
