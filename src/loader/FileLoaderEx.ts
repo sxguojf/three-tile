@@ -1,5 +1,5 @@
 /**
- *@description: File loader with abort
+ *@description: File loader with abort, base threejs
  *@author: Guojf
  *@date: 2023-04-06
  */

@@ -1,5 +1,5 @@
 /**
- *@description: Image loader whit abort
+ *@description: Image loader whit abort, base threejs
  *@author: Guojf
  *@date: 2023-04-06
  */

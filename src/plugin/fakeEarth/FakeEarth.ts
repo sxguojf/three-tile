@@ -1,5 +1,5 @@
 /**
- *@description: fake Earth. three-tile Earth is plan, Add a fake ball to looks like a sphere
+ *@description: Fake Earth. three-tile Earth is plan, Add a fake ball to looks like a sphere
  *@author: Guojf
  *@date: 2023-04-06
  */

@@ -1,18 +1,19 @@
 /**
- *@description: Mapbox-RGB geometry loader
+ *@description: Geometry loader baseclass
  *@author: Guojf
  *@date: 2023-04-06
  */
 
 import { BufferGeometry } from "three";
-import { getSafeTileUrlAndBounds, ITileGeometryLoader } from ".";
+import { ITileGeometryLoader } from ".";
 import { GeometryDataType, TileGeometry } from "../geometry";
 import { ISource } from "../source";
+import { getSafeTileUrlAndBounds } from "./util";
 
 /**
  * Terrain loader basecalss
  */
-export abstract class TileGeometryLoader<TBuffer> implements ITileGeometryLoader {
+export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometryLoader {
 	public dataType = "";
 	public useWorker = true;
 
@@ -40,13 +41,7 @@ export abstract class TileGeometryLoader<TBuffer> implements ITileGeometryLoader
 				url,
 				(data) => {
 					if (data) {
-						const clipBounds: [number, number, number, number] = [
-							bounds.min.x,
-							bounds.min.y,
-							bounds.max.x,
-							bounds.max.y,
-						];
-						this.doPrase(data, x, y, z, clipBounds, (geometryData) => {
+						this.doPrase(data, x, y, z, bounds, (geometryData) => {
 							if (geometryData instanceof Float32Array) {
 								geometry.setDEM(geometryData);
 							} else {

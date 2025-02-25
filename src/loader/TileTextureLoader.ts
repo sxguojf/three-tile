@@ -4,11 +4,11 @@
  *@date: 2023-04-06
  */
 
-import { Box2, SRGBColorSpace, Texture } from "three";
+import { SRGBColorSpace, Texture } from "three";
 import { ISource } from "../source";
 import { ImageLoaderEx } from "./ImageLoaerEx";
 import { LoaderFactory } from "./LoaderFactory";
-import { getSafeTileUrlAndBounds, rect2ImageBounds } from "./util";
+import { getSafeTileUrlAndBounds, getBoundsCoord } from "./util";
 
 // const emptyTexture = new DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1, RGBAFormat);
 /**
@@ -71,11 +71,11 @@ export class TileTextureLoader {
  * @bounds  rect (orgin is (0,0), range is (-1,1))
  * @returns sub image
  */
-function getSubImageFromRect(image: HTMLImageElement, bounds: Box2) {
+function getSubImageFromRect(image: HTMLImageElement, bounds: [number, number, number, number]) {
 	const size = image.width;
 	const canvas = new OffscreenCanvas(size, size);
 	const ctx = canvas.getContext("2d")!;
-	const { sx, sy, sw, sh } = rect2ImageBounds(bounds, image.width);
+	const { sx, sy, sw, sh } = getBoundsCoord(bounds, image.width);
 	ctx.drawImage(image, sx, sy, sw, sh, 0, 0, size, size);
 	return canvas;
 }

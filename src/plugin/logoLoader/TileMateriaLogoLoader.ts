@@ -1,3 +1,9 @@
+/**
+ *@description: Logo loader
+ *@author: Guojf
+ *@date: 2023-04-05
+ */
+
 import { CanvasTexture, MeshBasicMaterial } from "three";
 import { ITileMaterialLoader } from "../../loader";
 import { ISource } from "../../source";

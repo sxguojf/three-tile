@@ -1,3 +1,9 @@
+/**
+ *@description: Martini, base https://github.com/mapbox/martini.
+ *@author: Guojf
+ *@date: 2023-04-06
+ */
+
 import { AttributesType, GeometryDataType, getNormals } from ".";
 
 /**

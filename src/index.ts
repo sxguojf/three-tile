@@ -1,3 +1,9 @@
+/**
+ *@description: All export
+ *@author: 郭江峰
+ *@date: 2023-04-05
+ */
+
 export { version, author } from "../package.json";
 
 // core

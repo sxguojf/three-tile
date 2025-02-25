@@ -1,5 +1,5 @@
 /**
- *@description: Cache for File loader
+ *@description: Cache for File loader, base threejs
  *@author: Guojf
  *@date: 2023-04-06
  */

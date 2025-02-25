@@ -1,5 +1,5 @@
 /**
- *@description: register ArcGis-lerc tile geometry loader
+ *@description: Plugin for ArcGis-lerc tile geometry loader
  *@author: Guojf
  *@date: 2023-04-05
  */

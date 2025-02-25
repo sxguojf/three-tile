@@ -1,10 +1,15 @@
-import { FileLoaderEx, LoaderFactory, TileGeometryLoader } from "../../loader";
+/**
+ *@description: ArcGis-lerc tile geometry loader
+ *@author: Guojf
+ *@date: 2023-04-05
+ */
 
+import { FileLoaderEx, LoaderFactory, TileGeometryLoader } from "../../loader";
 import { GeometryDataType } from "../../geometry";
+
 import * as Lerc from "./lercDecode/LercDecode.es";
-import { parse } from "./parse";
+import { DEMType, parse } from "./parse";
 import ParseWorker from "./parse.Worker?worker";
-import { DEMType } from "./parse";
 
 /**
  * ArcGis-lerc格式瓦片几何体加载器

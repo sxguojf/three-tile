@@ -1,5 +1,5 @@
 /**
- *@description: register debug material laoder
+ *@description: Debug material laoder
  *@author: Guojf
  *@date: 2023-04-06
  */

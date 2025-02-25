@@ -1,3 +1,9 @@
+/**
+ *@description: Mapbox terrain-RGB parse
+ *@author: Guojf
+ *@date: 2023-04-05
+ */
+
 // https://observablehq.com/@mourner/martin-real-time-rtin-terrain-mesh
 
 import { addSkirt } from "../../geometry";

@@ -1,3 +1,9 @@
+/**
+ *@description: ArcGis-lerc data parse
+ *@author: Guojf
+ *@date: 2023-04-05
+ */
+
 import { addSkirt } from "../../geometry";
 import { Martini } from "../../geometry/Martini";
 
@@ -36,8 +42,7 @@ export function parse(data: DEMType, z: number, clipBounds: [number, number, num
 	// 地形从父瓦片取需要剪裁
 	if (clipBounds[2] - clipBounds[0] < 1) {
 		// 从父瓦片取地形数据
-		const bounds = clipBounds.map((bound) => bound + 0.5) as [number, number, number, number];
-		demData = getSubDEM(data, bounds);
+		demData = getSubDEM(data, clipBounds);
 	}
 
 	const { demArray, width: gridSize } = demData;
@@ -92,17 +97,7 @@ function getSubDEM(demData: DEMType, bounds: [number, number, number, number]): 
 		return resizedData;
 	}
 
-	function rect2ImageBounds(clipBounds: [number, number, number, number], imgSize: number) {
-		// left-top coordinate
-		const sx = Math.floor(clipBounds[0] * imgSize);
-		const sy = Math.floor(clipBounds[1] * imgSize);
-		// width and height of the clipped image
-		const sw = Math.floor((clipBounds[2] - clipBounds[0]) * imgSize);
-		const sh = Math.floor((clipBounds[3] - clipBounds[1]) * imgSize);
-		return { sx, sy, sw, sh };
-	}
-
-	const piexlRect = rect2ImageBounds(bounds, demData.width);
+	const piexlRect = getBoundsCoord(bounds, demData.width);
 	// Martini需要瓦片大小为n*2+1
 	const width = piexlRect.sw + 1;
 	const height = piexlRect.sh + 1;
@@ -118,4 +113,14 @@ function getSubDEM(demData: DEMType, bounds: [number, number, number, number]): 
 		height,
 	);
 	return { demArray, width, height };
+}
+
+function getBoundsCoord(clipBounds: [number, number, number, number], targetSize: number) {
+	// left-top coordinate
+	const sx = Math.floor(clipBounds[0] * targetSize);
+	const sy = Math.floor(clipBounds[1] * targetSize);
+	// width and height of the clipped image
+	const sw = Math.floor((clipBounds[2] - clipBounds[0]) * targetSize);
+	const sh = Math.floor((clipBounds[3] - clipBounds[1]) * targetSize);
+	return { sx, sy, sw, sh };
 }

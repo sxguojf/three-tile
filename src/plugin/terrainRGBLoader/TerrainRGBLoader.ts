@@ -5,8 +5,8 @@
  */
 
 import { MathUtils } from "three";
-import { ImageLoaderEx, LoaderFactory, TileGeometryLoader } from "../../loader";
-import { getImageDataFromRect, parse } from "./parse";
+import { ImageLoaderEx, LoaderFactory, getBoundsCoord, TileGeometryLoader } from "../../loader";
+import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
 /**
@@ -62,4 +62,28 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 			onParse(parse(imgData));
 		}
 	}
+}
+
+/**
+ * Get pixels in bounds from image and resize to targetSize
+ * 从image中截取bounds区域子图像，缩放到targetSize大小，返回其中的像素数组
+ * @param image 源图像
+ * @param bounds clip bounds
+ * @param targetSize dest size
+ * @returns imgData
+ */
+function getImageDataFromRect(image: HTMLImageElement, bounds: [number, number, number, number], targetSize: number) {
+	/**
+	 * Get bounds from rect
+	 * @param rect
+	 * @param imgSize
+	 * @returns
+	 */
+	const cropRect = getBoundsCoord(bounds, image.width);
+	targetSize = Math.min(targetSize, cropRect.sw);
+	const canvas = new OffscreenCanvas(targetSize, targetSize);
+	const ctx = canvas.getContext("2d")!;
+	ctx.imageSmoothingEnabled = false;
+	ctx.drawImage(image, cropRect.sx, cropRect.sy, cropRect.sw, cropRect.sh, 0, 0, targetSize, targetSize);
+	return ctx.getImageData(0, 0, targetSize, targetSize);
 }

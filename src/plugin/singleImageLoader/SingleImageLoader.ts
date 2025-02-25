@@ -1,3 +1,9 @@
+/**
+ *@description: Single-image loader
+ *@author: 郭江峰
+ *@date: 2023-04-05
+ */
+
 import { ImageLoader, Material, MeshLambertMaterial, SRGBColorSpace, Texture } from "three";
 import { ITileMaterialLoader, LoaderFactory } from "../../loader";
 import { ISource } from "../../source";

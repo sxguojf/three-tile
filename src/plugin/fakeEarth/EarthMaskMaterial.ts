@@ -1,3 +1,9 @@
+/**
+ *@description: Fake earth material
+ *@author: Guojf
+ *@date: 2023-04-05
+ */
+
 import { Color, ShaderMaterial, UniformsLib, UniformsUtils } from "three";
 
 const vert = `

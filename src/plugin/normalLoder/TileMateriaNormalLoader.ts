@@ -1,3 +1,9 @@
+/**
+ *@description: Tile normal loader
+ *@author: Guojf
+ *@date: 2023-04-05
+ */
+
 import { MeshNormalMaterial } from "three";
 import { ISource, ITileMaterialLoader } from "../..";
 

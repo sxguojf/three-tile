@@ -1,5 +1,5 @@
 /**
- *@description: three-tile tile geometry
+ *@description:  Modules of tile geometry
  *@author: Guojf
  *@date: 2023-04-05
  */

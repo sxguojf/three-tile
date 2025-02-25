@@ -1,8 +1,8 @@
 /**
- *@description:给瓦片加上裙边
+ *@description: Add skirt to geometry
  *@author: Guojf
  *@date: 2025-02-20
- 参考：https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
+ *https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
  */
 
 import { AttributesType, GeometryDataType } from "./GeometryDataTypes";

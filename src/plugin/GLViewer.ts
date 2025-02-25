@@ -1,5 +1,5 @@
 /**
- *@description: threejs 3D scene initalize
+ *@description: Threejs 3D scene initalize
  *@author: Guojf
  *@date: 2023-04-05
  */

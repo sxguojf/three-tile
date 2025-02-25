@@ -1,4 +1,10 @@
 /**
+ *@description: Map Source with projection
+ *@author: Gujof
+ *@date: 2023-04-05
+ */
+
+/**
  * 使用代理模式将数据源和投影解耦
  *
  * 地图数据源应该是一个非常简单对象，它主要用来描述瓦片数据的url规则，并保存瓦片元数据，不应该包含太多的逻辑。

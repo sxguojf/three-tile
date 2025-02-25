@@ -1,3 +1,9 @@
+/**
+ *@description: Terrain-RGB parse
+ *@author: 郭江峰
+ *@date: 2023-04-05
+ */
+
 export function parse(imgData: ImageData) {
 	return getDEMFromImage(imgData.data);
 }
@@ -27,43 +33,4 @@ function getDEMFromImage(imgData: Uint8ClampedArray) {
 		dem[i] = getZ(imgData, i);
 	}
 	return dem;
-}
-
-/**
- * Get pixels in bounds from image and resize to targetSize
- * 从image中截取bounds区域子图像，缩放到targetSize大小，返回其中的像素数组
- * @param image 源图像
- * @param bounds clip bounds
- * @param targetSize dest size
- * @returns imgData
- */
-export function getImageDataFromRect(
-	image: HTMLImageElement,
-	bounds: [number, number, number, number],
-	targetSize: number,
-) {
-	/**
-	 * Get bounds from rect
-	 * @param rect
-	 * @param imgSize
-	 * @returns
-	 */
-	function rect2ImageBounds(clipBounds: [number, number, number, number], imgSize: number) {
-		const bounds = clipBounds.map((bound) => bound + 0.5);
-		// left-top
-		const sx = Math.floor(bounds[0] * imgSize);
-		const sy = Math.floor(bounds[1] * imgSize);
-		// w and h
-		const sw = Math.floor((bounds[2] - bounds[0]) * imgSize);
-		const sh = Math.floor((bounds[3] - bounds[1]) * imgSize);
-		return { sx, sy, sw, sh };
-	}
-
-	const cropRect = rect2ImageBounds(bounds, image.width);
-	targetSize = Math.min(targetSize, cropRect.sw);
-	const canvas = new OffscreenCanvas(targetSize, targetSize);
-	const ctx = canvas.getContext("2d")!;
-	ctx.imageSmoothingEnabled = false;
-	ctx.drawImage(image, cropRect.sx, cropRect.sy, cropRect.sw, cropRect.sh, 0, 0, targetSize, targetSize);
-	return ctx.getImageData(0, 0, targetSize, targetSize);
 }

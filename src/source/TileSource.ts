@@ -1,3 +1,9 @@
+/**
+ *@description: Base Class of map source
+ *@author: 郭江峰
+ *@date: 2023-04-05
+ */
+
 import { ProjectionType, ISource } from "./ISource";
 
 /**

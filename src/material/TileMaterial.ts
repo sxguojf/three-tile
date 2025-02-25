@@ -1,3 +1,9 @@
+/**
+ *@description: Tile marterila
+ *@author: Guojf
+ *@date: 2023-04-05
+ */
+
 import { FrontSide, MeshStandardMaterial, MeshStandardMaterialParameters, Texture } from "three";
 
 /**

@@ -1,5 +1,5 @@
 /**
- *@description: register normal loader
+ *@description: Plugin of normal loader
  *@author: Guojf
  *@date: 2023-04-05
  */

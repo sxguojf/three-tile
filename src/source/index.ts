@@ -1,5 +1,5 @@
 /**
- *@description: three-tile map source
+ *@description: Modules of map source
  *@author: Guojf
  *@date: 2023-04-05
  */

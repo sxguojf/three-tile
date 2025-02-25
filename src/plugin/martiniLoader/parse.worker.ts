@@ -1,3 +1,9 @@
+/**
+ *@description: terrain-RGB parse
+ *@author: Guojf
+ *@date: 2023-04-05
+ */
+
 import { parse } from "./parse";
 
 self.onmessage = (msg: MessageEvent) => {

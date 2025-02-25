@@ -1,5 +1,5 @@
 /**
- *@description: 一些几何体数据生成工具函数
+ *@description: utils of geometry
  *@author: Guojf
  *@date: 2023-04-06
  */
