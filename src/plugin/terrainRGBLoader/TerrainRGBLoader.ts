@@ -56,7 +56,7 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 				onParse(e.data);
 			};
 			// 向workder传递参数
-			worker.postMessage({ imgData }, imgData.data as any);
+			worker.postMessage({ imgData }, imgData as any);
 		} else {
 			// 将imageData解析成DEM
 			onParse(parse(imgData));

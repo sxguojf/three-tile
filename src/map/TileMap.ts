@@ -17,6 +17,29 @@ import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromW
  * TileMap Event Map
  * 地图事件
  */
+/**
+ * Interface representing the event map for a TileMap.
+ * Extends the Object3DEventMap interface.
+ *
+ * @interface TileMapEventMap
+ *
+ * @property {BaseEvent} ready - Event triggered when the TileMap is ready.
+ * @property {BaseEvent & { delta: number }} update - Event triggered when the TileMap is updated, with a delta value.
+ *
+ * @property {BaseEvent & { tile: Tile }} "tile-created" - Event triggered when a tile is created, with the created tile.
+ * @property {BaseEvent & { tile: Tile }} "tile-loaded" - Event triggered when a tile is loaded, with the loaded tile.
+ *
+ * @property {BaseEvent & { projection: IProjection }} "projection-changed" - Event triggered when the projection changes, with the new projection.
+ * @property {BaseEvent & { source: ISource | ISource[] | undefined }} "source-changed" - Event triggered when the source changes, with the new source(s).
+ *
+ * @property {BaseEvent & { itemsLoaded: number; itemsTotal: number }} "loading-start" - Event triggered when loading starts, with the number of items loaded and total items.
+ * @property {BaseEvent & { url: string }} "loading-error" - Event triggered when there is a loading error, with the URL of the failed resource.
+ * @property {BaseEvent} "loading-complete" - Event triggered when loading is complete.
+ * @property {BaseEvent & { url: string; itemsLoaded: number; itemsTotal: number }} "loading-progress" - Event triggered during loading progress, with the URL, items loaded, and total items.
+ *
+ * @property {BaseEvent & { url: string }} "parsing-start" - Event triggered when parsing starts, with the URL of the resource being parsed.
+ * @property {BaseEvent & { url: string }} "parsing-end" - Event triggered when parsing ends, with the URL of the parsed resource.
+ */
 export interface TileMapEventMap extends Object3DEventMap {
 	ready: BaseEvent;
 	update: BaseEvent & { delta: number };
@@ -403,7 +426,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	public update(camera: Camera) {
 		const elapseTime = this._clock.getElapsedTime();
 		// 控制瓦片树更新速率 10fps
-		if (elapseTime > 1 / 10) {
+		if (elapseTime > 1 / 5) {
 			this.rootTile.receiveShadow = this.receiveShadow;
 			this.rootTile.castShadow = this.castShadow;
 			this.rootTile.update({
