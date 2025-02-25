@@ -9,7 +9,8 @@ import { GeometryDataType } from "../../geometry";
 
 import * as Lerc from "./lercDecode/LercDecode.es";
 import { DEMType, parse } from "./parse";
-import ParseWorker from "./parse.Worker?worker";
+import ParseWorker from "./parse.Worker?worker&inline";
+import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
 
 /**
  * ArcGis-lerc格式瓦片几何体加载器
@@ -27,10 +28,10 @@ export class TileGeometryLercLoader extends TileGeometryLoader<DEMType> {
 
 	private async decode(buffer: ArrayBuffer) {
 		if (!Lerc.isLoaded()) {
-			// await Lerc.load({
-			// 	locateFile: (wasmFileName?: string | undefined, _scriptDir?: string | undefined) => `./${wasmFileName}`,
-			// });
-			await Lerc.load();
+			await Lerc.load({
+				locateFile: () => decodeUrl,
+			});
+			// await Lerc.load();
 		}
 		const { height, width, pixels } = Lerc.decode(buffer);
 		const demArray = new Float32Array(height * width);
