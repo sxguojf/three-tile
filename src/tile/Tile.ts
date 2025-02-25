@@ -50,17 +50,24 @@ const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
 const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
 const frustum = new Frustum();
-// let downloadingCount = 0;
+
 /**
  * Class Tile, inherit of Mesh
  */
+/**
+ * Represents a tile in a 3D scene.
+ * Extends the Mesh class with BufferGeometry and Material.
+ */
 export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
+	/**
+	 * Number of download threads.
+	 */
 	private static downloadThreads = 0;
 
 	/** Coordinate of tile */
-	public readonly x;
-	public readonly y;
-	public readonly z;
+	public readonly x: number;
+	public readonly y: number;
+	public readonly z: number;
 
 	/** Is a tile? */
 	public readonly isTile = true;
@@ -72,9 +79,18 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	public readonly children: this[] = [];
 
 	private _showing = false;
+
+	/**
+	 * Gets the showing state of the tile.
+	 */
 	public get showing() {
 		return this._showing;
 	}
+
+	/**
+	 * Sets the showing state of the tile.
+	 * @param value - The new showing state.
+	 */
 	public set showing(value) {
 		this._showing = value;
 		this.material.forEach((mat) => (mat.visible = value));
@@ -84,27 +100,54 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	/** Max height of tile */
 	private _maxZ = 0;
+
+	/**
+	 * Gets the maximum height of the tile.
+	 */
 	public get maxZ() {
 		return this._maxZ;
 	}
+
+	/**
+	 * Sets the maximum height of the tile.
+	 * @param value - The new maximum height.
+	 */
 	protected set maxZ(value) {
 		this._maxZ = value;
 	}
 
 	/** Min height of tile */
 	private _minZ = 0;
+
+	/**
+	 * Gets the minimum height of the tile.
+	 */
 	public get minZ() {
 		return this._minZ;
 	}
+
+	/**
+	 * Sets the minimum height of the tile.
+	 * @param value - The new minimum height.
+	 */
 	protected set minZ(value) {
 		this._minZ = value;
 	}
 
 	/** Avg height of tile */
 	private _avgZ = 0;
+
+	/**
+	 * Gets the average height of the tile.
+	 */
 	public get avgZ() {
 		return this._avgZ;
 	}
+
+	/**
+	 * Sets the average height of the tile.
+	 * @param value - The new average height.
+	 */
 	protected set avgZ(value) {
 		this._avgZ = value;
 	}
@@ -115,26 +158,34 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/* Tile size in world */
 	public sizeInWorld = 0;
 
-	/** Index of tile, mean positon in parent.  (0:left-top, 1:right-top, 2:left-bottom, 3:right-bottom，-1:parent is null）*/
+	/**
+	 * Gets the index of the tile in its parent's children array.
+	 * @returns The index of the tile.
+	 */
 	public get index(): number {
 		return this.parent ? this.parent.children.indexOf(this) : -1;
 	}
 
 	private _loaded = false;
 
-	/** Get load state */
+	/**
+	 * Gets the load state of the tile.
+	 */
 	public get loaded() {
-		//return this.material.length > 0;
 		return this._loaded;
 	}
 
 	private _inFrustum = false;
+
 	/** Is tile in frustum ?*/
 	public get inFrustum() {
 		return this._inFrustum;
 	}
 
-	/** Set tile is in frustum */
+	/**
+	 * Sets whether the tile is in the frustum.
+	 * @param value - The new frustum state.
+	 */
 	protected set inFrustum(value) {
 		this._inFrustum = value;
 	}
@@ -145,10 +196,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * constructor
-	 * @param x tile X-coordinate, default:0
-	 * @param y tile X-coordinate, default:0
-	 * * @param z tile level, default:0
+	 * Constructor for the Tile class.
+	 * @param x - Tile X-coordinate, default: 0.
+	 * @param y - Tile Y-coordinate, default: 0.
+	 * @param z - Tile level, default: 0.
 	 */
 	public constructor(x = 0, y = 0, z = 0) {
 		super(defaultGeometry, []);
@@ -161,8 +212,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Override Obejct3D.traverse, change the callback param type to "this"
-	 * @param callback callback
+	 * Override Object3D.traverse, change the callback param type to "this".
+	 * @param callback - The callback function.
 	 */
 	public traverse(callback: (object: this) => void): void {
 		callback(this);
@@ -172,8 +223,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Override Obejct3D.traverseVisible, change the callback param type to "this"
-	 * @param callback callback
+	 * Override Object3D.traverseVisible, change the callback param type to "this".
+	 * @param callback - The callback function.
 	 */
 	public traverseVisible(callback: (object: this) => void): void {
 		if (this.visible) {
@@ -185,7 +236,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Override Obejct3D.raycast, only test the tile has loaded
+	 * Override Object3D.raycast, only test the tile has loaded.
+	 * @param raycaster - The raycaster.
+	 * @param intersects - The array of intersections.
 	 */
 	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
 		if (this.showing && this.loaded && this.isTile) {
@@ -194,15 +247,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * LOD（Level of Detail）。
-	 *
-	 * @param loader
-	 * @param minLevel
-	 * @param maxLevel
-	 * @param threshold
-	 * @param onCreate
-	 * @param onLoad
-	 * @returns
+	 * LOD (Level of Detail).
+	 * @param loader - The tile loader.
+	 * @param minLevel - The minimum level.
+	 * @param maxLevel - The maximum level.
+	 * @param threshold - The threshold.
+	 * @param onCreate - The callback function when a tile is created.
+	 * @param onLoad - The callback function when a tile is loaded.
+	 * @returns The current tile.
 	 */
 	protected LOD(
 		loader: ITileLoader,
@@ -231,6 +283,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this;
 	}
 
+	/**
+	 * Updates the tile.
+	 * @param params - The update parameters.
+	 * @returns The current tile.
+	 */
 	public update(params: TileUpdateParames) {
 		if (!this.parent) {
 			return this;
@@ -239,7 +296,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		frustum.setFromProjectionMatrix(
 			tempMat4.multiplyMatrices(params.camera.projectionMatrix, params.camera.matrixWorldInverse),
 		);
-		// Get camera postion
+		// Get camera position
 		const cameraWorldPosition = params.camera.getWorldPosition(tempVec3);
 
 		// LOD for tiles
@@ -265,7 +322,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Check the map is ready to render
+	 * Checks if the map is ready to render.
+	 * @param minLevel - The minimum level.
+	 * @returns The current tile.
 	 */
 	private _checkReady(minLevel: number) {
 		if (!this._ready) {
@@ -294,7 +353,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Calculate the elevation of tiles in view
+	 * Calculates the elevation of tiles in view.
+	 * @returns The current tile.
 	 */
 	private _calcHeightInView() {
 		let sumZ = 0,
@@ -315,6 +375,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this;
 	}
 
+	/**
+	 * Checks the visibility of the tile.
+	 */
 	private _checkVisible() {
 		const parent = this.parent;
 		if (parent && parent.isTile) {
@@ -326,9 +389,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Callback function triggered when a tile is created
-	 *
-	 * @param newTile The newly created tile object
+	 * Callback function triggered when a tile is created.
+	 * @param newTile - The newly created tile object.
 	 */
 	private _onTileCreate(newTile: Tile) {
 		newTile.updateMatrix();
@@ -341,9 +403,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Callback function triggered when a tile is loaded completely
-	 *
-	 * @param newTile The loaded tile object
+	 * Callback function triggered when a tile is loaded completely.
+	 * @param newTile - The loaded tile object.
 	 */
 	private _onTileLoad(newTile: Tile) {
 		newTile._onLoad();
@@ -353,7 +414,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Reload data
+	 * Reloads the tile data.
+	 * @returns The current tile.
 	 */
 	public reload() {
 		this.dispose(true);
@@ -362,8 +424,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Free the tile resources
-	 * @param disposeSelf dispose self?
+	 * Frees the tile resources.
+	 * @param disposeSelf - Whether to dispose the tile itself.
+	 * @returns The current tile.
 	 */
 	public dispose(disposeSelf: boolean) {
 		if (disposeSelf && this.isTile && this.loaded) {
@@ -373,7 +436,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			this.geometry.dispose();
 			this.dispatchEvent({ type: "dispose" });
 		}
-		// remove all children recursionly
+		// remove all children recursively
 		this.children.forEach((child) => child.dispose(true));
 		this.clear();
 		return this;

@@ -61,7 +61,6 @@ export type MapParams = {
 export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	// 渲染时钟计时器
 	private readonly _clock = new Clock();
-	private readonly _clock2 = new Clock();
 
 	// 是否为LOD模型（LOD模型，当autoUpdate为真时渲染时会自动调用update方法）
 	public readonly isLOD = true;
@@ -399,9 +398,9 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * @param camera
 	 */
 	public update(camera: Camera) {
-		const delta = this._clock2.getElapsedTime();
+		const elapseTime = this._clock.getElapsedTime();
 		// 控制瓦片树更新速率 10fps
-		if (delta > 1 / 10) {
+		if (elapseTime > 1 / 10) {
 			this.rootTile.receiveShadow = this.receiveShadow;
 			this.rootTile.castShadow = this.castShadow;
 			this.rootTile.update({
@@ -411,7 +410,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 				maxLevel: this.maxLevel,
 				LODThreshold: this.LODThreshold,
 			});
-			this._clock2.start();
+			this._clock.start();
 		}
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 
