@@ -1,3 +1,9 @@
+/**
+ *@description: Fake earth material
+ *@author: 郭江峰
+ *@date: 2023-04-05
+ */
+
 import { Color, ShaderMaterial, UniformsLib, UniformsUtils } from "three";
 
 const vert = `

@@ -1,43 +1,59 @@
 /**
- *@description: Loader factory
- *@author: Guojf
+ *@description: Tile Loader factory
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
 import { LoadingManager } from "three";
 import { ISource } from "../source";
 import { ITileGeometryLoader, ITileMaterialLoader } from "./ITileLoaders";
+import { author, version } from "..";
+
+console.log(`====================three-tile V${version}==============================`);
+
+export class TileLoadingManager extends LoadingManager {
+	public onParseStart?: (url: string) => void = undefined;
+	public onParseEnd?: (url: string) => void = undefined;
+
+	public parseStart(url: string) {
+		this.onParseStart && this.onParseStart(url);
+		// console.log(url);
+	}
+	public parseEnd(url: string) {
+		setTimeout(() => this.onParseEnd && this.onParseEnd!(url));
+	}
+}
 
 /**
- * factory for loader
+ * Factory for loader
  */
 export const LoaderFactory = {
-	manager: new LoadingManager(),
-	// dict of dem loader
+	manager: new TileLoadingManager(),
+	// Dict of dem loader
 	demLoaderMap: new Map<string, ITileGeometryLoader>(),
-	// dict of img loader
+	// Dict of img loader
 	imgLoaderMap: new Map<string, ITileMaterialLoader>(),
 
 	/**
-	 * register material loader
+	 * Register material loader
 	 * @param loader material loader
 	 */
 	registerMaterialLoader(loader: ITileMaterialLoader) {
 		LoaderFactory.imgLoaderMap.set(loader.dataType, loader);
-		console.log(`* Register imageLoader: ${loader.dataType}`);
+		console.log(`* Register imageLoader: '${loader.dataType}', Author: '${loader.author || author.name}'`);
 	},
 
 	/**
-	 * register geometry loader
+	 * Register geometry loader
 	 * @param loader geometry loader
 	 */
 	registerGeometryLoader(loader: ITileGeometryLoader) {
 		LoaderFactory.demLoaderMap.set(loader.dataType, loader);
-		console.log(`* Register terrainLoader: ${loader.dataType}`);
+		console.log(`* Register terrainLoader: '${loader.dataType}', Author: '${loader.author || author.name}'`);
 	},
 
 	/**
-	 * get material loader from datasource
+	 * Get material loader from datasource
 	 * @param source datasource
 	 * @returns material loader
 	 */
@@ -51,7 +67,7 @@ export const LoaderFactory = {
 	},
 
 	/**
-	 * get geometry loader from datasource
+	 * Get geometry loader from datasource
 	 * @param source datasouce
 	 * @returns geometry loader
 	 */

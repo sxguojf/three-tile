@@ -1,16 +1,17 @@
 /**
- *@description: Loader interface
- *@author: Guojf
+ *@description: Tile loader interface
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, LoadingManager, Material } from "three";
+import { BufferGeometry, Material } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
+import { TileLoadingManager } from "./LoaderFactory";
 
 /** Tile loader interface */
 export interface ITileLoader {
-	manager: LoadingManager;
+	manager: TileLoadingManager;
 	imgSource: ISource[];
 	demSource: ISource | undefined;
 	cacheSize: number;
@@ -22,6 +23,7 @@ export interface ITileLoader {
 export interface ITileMaterialLoader {
 	dataType: string;
 	useWorker?: boolean;
+	author?: string;
 	load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material;
 }
 
@@ -29,6 +31,7 @@ export interface ITileMaterialLoader {
 export interface ITileGeometryLoader {
 	dataType: string;
 	useWorker?: boolean;
+	author?: string;
 	load(
 		source: ISource,
 		x: number,

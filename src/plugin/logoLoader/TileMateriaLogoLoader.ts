@@ -1,3 +1,9 @@
+/**
+ *@description: Logo loader
+ *@author: 郭江峰
+ *@date: 2023-04-05
+ */
+
 import { CanvasTexture, MeshBasicMaterial } from "three";
 import { ITileMaterialLoader } from "../../loader";
 import { ISource } from "../../source";
@@ -19,7 +25,7 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	public load(source: ISource, _x: number, _y: number, z: number, onLoad: () => void): MeshBasicMaterial {
 		// 瓦片级别<4不绘制logo
 		if (z < 4) {
-			setTimeout(onLoad);
+			onLoad();
 			return new MeshBasicMaterial();
 		}
 
@@ -35,7 +41,7 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 			opacity: source.opacity,
 		});
 
-		setTimeout(onLoad);
+		onLoad();
 
 		return material;
 	}

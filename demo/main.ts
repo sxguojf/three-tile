@@ -5,7 +5,8 @@ import * as gui from "./gui";
 import * as source from "./mapSource";
 import { addFakeEarth, addMapBackground, limitCameraHeight } from "./utils";
 
-console.log(`three-tile V${tt.version}, ${tt.author.name}`);
+console.log("===================================================================");
+console.log(`three-tile V${tt.version}, ${tt.author.email}`);
 document.querySelector<HTMLSpanElement>("#version")!.innerText = tt.version;
 
 // 创建地图
@@ -51,12 +52,12 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 摄像机经纬度高度转为世界坐标
 	const cameraPosition = map.geo2world(camersGeo);
 	// 初始化场景
-	const viewer = new tt.plugin.GLViewer(id, { centerPostion, cameraPosition });
+	const viewer = new tt.plugin.GLViewer(id, { centerPosition: centerPostion, cameraPosition });
 	// 地图添加到场景
 	viewer.scene.add(map);
 
 	// 测试
-	const imageBounds = map.projection.getPorjBounds([105, 33, 109, 37]);
+	const imageBounds = map.projection.getProjBounds([105, 33, 109, 37]);
 	const imageMesh = createBoundsMesh(imageBounds, 0xffff00);
 	map.add(imageMesh);
 

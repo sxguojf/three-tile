@@ -1,6 +1,6 @@
 /**
- *@description: register debug material laoder
- *@author: Guojf
+ *@description: Debug material laoder
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
@@ -10,7 +10,7 @@ import { TileMaterial } from "../../material";
 import { ISource } from "../../source";
 
 /**
- * Debug material laoder, it draw a box and coordinate on tile
+ * Debug material laoder, Tt draw a rectangle and coordinate on the tile
  */
 export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "debug";
@@ -24,7 +24,7 @@ export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 			map: texture,
 			opacity: source.opacity,
 		});
-		setTimeout(onLoad);
+		onLoad();
 		return material;
 	}
 

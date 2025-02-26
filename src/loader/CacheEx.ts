@@ -1,11 +1,12 @@
 /**
  *@description: Cache for File loader
- *@author: Guojf
+ *@reference https://threejs.org/docs/index.html?q=cache#api/zh/loaders/Cache
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
 /**
- * overwrite threejs.Cache，added cache file count
+ * Overwrite threejs.Cache，added cache file count
  */
 export class CacheEx {
 	public static enabled = true;

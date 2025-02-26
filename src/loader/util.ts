@@ -1,6 +1,6 @@
 /**
- *@description: Utils functions
- *@author: Guojf
+ *@description: Utils for loader
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
@@ -8,51 +8,19 @@ import { Box2, Vector2 } from "three";
 import { ISource } from "../source";
 
 /**
- * Get bounds from rect
- * @param rect
- * @param imgSize
- * @returns
+ * Get bounds to clip image
+ * @param clipBounds bounds [minx,miny,maxx,maxy],0-1
+ * @param targetSize size to scale
+ * @returns startX,StarY,width,height
  */
-export function rect2ImageBounds(rect: Box2, imgSize: number) {
-	rect.translate(new Vector2(0.5, 0.5));
-	// left-top
-	const sx = Math.floor(rect.min.x * imgSize);
-	const sy = Math.floor(rect.min.y * imgSize);
-	// w and h
-	const sw = Math.floor((rect.max.x - rect.min.x) * imgSize);
-	const sh = Math.floor((rect.max.y - rect.min.y) * imgSize);
+export function getBoundsCoord(clipBounds: [number, number, number, number], targetSize: number) {
+	// left-top coordinate
+	const sx = Math.floor(clipBounds[0] * targetSize);
+	const sy = Math.floor(clipBounds[1] * targetSize);
+	// width and height of the clipped image
+	const sw = Math.floor((clipBounds[2] - clipBounds[0]) * targetSize);
+	const sh = Math.floor((clipBounds[3] - clipBounds[1]) * targetSize);
 	return { sx, sy, sw, sh };
-}
-
-/**
- * Image resize
- * @param image source image
- * @param size dest size
- * @returns canvas
- */
-export function imageResize(image: HTMLImageElement, size: number) {
-	if (image.width <= size) {
-		return image;
-	}
-	// create a canvas
-	const canvas = document.createElement("canvas");
-	const context = canvas.getContext("2d")!;
-
-	// set the canvas size
-	canvas.width = size;
-	canvas.height = size;
-
-	// get scale size
-	const scaledSize = size - 2;
-
-	// draw
-	context.drawImage(image, 0, 0, image.width, image.height, 1, 1, scaledSize, scaledSize);
-
-	// draw bounds (skrit)
-	const imageData = context.getImageData(1, 1, scaledSize, scaledSize);
-	context.putImageData(imageData, 0, 0);
-
-	return canvas;
 }
 
 /**
@@ -73,9 +41,11 @@ export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z
 	// 请数据级别<最大级别返回图片uil已经全部图片范围
 	if (z <= source.maxLevel) {
 		const url = source._getTileUrl(x, y, z);
+		// const box = new Box2(new Vector2(-0.5, -0.5), new Vector2(0.5, 0.5));
+		const bounds: [number, number, number, number] = [0, 0, 1, 1];
 		return {
 			url,
-			bounds: new Box2(new Vector2(-0.5, -0.5), new Vector2(0.5, 0.5)),
+			bounds,
 		};
 	}
 
@@ -100,7 +70,13 @@ function getMaxLevelTileAndBounds(x: number, y: number, z: number, maxLevel: num
 	const yy = (y % sep) / sep - 0.5 + size / 2;
 	const parentCenter = new Vector2(xx, yy);
 
-	const bounds = new Box2().setFromCenterAndSize(parentCenter, new Vector2(size, size));
+	const box = new Box2().setFromCenterAndSize(parentCenter, new Vector2(size, size));
+	const bounds: [number, number, number, number] = [
+		box.min.x + 0.5,
+		box.min.y + 0.5,
+		box.max.x + 0.5,
+		box.max.y + 0.5,
+	];
 
 	return { parentNO, bounds };
 }

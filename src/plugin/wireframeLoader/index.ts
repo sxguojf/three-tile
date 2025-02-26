@@ -1,6 +1,6 @@
 /**
- *@description: register Wireframe material loader
- *@author: Guojf
+ *@description: Plugin of Wireframe material loader
+ *@author: 郭江峰
  *@date: 2023-04-05
  */
 

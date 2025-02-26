@@ -1,6 +1,6 @@
 /**
- *@description: three-tile tile loader
- *@author: Guojf
+ *@description: Modules of tile loader
+ *@author: 郭江峰
  *@date: 2023-04-05
  */
 
@@ -20,3 +20,4 @@ export * from "./TileLoader";
 
 // texture loader
 export * from "./TileTextureLoader";
+export * from "./TileGeometryLoader";

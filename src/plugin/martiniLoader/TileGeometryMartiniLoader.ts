@@ -1,19 +1,13 @@
 /**
  *@description: Mapbox-RGB + Martini geometry loader
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
-import { Box2, BufferGeometry } from "three";
-import {
-	ITileGeometryLoader,
-	ImageLoaderEx,
-	LoaderFactory,
-	getSafeTileUrlAndBounds,
-	rect2ImageBounds,
-} from "../../loader";
-import { ISource } from "../../source";
+import { BufferGeometry } from "three";
 import { GeometryDataType, TileGeometry } from "../../geometry";
+import { ITileGeometryLoader, ImageLoaderEx, LoaderFactory, getSafeTileUrlAndBounds } from "../../loader";
+import { ISource } from "../../source";
 import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
@@ -57,7 +51,7 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 		if (url) {
 			this._load(url, x, y, z, geometry, bounds, onLoad, abortSignal);
 		} else {
-			setTimeout(onLoad);
+			onLoad();
 		}
 		return geometry;
 	}
@@ -68,7 +62,7 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 		_y: number,
 		z: number,
 		geometry: TileGeometry,
-		bounds: Box2,
+		bounds: [number, number, number, number],
 		onLoad: () => void,
 		abortSignal: AbortSignal,
 	) {
@@ -100,6 +94,16 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 	}
 }
 
+function rect2ImageBounds(clipBounds: [number, number, number, number], imgSize: number) {
+	// left-top coordinate
+	const sx = Math.floor(clipBounds[0] * imgSize);
+	const sy = Math.floor(clipBounds[1] * imgSize);
+	// width and height of the clipped image
+	const sw = Math.floor((clipBounds[2] - clipBounds[0]) * imgSize);
+	const sh = Math.floor((clipBounds[3] - clipBounds[1]) * imgSize);
+	return { sx, sy, sw, sh };
+}
+
 /**
  * Get pixels in bounds from image and resize to targetSize
  * 从image中截取bounds区域子图像，缩放到targetSize大小，返回其中的像素数组
@@ -108,7 +112,7 @@ export class TileGeometryMartiniLoader implements ITileGeometryLoader {
  * @param targetSize dest size
  * @returns imgData
  */
-function getImageDataFromRect(image: HTMLImageElement, bounds: Box2) {
+function getImageDataFromRect(image: HTMLImageElement, bounds: [number, number, number, number]) {
 	// 取得子图像范围
 	const cropRect = rect2ImageBounds(bounds, image.width);
 	const targetSize = Math.min(256, cropRect.sw);

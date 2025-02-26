@@ -1,6 +1,6 @@
 [English](README.md) | [简体中文](README_CN.md)
 
-# **three-tile V0.8.3**
+# **three-tile V0.8.5**
 
 <p align='right'>hz_gjf@163.com</p>
 
@@ -224,18 +224,18 @@ type MapParams = {
 
 ### 4.2 TileMap 主要属性
 
-| 名称          | 类型     | 说明                                                         |
-| ------------- | -------- | ------------------------------------------------------------ |
+| 名称          | 类型     | 说明                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | autoUpdate    | boolean  | 默认为 true，指定是否在每帧渲染中更新地图模型和数据。禁止更新主要有两种使用场景，一是在某些特效需要增加新摄像机离线渲染图像，如水面、反光等特效，当 autoUpdate 为 true 时，地图瓦片会根据摄像机位置做 LOD，无法取得正确的离线渲染图像，为解决这个问题可在加载特效前将 autoUpdate 设 为 false，禁止自动更新，特效渲染完成后恢复自动；二是用于瓦片树和数据加载调试，运行时禁止自动更新可查看瓦片树是否正确得被细化、合并、剔除 |
-| autoPosition  | boolean  | 默认为 false，指定是否在每帧渲染中根据视野内瓦片的平均海拔高度调整地图模型的位置（高度）。地图模型默认位置在海拔 0 米，但在高海拔地区，地面在视野里显得很高，打开自动调整会将模型位置调整为地面平均海拔高度而不是 0 米。如果你不明白它是啥意思，保持默认值 |
-| useWorker     | boolean  | 默认为true，是否使用WebWorker解析数据，避免数据解析期间的渲染的卡顿 |
-| maxZInView    | number   | 取得视野内地形的最高高度                                     |
-| minZInView    | number   | 取得视野内地形的最低高度                                     |
-| avgZInView    | number   | 取得视野内地形的平均高度                                     |
-| loadCacheSize | number   | 默认为 300，设置或取得瓦片数据的缓存大小，单位为块。较大的缓存能提高运行速度，但会耗费较多内存 |
-| LODThreshold  | number   | 默认为 1，设置瓦片 LOD 阈值系数。TileMap 本质上是一个动态 LOD 模型，它根据瓦片离摄像机的距离对模型进行细化或合并，该值越大瓦片细化越快，越小瓦片合并越快快 |
-| attributions  | string[] | 取得瓦片数据归属者信息，如版权等，来自瓦片数据源定义中的 attributions 属性 |
-| tileCount     | Object   | 取得瓦片统计信息，如瓦片总数、叶子瓦片数、可视瓦片数等，主要用来进行调试 |
+| autoPosition  | boolean  | 默认为 false，指定是否在每帧渲染中根据视野内瓦片的平均海拔高度调整地图模型的位置（高度）。地图模型默认位置在海拔 0 米，但在高海拔地区，地面在视野里显得很高，打开自动调整会将模型位置调整为地面平均海拔高度而不是 0 米。如果你不明白它是啥意思，保持默认值                                                                                                                                                                   |
+| useWorker     | boolean  | 默认为true，是否使用WebWorker解析数据，避免数据解析期间的渲染的卡顿                                                                                                                                                                                                                                                                                                                                                          |
+| maxZInView    | number   | 取得视野内地形的最高高度                                                                                                                                                                                                                                                                                                                                                                                                     |
+| minZInView    | number   | 取得视野内地形的最低高度                                                                                                                                                                                                                                                                                                                                                                                                     |
+| avgZInView    | number   | 取得视野内地形的平均高度                                                                                                                                                                                                                                                                                                                                                                                                     |
+| loadCacheSize | number   | 默认为 300，设置或取得瓦片数据的缓存大小，单位为块。较大的缓存能提高运行速度，但会耗费较多内存                                                                                                                                                                                                                                                                                                                               |
+| LODThreshold  | number   | 默认为 1，设置瓦片 LOD 阈值系数。TileMap 本质上是一个动态 LOD 模型，它根据瓦片离摄像机的距离对模型进行细化或合并，该值越大瓦片细化越快，越小瓦片合并越快快                                                                                                                                                                                                                                                                   |
+| attributions  | string[] | 取得瓦片数据归属者信息，如版权等，来自瓦片数据源定义中的 attributions 属性                                                                                                                                                                                                                                                                                                                                                   |
+| tileCount     | Object   | 取得瓦片统计信息，如瓦片总数、叶子瓦片数、可视瓦片数等，主要用来进行调试                                                                                                                                                                                                                                                                                                                                                     |
 
 ### 4.3 TileMap 主要方法
 
@@ -255,7 +255,7 @@ type MapParams = {
 
 | 事件名称           | 参数                                                    | 说明                                                               |
 | ------------------ | ------------------------------------------------------- | ------------------------------------------------------------------ |
-| update             | delta: 时间戳                                           | 在地图每帧更新时发生，与 threejs 的渲染回调函数基本一致            |
+| update             | delta: 瓦片树更新时长ms                                 | 在地图瓦片树更新时发生                                             |
 | tile-created       | tile: 瓦片                                              | 在每块瓦片创建完成后发生，可在此事件中修改瓦片默认属性             |
 | tile-loaded        | tile: 瓦片                                              | 在每块瓦片数据加载完成时发生，可在此事件中修改瓦片几何体和材质属性 |
 | source-changed     | source: 地图数据源                                      | 在数据源对象发生变化时发生                                         |
@@ -263,6 +263,8 @@ type MapParams = {
 | loading-start      | itemsLoaded: 加载完成数量<br />itemsTotal: 加载完成合计 | 在地图数据开始加载时发生（THREE.LoadingManager 事件的封装）        |
 | loading-error      | url: 瓦片 url                                           | 在地图数据加载错误时发生（THREE.LoadingManager 事件的封装）        |
 | loading-complete   | 无                                                      | 在地图数据全部加载完成时发生（THREE.LoadingManager 事件的封装）    |
+| parsing-start      | url: 瓦片 url                                           | 在地图数据解析开始时发生                                           |
+| parsing-end        | url: 瓦片 url                                           | 在地图数据解析完成时发生                                           |
 
 ## 5. 约定和限制
 
@@ -360,9 +362,9 @@ type MapParams = {
 			// 地图旋转到xz平面
 			map.rotateX(-Math.PI / 2);
 
-			// 地图中心坐标(经度，纬度，高度)
+			// 地图中心坐标(经度，纬度，高度KM)
 			const centerGeo = new THREE.Vector3(105, 30, 0);
-			// 摄像坐标(经度，纬度，高度)
+			// 摄像坐标(经度，纬度，高度KM)
 			const camersGeo = new THREE.Vector3(105, 0, 5000);
 			// 地图中心转为世界坐标
 			const centerPostion = map.geo2world(centerGeo);
@@ -390,3 +392,5 @@ type MapParams = {
 -   https://github.com/NASA-AMMOS/3DTilesRendererJS
 -   https://github.com/wlgys8/GPUDrivenTerrainLearn
 -   https://github.com/lijundacom/LeoGPUDriven
+-   https://github.com/mapbox/martini
+-   https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts

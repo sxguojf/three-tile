@@ -1,6 +1,6 @@
 /**
  *@description: Map projection interface
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
@@ -20,6 +20,6 @@ export interface IProjection {
 	project(lon: number, lat: number): { x: number; y: number };
 	unProject(x: number, y: number): { lon: number; lat: number };
 	getTileXWithCenterLon(x: number, z: number): number;
-	getPorjBounds(bounds: [number, number, number, number]): [number, number, number, number];
+	getProjBounds(bounds: [number, number, number, number]): [number, number, number, number];
 	getTileBounds(x: number, y: number, z: number): [number, number, number, number];
 }

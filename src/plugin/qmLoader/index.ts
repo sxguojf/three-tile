@@ -1,6 +1,6 @@
 /**
- *@description: register Quantized-Mesh tile geometry loader
- *@author: Guojf
+ *@description: Quantized-Mesh tile geometry loader
+ *@author: 郭江峰
  *@date: 2023-04-05
  */
 

@@ -1,6 +1,7 @@
 /**
- *@description: File loader with abort
- *@author: Guojf
+ *@description: File loader with abort, base threejs
+ *@reference https://github.com/mrdoob/three.js/blob/master/src/loaders/FileLoader.js
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
@@ -42,7 +43,6 @@ export class FileLoaderEx extends Loader {
 
 		if (cached) {
 			// console.log("Hit net cache...");
-
 			this.manager.itemStart(url);
 			setTimeout(() => {
 				if (onLoad) onLoad(cached);

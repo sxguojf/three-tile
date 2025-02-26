@@ -1,6 +1,7 @@
 /**
- *@description: Image loader whit abort
- *@author: Guojf
+ *@description: Image loader whit abort, base threejs
+ *@refrence https://threejs.org/docs/index.html?q=image#api/zh/loaders/ImageLoader @
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
@@ -12,7 +13,7 @@ import { LoaderFactory } from "./LoaderFactory";
 const EMPTYIMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 /**
- *  image load with abording
+ *  Image load with abording
  *
  * orverwrite threejs.ImageLoader，load using fetch，added abortSignal to abort load.
  *

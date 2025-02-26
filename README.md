@@ -1,6 +1,6 @@
 [English](README.md) | [简体中文](README_CN.md)
 
-# **three-tile V0.8.3**
+# **three-tile V0.8.5**
 
 <p align='right'>hz_gjf@163.com</p>
 
@@ -256,7 +256,7 @@ During runtime, you can change the state of the map by modifying these propertie
 
 | Event Name         | Parameters                                                               | Description                                                                                                  |
 | ------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| update             | delta: timestamp                                                         | Occurs on each frame update of the map, similar to the render callback function in threejs                   |
+| update             | delta: tile tree updata elapse time(ms)                                  | Occurs on each frame update of the map, similar to the render callback function in threejs                   |
 | tile-created       | tile: tile                                                               | Occurs after each tile is created, allowing modification of default tile properties                          |
 | tile-loaded        | tile: tile                                                               | Occurs when the data for each tile is loaded, allowing modification of tile geometry and material properties |
 | source-changed     | source: map data source                                                  | Occurs when the data source object changes                                                                   |
@@ -289,3 +289,5 @@ During runtime, you can change the state of the map by modifying these propertie
 -   https://github.com/NASA-AMMOS/3DTilesRendererJS
 -   https://github.com/wlgys8/GPUDrivenTerrainLearn
 -   https://github.com/lijundacom/LeoGPUDriven
+-   https://github.com/mapbox/martini
+-   https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts

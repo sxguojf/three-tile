@@ -44,6 +44,12 @@ export function showLoading(map: tt.TileMap) {
 			loading.style.color = "red";
 			console.error("Downloading error:", evt.url);
 		});
+		map.addEventListener("parsing-start", () => {
+			loading.innerHTML = "Parsing...";
+		});
+		map.addEventListener("parsing-end", () => {
+			loading.innerHTML = "Parsing end!";
+		});
 	}
 }
 

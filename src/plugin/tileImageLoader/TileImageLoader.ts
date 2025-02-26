@@ -1,6 +1,6 @@
 /**
  *@description: Image material loader
- *@author: Guojf
+ *@author: 郭江峰
  *@date: 2023-04-06
  */
 
@@ -11,11 +11,10 @@ import { TileMaterial } from "../../material";
 import { ISource } from "../../source";
 
 /**
- * image material loader
+ * Image tile material loader
  */
 export class TileImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "image";
-	public useWorker = false;
 
 	public load(
 		source: ISource,
@@ -25,7 +24,7 @@ export class TileImageLoader implements ITileMaterialLoader {
 		onLoad: () => void,
 		abortSignal: AbortSignal,
 	): Material {
-		const material = this.createMaterial();
+		const material = new TileMaterial();
 		material.opacity = source.opacity;
 		const textureLoader = new TileTextureLoader();
 		const texture = textureLoader.load(
@@ -34,8 +33,7 @@ export class TileImageLoader implements ITileMaterialLoader {
 			y,
 			z,
 			() => {
-				material.map = texture;
-				texture.needsUpdate = true;
+				material.setTexture(texture);
 				onLoad();
 			},
 			onLoad,
@@ -43,9 +41,5 @@ export class TileImageLoader implements ITileMaterialLoader {
 		);
 
 		return material;
-	}
-
-	public createMaterial() {
-		return new TileMaterial();
 	}
 }

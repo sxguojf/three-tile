@@ -1,6 +1,6 @@
 /**
- *@description: threejs 3D scene initalize
- *@author: Guojf
+ *@description: Threejs 3D scene initalize
+ *@author: 郭江峰
  *@date: 2023-04-05
  */
 
@@ -33,7 +33,7 @@ export interface GLViewerEventMap extends Object3DEventMap {
  * GlViewer options
  */
 type GLViewerOptions = {
-	centerPostion?: Vector3;
+	centerPosition?: Vector3;
 	cameraPosition?: Vector3;
 	antialias?: boolean;
 	stencil?: boolean;
@@ -75,7 +75,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		const el = typeof container === "string" ? document.querySelector(container) : container;
 		if (el instanceof HTMLElement) {
 			const {
-				centerPostion = new Vector3(0, 0, -3000),
+				centerPosition: centerPostion = new Vector3(0, 0, -3000),
 				cameraPosition = new Vector3(0, 30000, 0),
 				antialias = false,
 				stencil = true,
@@ -96,7 +96,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			this.resize();
 			this.renderer.setAnimationLoop(this.animate.bind(this));
 		} else {
-			throw `${container} not found!}`;
+			throw new Error(`${container} not found!`);
 		}
 	}
 
@@ -130,14 +130,18 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		camera.position.copy(pos);
 		return camera;
 	}
-
 	private _createControls(centerPos: Vector3) {
+		const DIST_THRESHOLD = 8000;
+		const POLAR_BASE = 10000;
+		const POLAR_EXPONENT = 4;
+		const MAX_POLAR_ANGLE = 1.2;
+
 		const controls = new MapControls(this.camera, this.container);
 		controls.target.copy(centerPos);
 		controls.screenSpacePanning = false;
 		controls.minDistance = 0.1;
 		controls.maxDistance = 30000;
-		controls.maxPolarAngle = 1.2;
+		controls.maxPolarAngle = MAX_POLAR_ANGLE;
 		controls.enableDamping = true;
 		controls.dampingFactor = 0.05;
 		controls.keyPanSpeed = 5;
@@ -145,35 +149,24 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		this.container.tabIndex = 0;
 		controls.listenToKeyEvents(this.container);
 		controls.addEventListener("change", () => {
-			// camera polar
 			const polar = Math.max(this.controls.getPolarAngle(), 0.1);
-			// dist of camera to controls
 			const dist = Math.max(this.controls.getDistance(), 0.1);
 
-			// set zoom speed on dist
 			controls.zoomSpeed = Math.max(Math.log(dist), 0) + 0.5;
 
-			// set far and near on dist/polar
 			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 50000);
 			this.camera.near = this.camera.far / 1000;
 			this.camera.updateProjectionMatrix();
 
-			// set fog density on dist/polar
 			if (this.scene.fog instanceof FogExp2) {
 				this.scene.fog.density = (polar / (dist + 5)) * this.fogFactor * 0.25;
 			}
 
-			// set azimuth to 0 when dist>800
-			if (dist > 8000) {
-				controls.minAzimuthAngle = 0;
-				controls.maxAzimuthAngle = 0;
-			} else {
-				controls.minAzimuthAngle = -Infinity;
-				controls.maxAzimuthAngle = Infinity;
-			}
+			const isDistAboveThreshold = dist > DIST_THRESHOLD;
+			controls.minAzimuthAngle = isDistAboveThreshold ? 0 : -Infinity;
+			controls.maxAzimuthAngle = isDistAboveThreshold ? 0 : Infinity;
 
-			// limit the max polar on dist
-			controls.maxPolarAngle = Math.min(Math.pow(10000 / dist, 4), 1.2);
+			controls.maxPolarAngle = Math.min(Math.pow(POLAR_BASE / dist, POLAR_EXPONENT), MAX_POLAR_ANGLE);
 		});
 		return controls;
 	}

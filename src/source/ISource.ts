@@ -1,3 +1,9 @@
+/**
+ *@description: Interface of map source
+ *@author: 郭江峰
+ *@date: 2023-04-05
+ */
+
 /** Project ID */
 export type ProjectionType = "3857" | "4326";
 /**
@@ -26,4 +32,5 @@ export interface ISource {
 	_getTileUrl: (x: number, y: number, z: number) => string | undefined;
 	/** Get the tile bounds , internal use*/
 	_getTileBounds(x: number, y: number, z: number): [number, number, number, number];
+	useData: { [key: string]: any };
 }
