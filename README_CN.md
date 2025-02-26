@@ -255,7 +255,7 @@ type MapParams = {
 
 | 事件名称           | 参数                                                    | 说明                                                               |
 | ------------------ | ------------------------------------------------------- | ------------------------------------------------------------------ |
-| update             | delta: 时间戳                                           | 在地图每帧更新时发生，与 threejs 的渲染回调函数基本一致            |
+| update             | delta: 瓦片树更新时长ms                                 | 在地图瓦片树更新时发生                                             |
 | tile-created       | tile: 瓦片                                              | 在每块瓦片创建完成后发生，可在此事件中修改瓦片默认属性             |
 | tile-loaded        | tile: 瓦片                                              | 在每块瓦片数据加载完成时发生，可在此事件中修改瓦片几何体和材质属性 |
 | source-changed     | source: 地图数据源                                      | 在数据源对象发生变化时发生                                         |
@@ -362,9 +362,9 @@ type MapParams = {
 			// 地图旋转到xz平面
 			map.rotateX(-Math.PI / 2);
 
-			// 地图中心坐标(经度，纬度，高度)
+			// 地图中心坐标(经度，纬度，高度KM)
 			const centerGeo = new THREE.Vector3(105, 30, 0);
-			// 摄像坐标(经度，纬度，高度)
+			// 摄像坐标(经度，纬度，高度KM)
 			const camersGeo = new THREE.Vector3(105, 0, 5000);
 			// 地图中心转为世界坐标
 			const centerPostion = map.geo2world(centerGeo);

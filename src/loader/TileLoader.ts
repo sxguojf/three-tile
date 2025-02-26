@@ -15,45 +15,46 @@ import { LoaderFactory } from "./LoaderFactory";
  * Tile loader
  */
 export class TileLoader implements ITileLoader {
-	/** get loader cache size of file  */
+	/** Get loader cache size of file  */
 	public get cacheSize() {
 		return CacheEx.size;
 	}
-	/** set loader cache size of file  */
+	/** Set loader cache size of file  */
 	public set cacheSize(value) {
 		CacheEx.size = value;
 	}
 
 	private _imgSource: ISource[] = [];
-	/** get image source */
+	/** Get image source */
 	public get imgSource(): ISource[] {
 		return this._imgSource;
 	}
-	/** set image source */
+	/** Set image source */
 	public set imgSource(value: ISource[]) {
 		this._imgSource = value;
 	}
 
 	private _demSource: ISource | undefined;
-	/** get dem source */
+	/** Get DEM source */
 	public get demSource(): ISource | undefined {
 		return this._demSource;
 	}
-	/** set dem source */
+	/** Set DEM source */
 	public set demSource(value: ISource | undefined) {
 		this._demSource = value;
 	}
 
 	private _useWorker = true;
-	/** get use worker */
+	/** Get use worker */
 	public get useWorker() {
 		return this._useWorker;
 	}
-	/** set use worker */
+	/** Set use worker */
 	public set useWorker(value: boolean) {
 		this._useWorker = value;
 	}
 
+	/** Loader manager */
 	public manager = LoaderFactory.manager;
 
 	/**
@@ -84,31 +85,27 @@ export class TileLoader implements ITileLoader {
 		return tile;
 	}
 
+	/**
+	 * Load Geometry and meterial
+	 */
 	protected doLoad(tile: Tile, onLoad: () => void, abortSignal: AbortSignal): void {
-		const loadMaterial = (geometry: BufferGeometry, materials: Material[]) => {
-			for (let i = 0; i < materials.length; i++) {
-				geometry.addGroup(0, Infinity, i);
-			}
-			tile.geometry = geometry;
-			tile.material = materials;
-			onLoad();
-		};
-
 		const loadGeometry = () => {
-			const materials = this.loadMaterial(
-				tile.x,
-				tile.y,
-				tile.z,
-				() => loadMaterial(geometry, materials),
-				abortSignal,
-			);
+			const materials = this.loadMaterial(tile.x, tile.y, tile.z, () => loadMaterial(), abortSignal);
+			const loadMaterial = () => {
+				for (let i = 0; i < materials.length; i++) {
+					geometry.addGroup(0, Infinity, i);
+				}
+				tile.geometry = geometry;
+				tile.material = materials;
+				onLoad();
+			};
 		};
 
 		const geometry = this.loadGeometry(tile.x, tile.y, tile.z, loadGeometry, abortSignal);
 	}
 
 	/**
-	 * load geometry
+	 * Load geometry
 	 * @param tile tile to load
 	 * @param onLoad loaded callback
 	 * @param onError error callback
@@ -123,7 +120,7 @@ export class TileLoader implements ITileLoader {
 		abortSignal: AbortSignal,
 	): BufferGeometry {
 		let geometry: BufferGeometry;
-		// load dem if has dem source, else create a PlaneGeometry
+		// Load data in viewer, else create a PlaneGeometry
 		if (this.demSource && z >= this.demSource.minLevel && this._tileInBounds(x, y, z, this.demSource)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			loader.useWorker = this.useWorker;
@@ -136,13 +133,14 @@ export class TileLoader implements ITileLoader {
 	}
 
 	/**
-	 * load material
+	 * Load material
 	 * @param tile tile to load
 	 * @param onLoad loaded callback
 	 * @param onError error callback
 	 * @returns material
 	 */
 	protected loadMaterial(x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material[] {
+		// get source in viewer
 		const sources = this.imgSource.filter((source) => z >= source.minLevel && this._tileInBounds(x, y, z, source));
 		if (sources.length === 0) {
 			onLoad();
@@ -171,16 +169,16 @@ export class TileLoader implements ITileLoader {
 	}
 
 	/**
-	 * 判断指定瓦片是否在边界内
+	 * Check the tile is in the bounds
 	 *
-	 * @param x 瓦片的 x 坐标
-	 * @param y 瓦片的 y 坐标
-	 * @param z 瓦片的层级
-	 * @returns 如果瓦片在边界内则返回 true，否则返回 false
+	 * @param x x coordinate
+	 * @param y y coordinate
+	 * @param z z coordinate
+	 * @returns true in the bounds,else false
 	 */
 	private _tileInBounds(x: number, y: number, z: number, source: ISource): boolean {
 		const bounds = source._projectionBounds;
-		// 取得当前瓦片的bounds
+		// Get the bounds from tile xyz
 		const tileBounds = source._getTileBounds(x, y, z);
 
 		const inBounds = !(

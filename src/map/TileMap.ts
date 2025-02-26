@@ -437,8 +437,8 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 				LODThreshold: this.LODThreshold,
 			});
 			this._clock.start();
+			this.dispatchEvent({ type: "update", delta: elapseTime });
 		}
-		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 
 		// 动态调整地图高度
 		if (this.autoPosition) {
