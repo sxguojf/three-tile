@@ -6,7 +6,7 @@
 
 <img src="./images/wechat.jpg" width = 300 height = 400>
 
-## 官网：
+## 文档、示例：
 
 [![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/)
 
