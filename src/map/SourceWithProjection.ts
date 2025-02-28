@@ -56,7 +56,7 @@ export class SourceWithProjection extends TileSource {
 	 * @param z 瓦片的层级（zoom level）。
 	 * @returns 返回瓦片的URL
 	 */
-	public getUrl(x: number, y: number, z: number): string | undefined {
+	public _getTileUrl(x: number, y: number, z: number): string | undefined {
 		// 中心投影后的瓦片x坐标
 		const newx = this.projection.getTileXWithCenterLon(x, z);
 		return this._source._getTileUrl(newx, y, z);
