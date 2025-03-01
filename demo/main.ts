@@ -42,16 +42,8 @@ function createMap() {
 
 // 初始化三维场景
 function initViewer(id: string, map: tt.TileMap) {
-	// 地图中心坐标(经度，纬度，高度)
-	const centerGeo = new Vector3(100, 30, 0);
-	// 摄像坐标(经度，纬度，高度)
-	const camersGeo = new Vector3(100, 0, 10000);
-	// 地图中心经纬度高度转为世界坐标
-	const centerPosition = map.geo2world(centerGeo);
-	// 摄像机经纬度高度转为世界坐标
-	const cameraPosition = map.geo2world(camersGeo);
 	// 初始化场景
-	const viewer = new tt.plugin.GLViewer(id, { centerPosition, cameraPosition });
+	const viewer = new tt.plugin.GLViewer(id);
 	// 地图添加到场景
 	viewer.scene.add(map);
 
@@ -105,10 +97,18 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	gui.showClickedTile(viewer, map);
 }
 
-// 动画漫游到h高度（修改摄像机坐标）
-function flyTo(viewer: tt.plugin.GLViewer, h: number) {
-	const cmaeraPosition = viewer.camera.position.clone().setY(h);
-	viewer.flyTo(viewer.controls.target, cmaeraPosition);
+// 动画漫游指定位置
+function fly(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+	// 地图中心坐标(经度，纬度，高度)
+	const centerGeo = new Vector3(100, 30, 0);
+	// 摄像坐标(经度，纬度，高度)
+	const camersGeo = new Vector3(100, 0, 3000);
+	// 地图中心经纬度高度转为世界坐标
+	const centerPosition = map.geo2world(centerGeo);
+	// 摄像经纬度高度转为世界坐标
+	const cmaeraPosition = map.geo2world(camersGeo);
+	// 飞到指定位置
+	viewer.flyTo(centerPosition, cmaeraPosition);
 }
 
 function main() {
@@ -127,7 +127,7 @@ function main() {
 	// 创建gui
 	initGui(viewer, map);
 	// 摄像机动画移动到3000高度
-	flyTo(viewer, 3000);
+	fly(viewer, map);
 }
 
 addEventListener("load", main);
