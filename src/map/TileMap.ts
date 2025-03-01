@@ -427,8 +427,8 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		const elapseTime = this._clock.getElapsedTime();
 		// 控制瓦片树更新速率 10fps
 		if (elapseTime > 1 / 5) {
-			this.rootTile.receiveShadow = this.receiveShadow;
-			this.rootTile.castShadow = this.castShadow;
+			// this.rootTile.receiveShadow = this.receiveShadow;
+			// this.rootTile.castShadow = this.castShadow;
 			this.rootTile.update({
 				camera,
 				loader: this.loader,

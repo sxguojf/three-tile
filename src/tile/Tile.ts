@@ -261,7 +261,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		minLevel: number,
 		maxLevel: number,
 		threshold: number,
-		onCreate: (tile: Tile) => void,
+		onCreate: (tile: Tile, toLoad: boolean) => void,
 		onLoad: (tile: Tile) => void,
 	) {
 		// LOD evaluate
@@ -270,7 +270,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			// Create children tiles
 			const newTiles = loadChildren(loader, this.x, this.y, this.z, minLevel, (newTile: Tile) => onLoad(newTile));
 			this.add(...newTiles);
-			newTiles.forEach((newTile) => onCreate(newTile));
+			newTiles.forEach((newTile) => onCreate(newTile, this.z > minLevel));
 			// console.log(Tile.downloadThreads);
 		} else if (action === LODAction.remove && this.showing) {
 			// Remove tiles
@@ -392,14 +392,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * Callback function triggered when a tile is created.
 	 * @param newTile - The newly created tile object.
 	 */
-	private _onTileCreate(newTile: Tile) {
+	private _onTileCreate(newTile: Tile, toLoad: boolean) {
 		newTile.updateMatrix();
 		newTile.updateMatrixWorld();
 		newTile.sizeInWorld = getTileSize(newTile);
 		newTile.receiveShadow = this.receiveShadow;
 		newTile.castShadow = this.castShadow;
 		this.dispatchEvent({ type: "tile-created", tile: newTile });
-		Tile.downloadThreads++;
+		toLoad && Tile.downloadThreads++;
 	}
 
 	/**
