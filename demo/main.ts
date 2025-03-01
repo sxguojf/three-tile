@@ -1,5 +1,4 @@
-import { BufferGeometry, Camera, ColorRepresentation, Line, LineBasicMaterial, Vector3 } from "three";
-import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
+import { BufferGeometry, ColorRepresentation, Line, LineBasicMaterial, Vector3 } from "three";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
@@ -44,9 +43,9 @@ function createMap() {
 // 初始化三维场景
 function initViewer(id: string, map: tt.TileMap) {
 	// 地图中心坐标(经度，纬度，高度)
-	const centerGeo = new Vector3(110, 30, 0);
+	const centerGeo = new Vector3(100, 30, 0);
 	// 摄像坐标(经度，纬度，高度)
-	const camersGeo = new Vector3(110, 0, 10000);
+	const camersGeo = new Vector3(100, 0, 10000);
 	// 地图中心经纬度高度转为世界坐标
 	const centerPosition = map.geo2world(centerGeo);
 	// 摄像机经纬度高度转为世界坐标

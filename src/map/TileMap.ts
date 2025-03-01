@@ -567,7 +567,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	/**
 	 * Get map source attributions information
 	 * 取得地图数据归属版权信息
-	 * @returns Attributions 版权信息字符串数组
 	 */
 	public get attributions() {
 		return getAttributions(this);
@@ -575,9 +574,17 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Get map tiles statistics to debug
-	 * @returns 取得瓦片统计信息，用于调试性能
+	 * 取得瓦片统计信息，用于调试性能
 	 */
 	public get tileCount() {
 		return getTileCount(this);
+	}
+
+	/**
+	 * Get the number of currently downloading tiles
+	 * 取得当前正在下载的瓦片数量
+	 */
+	public get downloading() {
+		return Tile.downloadThreads;
 	}
 }
