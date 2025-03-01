@@ -1,4 +1,4 @@
-import { BufferGeometry, ColorRepresentation, Line, LineBasicMaterial, Vector3 } from "three";
+import { BufferGeometry, Camera, ColorRepresentation, Line, LineBasicMaterial, Vector3 } from "three";
 import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
@@ -48,11 +48,11 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 摄像坐标(经度，纬度，高度)
 	const camersGeo = new Vector3(110, 0, 10000);
 	// 地图中心经纬度高度转为世界坐标
-	const centerPostion = map.geo2world(centerGeo);
+	const centerPosition = map.geo2world(centerGeo);
 	// 摄像机经纬度高度转为世界坐标
 	const cameraPosition = map.geo2world(camersGeo);
 	// 初始化场景
-	const viewer = new tt.plugin.GLViewer(id, { centerPosition: centerPostion, cameraPosition });
+	const viewer = new tt.plugin.GLViewer(id, { centerPosition, cameraPosition });
 	// 地图添加到场景
 	viewer.scene.add(map);
 
@@ -108,9 +108,8 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 
 // 动画漫游到h高度（修改摄像机坐标）
 function flyTo(viewer: tt.plugin.GLViewer, h: number) {
-	const tween = new Tween(viewer.camera.position);
-	const to = viewer.camera.position.clone().setY(h);
-	tween.to(to).start().onComplete(viewer.controls.saveState);
+	const cmaeraPosition = viewer.camera.position.clone().setY(h);
+	viewer.flyTo(viewer.controls.target, cmaeraPosition);
 }
 
 function main() {
@@ -120,8 +119,6 @@ function main() {
 	map.receiveShadow = true;
 	// 创建视图
 	const viewer = initViewer("#map", map);
-	// 每帧更新TWEEN
-	viewer.addEventListener("update", () => TWEEN.update());
 	// 添加地图背景
 	addMapBackground(map);
 	// 添加伪地球遮罩
@@ -130,7 +127,7 @@ function main() {
 	limitCameraHeight(viewer, map);
 	// 创建gui
 	initGui(viewer, map);
-	// 摄像机动画移动到3000km高空
+	// 摄像机动画移动到3000高度
 	flyTo(viewer, 3000);
 }
 

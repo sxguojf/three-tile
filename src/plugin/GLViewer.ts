@@ -21,6 +21,7 @@ import {
 } from "three";
 
 import { MapControls } from "three/examples/jsm/controls/MapControls";
+import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 
 /**
  * GlViewer event map
@@ -75,7 +76,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		const el = typeof container === "string" ? document.querySelector(container) : container;
 		if (el instanceof HTMLElement) {
 			const {
-				centerPosition: centerPostion = new Vector3(0, 0, -3000),
+				centerPosition = new Vector3(0, 0, -3000),
 				cameraPosition = new Vector3(0, 30000, 0),
 				antialias = false,
 				stencil = true,
@@ -86,10 +87,10 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			this.renderer = this._createRenderer(antialias, stencil, logarithmicDepthBuffer);
 			this.scene = this._createScene();
 			this.camera = this._createCamera(cameraPosition);
-			this.controls = this._createControls(centerPostion);
+			this.controls = this._createControls(centerPosition);
 			this.ambLight = this._createAmbLight();
 			this.scene.add(this.ambLight);
-			this.dirLight = this._createDirLight(centerPostion);
+			this.dirLight = this._createDirLight(centerPosition);
 			this.scene.add(this.dirLight);
 			this.container.appendChild(this.renderer.domElement);
 			window.addEventListener("resize", this.resize.bind(this));
@@ -178,7 +179,6 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 
 	private _createDirLight(center: Vector3) {
 		const dirLight = new DirectionalLight(0xffffff, 1);
-		// dirLight.position.set(-1e3, 1e4, -2e3);
 		dirLight.position.set(0, 2e3, 1e3);
 		dirLight.target.position.copy(center);
 		return dirLight;
@@ -197,7 +197,24 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	private animate() {
 		this.controls.update();
 		this.renderer.render(this.scene, this.camera);
-
+		TWEEN.update();
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
+	}
+
+	/**
+	 * 飞行到某世界坐标
+	 * @param centerPos 目标地图中心世界坐标
+	 * @param cameraPos 目标摄像机世界坐标
+	 */
+	public flyTo(centerPos: Vector3, cameraPos: Vector3) {
+		this.controls.target.copy(centerPos);
+		const start = this.camera.position;
+		new Tween(start)
+			// 先到高空
+			.to({ y: 10000, z: 0 }, 500)
+			// .easing(TWEEN.Easing.Cubic.In)
+			// 再到目标位置
+			.chain(new Tween(start).to(cameraPos, 2000).easing(TWEEN.Easing.Quintic.Out))
+			.start();
 	}
 }
