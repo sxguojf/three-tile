@@ -110,7 +110,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public readonly loader: ITileLoader;
 
-	private _minLevel = 1;
+	private _minLevel = 2;
 	/**
 	 * Get min level of map
 	 * 地图最小缩放级别，小于这个级别瓦片树不再更新
@@ -126,7 +126,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this._minLevel = value;
 	}
 
-	private _maxLevel = 18;
+	private _maxLevel = 19;
 	/**
 	 * Get max level of map
 	 * 地图最大缩放级别，大于这个级别瓦片树不再更新
