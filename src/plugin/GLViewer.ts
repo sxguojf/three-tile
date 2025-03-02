@@ -194,19 +194,23 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	}
 
 	/**
-	 * 飞行到某世界坐标
-	 * @param centerPos 目标地图中心世界坐标
-	 * @param cameraPos 目标摄像机世界坐标
+	 * Fly to a position
+	 * @param centerPostion Map center target position
+	 * @param cameraPostion Camera target position
+	 * @param animate animate or not
 	 */
-	public flyTo(centerPos: Vector3, cameraPos: Vector3) {
-		this.controls.target.copy(centerPos);
-		const start = this.camera.position;
-		new Tween(start)
-			// 先到高空
-			.to({ y: 10000, z: 0 }, 500)
-			// .easing(TWEEN.Easing.Cubic.In)
-			// 再到目标位置
-			.chain(new Tween(start).to(cameraPos, 2000).easing(TWEEN.Easing.Quintic.Out))
-			.start();
+	public flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate = true) {
+		this.controls.target.copy(centerPostion);
+		if (animate) {
+			const start = this.camera.position;
+			new Tween(start)
+				// fly to 10000km
+				.to({ y: 10000, z: 0 }, 500)
+				// to taget
+				.chain(new Tween(start).to(cameraPostion, 2000).easing(TWEEN.Easing.Quintic.Out))
+				.start();
+		} else {
+			this.camera.position.copy(cameraPostion);
+		}
 	}
 }

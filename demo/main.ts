@@ -100,9 +100,9 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 // 动画漫游指定位置
 function fly(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	// 地图中心坐标(经度，纬度，高度)
-	const centerGeo = new Vector3(100, 30, 0);
+	const centerGeo = new Vector3(110, 35, 0);
 	// 摄像坐标(经度，纬度，高度)
-	const camersGeo = new Vector3(100, 0, 3000);
+	const camersGeo = new Vector3(110, 15, 4000);
 	// 地图中心经纬度高度转为世界坐标
 	const centerPosition = map.geo2world(centerGeo);
 	// 摄像经纬度高度转为世界坐标
@@ -128,7 +128,7 @@ function main() {
 	initGui(viewer, map);
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);
-
+	// 打印加载器信息
 	console.log("Loaders", map.loaderInfo);
 }
 

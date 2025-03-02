@@ -1,6 +1,6 @@
 [English](README.md) | [简体中文](README_CN.md)
 
-# **three-tile V0.8.5**
+# **three-tile V0.8.6**
 
 <p align='right'>hz_gjf@163.com</p>
 
@@ -8,7 +8,7 @@
 
 ## 文档、示例：
 
-[![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/)
+[![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/){:target="\_blank"}
 
 ## 1 简介
 

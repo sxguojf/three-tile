@@ -1,14 +1,14 @@
 [English](README.md) | [简体中文](README_CN.md)
 
-# **three-tile V0.8.5**
+# **three-tile V0.8.6**
 
 <p align='right'>hz_gjf@163.com</p>
 
 <img src="./images/wechat.jpg" width = 300 height = 400>
 
-## Home（文档、示例...）:
+## Home（Document、Example...）:
 
-[![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/)
+[![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/){:target="\_blank"}
 
 ## 1 Introduction
 
