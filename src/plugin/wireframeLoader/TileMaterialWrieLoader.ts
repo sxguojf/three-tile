@@ -13,6 +13,7 @@ import { ISource } from "../../source";
  */
 export class TileMaterialWrieLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "wireframe";
+	public discription = "Tile wireframe material loader.";
 
 	public load(source: ISource, _x: number, _y: number, z: number, onLoad: () => void): Material {
 		const color = new Color(`hsl(${z * 14}, 100%, 50%)`);

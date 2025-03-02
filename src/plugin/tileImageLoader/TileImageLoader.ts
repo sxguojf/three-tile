@@ -6,6 +6,8 @@ import { getBoundsCoord, ImageLoaderEx, LoaderFactory, TileMaterialLoader } from
  */
 export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 	public dataType = "image";
+	public discription = "Tile image loader. It can load xyz tile image.";
+
 	private loader = new ImageLoaderEx(LoaderFactory.manager);
 
 	/**

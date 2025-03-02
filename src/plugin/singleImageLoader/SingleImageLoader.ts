@@ -14,6 +14,7 @@ import { ISource } from "../../source";
  */
 export class SingleImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "single-image";
+	public discription = "Single image loader. It can load an picture and Stick to the ground.";
 
 	private _image?: HTMLImageElement | undefined;
 

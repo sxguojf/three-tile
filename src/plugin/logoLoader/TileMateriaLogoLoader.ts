@@ -13,6 +13,7 @@ import { ISource } from "../../source";
  */
 export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "logo";
+	public discription = "Logo Material loader. It will draw logo on the tile.";
 	private _texture: CanvasTexture | null = null; // = new CanvasTexture(this.drawLogo(source.attribution));
 
 	/**

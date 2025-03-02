@@ -15,6 +15,7 @@ import ParseWorker from "./parse.worker?worker&inline";
 export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 	// 数据类型标识
 	public readonly dataType = "terrain-rgb";
+	public discription = "Mapbox-RGB terrain loader, It can load Mapbox-RGB terrain data.";
 	// 使用imageLoader下载
 	private imageLoader = new ImageLoaderEx(LoaderFactory.manager);
 

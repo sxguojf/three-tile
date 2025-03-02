@@ -15,6 +15,7 @@ import { ISource } from "../../source";
 export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "debug";
 	public useWorker = false;
+	public discription = "Tile debug image loader. It will draw a rectangle and coordinate on the tile.";
 
 	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void): TileMaterial {
 		const texture = new CanvasTexture(this.drawTile(x, y, z));

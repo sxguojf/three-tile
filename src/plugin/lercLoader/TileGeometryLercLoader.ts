@@ -18,6 +18,7 @@ import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
  */
 export class TileGeometryLercLoader extends TileGeometryLoader<DEMType> {
 	public readonly dataType = "lerc";
+	public discription = "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.";
 	// 图像加载器
 	private fileLoader = new FileLoaderEx(LoaderFactory.manager);
 
