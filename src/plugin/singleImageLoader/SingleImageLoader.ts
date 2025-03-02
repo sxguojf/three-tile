@@ -4,8 +4,9 @@
  *@date: 2023-04-05
  */
 
-import { ImageLoader, Material, MeshLambertMaterial, SRGBColorSpace, Texture } from "three";
+import { ImageLoader, Material, SRGBColorSpace, Texture } from "three";
 import { ITileMaterialLoader, LoaderFactory } from "../../loader";
+import { TileMaterial } from "../../material";
 import { ISource } from "../../source";
 
 /**
@@ -14,7 +15,8 @@ import { ISource } from "../../source";
 export class SingleImageLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "single-image";
 
-	private _image?: HTMLImageElement;
+	private _image?: HTMLImageElement | undefined;
+
 	private _imageLoader = new ImageLoader(LoaderFactory.manager);
 
 	/**
@@ -25,14 +27,9 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	 * @returns 材质
 	 */
 	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void): Material {
-		const material = new MeshLambertMaterial({
+		const material = new TileMaterial({
 			transparent: true,
 			opacity: source.opacity,
-		});
-		material.addEventListener("dispose", () => {
-			if (material.map) {
-				material.map.dispose();
-			}
 		});
 
 		const tileUrl = source._getTileUrl(0, 0, 0);
@@ -63,9 +60,10 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		this._image = this._imageLoader.load(url, onLoad, undefined, onLoad);
 	}
 
-	private _setTexture(material: MeshLambertMaterial, source: ISource, x: number, y: number, z: number) {
+	private _setTexture(material: TileMaterial, source: ISource, x: number, y: number, z: number) {
 		const texture = this._getTileTexture(source, x, y, z);
-		material.map = texture;
+		// material.map = texture;
+		material.setTexture(texture);
 		texture.needsUpdate = true;
 	}
 
