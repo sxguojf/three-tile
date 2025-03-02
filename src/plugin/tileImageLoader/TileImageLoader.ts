@@ -44,12 +44,13 @@ export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 		onParse: (texture: Texture) => void,
 	): void {
 		const texture = new Texture();
+		texture.colorSpace = SRGBColorSpace;
+		// 是否需要剪裁
 		if (clipBounds[2] - clipBounds[0] < 1) {
 			texture.image = getSubImageFromRect(buffer, clipBounds);
 		} else {
 			texture.image = buffer;
 		}
-		texture.colorSpace = SRGBColorSpace;
 		texture.needsUpdate = true;
 		onParse(texture);
 	}
