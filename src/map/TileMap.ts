@@ -5,7 +5,7 @@
  */
 
 import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEventMap, Vector2, Vector3 } from "three";
-import { ITileLoader, TileLoader } from "../loader";
+import { ITileLoader, LoaderFactory, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 // import { RootTile } from "../tile/RootTile";
@@ -586,5 +586,9 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public get downloading() {
 		return Tile.downloadThreads;
+	}
+
+	public get loaderInfo() {
+		return LoaderFactory.getLoadersInfo();
 	}
 }

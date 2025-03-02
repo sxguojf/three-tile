@@ -128,6 +128,8 @@ function main() {
 	initGui(viewer, map);
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);
+
+	console.log("Loaders", map.loaderInfo);
 }
 
 addEventListener("load", main);
