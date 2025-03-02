@@ -142,8 +142,8 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		this.container.tabIndex = 0;
 		controls.listenToKeyEvents(this.container);
 		controls.addEventListener("change", () => {
-			const polar = Math.max(this.controls.getPolarAngle(), 0.1);
-			const dist = Math.max(this.controls.getDistance(), 0.1);
+			const polar = Math.max(controls.getPolarAngle(), 0.1);
+			const dist = Math.max(controls.getDistance(), 0.1);
 
 			controls.zoomSpeed = Math.max(Math.log(dist), 0) + 0.5;
 
