@@ -116,7 +116,6 @@ function fly(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 function main() {
 	// 创建地图
 	const map = createMap();
-	map.use(tt.plugin.lerc);
 	// 创建视图
 	const viewer = initViewer("#map", map);
 	// 添加地图背景
@@ -133,4 +132,7 @@ function main() {
 	console.log("Loaders", map.loaderInfo);
 }
 
-addEventListener("load", main);
+addEventListener("load", async () => {
+	await tt.plugin.use(tt.plugin.lerc);
+	main();
+});

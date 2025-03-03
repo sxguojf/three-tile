@@ -6,13 +6,24 @@
 
 import { LoaderFactory } from "../../loader/LoaderFactory";
 import { TileGeometryLercLoader } from "./TileGeometryLercLoader";
-import { IPlugin, TileMap } from "../../map";
+import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
+import * as Lerc from "./lercDecode/LercDecode.es";
+import { BasePlugin } from "../PluginSDK";
 
-class Lerc implements IPlugin {
-	install(_map: TileMap, _options: any[]): Promise<void> {
+/** ArcGis LERC 格式地形图插件 */
+class LercPlugin extends BasePlugin {
+	public name = "lerc";
+	public author = "GuoJF";
+	public description = "ArcGis-Lerc tile geometry loader";
+	protected doInstall(): void {
+		// 加载 LERC 格式数据解析wasm
+		Lerc.load({
+			locateFile: () => decodeUrl,
+		});
+		// 注册LERC格式数据加载器
 		LoaderFactory.registerGeometryLoader(new TileGeometryLercLoader());
-		return Promise.resolve();
 	}
 }
 
-export const lerc = new Lerc();
+// 导出插件
+export const lerc = new LercPlugin();

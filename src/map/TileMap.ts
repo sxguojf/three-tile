@@ -12,7 +12,6 @@ import { Tile } from "../tile";
 import { SourceWithProjection } from "./SourceWithProjection";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld, getTileCount } from "./util";
-import { IPlugin } from "./IPlugin";
 
 /**
  * TileMap Event Map
@@ -581,16 +580,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		return getTileCount(this);
 	}
 
-	public plugins: IPlugin[] = [];
-
-	public async use(plugin: IPlugin, options?: any): Promise<this> {
-		if (this.plugins.includes(plugin)) {
-			return this;
-		}
-		await plugin.install(this, options);
-		this.plugins.push(plugin);
-		return this;
-	}
 	/**
 	 * Get the number of currently downloading tiles
 	 * 取得当前正在下载的瓦片数量
