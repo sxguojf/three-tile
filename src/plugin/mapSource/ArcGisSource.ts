@@ -21,7 +21,7 @@ export class ArcGisSource extends TileSource {
 export class ArcGisDemSource extends TileSource {
 	public dataType: string = "lerc";
 	public attribution = "ArcGIS";
-	public minLevel = 7;
+	public minLevel = 6;
 	public maxLevel = 13;
 	public url =
 		"https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer/tile/{z}/{y}/{x}";

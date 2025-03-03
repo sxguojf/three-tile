@@ -62,7 +62,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/**
 	 * Number of download threads.
 	 */
-	private static downloadThreads = 0;
+	public static _downloadThreads = 0;
+
+	public static get downloadThreads() {
+		return Tile._downloadThreads;
+	}
 
 	/** Coordinate of tile */
 	public readonly x: number;
@@ -270,7 +274,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			// Create children tiles
 			const newTiles = loadChildren(loader, this.x, this.y, this.z, minLevel, (newTile: Tile) => onLoad(newTile));
 			this.add(...newTiles);
-			newTiles.forEach((newTile) => onCreate(newTile));
+			newTiles.forEach((newTile) => {
+				newTile.z >= minLevel && Tile._downloadThreads++;
+				onCreate(newTile);
+			});
 			// console.log(Tile.downloadThreads);
 		} else if (action === LODAction.remove && this.showing) {
 			// Remove tiles
@@ -399,7 +406,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		newTile.receiveShadow = this.receiveShadow;
 		newTile.castShadow = this.castShadow;
 		this.dispatchEvent({ type: "tile-created", tile: newTile });
-		Tile.downloadThreads++;
 	}
 
 	/**
@@ -410,7 +416,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		newTile._onLoad();
 		this._calcHeightInView();
 		this.dispatchEvent({ type: "tile-loaded", tile: newTile });
-		Tile.downloadThreads--;
+		Tile._downloadThreads--;
 	}
 
 	/**
@@ -419,7 +425,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public reload() {
 		this.dispose(true);
-		Tile.downloadThreads = 0;
+		Tile._downloadThreads = 0;
 		return this;
 	}
 

@@ -21,6 +21,7 @@ import {
 } from "three";
 
 import { MapControls } from "three/examples/jsm/controls/MapControls";
+import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 
 /**
  * GlViewer event map
@@ -33,8 +34,6 @@ export interface GLViewerEventMap extends Object3DEventMap {
  * GlViewer options
  */
 type GLViewerOptions = {
-	centerPosition?: Vector3;
-	cameraPosition?: Vector3;
 	antialias?: boolean;
 	stencil?: boolean;
 	logarithmicDepthBuffer?: boolean;
@@ -74,22 +73,16 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		super();
 		const el = typeof container === "string" ? document.querySelector(container) : container;
 		if (el instanceof HTMLElement) {
-			const {
-				centerPosition: centerPostion = new Vector3(0, 0, -3000),
-				cameraPosition = new Vector3(0, 30000, 0),
-				antialias = false,
-				stencil = true,
-				logarithmicDepthBuffer = true,
-			} = options;
+			const { antialias = false, stencil = true, logarithmicDepthBuffer = true } = options;
 
 			this.container = el;
 			this.renderer = this._createRenderer(antialias, stencil, logarithmicDepthBuffer);
 			this.scene = this._createScene();
-			this.camera = this._createCamera(cameraPosition);
-			this.controls = this._createControls(centerPostion);
+			this.camera = this._createCamera();
+			this.controls = this._createControls();
 			this.ambLight = this._createAmbLight();
 			this.scene.add(this.ambLight);
-			this.dirLight = this._createDirLight(centerPostion);
+			this.dirLight = this._createDirLight();
 			this.scene.add(this.dirLight);
 			this.container.appendChild(this.renderer.domElement);
 			window.addEventListener("resize", this.resize.bind(this));
@@ -125,19 +118,19 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		return renderer;
 	}
 
-	private _createCamera(pos: Vector3) {
+	private _createCamera() {
 		const camera = new PerspectiveCamera(70, 1, 0.1, 50000);
-		camera.position.copy(pos);
+		camera.position.set(0, 30000, 0);
 		return camera;
 	}
-	private _createControls(centerPos: Vector3) {
+	private _createControls() {
 		const DIST_THRESHOLD = 8000;
 		const POLAR_BASE = 10000;
 		const POLAR_EXPONENT = 4;
 		const MAX_POLAR_ANGLE = 1.2;
 
 		const controls = new MapControls(this.camera, this.container);
-		controls.target.copy(centerPos);
+		controls.target.set(0, 0, -3000);
 		controls.screenSpacePanning = false;
 		controls.minDistance = 0.1;
 		controls.maxDistance = 30000;
@@ -149,8 +142,8 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		this.container.tabIndex = 0;
 		controls.listenToKeyEvents(this.container);
 		controls.addEventListener("change", () => {
-			const polar = Math.max(this.controls.getPolarAngle(), 0.1);
-			const dist = Math.max(this.controls.getDistance(), 0.1);
+			const polar = Math.max(controls.getPolarAngle(), 0.1);
+			const dist = Math.max(controls.getDistance(), 0.1);
 
 			controls.zoomSpeed = Math.max(Math.log(dist), 0) + 0.5;
 
@@ -176,11 +169,10 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		return ambLight;
 	}
 
-	private _createDirLight(center: Vector3) {
+	private _createDirLight() {
 		const dirLight = new DirectionalLight(0xffffff, 1);
-		// dirLight.position.set(-1e3, 1e4, -2e3);
 		dirLight.position.set(0, 2e3, 1e3);
-		dirLight.target.position.copy(center);
+		dirLight.target.position.copy(this.controls.target);
 		return dirLight;
 	}
 
@@ -197,7 +189,28 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	private animate() {
 		this.controls.update();
 		this.renderer.render(this.scene, this.camera);
-
+		TWEEN.update();
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
+	}
+
+	/**
+	 * Fly to a position
+	 * @param centerPostion Map center target position
+	 * @param cameraPostion Camera target position
+	 * @param animate animate or not
+	 */
+	public flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate = true) {
+		this.controls.target.copy(centerPostion);
+		if (animate) {
+			const start = this.camera.position;
+			new Tween(start)
+				// fly to 10000km
+				.to({ y: 10000, z: 0 }, 500)
+				// to taget
+				.chain(new Tween(start).to(cameraPostion, 2000).easing(TWEEN.Easing.Quintic.Out))
+				.start();
+		} else {
+			this.camera.position.copy(cameraPostion);
+		}
 	}
 }

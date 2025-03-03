@@ -5,7 +5,7 @@
  */
 
 import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEventMap, Vector2, Vector3 } from "three";
-import { ITileLoader, TileLoader } from "../loader";
+import { ITileLoader, LoaderFactory, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 // import { RootTile } from "../tile/RootTile";
@@ -111,7 +111,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public readonly loader: ITileLoader;
 
-	private _minLevel = 1;
+	private _minLevel = 2;
 	/**
 	 * Get min level of map
 	 * 地图最小缩放级别，小于这个级别瓦片树不再更新
@@ -127,7 +127,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this._minLevel = value;
 	}
 
-	private _maxLevel = 18;
+	private _maxLevel = 19;
 	/**
 	 * Get max level of map
 	 * 地图最大缩放级别，大于这个级别瓦片树不再更新
@@ -428,8 +428,8 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		const elapseTime = this._clock.getElapsedTime();
 		// 控制瓦片树更新速率 10fps
 		if (elapseTime > 1 / 5) {
-			this.rootTile.receiveShadow = this.receiveShadow;
-			this.rootTile.castShadow = this.castShadow;
+			// this.rootTile.receiveShadow = this.receiveShadow;
+			// this.rootTile.castShadow = this.castShadow;
 			this.rootTile.update({
 				camera,
 				loader: this.loader,
@@ -568,7 +568,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	/**
 	 * Get map source attributions information
 	 * 取得地图数据归属版权信息
-	 * @returns Attributions 版权信息字符串数组
 	 */
 	public get attributions() {
 		return getAttributions(this);
@@ -576,7 +575,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	/**
 	 * Get map tiles statistics to debug
-	 * @returns 取得瓦片统计信息，用于调试性能
+	 * 取得瓦片统计信息，用于调试性能
 	 */
 	public get tileCount() {
 		return getTileCount(this);
@@ -591,5 +590,16 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		await plugin.install(this, options);
 		this.plugins.push(plugin);
 		return this;
+	}
+	/**
+	 * Get the number of currently downloading tiles
+	 * 取得当前正在下载的瓦片数量
+	 */
+	public get downloading() {
+		return Tile.downloadThreads;
+	}
+
+	public get loaderInfo() {
+		return LoaderFactory.getLoadersInfo();
 	}
 }

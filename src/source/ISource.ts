@@ -24,6 +24,8 @@ export interface ISource {
 	projectionID: ProjectionType;
 	/** Display opacity */
 	opacity: number;
+	/** is TMS scheme */
+	isTMS: boolean;
 	/* Data bounds in lonlat [minLon,minLat,maxLon,maxLat]*/
 	bounds: [number, number, number, number];
 	/** Data bounds in Proejction, internal use */

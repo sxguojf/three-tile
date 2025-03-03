@@ -1,5 +1,4 @@
 import { BufferGeometry, ColorRepresentation, Line, LineBasicMaterial, Vector3 } from "three";
-import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
@@ -45,16 +44,8 @@ function createMap() {
 
 // 初始化三维场景
 function initViewer(id: string, map: tt.TileMap) {
-	// 地图中心坐标(经度，纬度，高度)
-	const centerGeo = new Vector3(110, 30, 0);
-	// 摄像坐标(经度，纬度，高度)
-	const camersGeo = new Vector3(110, 0, 10000);
-	// 地图中心经纬度高度转为世界坐标
-	const centerPostion = map.geo2world(centerGeo);
-	// 摄像机经纬度高度转为世界坐标
-	const cameraPosition = map.geo2world(camersGeo);
 	// 初始化场景
-	const viewer = new tt.plugin.GLViewer(id, { centerPosition: centerPostion, cameraPosition });
+	const viewer = new tt.plugin.GLViewer(id);
 	// 地图添加到场景
 	viewer.scene.add(map);
 
@@ -108,11 +99,18 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	gui.showClickedTile(viewer, map);
 }
 
-// 动画漫游到h高度（修改摄像机坐标）
-function flyTo(viewer: tt.plugin.GLViewer, h: number) {
-	const tween = new Tween(viewer.camera.position);
-	const to = viewer.camera.position.clone().setY(h);
-	tween.to(to).start().onComplete(viewer.controls.saveState);
+// 动画漫游指定位置
+function fly(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+	// 地图中心坐标(经度，纬度，高度)
+	const centerGeo = new Vector3(110, 35, 0);
+	// 摄像坐标(经度，纬度，高度)
+	const camersGeo = new Vector3(110, 15, 4000);
+	// 地图中心经纬度高度转为世界坐标
+	const centerPosition = map.geo2world(centerGeo);
+	// 摄像经纬度高度转为世界坐标
+	const cmaeraPosition = map.geo2world(camersGeo);
+	// 飞到指定位置
+	viewer.flyTo(centerPosition, cmaeraPosition);
 }
 
 function main() {
@@ -121,8 +119,6 @@ function main() {
 	map.use(tt.plugin.lerc);
 	// 创建视图
 	const viewer = initViewer("#map", map);
-	// 每帧更新TWEEN
-	viewer.addEventListener("update", () => TWEEN.update());
 	// 添加地图背景
 	addMapBackground(map);
 	// 添加伪地球遮罩
@@ -131,8 +127,10 @@ function main() {
 	limitCameraHeight(viewer, map);
 	// 创建gui
 	initGui(viewer, map);
-	// 摄像机动画移动到3000km高空
-	flyTo(viewer, 3000);
+	// 摄像机动画移动到3000高度
+	fly(viewer, map);
+	// 打印加载器信息
+	console.log("Loaders", map.loaderInfo);
 }
 
 addEventListener("load", main);

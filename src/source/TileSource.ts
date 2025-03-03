@@ -43,6 +43,7 @@ export class TileSource implements ISource {
 	protected subdomains: string[] | string = [];
 	protected s: string = "";
 	public opacity: number = 1.0;
+	public isTMS = false;
 	// public bounds: [number, number, number, number] = [60, 10, 140, 60];
 	//public bounds: [number, number, number, number] = [-180, -85.05112877980659, 180, 85.05112877980659];
 	public bounds: [number, number, number, number] = [-180, -85, 180, 85];
@@ -82,7 +83,11 @@ export class TileSource implements ISource {
 			const index = Math.floor(Math.random() * subLen);
 			this.s = this.subdomains[index];
 		}
-		return this.getUrl(x, y, z);
+		let reverseY = y;
+		if (this.isTMS) {
+			reverseY = Math.pow(2, z) - 1 - y;
+		}
+		return this.getUrl(x, reverseY, z);
 	}
 
 	public _getTileBounds(_x: number, _y: number, _z: number): [number, number, number, number] {

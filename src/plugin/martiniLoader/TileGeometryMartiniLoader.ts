@@ -16,6 +16,7 @@ import ParseWorker from "./parse.worker?worker&inline";
  */
 export class TileGeometryMartiniLoader implements ITileGeometryLoader {
 	public readonly dataType = "terrain-rgb-martini";
+	public discription = "Mapbox-RGB + Martini geometry loader. Deprecated!";
 
 	private _useWorker = true;
 	/** get use worker */

@@ -1,19 +1,19 @@
 /**
- *@description: Geometry loader abstrace baseclass
+ *@description: Image Material loader abstrace baseclass
  *@author: 郭江峰
  *@date: 2023-04-06
  */
 
-import { BufferGeometry } from "three";
-import { ITileGeometryLoader, LoaderFactory } from ".";
-import { GeometryDataType, TileGeometry } from "../geometry";
+import { Material, Texture } from "three";
+import { ITileMaterialLoader, LoaderFactory } from ".";
+import { TileMaterial } from "../material";
 import { ISource } from "../source";
 import { getSafeTileUrlAndBounds } from "./util";
 
 /**
- * Terrain loader base calss
+ * Image loader base calss
  */
-export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometryLoader {
+export abstract class TileMaterialLoader<TBuffer = any> implements ITileMaterialLoader {
 	public dataType = "";
 	public useWorker = true;
 
@@ -32,8 +32,8 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 		z: number,
 		onLoad: () => void,
 		abortSignal: AbortSignal,
-	): BufferGeometry {
-		const geometry = new TileGeometry();
+	): Material {
+		const material = new TileMaterial();
 		// get max level tile and bounds
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
@@ -42,12 +42,8 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 				(data) => {
 					if (data) {
 						LoaderFactory.manager.parseStart(url);
-						this.doPrase(data, x, y, z, bounds, (geometryData) => {
-							if (geometryData instanceof Float32Array) {
-								geometry.setDEM(geometryData);
-							} else {
-								geometry.setData(geometryData);
-							}
+						this.doPrase(data, x, y, z, bounds, (texture) => {
+							material.setTexture(texture);
 							LoaderFactory.manager.parseEnd(url);
 							onLoad();
 						});
@@ -59,7 +55,7 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 		} else {
 			onLoad();
 		}
-		return geometry;
+		return material;
 	}
 
 	/**
@@ -91,6 +87,6 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 		y: number,
 		z: number,
 		clipBounds: [number, number, number, number],
-		onParse: (GeometryData: GeometryDataType | Float32Array, dem?: Uint8Array) => void,
+		onParse: (texture: Texture) => void,
 	): void;
 }
