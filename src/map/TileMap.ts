@@ -85,7 +85,9 @@ export type MapParams = {
  */
 
 export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
-	// 渲染时钟计时器
+	// 名称
+	public readonly name = "map";
+	// 瓦片树更新时钟
 	private readonly _clock = new Clock();
 
 	// 是否为LOD模型（LOD模型，当autoUpdate为真时渲染时会自动调用update方法）

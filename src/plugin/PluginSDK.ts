@@ -28,7 +28,7 @@ export function getPlugins() {
  * @param options 选项
  * @returns use函数
  */
-export async function use(plugin: IPlugin, options?: any): useFunction {
+export async function use<TOptions = any>(plugin: IPlugin, options?: TOptions): useFunction {
 	if (plugins.includes(plugin)) {
 		return use;
 	}

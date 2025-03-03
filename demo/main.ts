@@ -2,7 +2,7 @@ import { BufferGeometry, ColorRepresentation, Line, LineBasicMaterial, Vector3 }
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
-import { addFakeEarth, addMapBackground, limitCameraHeight } from "./utils";
+import { addMapBackground, limitCameraHeight } from "./utils";
 
 console.log("===================================================================");
 console.log(`three-tile V${tt.version}, ${tt.author.email}`);
@@ -121,7 +121,11 @@ function main() {
 	// 添加地图背景
 	addMapBackground(map);
 	// 添加伪地球遮罩
-	addFakeEarth(viewer, map);
+	tt.use<tt.plugin.FrakeEarthOptions>(tt.plugin.frakEarth, {
+		map,
+		scene: viewer.scene,
+		controls: viewer.controls,
+	});
 	// 防止摄像机进入地下
 	limitCameraHeight(viewer, map);
 	// 创建gui
@@ -133,6 +137,16 @@ function main() {
 }
 
 addEventListener("load", async () => {
-	await tt.plugin.use(tt.plugin.lerc);
+	await tt.use(tt.plugin.lerc);
 	main();
 });
+
+// declare module "../src" {
+// 	interface TileMap {
+// 		test: () => void;
+// 	}
+// }
+
+// tt.TileMap.prototype.test = () => {
+// 	console.log("this is a test");
+// };

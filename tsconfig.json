@@ -17,5 +17,5 @@
 		"forceConsistentCasingInFileNames": true,
 		"types": ["vite/client"]
 	},
-	"include": ["src/**/*", "demo/**/*"]
+	"include": ["src/**/*", "demo/**/*", "src/plugin/PluginSDK.ts"]
 }

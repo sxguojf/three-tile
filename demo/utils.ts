@@ -1,29 +1,5 @@
-import { Color, Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader, Vector3 } from "three";
+import { Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader, Vector3 } from "three";
 import * as tt from "../src";
-import { FakeEarth } from "../src/plugin/fakeEarth";
-
-/**
- * 效果补救1：
- * three-tile的地图并不是以球体为基础模型的，它的地图是投影到平面上的，不是球体
- * 影响三维观感，补救措施是在平面地图上加一层圆形遮罩，地图缩小后感觉是一个球。
- *
- * @param viewer 视图
- * @param map  地图
- * @returns 地球遮罩模型
- */
-export function addFakeEarth(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
-	const fakeEarth = new FakeEarth(viewer.scene.fog?.color || new Color(0));
-	fakeEarth.name = "fakeearth";
-	fakeEarth.applyMatrix4(map.rootTile.matrix);
-	map.add(fakeEarth);
-
-	viewer.controls.addEventListener("change", () => {
-		// 地图距摄像机较远时再显示遮罩
-		fakeEarth.visible = viewer.controls.getDistance() > 3000;
-	});
-
-	return fakeEarth;
-}
 
 // 创建地图背景图
 /**

@@ -19,6 +19,8 @@ export * from "./source";
 // map
 export * from "./map";
 
+export * from "./plugin/PluginSDK";
+
 // build-in plugin
 import * as plugin from "./plugin";
 export { plugin };
