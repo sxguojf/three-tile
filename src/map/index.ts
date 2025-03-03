@@ -5,4 +5,5 @@
  */
 
 export * from "./TileMap";
+export * from "./IPlugin";
 export type { LocationInfo } from "./util";

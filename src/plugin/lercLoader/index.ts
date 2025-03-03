@@ -6,5 +6,13 @@
 
 import { LoaderFactory } from "../../loader/LoaderFactory";
 import { TileGeometryLercLoader } from "./TileGeometryLercLoader";
+import { IPlugin, TileMap } from "../../map";
 
-LoaderFactory.registerGeometryLoader(new TileGeometryLercLoader());
+class Lerc implements IPlugin {
+	install(_map: TileMap, _options: any[]): Promise<void> {
+		LoaderFactory.registerGeometryLoader(new TileGeometryLercLoader());
+		return Promise.resolve();
+	}
+}
+
+export const lerc = new Lerc();

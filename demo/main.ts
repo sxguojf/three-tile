@@ -34,6 +34,8 @@ function createMap() {
 
 	// 地图旋转到xz平面
 	map.rotateX(-Math.PI / 2);
+	// 开启阴影
+	map.receiveShadow = true;
 
 	// 地图准备就绪
 	map.addEventListener("ready", () => console.log("Map ready!!!!!!"));
@@ -116,8 +118,7 @@ function flyTo(viewer: tt.plugin.GLViewer, h: number) {
 function main() {
 	// 创建地图
 	const map = createMap();
-	// 开启阴影
-	map.receiveShadow = true;
+	map.use(tt.plugin.lerc);
 	// 创建视图
 	const viewer = initViewer("#map", map);
 	// 每帧更新TWEEN
