@@ -37,3 +37,12 @@ export * from "./GLViewer";
 export * from "./mapSource";
 // fake earth mask. 地球球体遮罩
 export * from "./fakeEarth";
+
+/*-------------------------------------------------------------------
+                        加载默认插件
+---------------------------------------------------------------------*/
+import { use } from "./PluginSDK";
+import { lerc } from "./lercLoader";
+(async () => {
+	await use(lerc);
+})();

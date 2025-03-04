@@ -36,12 +36,17 @@ class FrakeEarthPlugin extends BasePlugin {
 
 export const frakEarth = new FrakeEarthPlugin();
 
-// declare module "../../map" {
-// 	interface TileMap {
-// 		test(): void;
-// 	}
-// }
+declare module "../../map" {
+	interface TileMap {
+		addFrakEarth(scene: Scene): this;
+	}
+}
 
-// TileMap.prototype.test = () => {
-// 	console.log("this is a test");
-// };
+TileMap.prototype.addFrakEarth = function (scene: Scene): TileMap {
+	console.log("this is a test");
+	const fakeEarth = new FakeEarth(scene.fog?.color || new Color(0));
+	fakeEarth.name = "fakeearth";
+	fakeEarth.applyMatrix4(this.rootTile.matrix);
+	this.add(fakeEarth);
+	return this;
+};
