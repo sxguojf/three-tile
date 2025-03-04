@@ -6,9 +6,9 @@
 
 import { BufferGeometry, Material, PlaneGeometry } from "three";
 import { ISource } from "../source";
-import { Tile } from "../tile";
+// import { Tile } from "../tile";
 import { CacheEx } from "./CacheEx";
-import { ITileLoader } from "./ITileLoaders";
+import { ITileLoader, MeshDateType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
 
 /**
@@ -58,60 +58,39 @@ export class TileLoader implements ITileLoader {
 	public manager = LoaderFactory.manager;
 
 	/**
-	 * Load a tile by x, y and z coordinate.
+	 * Load a tile data from x, y and z coordinate.
 	 *
 	 * @param x x coordinate of tile
 	 * @param y y coordinate of tile
 	 * @param z z coordinate of tile
-	 * @param onLoad tile loaded callback
-	 * @returns tile instance
+	 * @param abortSignal the abort signal to cancel the download
+	 * @returns Promise<MeshDateType> tile data
 	 */
-	public load(x: number, y: number, z: number, onLoad: () => void): Tile {
-		const tile = new Tile(x, y, z);
-		const abortController = new AbortController();
-
-		const onDispose = () => {
-			if (!tile.loaded) {
-				abortController.abort();
-			}
-		};
-		tile.addEventListener("dispose", () => {
-			onDispose();
-			tile.removeEventListener("dispose", onDispose);
-		});
-
-		this.doLoad(tile, onLoad, abortController.signal);
-
-		return tile;
-	}
-
-	/**
-	 * Load Geometry and meterial
-	 */
-	protected doLoad(tile: Tile, onLoad: () => void, abortSignal: AbortSignal): void {
-		const loadGeometry = () => {
-			const materials = this.loadMaterial(tile.x, tile.y, tile.z, () => loadMaterial(), abortSignal);
-			const loadMaterial = () => {
-				for (let i = 0; i < materials.length; i++) {
-					geometry.addGroup(0, Infinity, i);
-				}
-				tile.geometry = geometry;
-				tile.material = materials;
-				onLoad();
+	public load(x: number, y: number, z: number, abortSignal: AbortSignal): Promise<MeshDateType> {
+		return new Promise((resolve) => {
+			// 添加return
+			const loadGeometry = () => {
+				const materials = this.loadMaterial(x, y, z, () => loadMaterial(), abortSignal);
+				const loadMaterial = () => {
+					for (let i = 0; i < materials.length; i++) {
+						geometry.addGroup(0, Infinity, i);
+					}
+					return resolve({ materials, geometry });
+				};
 			};
-		};
-
-		const geometry = this.loadGeometry(tile.x, tile.y, tile.z, loadGeometry, abortSignal);
+			const geometry = this.loadGeometry(x, y, z, loadGeometry, abortSignal);
+		});
 	}
 
 	/**
 	 * Load geometry
-	 * @param tile tile to load
-	 * @param onLoad loaded callback
-	 * @param onError error callback
-	 * @returns geometry
+	 * @param x x coordinate of tile
+	 * @param y y coordinate of tile
+	 * @param z z coordinate of tile
+	 * @param onLoad  loaded callback
+	 * @param abortSignal the abort signal to cancel the download
+	 * @returns
 	 */
-
 	protected loadGeometry(
 		x: number,
 		y: number,
@@ -134,10 +113,12 @@ export class TileLoader implements ITileLoader {
 
 	/**
 	 * Load material
-	 * @param tile tile to load
+	 * @param x x coordinate of tile
+	 * @param y y coordinate of tile
+	 * @param z z coordinate of tile
 	 * @param onLoad loaded callback
-	 * @param onError error callback
-	 * @returns material
+	 * @param abortSignal the abort signal to cancel the download
+	 * @returns Material[]
 	 */
 	protected loadMaterial(x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material[] {
 		// get source in viewer

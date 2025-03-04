@@ -8,10 +8,9 @@ import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEvent
 import { ITileLoader, LoaderFactory, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
-// import { RootTile } from "../tile/RootTile";
 import { SourceWithProjection } from "./SourceWithProjection";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
-import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld, getTileCount } from "./util";
+import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
 
 /**
  * TileMap Event Map
@@ -572,14 +571,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public get attributions() {
 		return getAttributions(this);
-	}
-
-	/**
-	 * Get map tiles statistics to debug
-	 * 取得瓦片统计信息，用于调试性能
-	 */
-	public get tileCount() {
-		return getTileCount(this);
 	}
 
 	/**

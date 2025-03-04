@@ -51,30 +51,14 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 
 /**
  * Load the children tile from coordinate
- *
+ * @param loader tile loader instance
  * @param px parent tile x coordinate
  * @param py parent tile y coordinate
  * @param pz parent tile level
- * @param minLevel min level to load
- * @param onLoad callback when one tile loaded
  * @returns children tile array
  */
-export function loadChildren(
-	loader: ITileLoader,
-	px: number,
-	py: number,
-	pz: number,
-	minLevel: number,
-	onLoad: (tile: Tile) => void,
-): Tile[] {
-	const createTile = (x: number, y: number, level: number, minLevel: number) => {
-		// Do not load data when leve<minLeve
-		const tile: Tile = level < minLevel ? new Tile(x, y, level) : loader.load(x, y, level, () => onLoad(tile));
-		return tile;
-	};
-
+export function createChildren(loader: ITileLoader, px: number, py: number, pz: number): Tile[] {
 	const children: Tile[] = [];
-
 	const level = pz + 1;
 	const x = px * 2;
 	const z = 0;
@@ -84,8 +68,8 @@ export function loadChildren(
 	if (pz === 0 && isWGS) {
 		const y = py;
 		const scale = new Vector3(0.5, 1.0, 1.0);
-		const t1 = createTile(x, y, level, minLevel);
-		const t2 = createTile(x, y, level, minLevel);
+		const t1 = new Tile(x, y, level);
+		const t2 = new Tile(x, y, level);
 		t1.position.set(-pos, 0, z);
 		t1.scale.copy(scale);
 		t2.position.set(pos, 0, z);
@@ -94,10 +78,10 @@ export function loadChildren(
 	} else {
 		const y = py * 2;
 		const scale = new Vector3(0.5, 0.5, 1.0);
-		const t1 = createTile(x, y, level, minLevel);
-		const t2 = createTile(x + 1, y, level, minLevel);
-		const t3 = createTile(x, y + 1, level, minLevel);
-		const t4 = createTile(x + 1, y + 1, level, minLevel);
+		const t1 = new Tile(x, y, level);
+		const t2 = new Tile(x + 1, y, level);
+		const t3 = new Tile(x, y + 1, level);
+		const t4 = new Tile(x + 1, y + 1, level);
 		t1.position.set(-pos, pos, z);
 		t1.scale.copy(scale);
 		t2.position.set(pos, pos, z);

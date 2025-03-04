@@ -6,8 +6,12 @@
 
 import { BufferGeometry, Material } from "three";
 import { ISource } from "../source";
-import { Tile } from "../tile";
 import { TileLoadingManager } from "./LoaderFactory";
+
+export type MeshDateType = {
+	materials: Material[];
+	geometry: BufferGeometry;
+};
 
 /** Tile loader interface */
 export interface ITileLoader {
@@ -22,7 +26,13 @@ export interface ITileLoader {
 	/** @description: use worker? */
 	useWorker: boolean;
 	/** @description: load tile data */
-	load(x: number, y: number, z: number, onLoad: () => void): Tile;
+	load(
+		x: number,
+		y: number,
+		z: number,
+		// onLoad: (material: Material[], geometry: BufferGeometry) => void,
+		abortSignal: AbortSignal,
+	): Promise<MeshDateType>;
 }
 /** Tile loader info interface */
 export interface ITileLoaderInfo {
@@ -35,6 +45,14 @@ export interface ITileLoaderInfo {
 	/** @description: loader discription */
 	discription?: string;
 }
+
+// export type TileLoaderParamsType = {
+// 	source: ISource;
+// 	x: number;
+// 	y: number;
+// 	z: number;
+// 	abortSignal: AbortSignal;
+// };
 
 /**  Material loader interface */
 export interface ITileMaterialLoader extends ITileLoaderInfo {

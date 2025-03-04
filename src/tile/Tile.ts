@@ -20,7 +20,7 @@ import {
 	Vector3,
 } from "three";
 import { ITileLoader } from "../loader";
-import { getDistance, getTileSize, loadChildren, LODAction, LODEvaluate } from "./util";
+import { getDistance, getTileSize, createChildren, LODAction, LODEvaluate } from "./util";
 
 /**
  * Tile update parameters
@@ -59,11 +59,11 @@ const frustum = new Frustum();
  * Extends the Mesh class with BufferGeometry and Material.
  */
 export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
+	private static _downloadThreads = 0;
+
 	/**
 	 * Number of download threads.
 	 */
-	public static _downloadThreads = 0;
-
 	public static get downloadThreads() {
 		return Tile._downloadThreads;
 	}
@@ -101,6 +101,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	private _ready = false;
+
+	private _abortController = new AbortController();
 
 	/** Max height of tile */
 	private _maxZ = 0;
@@ -272,13 +274,22 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
 		if (Tile.downloadThreads < 10 && action === LODAction.create && (this.showing || this.z < minLevel)) {
 			// Create children tiles
-			const newTiles = loadChildren(loader, this.x, this.y, this.z, minLevel, (newTile: Tile) => onLoad(newTile));
+			const newTiles = createChildren(loader, this.x, this.y, this.z);
 			this.add(...newTiles);
 			newTiles.forEach((newTile) => {
-				newTile.z >= minLevel && Tile._downloadThreads++;
+				const { x, y, z } = newTile;
 				onCreate(newTile);
+				if (newTile.z >= minLevel) {
+					Tile._downloadThreads++;
+					// Load tile data
+					loader.load(x, y, z, this._abortController.signal).then((meshData) => {
+						Tile._downloadThreads--;
+						newTile.material = meshData.materials;
+						newTile.geometry = meshData.geometry;
+						onLoad(newTile);
+					});
+				}
 			});
-			// console.log(Tile.downloadThreads);
 		} else if (action === LODAction.remove && this.showing) {
 			// Remove tiles
 			const parent = this.parent;
@@ -416,7 +427,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		newTile._onLoad();
 		this._calcHeightInView();
 		this.dispatchEvent({ type: "tile-loaded", tile: newTile });
-		Tile._downloadThreads--;
 	}
 
 	/**
@@ -425,7 +435,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public reload() {
 		this.dispose(true);
-		Tile._downloadThreads = 0;
 		return this;
 	}
 
@@ -436,6 +445,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public dispose(disposeSelf: boolean) {
 		if (disposeSelf && this.isTile && this.loaded) {
+			this._abortController.abort();
 			this.material.forEach((mat) => mat.dispose());
 			this.material = [];
 			this.geometry.groups = [];
