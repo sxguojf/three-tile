@@ -45,15 +45,10 @@ export class FileLoaderEx extends Loader {
 			// console.log("Hit net cache...");
 			this.manager.itemStart(url);
 			setTimeout(() => {
-				if (onLoad) onLoad(cached);
+				onLoad && onLoad(cached);
 				this.manager.itemEnd(url);
 			});
 			return cached;
-		}
-
-		if (abortSignal?.aborted) {
-			console.log("aborted befor load");
-			return;
 		}
 
 		// create request
