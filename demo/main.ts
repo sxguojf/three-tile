@@ -125,7 +125,9 @@ function main() {
 	// 填加伪球体（frakEarth插件提供功能）
 	map.addFrakEarth(viewer.scene);
 	// 防止摄像机进入地下(limitCameraHeight插件提供功能)
-	map.limitCameraHeight(viewer);
+	viewer.addEventListener("update", () => {
+		map.limitCameraHeight(viewer);
+	});
 
 	// 初始化GUI
 	initGui(viewer, map);

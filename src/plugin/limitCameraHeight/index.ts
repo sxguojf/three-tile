@@ -1,61 +1,41 @@
-import { PerspectiveCamera, Raycaster, Vector3 } from "three";
-import { MapControls } from "three/examples/jsm/controls/MapControls";
+import { PerspectiveCamera, Vector3 } from "three";
 import { TileMap } from "../../map";
 
-// 取得近截面下沿的线段
-function getLineSegmentFromCameraNearPlane(camera: PerspectiveCamera) {
-	const near = camera.near;
-	const fov = camera.fov * (Math.PI / 180); // 将角度转换为弧度
-	const aspect = camera.aspect;
-	const height = 2 * Math.tan(fov / 2) * near;
-	const width = height * aspect;
-
-	// 计算左下角和右下角的世界坐标
-	const leftBottom = new Vector3(-width / 2, -height / 2, -near);
-	const rightBottom = new Vector3(width / 2, -height / 2, -near);
-
-	const worldLeftBottom = camera.localToWorld(leftBottom);
-	const worldRightBottom = camera.localToWorld(rightBottom);
-
-	return { worldLeftBottom, worldRightBottom };
-}
-
 export type LimitCameraHeightOptions = {
-	camera: PerspectiveCamera;
-	controls: MapControls;
+	camera: PerspectiveCamera; // 摄像机
+	limitHeight?: number; //限制高度
 };
 
 declare module "../../map" {
 	interface TileMap {
+		/**
+		 * 限制摄像机高度，需要在场景每帧更新中调用
+		 * @param params
+		 */
 		limitCameraHeight(params: LimitCameraHeightOptions): void;
 	}
 }
 
 TileMap.prototype.limitCameraHeight = function (params: LimitCameraHeightOptions) {
-	const limit = () => {
-		const { worldLeftBottom, worldRightBottom } = getLineSegmentFromCameraNearPlane(params.camera);
+	const { camera, limitHeight = 0.3 } = params;
 
-		// 创建从左下角到右下角的射线
-		const direction = new Vector3().subVectors(worldRightBottom, worldLeftBottom).normalize();
-		const raycaster = new Raycaster(worldLeftBottom, direction);
-
-		// 判断近截面下沿是否与地图模型相交
-		const intersects = raycaster.intersectObject(this, true);
-		if (intersects.length > 0) {
-			// 检查交点是否在线段内
-			const intersection = intersects[0].point;
-			const segmentLength = worldLeftBottom.distanceTo(worldRightBottom);
-			const distanceToStart = worldLeftBottom.distanceTo(intersection);
-			const distanceToEnd = worldRightBottom.distanceTo(intersection);
-
-			if (distanceToStart + distanceToEnd <= segmentLength) {
-				// console.log("线段与地图模型相交:", intersects);
-				// 抬高摄像机
-				const dv = this.localToWorld(this.up.clone()).multiplyScalar(0.05);
-				params.camera.position.add(dv);
-			}
+	const getCameraNearHeight = () => {
+		// 摄像机方向与近截面交点的世界坐标
+		const checkPoint = camera.localToWorld(new Vector3(0, 0, -camera.near));
+		// 取该点下方的地面高度
+		const info = this.getLocalInfoFromWorld(checkPoint);
+		if (info) {
+			// 地面高度与该点高度差
+			return this.worldToLocal(checkPoint).z - this.worldToLocal(info.point).z;
+		} else {
+			return Infinity;
 		}
 	};
-	params.controls.addEventListener("change", limit);
-	this.addEventListener("update", limit);
+	// 计算摄像机(near)距地面距离
+	const dist = getCameraNearHeight();
+	// 距离限制高度是时，抬高摄像机
+	if (dist < limitHeight) {
+		const dv = this.localToWorld(this.up.clone()).multiplyScalar(limitHeight / 20);
+		camera.position.add(dv);
+	}
 };

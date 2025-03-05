@@ -41,17 +41,17 @@ function getTileCount(tileMap: TileMap) {
 }
 
 // TileMap.prototype.flyTo = function (centerPostion: Vector3, cameraPostion: Vector3, animate?: boolean): TileMap {
-// 	// this.controls.target.copy(centerPostion);
-// 	// if (animate) {
-// 	// 	const start = this.camera.position;
-// 	// 	new Tween(start)
-// 	// 		// fly to 10000km
-// 	// 		.to({ y: 10000, z: 0 }, 500)
-// 	// 		// to taget
-// 	// 		.chain(new Tween(start).to(cameraPostion, 2000).easing(TWEEN.Easing.Quintic.Out))
-// 	// 		.start();
-// 	// } else {
-// 	// 	this.camera.position.copy(cameraPostion);
-// 	// }
+// 	this.controls.target.copy(centerPostion);
+// 	if (animate) {
+// 		const start = this.camera.position;
+// 		new Tween(start)
+// 			// fly to 10000km
+// 			.to({ y: 10000, z: 0 }, 500)
+// 			// to taget
+// 			.chain(new Tween(start).to(cameraPostion, 2000).easing(TWEEN.Easing.Quintic.Out))
+// 			.start();
+// 	} else {
+// 		this.camera.position.copy(cameraPostion);
+// 	}
 // 	return this;
 // };
