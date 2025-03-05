@@ -17,16 +17,16 @@ declare module "../../map" {
 }
 
 TileMap.prototype.limitCameraHeight = function (params: LimitCameraHeightOptions) {
-	const { camera, limitHeight = 0.3 } = params;
+	const { camera, limitHeight = 0.1 } = params;
 
 	const getCameraNearHeight = () => {
 		// 摄像机方向与近截面交点的世界坐标
-		const checkPoint = camera.localToWorld(new Vector3(0, 0, -camera.near));
+		const checkPoint = camera.localToWorld(new Vector3(0, 0, -camera.near - 0.2));
 		// 取该点下方的地面高度
 		const info = this.getLocalInfoFromWorld(checkPoint);
 		if (info) {
-			// 地面高度与该点高度差
-			return this.worldToLocal(checkPoint).z - this.worldToLocal(info.point).z;
+			// 地面高度与该点高度差(世界坐标系下)
+			return checkPoint.y - info.point.y;
 		} else {
 			return Infinity;
 		}
