@@ -30,7 +30,7 @@ export function getTileSize(tile: Tile) {
 }
 
 function getDistRatio(tile: Tile): number {
-	return (tile.distToCamera / tile.sizeInWorld) * 0.8;
+	return (tile.distToCamera / tile.sizeInWorld) * 0.5;
 }
 
 export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {

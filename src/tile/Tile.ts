@@ -272,7 +272,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	) {
 		// LOD evaluate
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
-		if (Tile.downloadThreads < 10 && action === LODAction.create && (this.showing || this.z < minLevel)) {
+		if (Tile.downloadThreads < 7 && action === LODAction.create && (this.showing || this.z < minLevel)) {
 			// Create children tiles
 			const newTiles = createChildren(loader, this.x, this.y, this.z);
 			this.add(...newTiles);

@@ -12,7 +12,7 @@ declare module "../../map" {
 		 * 限制摄像机高度，需要在场景每帧更新中调用
 		 * @param params
 		 */
-		limitCameraHeight(params: LimitCameraHeightOptions): void;
+		limitCameraHeight(params: LimitCameraHeightOptions): boolean;
 	}
 }
 
@@ -21,7 +21,7 @@ TileMap.prototype.limitCameraHeight = function (params: LimitCameraHeightOptions
 
 	const getCameraNearHeight = () => {
 		// 摄像机方向与近截面交点的世界坐标
-		const checkPoint = camera.localToWorld(new Vector3(0, 0, -camera.near - 0.2));
+		const checkPoint = camera.localToWorld(new Vector3(0, 0, -camera.near - 0.1));
 		// 取该点下方的地面高度
 		const info = this.getLocalInfoFromWorld(checkPoint);
 		if (info) {
@@ -35,7 +35,10 @@ TileMap.prototype.limitCameraHeight = function (params: LimitCameraHeightOptions
 	const dist = getCameraNearHeight();
 	// 距离限制高度是时，抬高摄像机
 	if (dist < limitHeight) {
-		const dv = this.localToWorld(this.up.clone()).multiplyScalar(limitHeight / 20);
+		const offset = dist < 0 ? -dist * 1.1 : dist / 10;
+		const dv = this.localToWorld(this.up.clone()).multiplyScalar(offset);
 		camera.position.add(dv);
+		return true;
 	}
+	return false;
 };
