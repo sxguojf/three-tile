@@ -2,8 +2,8 @@ import { PerspectiveCamera, Raycaster, Vector3 } from "three";
 import { MapControls } from "three/examples/jsm/controls/MapControls";
 import { TileMap } from "../../map";
 
-// 取得截面下沿射线
-function getRayFromCameraNearPlane(camera: PerspectiveCamera) {
+// 取得近截面下沿的线段
+function getLineSegmentFromCameraNearPlane(camera: PerspectiveCamera) {
 	const near = camera.near;
 	const fov = camera.fov * (Math.PI / 180); // 将角度转换为弧度
 	const aspect = camera.aspect;
@@ -17,11 +17,7 @@ function getRayFromCameraNearPlane(camera: PerspectiveCamera) {
 	const worldLeftBottom = camera.localToWorld(leftBottom);
 	const worldRightBottom = camera.localToWorld(rightBottom);
 
-	// 创建射线
-	const direction = new Vector3().subVectors(worldRightBottom, worldLeftBottom).normalize();
-	const raycaster = new Raycaster(worldLeftBottom, direction);
-
-	return raycaster;
+	return { worldLeftBottom, worldRightBottom };
 }
 
 export type LimitCameraHeightOptions = {
@@ -37,14 +33,27 @@ declare module "../../map" {
 
 TileMap.prototype.limitCameraHeight = function (params: LimitCameraHeightOptions) {
 	params.controls.addEventListener("change", () => {
-		const raycaster = getRayFromCameraNearPlane(params.camera);
+		const { worldLeftBottom, worldRightBottom } = getLineSegmentFromCameraNearPlane(params.camera);
+
+		// 创建从左下角到右下角的射线
+		const direction = new Vector3().subVectors(worldRightBottom, worldLeftBottom).normalize();
+		const raycaster = new Raycaster(worldLeftBottom, direction);
+
 		// 判断近截面下沿是否与地图模型相交
 		const intersects = raycaster.intersectObject(this, true);
 		if (intersects.length > 0) {
-			// console.log("射线与地图模型相交:", intersects);
-			// 抬高摄像机
-			const dv = this.localToWorld(this.up.clone()).multiplyScalar(0.05);
-			params.camera.position.add(dv);
+			// 检查交点是否在线段内
+			const intersection = intersects[0].point;
+			const segmentLength = worldLeftBottom.distanceTo(worldRightBottom);
+			const distanceToStart = worldLeftBottom.distanceTo(intersection);
+			const distanceToEnd = worldRightBottom.distanceTo(intersection);
+
+			if (distanceToStart + distanceToEnd <= segmentLength + Number.EPSILON) {
+				// console.log("线段与地图模型相交:", intersects);
+				// 抬高摄像机
+				const dv = this.localToWorld(this.up.clone()).multiplyScalar(0.05);
+				params.camera.position.add(dv);
+			}
 		}
 	});
 };
