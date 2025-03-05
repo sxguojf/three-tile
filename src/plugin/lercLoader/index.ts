@@ -28,8 +28,13 @@ import { TileGeometryLercLoader } from "./TileGeometryLercLoader";
 // export const lerc = new LercPlugin();
 
 // 加载 LERC 格式数据解析wasm
-(async () =>
-	await Lerc.load({
-		locateFile: () => decodeUrl,
-	}))();
+// (async () =>
+// 	await Lerc.load({
+// 		locateFile: () => decodeUrl,
+// 	}))();
+
+await Lerc.load({
+	locateFile: () => decodeUrl,
+});
+console.assert(Lerc.isLoaded());
 LoaderFactory.registerGeometryLoader(new TileGeometryLercLoader());

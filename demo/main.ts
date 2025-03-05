@@ -120,14 +120,14 @@ function main() {
 	const viewer = initViewer("#map", map);
 	// 添加地图背景
 	addMapBackground(map);
-
 	// 添加雾（fog插件提供功能）
 	map.addFog(viewer);
 	// 填加伪球体（frakEarth插件提供功能）
 	map.addFrakEarth(viewer.scene);
-	// 防止摄像机进入地下
+	// 防止摄像机进入地下(limitCameraHeight插件提供功能)
 	map.limitCameraHeight(viewer);
 
+	// 初始化GUI
 	initGui(viewer, map);
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);
@@ -135,4 +135,4 @@ function main() {
 	console.log("Loaders", map.loaderInfo);
 }
 
-addEventListener("load", main);
+main();
