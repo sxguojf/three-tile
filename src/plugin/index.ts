@@ -11,6 +11,8 @@
 import "./tileImageLoader";
 // Mapbox terrain-rgb loader. Mapbox terrain-rgb格式地形瓦片加载器
 import "./terrainRGBLoader";
+// ArcGis lerc loader. ArcGis lerc格式地形瓦片加载器
+import "./lercLoader";
 // debug material loader. 调试材质瓦片加载器
 import "./debugLoader";
 // logo material loader. logo材质瓦片加载器
@@ -35,18 +37,9 @@ import "./martiniLoader";
 export * from "./GLViewer";
 // source chunk loader. 一些常见瓦片数据源定义
 export * from "./mapSource";
-// fake earth mask. 地球球体遮罩
+// fake earth mask. 地球球体遮罩插件
 export * from "./fakeEarth";
-
+// fog. 雾插件
 export * from "./fog";
 // map extension. 地图扩展功能
 import "./mapExtension";
-
-/*-------------------------------------------------------------------
-                        加载默认插件
----------------------------------------------------------------------*/
-import { use } from "./PluginSDK";
-import { lerc } from "./lercLoader";
-(async () => {
-	await use(lerc);
-})();

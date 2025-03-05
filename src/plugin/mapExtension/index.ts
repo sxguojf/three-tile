@@ -11,24 +11,24 @@ declare module "../../map" {
 			downLoading: number;
 		};
 		getTileCount(): { total: number; visible: number; leaf: number; maxLevle: number; downLoading: number };
+		// flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate?: boolean): TileMap;
 	}
 }
 
 Object.defineProperty(TileMap.prototype, "tileCount", {
 	get() {
-		return this.getTileCount();
+		return getTileCount(this);
 	},
-	configurable: true,
 });
 
-TileMap.prototype.getTileCount = function () {
+function getTileCount(tileMap: TileMap) {
 	let total = 0,
 		visible = 0,
 		maxLevel = 0,
 		leaf = 0,
 		downloading = 0;
 
-	this.rootTile.traverse((tile) => {
+	tileMap.rootTile.traverse((tile) => {
 		if (tile.isTile) {
 			total++;
 			tile.isLeaf && tile.inFrustum && visible++;
@@ -38,4 +38,20 @@ TileMap.prototype.getTileCount = function () {
 		}
 	});
 	return { total, visible, leaf, maxLevle: maxLevel, downLoading: downloading };
-};
+}
+
+// TileMap.prototype.flyTo = function (centerPostion: Vector3, cameraPostion: Vector3, animate?: boolean): TileMap {
+// 	// this.controls.target.copy(centerPostion);
+// 	// if (animate) {
+// 	// 	const start = this.camera.position;
+// 	// 	new Tween(start)
+// 	// 		// fly to 10000km
+// 	// 		.to({ y: 10000, z: 0 }, 500)
+// 	// 		// to taget
+// 	// 		.chain(new Tween(start).to(cameraPostion, 2000).easing(TWEEN.Easing.Quintic.Out))
+// 	// 		.start();
+// 	// } else {
+// 	// 	this.camera.position.copy(cameraPostion);
+// 	// }
+// 	return this;
+// };

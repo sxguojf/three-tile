@@ -120,7 +120,6 @@ function main() {
 	const viewer = initViewer("#map", map);
 	// 添加地图背景
 	addMapBackground(map);
-
 	// 添加雾（fog插件提供功能）
 	map.addFog(viewer.scene, viewer.controls);
 	// 填加伪球体（frakEarth插件提供功能）
