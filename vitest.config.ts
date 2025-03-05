@@ -4,9 +4,6 @@ import topLevelAwait from "vite-plugin-top-level-await";
 export default defineConfig({
 	base: "./",
 	root: "src",
-	build: {
-		target: "es2020",
-	},
 	plugins: [
 		topLevelAwait({
 			// The export name of top-level await promise for each chunk module

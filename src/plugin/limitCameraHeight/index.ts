@@ -32,7 +32,7 @@ declare module "../../map" {
 }
 
 TileMap.prototype.limitCameraHeight = function (params: LimitCameraHeightOptions) {
-	params.controls.addEventListener("change", () => {
+	const limit = () => {
 		const { worldLeftBottom, worldRightBottom } = getLineSegmentFromCameraNearPlane(params.camera);
 
 		// 创建从左下角到右下角的射线
@@ -48,12 +48,14 @@ TileMap.prototype.limitCameraHeight = function (params: LimitCameraHeightOptions
 			const distanceToStart = worldLeftBottom.distanceTo(intersection);
 			const distanceToEnd = worldRightBottom.distanceTo(intersection);
 
-			if (distanceToStart + distanceToEnd <= segmentLength + Number.EPSILON) {
+			if (distanceToStart + distanceToEnd <= segmentLength) {
 				// console.log("线段与地图模型相交:", intersects);
 				// 抬高摄像机
 				const dv = this.localToWorld(this.up.clone()).multiplyScalar(0.05);
 				params.camera.position.add(dv);
 			}
 		}
-	});
+	};
+	params.controls.addEventListener("change", limit);
+	this.addEventListener("update", limit);
 };
