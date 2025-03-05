@@ -16,9 +16,14 @@ import { FogExp2, Scene } from "three";
 import { MapControls } from "three/examples/jsm/controls/MapControls";
 import { TileMap } from "../../map";
 
+type AddFogParams = {
+	scene: Scene;
+	controls: MapControls;
+};
+
 declare module "../../map" {
 	interface TileMap {
-		addFog(scene: Scene, controls: MapControls): FogExp2;
+		addFog(params: AddFogParams): FogExp2;
 	}
 }
 
@@ -40,7 +45,8 @@ declare module "three" {
 // });
 
 // 扩展TileMap类，原型链上添加addFrakEarth方法
-TileMap.prototype.addFog = function (scene: Scene, controls: MapControls): FogExp2 {
+TileMap.prototype.addFog = function (params: AddFogParams): FogExp2 {
+	const { scene, controls } = params;
 	controls.addEventListener("change", () => {
 		const polar = Math.max(controls.getPolarAngle(), 0.1);
 		const dist = Math.max(controls.getDistance(), 0.1);

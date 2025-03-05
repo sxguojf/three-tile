@@ -2,7 +2,7 @@ import { BufferGeometry, ColorRepresentation, Line, LineBasicMaterial, Vector3 }
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
-import { addMapBackground, limitCameraHeight } from "./utils";
+import { addMapBackground } from "./utils";
 
 console.log("===================================================================");
 console.log(`three-tile V${tt.version}, ${tt.author.email}`);
@@ -120,14 +120,14 @@ function main() {
 	const viewer = initViewer("#map", map);
 	// 添加地图背景
 	addMapBackground(map);
+
 	// 添加雾（fog插件提供功能）
-	map.addFog(viewer.scene, viewer.controls);
+	map.addFog(viewer);
 	// 填加伪球体（frakEarth插件提供功能）
 	map.addFrakEarth(viewer.scene);
-
 	// 防止摄像机进入地下
-	limitCameraHeight(viewer, map);
-	// 创建gui
+	map.limitCameraHeight(viewer);
+
 	initGui(viewer, map);
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);

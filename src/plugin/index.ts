@@ -43,3 +43,5 @@ export * from "./fakeEarth";
 export * from "./fog";
 // map extension. 地图扩展功能
 import "./mapExtension";
+//
+import "./limitCameraHeight";

@@ -31,9 +31,9 @@ export function addMapBackground(map: tt.TileMap) {
  * 计算摄像机视线与近剪裁面交点的距地面高度，太低则向天顶上移相机。
  * @param viewer 视图
  * @param map  地图
- * @param dist 距地高度
+ * @param height 距地高度
  */
-export function limitCameraHeight(viewer: tt.plugin.GLViewer, map: tt.TileMap, dist = 0.1) {
+export function limitCameraHeight(viewer: tt.plugin.GLViewer, map: tt.TileMap, height = 0.1) {
 	function getHightFromCamera() {
 		// 取摄像机下方点
 		const dist = viewer.camera.near;
@@ -51,8 +51,8 @@ export function limitCameraHeight(viewer: tt.plugin.GLViewer, map: tt.TileMap, d
 	// viewer.controls.addEventListener("change", () => {
 	viewer.addEventListener("update", () => {
 		const h = getHightFromCamera();
-		if (h < dist) {
-			const dv = map.localToWorld(map.up.clone()).multiplyScalar(dist + 0.001 - h);
+		if (h < height) {
+			const dv = map.localToWorld(map.up.clone()).multiplyScalar(height + 0.001 - h);
 			viewer.camera.position.add(dv);
 		}
 	});
