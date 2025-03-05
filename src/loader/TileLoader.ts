@@ -58,7 +58,7 @@ export class TileLoader implements ITileLoader {
 	public manager = LoaderFactory.manager;
 
 	/**
-	 * Load a tile data from x, y and z coordinate.
+	 * Load getmetry and materail of tile from x, y and z coordinate.
 	 *
 	 * @param x x coordinate of tile
 	 * @param y y coordinate of tile
@@ -68,17 +68,16 @@ export class TileLoader implements ITileLoader {
 	 */
 	public load(x: number, y: number, z: number, abortSignal: AbortSignal): Promise<MeshDateType> {
 		return new Promise((resolve) => {
-			// 添加return
-			const loadGeometry = () => {
-				const materials = this.loadMaterial(x, y, z, () => loadMaterial(), abortSignal);
-				const loadMaterial = () => {
+			const onGeometryLoad = () => {
+				const onMaterialLoad = () => {
 					for (let i = 0; i < materials.length; i++) {
 						geometry.addGroup(0, Infinity, i);
 					}
 					return resolve({ materials, geometry });
 				};
+				const materials = this.loadMaterial(x, y, z, onMaterialLoad, abortSignal);
 			};
-			const geometry = this.loadGeometry(x, y, z, loadGeometry, abortSignal);
+			const geometry = this.loadGeometry(x, y, z, onGeometryLoad, abortSignal);
 		});
 	}
 

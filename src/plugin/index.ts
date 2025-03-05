@@ -37,6 +37,8 @@ export * from "./GLViewer";
 export * from "./mapSource";
 // fake earth mask. 地球球体遮罩
 export * from "./fakeEarth";
+
+export * from "./fog";
 // map extension. 地图扩展功能
 import "./mapExtension";
 

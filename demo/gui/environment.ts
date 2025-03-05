@@ -57,7 +57,7 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 			vm.skyVisible = false;
 		});
 
-	folder.add(viewer, "fogFactor", 0, 10, 0.001).listen();
+	// folder.add(viewer, "fogFactor", 0, 10, 0.001).listen();
 
 	const background = viewer.scene.getObjectByName("background");
 	if (background) {

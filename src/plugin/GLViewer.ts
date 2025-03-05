@@ -11,7 +11,6 @@ import {
 	Color,
 	DirectionalLight,
 	EventDispatcher,
-	FogExp2,
 	MathUtils,
 	Object3DEventMap,
 	PerspectiveCamera,
@@ -52,15 +51,6 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	public readonly container: HTMLElement;
 	private readonly _clock: Clock = new Clock();
 
-	private _fogFactor = 1.0;
-	public get fogFactor() {
-		return this._fogFactor;
-	}
-	public set fogFactor(value) {
-		this._fogFactor = value;
-		this.controls.dispatchEvent({ type: "change" });
-	}
-
 	public get width() {
 		return this.container.clientWidth;
 	}
@@ -95,9 +85,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 
 	private _createScene() {
 		const scene = new Scene();
-		const backColor = 0xdbf0ff;
-		scene.background = new Color(backColor);
-		scene.fog = new FogExp2(backColor, 0);
+		scene.background = new Color(0xdbf0ff);
 		return scene;
 	}
 
@@ -141,6 +129,8 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 
 		this.container.tabIndex = 0;
 		controls.listenToKeyEvents(this.container);
+
+		// Adjust zinear/far and azimuth/polar when controls changed
 		controls.addEventListener("change", () => {
 			const polar = Math.max(controls.getPolarAngle(), 0.1);
 			const dist = Math.max(controls.getDistance(), 0.1);
@@ -150,10 +140,6 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 50000);
 			this.camera.near = this.camera.far / 1000;
 			this.camera.updateProjectionMatrix();
-
-			if (this.scene.fog instanceof FogExp2) {
-				this.scene.fog.density = (polar / (dist + 5)) * this.fogFactor * 0.25;
-			}
 
 			const isDistAboveThreshold = dist > DIST_THRESHOLD;
 			controls.minAzimuthAngle = isDistAboveThreshold ? 0 : -Infinity;

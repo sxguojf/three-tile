@@ -120,13 +120,12 @@ function main() {
 	const viewer = initViewer("#map", map);
 	// 添加地图背景
 	addMapBackground(map);
-	// // 添加伪地球遮罩
-	// tt.use<tt.plugin.FrakeEarthOptions>(tt.plugin.frakEarth, {
-	// 	map,
-	// 	scene: viewer.scene,
-	// 	controls: viewer.controls,
-	// });
+
+	// 添加雾（fog插件提供功能）
+	map.addFog(viewer.scene, viewer.controls);
+	// 填加伪球体（frakEarth插件提供功能）
 	map.addFrakEarth(viewer.scene);
+
 	// 防止摄像机进入地下
 	limitCameraHeight(viewer, map);
 	// 创建gui
@@ -138,13 +137,3 @@ function main() {
 }
 
 addEventListener("load", main);
-
-// declare module "../src" {
-// 	interface TileMap {
-// 		test: () => void;
-// 	}
-// }
-
-// tt.TileMap.prototype.test = () => {
-// 	console.log("this is a test");
-// };
