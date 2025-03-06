@@ -122,42 +122,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._maxZ = value;
 	}
 
-	/** Min height of tile */
-	// private _minZ = 0;
-
-	// /**
-	//  * Gets the minimum height of the tile.
-	//  */
-	// public get minZ() {
-	// 	return this._minZ;
-	// }
-
-	// /**
-	//  * Sets the minimum height of the tile.
-	//  * @param value - The new minimum height.
-	//  */
-	// protected set minZ(value) {
-	// 	this._minZ = value;
-	// }
-
-	// /** Avg height of tile */
-	// private _avgZ = 0;
-
-	// /**
-	//  * Gets the average height of the tile.
-	//  */
-	// public get avgZ() {
-	// 	return this._avgZ;
-	// }
-
-	// /**
-	//  * Sets the average height of the tile.
-	//  * @param value - The new average height.
-	//  */
-	// protected set avgZ(value) {
-	// 	this._avgZ = value;
-	// }
-
 	/** Distance to camera */
 	public distToCamera = 0;
 
@@ -366,32 +330,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this._checkVisible();
 		// Update Z
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
-		// this.minZ = this.geometry.boundingBox?.min.z || 0;
-		// this.avgZ = (this.maxZ + this.minZ) / 2;
 	}
-
-	/**
-	 * Calculates the elevation of tiles in view.
-	 * @returns The current tile.
-	 */
-	// private _calcHeightInView() {
-	// 	let sumZ = 0,
-	// 		count = 0;
-	// 	this.maxZ = -1;
-	// 	this.minZ = 10;
-	// 	this.traverseVisible((child) => {
-	// 		if (child.isLeaf && child.inFrustum && child.loaded) {
-	// 			this.maxZ = Math.max(this.maxZ, child.maxZ);
-	// 			this.minZ = Math.min(this.minZ, child.minZ);
-	// 			sumZ += child.avgZ;
-	// 			count++;
-	// 		}
-	// 	});
-	// 	if (count > 0) {
-	// 		this.avgZ = sumZ / count;
-	// 	}
-	// 	return this;
-	// }
 
 	/**
 	 * Checks the visibility of the tile.

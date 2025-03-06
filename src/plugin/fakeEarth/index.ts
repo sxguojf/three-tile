@@ -11,23 +11,6 @@ import { FakeEarth } from "./FakeEarth";
 export { EarthMaskMaterial } from "./EarthMaskMaterial";
 export { FakeEarth } from "./FakeEarth";
 
-// class FrakeEarthPlugin extends BasePlugin {
-// 	protected doInstall(options: FrakeEarthOptions): void {
-// 		const { map, scene, controls } = options;
-// 		const fakeEarth = new FakeEarth(scene.fog?.color || new Color(0));
-// 		fakeEarth.name = "fakeearth";
-// 		fakeEarth.applyMatrix4(map.rootTile.matrix);
-// 		map.add(fakeEarth);
-
-// 		controls.addEventListener("change", () => {
-// 			// 地图距摄像机较远时再显示遮罩
-// 			fakeEarth.visible = controls.getDistance() > 3000;
-// 		});
-// 	}
-// }
-
-// export const frakEarth = new FrakeEarthPlugin();
-
 declare module "../../map" {
 	interface TileMap {
 		createFrakEarth(bkColor?: ColorRepresentation, airColor?: ColorRepresentation): FakeEarth;
