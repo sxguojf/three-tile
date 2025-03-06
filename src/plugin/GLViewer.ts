@@ -20,7 +20,7 @@ import {
 } from "three";
 
 import { MapControls } from "three/examples/jsm/controls/MapControls";
-import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
+import { Easing, Tween, update as teweenUpdate } from "three/examples/jsm/libs/tween.module.js";
 
 /**
  * GlViewer event map
@@ -175,7 +175,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	private animate() {
 		this.controls.update();
 		this.renderer.render(this.scene, this.camera);
-		TWEEN.update();
+		teweenUpdate();
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 	}
 
@@ -193,7 +193,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 				// fly to 10000km
 				.to({ y: 10000, z: 0 }, 500)
 				// to taget
-				.chain(new Tween(start).to(cameraPostion, 2000).easing(TWEEN.Easing.Quintic.Out))
+				.chain(new Tween(start).to(cameraPostion, 2000).easing(Easing.Quintic.Out))
 				.start();
 		} else {
 			this.camera.position.copy(cameraPostion);

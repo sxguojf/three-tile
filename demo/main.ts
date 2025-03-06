@@ -1,8 +1,7 @@
-import { BufferGeometry, ColorRepresentation, Line, LineBasicMaterial, Vector3 } from "three";
+import { Vector3 } from "three";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
-import { addMapBackground } from "./utils";
 
 console.log("===================================================================");
 console.log(`three-tile V${tt.version}, ${tt.author.email}`);
@@ -49,40 +48,58 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 地图添加到场景
 	viewer.scene.add(map);
 
+	// 添加雾（fog插件提供功能）
+	viewer.scene.fog = map.createFog({ controls: viewer.controls });
+
+	// 填加伪球体（frakEarth插件提供功能）
+	map.createFrakEarth();
+
+	// 添加罗盘（compass插件提供功能）
+	const compass = map.createCompass(viewer.controls);
+	const compassContainer = document.querySelector("#compass-container");
+	compassContainer && compassContainer.appendChild(compass.dom);
+
+	// 防止摄像机进入地下(mapExtension插件提供功能)
+	viewer.addEventListener("update", () => {
+		map.limitCameraHeight(viewer);
+	});
+
 	// 测试
-	const imageBounds = map.projection.getProjBounds([105, 33, 109, 37]);
-	const imageMesh = createBoundsMesh(imageBounds, 0xffff00);
-	map.add(imageMesh);
+	// const imageBounds = map.projection.getProjBounds([105, 33, 109, 37]);
+	// const imageMesh = createBoundsMesh(imageBounds, 0xffff00);
+	// map.add(imageMesh);
 
-	const tileBounds = map.projection.getTileBounds(7, 2, 3);
-	const tileMesh = createBoundsMesh(tileBounds, 0xff0000);
-	map.add(tileMesh);
+	// const tileBounds = map.projection.getTileBounds(7, 2, 3);
+	// const tileMesh = createBoundsMesh(tileBounds, 0xff0000);
+	// map.add(tileMesh);
 
-	const mapBounds = map.imgSource[0]._projectionBounds;
-	const mapMesh = createBoundsMesh(mapBounds, 0x00ff00);
-	map.add(mapMesh);
+	// const mapBounds = map.imgSource[0]._projectionBounds;
+	// const mapMesh = createBoundsMesh(mapBounds, 0x00ff00);
+	// map.add(mapMesh);
 
 	return viewer;
 }
 
-function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {
-	const points = [];
-	const z = 8;
-	points.push(new Vector3(bounds[0], bounds[1], z));
-	points.push(new Vector3(bounds[2], bounds[1], z));
-	points.push(new Vector3(bounds[2], bounds[3], z));
-	points.push(new Vector3(bounds[0], bounds[3], z));
-	points.push(new Vector3(bounds[0], bounds[1], z));
-	const geometry = new BufferGeometry().setFromPoints(points);
-	const line = new Line(geometry, new LineBasicMaterial({ color }));
-	line.renderOrder = 100;
-	return line;
-}
+// function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {
+// 	const points = [];
+// 	const z = 8;
+// 	points.push(new Vector3(bounds[0], bounds[1], z));
+// 	points.push(new Vector3(bounds[2], bounds[1], z));
+// 	points.push(new Vector3(bounds[2], bounds[3], z));
+// 	points.push(new Vector3(bounds[0], bounds[3], z));
+// 	points.push(new Vector3(bounds[0], bounds[1], z));
+// 	const geometry = new BufferGeometry().setFromPoints(points);
+// 	const line = new Line(geometry, new LineBasicMaterial({ color }));
+// 	line.renderOrder = 100;
+// 	return line;
+// }
 
 // 初始化GUI
 function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	// 初始化配置项
 	gui.initGui(viewer, map);
+	// 添加地图背景
+	gui.addMapBackground(map);
 	// 添加状态指示器
 	gui.addStats(viewer);
 	// 状态栏显示瓦片加载状态
@@ -93,8 +110,6 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	gui.showAttribution(map);
 	// 显示调试信息
 	gui.showDebug(map, viewer);
-	// 显示罗盘
-	gui.showCompass(viewer);
 	// 显示鼠标点击的瓦片信息-调试
 	gui.showClickedTile(viewer, map);
 }
@@ -116,23 +131,16 @@ function fly(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 function main() {
 	// 创建地图
 	const map = createMap();
+
 	// 创建视图
 	const viewer = initViewer("#map", map);
-	// 添加地图背景
-	addMapBackground(map);
-	// 添加雾（fog插件提供功能）
-	map.addFog(viewer);
-	// 填加伪球体（frakEarth插件提供功能）
-	map.addFrakEarth(viewer.scene);
-	// 防止摄像机进入地下(limitCameraHeight插件提供功能)
-	viewer.addEventListener("update", () => {
-		map.limitCameraHeight(viewer);
-	});
 
 	// 初始化GUI
 	initGui(viewer, map);
+
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);
+
 	// 打印加载器信息
 	console.log("Loaders", map.loaderInfo);
 }

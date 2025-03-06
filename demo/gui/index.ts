@@ -1,4 +1,4 @@
-import { Vector2 } from "three";
+import { Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader, Vector2 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 
@@ -9,7 +9,6 @@ import { createEnvironmentGui } from "./environment";
 import { createLoaderGui } from "./loader";
 import { createSourceGui } from "./source";
 export { showDebug } from "./debug";
-export { showCompass } from "./compass";
 
 export function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const gui = new GUI();
@@ -58,7 +57,7 @@ export function showAttribution(map: tt.TileMap) {
 	const show = () => {
 		const dom = document.querySelector("#attribution");
 		if (dom) {
-			dom.innerHTML = "© " + map.attributions.join(" | © ");
+			dom.innerHTML = "© " + map.getAttributions().join(" | © ");
 		}
 	};
 	map.addEventListener("source-changed", () => show());
@@ -81,20 +80,13 @@ export function addStats(viewer: tt.plugin.GLViewer) {
 
 // 状态栏显示地理位置信息
 export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void {
-	const pointer = new Vector2();
 	viewer.container.addEventListener("pointermove", (evt) => {
-		pointer.x = (evt.offsetX / viewer.width) * 2 - 1;
-		pointer.y = -(evt.offsetY / viewer.height) * 2 + 1;
-
-		const info = map.getLocalInfoFromScreen(viewer.camera, pointer);
-		if (info) {
+		const lonlat = map.getLocalFromMouse(evt, viewer);
+		if (lonlat) {
 			const dom = document.querySelector("#location")!;
 			if (dom) {
-				const lonlat = info?.location;
 				dom.innerHTML = `${lonlat.x.toFixed(6)}°E, 
-                    ${lonlat.y.toFixed(6)}°N, ${(lonlat.z * 1000).toFixed(0)}m, (${info.normal?.x.toFixed(
-					2,
-				)}, ${info.normal?.y.toFixed(2)}, ${info.normal?.z.toFixed(2)})`;
+                    ${lonlat.y.toFixed(6)}°N, ${(lonlat.z * 1000).toFixed(0)}m`;
 			}
 		}
 	});
@@ -112,4 +104,28 @@ export function showClickedTile(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 			console.log(info);
 		}
 	});
+}
+
+/**
+ * 创建地图背景图
+ * 为了降低资源占用，地图瓦片在不使用立即释放，需要显示再加载，加载过程会出现空白块，
+ * 通过给地图下面增加一张静态图片补救。
+ *
+ * @param map 地图
+ * @returns 背景图模型
+ */
+export function addMapBackground(map: tt.TileMap) {
+	const backGround = new Mesh(
+		new PlaneGeometry(),
+		new MeshLambertMaterial({
+			map: new TextureLoader().load("./image/tile0.png", (texture) => (texture.colorSpace = SRGBColorSpace)),
+		}),
+	);
+	backGround.renderOrder = -1;
+	backGround.name = "background";
+	backGround.applyMatrix4(map.rootTile.matrix);
+	backGround.translateZ(-2);
+	map.add(backGround);
+
+	return backGround;
 }

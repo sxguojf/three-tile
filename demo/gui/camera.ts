@@ -1,13 +1,13 @@
 import { CameraHelper, Vector3 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
-import TWEEN, { Tween } from "three/examples/jsm/libs/tween.module.js";
+import { Easing, Tween } from "three/examples/jsm/libs/tween.module.js";
 import * as tt from "../../src";
 
 export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	/**
 	 * 飞行到某世界坐标
 	 * @param cameraPos 目标摄像机世界坐标
-	 * @param centerPos 目标地图中心坐标
+	 * @param centerPos 目标地图中心世界坐标
 	 */
 	const flyToPos = (cameraPos: Vector3, centerPos: Vector3) => {
 		viewer.controls.target.copy(centerPos);
@@ -16,7 +16,7 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			// 先到10000km高空
 			.to({ y: 10000, z: 0 }, 500)
 			// 再到目标位置
-			.chain(new Tween(start).to(cameraPos, 2000).easing(TWEEN.Easing.Quintic.Out))
+			.chain(new Tween(start).to(cameraPos, 2000).easing(Easing.Quintic.Out))
 			.start();
 	};
 
@@ -26,17 +26,9 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	 * @param newcenterGeo 目标地图中心经纬度坐标
 	 */
 	const flyToGeo = (newCameraGeo: Vector3, newcenterGeo: Vector3) => {
-		const cameraPosition = getPos(newCameraGeo);
-		const centerPosition = getPos(newcenterGeo);
+		const cameraPosition = map.geo2world(newCameraGeo);
+		const centerPosition = map.geo2world(newcenterGeo);
 		flyToPos(cameraPosition, centerPosition);
-	};
-
-	const getGeo = (pos: Vector3) => {
-		return map.world2geo(pos);
-	};
-
-	const getPos = (geo: Vector3) => {
-		return map.geo2world(geo);
 	};
 
 	const vm = {
@@ -110,8 +102,8 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		// },
 
 		cameraInfoToConsole: () => {
-			const cameraGeo = getGeo(viewer.camera.getWorldPosition(new Vector3()));
-			const targetGeo = getGeo(viewer.controls.target);
+			const cameraGeo = map.world2geo(viewer.camera.getWorldPosition(new Vector3()));
+			const targetGeo = map.geo2world(viewer.controls.target);
 			const code = `
 ()=>{
 	const camera = new Vector3(${cameraGeo.x},${cameraGeo.y},${cameraGeo.z})

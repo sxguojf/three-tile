@@ -94,60 +94,14 @@ button:focus-visible {
 	pointer-events: none;
 	line-height: 18px;
 }
-#compass {
+
+#compass-container {
 	position: absolute;
-	height: 60px;
-	width: 60px;
 	left: 30px;
 	bottom: 50px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border-radius: 50%;
-	border: 1px solid #fffc;
-	filter: drop-shadow(0px 0px 2px black);
-	background-color: #0005;
-	cursor: pointer;
+	height: 60px;
+	width: 60px;
 }
-#compass > .circle {
-	width: 60%;
-	height: 60%;
-	text-align: center;
-	border-radius: 50%;
-	border: 1px solid #fffc;
-	background-color: #fff4;
-}
-
-#compass:hover > .circle {
-	background-color: #0f05;
-}
-
-#compass:active .circle {
-	background-color: #000;
-}
-
-#compass > #compass-text {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	display: grid;
-	align-items: center;
-	justify-items: center;
-	grid-template-columns: 18% auto 18%;
-	grid-template-rows: 18% auto 18%;
-	text-shadow: 0px 0px 2px black;
-	font-size: 10px;
-}
-
-#compass > .circle > #compass-plane {
-	height: 90%;
-	width: 90%;
-	fill: #fffc;
-	filter: drop-shadow(5px 5px 5px black);
-}
-
 .statusbar {
 	position: absolute;
 	left: 0;

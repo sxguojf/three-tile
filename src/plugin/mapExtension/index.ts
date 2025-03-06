@@ -1,8 +1,25 @@
-import { TileMap } from "../../map";
-import { Tile } from "../../tile";
+import { Camera, PerspectiveCamera, Vector3 } from "three";
+import "./getAttributions";
+import "./getLocalFromMouse";
+import "./getTileCount";
+import "./limitCameraHeight";
+
+export type GetLocalFromMouseParasms = {
+	camera: Camera;
+	width: number;
+	height: number;
+};
+
+export type LimitCameraHeightParams = {
+	camera: PerspectiveCamera; // 摄像机
+	limitHeight?: number; //限制高度
+};
 
 declare module "../../map" {
 	interface TileMap {
+		/**
+		 * 瓦片数量统计
+		 */
 		get tileCount(): {
 			total: number;
 			visible: number;
@@ -11,47 +28,27 @@ declare module "../../map" {
 			downLoading: number;
 		};
 		getTileCount(): { total: number; visible: number; leaf: number; maxLevle: number; downLoading: number };
+
+		/**
+		 * 限制摄像机高度，需要在场景每帧更新中调用
+		 * @param params
+		 */
+		limitCameraHeight(params: LimitCameraHeightParams): boolean;
+
+		/**
+		 * Get map source attributions information
+		 * 取得地图数据归属版权信息
+		 */
+		getAttributions(): string[];
+
+		/**
+		 * 取得鼠标处经纬度海拔高度
+		 * @param xy PointerEvent中的xy
+		 * @param params
+		 * @returns
+		 */
+		getLocalFromMouse: (xy: { x: number; y: number }, params: GetLocalFromMouseParasms) => Vector3 | undefined;
+
 		// flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate?: boolean): TileMap;
 	}
 }
-
-Object.defineProperty(TileMap.prototype, "tileCount", {
-	get() {
-		return getTileCount(this);
-	},
-});
-
-function getTileCount(tileMap: TileMap) {
-	let total = 0,
-		visible = 0,
-		maxLevel = 0,
-		leaf = 0,
-		downloading = 0;
-
-	tileMap.rootTile.traverse((tile) => {
-		if (tile.isTile) {
-			total++;
-			tile.isLeaf && tile.inFrustum && visible++;
-			tile.isLeaf && leaf++;
-			maxLevel = Math.max(maxLevel, tile.z);
-			downloading = Tile.downloadThreads;
-		}
-	});
-	return { total, visible, leaf, maxLevle: maxLevel, downLoading: downloading };
-}
-
-// TileMap.prototype.flyTo = function (centerPostion: Vector3, cameraPostion: Vector3, animate?: boolean): TileMap {
-// 	this.controls.target.copy(centerPostion);
-// 	if (animate) {
-// 		const start = this.camera.position;
-// 		new Tween(start)
-// 			// fly to 10000km
-// 			.to({ y: 10000, z: 0 }, 500)
-// 			// to taget
-// 			.chain(new Tween(start).to(cameraPostion, 2000).easing(TWEEN.Easing.Quintic.Out))
-// 			.start();
-// 	} else {
-// 		this.camera.position.copy(cameraPostion);
-// 	}
-// 	return this;
-// };

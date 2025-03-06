@@ -41,7 +41,7 @@ export * from "./mapSource";
 export * from "./fakeEarth";
 // fog. 雾插件
 export * from "./fog";
+// compass. 罗盘插件
+import "./compass";
 // map extension. 地图扩展功能
 import "./mapExtension";
-//
-import "./limitCameraHeight";

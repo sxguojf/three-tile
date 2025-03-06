@@ -10,7 +10,7 @@ import { ISource } from "../source";
 import { Tile } from "../tile";
 import { SourceWithProjection } from "./SourceWithProjection";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
-import { attachEvent, getAttributions, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
+import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
 
 /**
  * TileMap Event Map
@@ -397,26 +397,35 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	public constructor(params: MapParams) {
 		super();
 		this.up.set(0, 0, 1);
-		this.loader = params.loader ?? new TileLoader();
-		this.rootTile = params.rootTile ?? new Tile();
-		this.rootTile.matrixAutoUpdate = true;
+		const {
+			loader = new TileLoader(),
+			rootTile = new Tile(),
+			minLevel = 2,
+			maxLevel = 19,
+			imgSource,
+			demSource,
+			lon0 = 0,
+		} = params;
 
-		this.minLevel = params.minLevel ?? 1;
-		this.maxLevel = params.maxLevel ?? 19;
+		rootTile.matrixAutoUpdate = true;
+		rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
 
-		this.imgSource = params.imgSource;
-		this.demSource = params.demSource;
-		this.lon0 = params.lon0 ?? 0;
-		this.rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
+		this.loader = loader;
+		this.rootTile = rootTile;
+		this.minLevel = minLevel;
+		this.maxLevel = maxLevel;
+		this.imgSource = imgSource;
+		this.demSource = demSource;
+		this.lon0 = lon0;
+
+		// 模型加入地图
+		this.add(rootTile);
+
+		// 更新地图模型矩阵
+		rootTile.updateMatrix();
 
 		// 绑定事件
 		attachEvent(this);
-
-		// 模型加入地图
-		this.add(this.rootTile);
-
-		// 更新地图模型矩阵
-		this.rootTile.updateMatrix();
 	}
 
 	/**
@@ -428,8 +437,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		const elapseTime = this._clock.getElapsedTime();
 		// 控制瓦片树更新速率 10fps
 		if (elapseTime > 1 / 5) {
-			// this.rootTile.receiveShadow = this.receiveShadow;
-			// this.rootTile.castShadow = this.castShadow;
 			this.rootTile.update({
 				camera,
 				loader: this.loader,
@@ -564,14 +571,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public getLocalInfoFromScreen(camera: Camera, pointer: Vector2) {
 		return getLocalInfoFromScreen(camera, this, pointer);
-	}
-
-	/**
-	 * Get map source attributions information
-	 * 取得地图数据归属版权信息
-	 */
-	public get attributions() {
-		return getAttributions(this);
 	}
 
 	/**

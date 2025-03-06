@@ -4,19 +4,12 @@
  *@date: 2023-04-05
  */
 
-import { Color, Scene } from "three";
-import { MapControls } from "three/examples/jsm/controls/MapControls";
+import { Color, ColorRepresentation } from "three";
 import { TileMap } from "../../map";
 import { FakeEarth } from "./FakeEarth";
 
 export { EarthMaskMaterial } from "./EarthMaskMaterial";
 export { FakeEarth } from "./FakeEarth";
-
-export type FrakeEarthOptions = {
-	map: TileMap;
-	scene: Scene;
-	controls: MapControls;
-};
 
 // class FrakeEarthPlugin extends BasePlugin {
 // 	protected doInstall(options: FrakeEarthOptions): void {
@@ -37,12 +30,15 @@ export type FrakeEarthOptions = {
 
 declare module "../../map" {
 	interface TileMap {
-		addFrakEarth(scene: Scene): FakeEarth;
+		createFrakEarth(bkColor?: ColorRepresentation, airColor?: ColorRepresentation): FakeEarth;
 	}
 }
 // 扩展TileMap类，原型链上添加addFrakEarth方法
-TileMap.prototype.addFrakEarth = function (scene: Scene): FakeEarth {
-	const fakeEarth = new FakeEarth(scene.fog?.color || new Color(0));
+TileMap.prototype.createFrakEarth = function (
+	bkColor: ColorRepresentation = 0xdbf0ff,
+	airColor: ColorRepresentation = 0x6699cc,
+): FakeEarth {
+	const fakeEarth = new FakeEarth(new Color(bkColor), new Color(airColor));
 	fakeEarth.name = "fakeearth";
 	fakeEarth.applyMatrix4(this.rootTile.matrix);
 	this.add(fakeEarth);
