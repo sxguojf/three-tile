@@ -1,5 +1,5 @@
 /**
- *@description: Logo loader
+ *@description: LOGO loader
  *@author: 郭江峰
  *@date: 2023-04-05
  */
@@ -13,13 +13,18 @@ import { ISource } from "../../source";
  */
 export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "logo";
-	public discription = "Logo Material loader. It will draw logo on the tile.";
-	private _texture: CanvasTexture | null = null; // = new CanvasTexture(this.drawLogo(source.attribution));
+	public description = "Logo Material loader. It will draw logo on the tile.";
+	private _texture: CanvasTexture | null = null;
+	private _cachedLogo: string | null = null;
 
 	/**
 	 * 加载材质
 	 * @param source 数据源
+	 * @param _y 瓦片的Y坐标
+	 * @param _y 瓦片的y坐标
+	 * @param z 瓦片的z坐标
 	 * @param tile 瓦片
+	 * @returns {MeshBasicMaterial} 材质
 	 * @param onLoad 加载完成回调
 	 * @returns 材质
 	 */
@@ -31,9 +36,10 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 		}
 
 		// 绘制logo图
-		if (!this._texture) {
+		if (!this._texture || this._cachedLogo !== source.attribution) {
 			this._texture = new CanvasTexture(this.drawLogo(source.attribution));
 			this._texture.needsUpdate = true;
+			this._cachedLogo = source.attribution;
 		}
 
 		const material = new MeshBasicMaterial({
@@ -49,8 +55,8 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 
 	/**
 	 * draw LOGO
-	 * @param logo text
-	 * @returns bitmap
+	 * @param {string} logo - text
+	 * @returns {ImageBitmap} bitmap
 	 */
 	public drawLogo(logo: string) {
 		const size = 256;

@@ -1,13 +1,15 @@
-import { Vector2, Vector3 } from "three";
+import { Camera, Vector2, Vector3 } from "three";
 import { TileMap } from "../../map";
-import { GetLocalFromMouseParasms } from ".";
 
-TileMap.prototype.getLocalFromMouse = function (
-	xy: { x: number; y: number },
-	params: GetLocalFromMouseParasms,
-): Vector3 | undefined {
-	const { camera, width: continteWidth, height: containerHeight } = params;
-	const pointer = new Vector2((xy.x / continteWidth) * 2 - 1, -(xy.y / containerHeight) * 2 + 1);
-	const info = this.getLocalInfoFromScreen(camera, pointer);
-	return info?.location;
+TileMap.prototype.getLocalFromMouse = function (pointerEvent: PointerEvent, camera: Camera): Vector3 | undefined {
+	const { currentTarget: target, clientX: x, clientY: y } = pointerEvent;
+	if (target instanceof HTMLElement) {
+		const width = target.clientWidth;
+		const height = target.clientHeight;
+		const pointer = new Vector2((x / width) * 2 - 1, -(y / height) * 2 + 1);
+		const info = this.getLocalInfoFromScreen(camera, pointer);
+		return info?.location;
+	} else {
+		return undefined;
+	}
 };

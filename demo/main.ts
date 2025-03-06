@@ -56,7 +56,7 @@ function initViewer(id: string, map: tt.TileMap) {
 
 	// 添加罗盘（compass插件提供功能）
 	const compass = map.createCompass(viewer.controls);
-	const compassContainer = document.querySelector("#compass-container");
+	const compassContainer = document.querySelector<HTMLDivElement>("#compass-container");
 	compassContainer && compassContainer.appendChild(compass.dom);
 
 	// 防止摄像机进入地下(mapExtension插件提供功能)

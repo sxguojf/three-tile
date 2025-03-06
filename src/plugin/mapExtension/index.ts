@@ -4,11 +4,11 @@ import "./getLocalFromMouse";
 import "./getTileCount";
 import "./limitCameraHeight";
 
-export type GetLocalFromMouseParasms = {
-	camera: Camera;
-	width: number;
-	height: number;
-};
+// export type GetLocalFromMouseParasms = {
+// 	camera: Camera;
+// 	width: number;
+// 	height: number;
+// };
 
 export type LimitCameraHeightParams = {
 	camera: PerspectiveCamera; // 摄像机
@@ -47,7 +47,7 @@ declare module "../../map" {
 		 * @param params
 		 * @returns
 		 */
-		getLocalFromMouse: (xy: { x: number; y: number }, params: GetLocalFromMouseParasms) => Vector3 | undefined;
+		getLocalFromMouse: (pointerEvent: PointerEvent, camera: Camera) => Vector3 | undefined;
 
 		// flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate?: boolean): TileMap;
 	}
