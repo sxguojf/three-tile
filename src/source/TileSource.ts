@@ -37,7 +37,7 @@ export class TileSource implements ISource {
 	public dataType = "image";
 	public attribution = "ThreeTile";
 	public minLevel = 0;
-	public maxLevel = 19;
+	public maxLevel = 18;
 	public projectionID: ProjectionType = "3857";
 	public url = "";
 	protected subdomains: string[] | string = [];

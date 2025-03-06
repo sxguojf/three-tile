@@ -27,8 +27,6 @@ export * from "./lercLoader";
 import "./qmLoader";
 // Single image loader. 单图像材质加载器
 import "./singleImageLoader";
-// Martini loader. Martini地形瓦片加载器
-import "./martiniLoader";
 
 /*-------------------------------------------------------------------
                         utils 辅助工具

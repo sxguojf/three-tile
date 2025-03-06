@@ -174,13 +174,6 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.reload();
 		},
 
-		setMarini() {
-			// map.imgSource = [ms.arcGisSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
-			map.imgSource = [ms.arcGisSource];
-			map.demSource = ms.mapBoxMartiniSource;
-			map.reload();
-		},
-
 		setQm() {
 			map.imgSource = [ms.arcGisSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
 			// map.imgSource = [ms.tdtImgSource_c, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
@@ -239,7 +232,6 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	testFolder.add(vm, "setTileNormal").name("Normal terrain");
 	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
 	testFolder.add(vm, "setSingleImage").name("SingleImage");
-	testFolder.add(vm, "setMarini").name("Martini terrain test");
 	// testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;
