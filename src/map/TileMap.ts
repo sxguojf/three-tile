@@ -143,21 +143,21 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this._maxLevel = value;
 	}
 
-	private _autoPosition = false;
-	/**
-	 * Get whether to adjust z of map automatically.
-	 * 是否自动根据视野内地形高度调整地图坐标
-	 */
-	public get autoPosition() {
-		return this._autoPosition;
-	}
-	/**
-	 * Set whether to adjust z of map automatically.
-	 * 设置是否自动调整地图坐标，如果设置为true，将在每帧渲染中将地图坐标调整可视区域瓦片的平均高度
-	 */
-	public set autoPosition(value) {
-		this._autoPosition = value;
-	}
+	// private _autoPosition = false;
+	// /**
+	//  * Get whether to adjust z of map automatically.
+	//  * 是否自动根据视野内地形高度调整地图坐标
+	//  */
+	// public get autoPosition() {
+	// 	return this._autoPosition;
+	// }
+	// /**
+	//  * Set whether to adjust z of map automatically.
+	//  * 设置是否自动调整地图坐标，如果设置为true，将在每帧渲染中将地图坐标调整可视区域瓦片的平均高度
+	//  */
+	// public set autoPosition(value) {
+	// 	this._autoPosition = value;
+	// }
 
 	/**
 	 * Get the number of download cache files.
@@ -174,29 +174,29 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this.loader.cacheSize = value;
 	}
 
-	/**
-	 * Get max height in view
-	 * 可视范围内瓦片的最高海拔高度
-	 */
-	public get maxZInView() {
-		return this.rootTile.maxZ;
-	}
+	// /**
+	//  * Get max height in view
+	//  * 可视范围内瓦片的最高海拔高度
+	//  */
+	// public get maxZInView() {
+	// 	return this.rootTile.maxZ;
+	// }
 
-	/**
-	 * Set min height in view
-	 * 取得可视范围内瓦片的最低海拔高度
-	 */
-	public get minZInView() {
-		return this.rootTile.minZ;
-	}
+	// /**
+	//  * Set min height in view
+	//  * 取得可视范围内瓦片的最低海拔高度
+	//  */
+	// public get minZInView() {
+	// 	return this.rootTile.minZ;
+	// }
 
-	/**
-	 * Get avg hegiht in view
-	 * 取得可视范围内瓦片的平均海拔高度
-	 */
-	public get avgZInView() {
-		return this.rootTile.avgZ;
-	}
+	// /**
+	//  * Get avg hegiht in view
+	//  * 取得可视范围内瓦片的平均海拔高度
+	//  */
+	// public get avgZInView() {
+	// 	return this.rootTile.avgZ;
+	// }
 
 	/**
 	 * Get central Meridian latidute
@@ -442,13 +442,13 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		}
 
 		// 动态调整地图高度
-		if (this.autoPosition) {
-			// 平均海拔高度向量
-			const hv = this.localToWorld(this.up.clone().multiplyScalar(this.avgZInView));
-			// 当前地图高度与平均海拔高度之差，每次移动0.01km
-			const dv = this.position.clone().add(hv).multiplyScalar(0.01);
-			this.position.sub(dv);
-		}
+		// if (this.autoPosition) {
+		// 	// 平均海拔高度向量
+		// 	const hv = this.localToWorld(this.up.clone().multiplyScalar(this.avgZInView));
+		// 	// 当前地图高度与平均海拔高度之差，每次移动0.01km
+		// 	const dv = this.position.clone().add(hv).multiplyScalar(0.01);
+		// 	this.position.sub(dv);
+		// }
 	}
 
 	/**

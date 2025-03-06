@@ -28,15 +28,15 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 				null,
 				2,
 			);
-			const elevation = JSON.stringify(
-				{
-					avg: (map.avgZInView * 1000).toFixed(1),
-					max: (map.maxZInView * 1000).toFixed(1),
-					min: (map.minZInView * 1000).toFixed(1),
-				},
-				null,
-				2,
-			);
+			// const elevation = JSON.stringify(
+			// 	{
+			// 		avg: (map.avgZInView * 1000).toFixed(1),
+			// 		max: (map.maxZInView * 1000).toFixed(1),
+			// 		min: (map.minZInView * 1000).toFixed(1),
+			// 	},
+			// 	null,
+			// 	2,
+			// );
 
 			const renderInfo = JSON.stringify(
 				Object.assign({}, viewer.renderer.info.render, {
@@ -49,7 +49,6 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 			const tileTree = JSON.stringify(map.tileCount, null, 2);
 			const memory = JSON.stringify(viewer.renderer.info.memory, null, 2);
 			const info = `<b>Tiles:</b> ${tileTree}
-<b>Elevation:</b> ${elevation}
 <b>Camera:</b> ${cameraInfo}
 <b>Controls:</b> ${controls}
 <b>Memory:</b> ${memory}
