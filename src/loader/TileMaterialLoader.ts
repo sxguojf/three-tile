@@ -5,10 +5,11 @@
  */
 
 import { Material, Texture } from "three";
-import { ITileMaterialLoader, LoaderFactory } from ".";
+import { ITileMaterialLoader } from ".";
 import { TileMaterial } from "../material";
 import { ISource } from "../source";
 import { getSafeTileUrlAndBounds } from "./util";
+import { LoaderFactory } from "./LoaderFactory";
 
 /**
  * Image loader base calss

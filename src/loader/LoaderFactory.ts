@@ -85,15 +85,11 @@ export const LoaderFactory = {
 	getLoadersInfo() {
 		const imgLoaders = Array.from(this.imgLoaderMap.values()).map((loader) => ({
 			category: "image",
-			dataType: loader.dataType,
-			author: loader.author,
-			discription: loader.discription ?? "-",
+			loader,
 		}));
 		const demLoaders = Array.from(this.demLoaderMap.values()).map((loader) => ({
 			category: "terrain",
-			dataType: loader.dataType,
-			author: loader.author,
-			discription: loader.discription ?? "-",
+			loader,
 		}));
 		return [...imgLoaders, ...demLoaders];
 	},

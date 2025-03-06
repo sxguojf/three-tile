@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { LoaderFactory } from "../../loader/LoaderFactory";
+import { TileMap } from "../../map";
 import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
 import * as Lerc from "./lercDecode/LercDecode.es";
 import { TileGeometryLercLoader } from "./TileGeometryLercLoader";
@@ -33,8 +33,9 @@ import { TileGeometryLercLoader } from "./TileGeometryLercLoader";
 // 		locateFile: () => decodeUrl,
 // 	}))();
 
+// 加载 LERC 格式数据解析wasm
 await Lerc.load({
 	locateFile: () => decodeUrl,
 });
 console.assert(Lerc.isLoaded());
-LoaderFactory.registerGeometryLoader(new TileGeometryLercLoader());
+TileMap.registerDEMloader(new TileGeometryLercLoader());

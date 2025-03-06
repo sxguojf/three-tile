@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { LoaderFactory } from "../../loader";
+import { TileMap } from "../../map";
 import { TileGeometryMartiniLoader } from "./TileGeometryMartiniLoader";
 
-LoaderFactory.registerGeometryLoader(new TileGeometryMartiniLoader());
+TileMap.registerDEMloader(new TileGeometryMartiniLoader());

@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { LoaderFactory } from "../../loader/LoaderFactory";
+import { TileMap } from "../../map";
 import { TileMateriaNormalLoader } from "./TileMateriaNormalLoader";
 // register
-LoaderFactory.registerMaterialLoader(new TileMateriaNormalLoader());
+TileMap.registerImgLoader(new TileMateriaNormalLoader());

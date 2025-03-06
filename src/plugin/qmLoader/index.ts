@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { LoaderFactory } from "../../loader/LoaderFactory";
+import { TileMap } from "../../map";
 import { QuantizedMeshTileLoader } from "./TileGeometryQmLoader";
 
-LoaderFactory.registerGeometryLoader(new QuantizedMeshTileLoader());
+TileMap.registerDEMloader(new QuantizedMeshTileLoader());

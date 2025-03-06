@@ -5,7 +5,7 @@
  *@date: 2023-04-05
  */
 
-import { LoaderFactory } from "../../loader/LoaderFactory";
+import { TileMap } from "../../map";
 import { TileMaterialDebugeLoader } from "./DebugeLoader";
 
-LoaderFactory.registerMaterialLoader(new TileMaterialDebugeLoader());
+TileMap.registerImgLoader(new TileMaterialDebugeLoader());

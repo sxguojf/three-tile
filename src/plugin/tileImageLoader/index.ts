@@ -5,6 +5,6 @@
  */
 
 import { TileImageLoader } from "./TileImageLoader";
-import { LoaderFactory } from "../../loader";
+import { TileMap } from "../../map";
 
-LoaderFactory.registerMaterialLoader(new TileImageLoader());
+TileMap.registerImgLoader(new TileImageLoader());

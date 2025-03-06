@@ -5,7 +5,7 @@
  */
 
 import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEventMap, Vector2, Vector3 } from "three";
-import { ITileLoader, LoaderFactory, TileLoader } from "../loader";
+import { ITileGeometryLoader, ITileLoader, ITileMaterialLoader, LoaderFactory, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { SourceWithProjection } from "./SourceWithProjection";
@@ -541,7 +541,16 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		return Tile.downloadThreads;
 	}
 
-	public get loaderInfo() {
+	public static get loaderInfo() {
 		return LoaderFactory.getLoadersInfo();
+	}
+	public static registerImgLoader(loader: ITileMaterialLoader) {
+		LoaderFactory.registerMaterialLoader(loader);
+		return loader;
+	}
+
+	public static registerDEMloader(loader: ITileGeometryLoader) {
+		LoaderFactory.registerGeometryLoader(loader);
+		return loader;
 	}
 }

@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { LoaderFactory } from "../../loader";
+import { TileMap } from "../../map";
 import { TerrainRGBLoader } from "./TerrainRGBLoader";
 
-LoaderFactory.registerGeometryLoader(new TerrainRGBLoader());
+TileMap.registerDEMloader(new TerrainRGBLoader());

@@ -131,18 +131,14 @@ function fly(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 function main() {
 	// 创建地图
 	const map = createMap();
-
 	// 创建视图
 	const viewer = initViewer("#map", map);
-
 	// 初始化GUI
 	initGui(viewer, map);
-
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);
-
 	// 打印加载器信息
-	console.log("Loaders", map.loaderInfo);
+	console.log("Loaders", tt.TileMap.loaderInfo);
 }
 
 main();

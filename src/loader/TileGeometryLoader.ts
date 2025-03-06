@@ -5,10 +5,11 @@
  */
 
 import { BufferGeometry } from "three";
-import { ITileGeometryLoader, LoaderFactory } from ".";
+import { ITileGeometryLoader } from ".";
 import { GeometryDataType, TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { getSafeTileUrlAndBounds } from "./util";
+import { LoaderFactory } from "./LoaderFactory";
 
 /**
  * Terrain loader base calss
