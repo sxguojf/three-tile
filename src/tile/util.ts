@@ -18,7 +18,7 @@ const FACTOR = 1.02;
 
 // Get the distance of camera to tile
 export function getDistance(tile: Tile, cameraWorldPosition: Vector3) {
-	const tilePos = tile.position.clone().setZ(tile.avgZ).applyMatrix4(tile.matrixWorld);
+	const tilePos = tile.position.clone().setZ(tile.maxZ).applyMatrix4(tile.matrixWorld);
 	return cameraWorldPosition.distanceTo(tilePos);
 }
 
@@ -30,7 +30,7 @@ export function getTileSize(tile: Tile) {
 }
 
 function getDistRatio(tile: Tile): number {
-	return (tile.distToCamera / tile.sizeInWorld) * 0.5;
+	return (tile.distToCamera / tile.sizeInWorld) * 0.7;
 }
 
 export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {
