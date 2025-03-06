@@ -65,7 +65,7 @@ export class TileSource implements ISource {
 	 * @returns url
 	 */
 	protected getUrl(x: number, y: number, z: number): string | undefined {
-		const obj = Object.assign({}, this, { x, y, z });
+		const obj = { ...this, ...{ x, y, z } };
 		return strTemplate(this.url, obj);
 	}
 
