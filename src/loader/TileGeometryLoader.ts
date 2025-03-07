@@ -38,25 +38,24 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 		// get max level tile and bounds
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
-			this.doLoad(
-				url,
-				(data) => {
-					if (data) {
-						LoaderFactory.manager.parseStart(url);
-						this.doPrase(data, x, y, z, bounds, (geometryData) => {
-							if (geometryData instanceof Float32Array) {
-								geometry.setDEM(geometryData);
-							} else {
-								geometry.setData(geometryData);
-							}
-							LoaderFactory.manager.parseEnd(url);
-							onLoad();
-						});
+			this.doLoad(url, abortSignal)
+				.then((data) => {
+					return data;
+				})
+				.then(async (data) => {
+					LoaderFactory.manager.parseStart(url);
+					return await this.doPrase(data, x, y, z, bounds);
+				})
+				.then((geometryData) => {
+					if (geometryData instanceof Float32Array) {
+						geometry.setDEM(geometryData);
+					} else {
+						geometry.setData(geometryData);
 					}
-				},
-				onLoad,
-				abortSignal,
-			);
+					onLoad();
+					LoaderFactory.manager.parseEnd(url);
+				})
+				.catch(onLoad);
 		} else {
 			onLoad();
 		}
@@ -70,12 +69,7 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 	 * @param onError callback on error
 	 * @param abortSignal donwnload abort signal
 	 */
-	protected abstract doLoad(
-		url: string,
-		onLoad: (buffer: TBuffer) => void,
-		onError: (event: ErrorEvent | Event | DOMException) => void,
-		abortSignal: AbortSignal,
-	): void;
+	protected abstract doLoad(url: string, abortSignal: AbortSignal): Promise<TBuffer>;
 
 	/**
 	 * Parse the buffer data to geometry data
@@ -92,6 +86,6 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 		y: number,
 		z: number,
 		clipBounds: [number, number, number, number],
-		onParse: (GeometryData: GeometryDataType | Float32Array, dem?: Uint8Array) => void,
-	): void;
+	): // onParse: (GeometryData: GeometryDataType | Float32Array, dem?: Uint8Array) => void,
+	Promise<GeometryDataType | Float32Array>;
 }
