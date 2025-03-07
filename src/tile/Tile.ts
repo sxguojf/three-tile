@@ -22,6 +22,8 @@ import {
 import { ITileLoader } from "../loader";
 import { getDistance, getTileSize, createChildren, LODAction, LODEvaluate } from "./util";
 
+const THREADSNUM = 8;
+
 /**
  * Tile update parameters
  */
@@ -236,16 +238,19 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	) {
 		// LOD evaluate
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
-		if (Tile.downloadThreads < 7 && action === LODAction.create && (this.showing || this.z < minLevel)) {
+		if (Tile.downloadThreads < THREADSNUM && action === LODAction.create && (this.showing || this.z < minLevel)) {
 			// Create children tiles
 			const newTiles = createChildren(loader, this.x, this.y, this.z);
 			this.add(...newTiles);
-			newTiles.forEach((newTile) => {
+			// Sort tiles by distance to camera
+			const sortedTiles = newTiles.sort((a, b) => a.distToCamera - b.distToCamera);
+			// Load tiles data
+			sortedTiles.forEach((newTile) => {
 				const { x, y, z } = newTile;
 				onCreate(newTile);
 				if (newTile.z >= minLevel) {
 					Tile._downloadThreads++;
-					// Load tile data
+					// Dwonload tile data
 					loader.load(x, y, z, this._abortController.signal).then((meshData) => {
 						Tile._downloadThreads--;
 						newTile.material = meshData.materials;
