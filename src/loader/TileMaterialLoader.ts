@@ -38,23 +38,24 @@ export abstract class TileMaterialLoader<TBuffer = any> implements ITileMaterial
 		// get max level tile and bounds
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
-			this.doLoad(
-				url,
-				(data) => {
-					if (data) {
-						LoaderFactory.manager.parseStart(url);
-						this.doPrase(data, x, y, z, bounds, (texture) => {
+			// download tile data
+			this.doLoad(url, abortSignal)
+				.then((data) => {
+					LoaderFactory.manager.parseStart(url);
+					// parse tile data
+					this.doPrase(data, x, y, z, bounds)
+						.then((texture) => {
 							material.setTexture(texture);
-							LoaderFactory.manager.parseEnd(url);
 							onLoad();
+							LoaderFactory.manager.parseEnd(url);
+						})
+						.catch((err) => {
+							console.error("Parse tile data error:", err);
 						});
-					}
-				},
-				onLoad,
-				abortSignal,
-			);
+				})
+				.catch(onLoad); // Download error, renturn default material
 		} else {
-			onLoad();
+			onLoad(); // No url, renturn default material
 		}
 		return material;
 	}
@@ -62,16 +63,10 @@ export abstract class TileMaterialLoader<TBuffer = any> implements ITileMaterial
 	/**
 	 * Download terrain data
 	 * @param url url
-	 * @param onLoad callback on loaded
-	 * @param onError callback on error
 	 * @param abortSignal donwnload abort signal
+	 * @returns {Promise<TBuffer>} the buffer of download data
 	 */
-	protected abstract doLoad(
-		url: string,
-		onLoad: (buffer: TBuffer) => void,
-		onError: (event: ErrorEvent | Event | DOMException) => void,
-		abortSignal: AbortSignal,
-	): void;
+	protected abstract doLoad(url: string, abortSignal: AbortSignal): Promise<TBuffer>;
 
 	/**
 	 * Parse the buffer data to geometry data
@@ -80,7 +75,7 @@ export abstract class TileMaterialLoader<TBuffer = any> implements ITileMaterial
 	 * @param y tile y condition
 	 * @param z tile z condition
 	 * @param clipBounds the bounds of it parent
-	 * @param onParse callback when parsed
+	 * @returns {Promise<Texture>} the texture of tile
 	 */
 	protected abstract doPrase(
 		buffer: TBuffer,
@@ -88,6 +83,5 @@ export abstract class TileMaterialLoader<TBuffer = any> implements ITileMaterial
 		y: number,
 		z: number,
 		clipBounds: [number, number, number, number],
-		onParse: (texture: Texture) => void,
-	): void;
+	): Promise<Texture>;
 }

@@ -14,17 +14,13 @@ export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 	 * 加载图像资源的方法
 	 *
 	 * @param url 图像资源的URL
-	 * @param onLoad 加载成功时的回调函数，参数为加载成功的图像元素
-	 * @param onError 加载失败时的回调函数，参数为事件对象，可能为ErrorEvent、Event或DOMException类型
 	 * @param abortSignal 中断信号，用于取消加载操作
+	 * @returns 返回一个Promise对象，解析为HTMLImageElement类型。
 	 */
-	protected doLoad(
-		url: string,
-		onLoad: (buffer: HTMLImageElement) => void,
-		onError: (event: ErrorEvent | Event | DOMException) => void,
-		abortSignal: AbortSignal,
-	) {
-		this.loader.load(url, onLoad, undefined, onError, abortSignal);
+	protected doLoad(url: string, abortSignal: AbortSignal): Promise<HTMLImageElement> {
+		return new Promise((resolve, reject) => {
+			this.loader.load(url, resolve, undefined, reject, abortSignal);
+		});
 	}
 
 	/**
@@ -35,7 +31,7 @@ export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 	 * @param _y y坐标参数。
 	 * @param _z z坐标参数。
 	 * @param clipBounds 裁剪边界数组，格式为[left, top, right, bottom]。
-	 * @param onParse 解析完成后的回调函数，参数为解析后的Texture对象。
+	 * @returns 返回一个Promise对象，解析为Texture类型。
 	 */
 	protected doPrase(
 		buffer: HTMLImageElement,
@@ -43,8 +39,7 @@ export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 		_y: number,
 		_z: number,
 		clipBounds: [number, number, number, number],
-		onParse: (texture: Texture) => void,
-	): void {
+	): Promise<Texture> {
 		const texture = new Texture();
 		texture.colorSpace = SRGBColorSpace;
 		// 是否需要剪裁
@@ -54,7 +49,7 @@ export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 			texture.image = buffer;
 		}
 		texture.needsUpdate = true;
-		onParse(texture);
+		return Promise.resolve(texture);
 	}
 }
 
