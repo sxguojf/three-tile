@@ -34,6 +34,7 @@
 		"dev": "vite --config vite.config.dev.ts",
 		"lib": "tsc && vite build  --config vite.config.lib.ts",
 		"demo": "tsc && vite build  --config vite.config.demo.ts",
+		"preview": "vite preview --config vite.config.demo.ts",
 		"docs": "typedoc src --out ./docs",
 		"test": "vitest"
 	},
