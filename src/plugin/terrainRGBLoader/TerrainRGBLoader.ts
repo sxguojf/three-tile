@@ -20,20 +20,17 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 	private imageLoader = new ImageLoaderEx(LoaderFactory.manager);
 
 	// 下载数据
-	protected doLoad(
-		url: string,
-		onLoad: (data: HTMLImageElement) => void,
-		onError: (event: ErrorEvent | Event | DOMException) => void,
-		abortSignal: AbortSignal,
-	): void {
-		// 下载图像
-		this.imageLoader.load(
-			url,
-			(image) => onLoad(image), // onLoad, 加载完成
-			undefined, // onProgress, 加载进度，不支持
-			onError, // onError, 加载错误
-			abortSignal, // 下载中止信号
-		);
+	protected doLoad(url: string, abortSignal: AbortSignal): Promise<HTMLImageElement> {
+		return new Promise((resolve, reject) => {
+			// 下载图像
+			this.imageLoader.load(
+				url,
+				resolve, //加载完成
+				undefined, // onProgress, 加载进度，不支持
+				reject, //  加载错误
+				abortSignal, // 下载中止信号
+			);
+		});
 	}
 
 	// 解析数据
@@ -43,25 +40,26 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 		_y: number,
 		z: number,
 		clipBounds: [number, number, number, number],
-		onParse: (GeometryData: Float32Array) => void,
-	) {
-		// 抽稀像素点
-		const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);
-		// 图像剪裁缩放
-		const imgData = getImageDataFromRect(image, clipBounds, targetSize);
-		// 是否使用worker
-		if (this.useWorker) {
-			const worker = new ParseWorker();
-			// 解析完成收到DEM
-			worker.onmessage = (e: MessageEvent<Float32Array>) => {
-				onParse(e.data);
-			};
-			// 向workder传递参数
-			worker.postMessage({ imgData }, imgData as any);
-		} else {
-			// 将imageData解析成DEM
-			onParse(parse(imgData));
-		}
+	): Promise<Float32Array> {
+		return new Promise((resolve) => {
+			// 抽稀像素点
+			const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);
+			// 图像剪裁缩放
+			const imgData = getImageDataFromRect(image, clipBounds, targetSize);
+			// 是否使用worker
+			if (this.useWorker) {
+				const worker = new ParseWorker();
+				// 解析完成收到DEM
+				worker.onmessage = (e: MessageEvent<Float32Array>) => {
+					resolve(e.data);
+				};
+				// 向workder传递参数
+				worker.postMessage({ imgData }, imgData as any);
+			} else {
+				// 将imageData解析成DEM
+				resolve(parse(imgData));
+			}
+		});
 	}
 }
 
