@@ -36,12 +36,14 @@ export const mapBoxDemSource = new MapBoxSource({
 	token: MAPBOXKEY,
 	dataType: "terrain-rgb",
 	style: "mapbox.terrain-rgb",
+	minLevel: 5,
 	maxLevel: 15,
 });
 export const mapBoxDemTestSource = new MapBoxSource({
 	token: MAPBOXKEY,
 	dataType: "image",
 	style: "mapbox.terrain-rgb",
+	minLevel: 5,
 	maxLevel: 15,
 });
 
@@ -71,6 +73,7 @@ export const xtDemSource = new ZKXTSource({
 	dataType: "terrain-rgb",
 	style: "terrain_rgb",
 	format: "png",
+	minLevel: 5,
 	maxLevel: 10,
 });
 export const xtDemTestSource = new ZKXTSource({
@@ -78,6 +81,7 @@ export const xtDemTestSource = new ZKXTSource({
 	dataType: "image",
 	style: "terrain_rgb",
 	format: "png",
+	minLevel: 5,
 	maxLevel: 10,
 });
 
