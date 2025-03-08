@@ -6,7 +6,7 @@
 
 import { FileLoader } from "three";
 import { GeometryDataType } from "../../geometry";
-import { LoaderFactory, TileGeometryLoader } from "../../loader";
+import { LoaderFactory, PromiseWorker, TileGeometryLoader } from "../../loader";
 
 import * as Lerc from "./lercDecode/LercDecode.es";
 import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
@@ -22,6 +22,8 @@ export class TileGeometryLercLoader extends TileGeometryLoader<DEMType> {
 	public discription = "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.";
 	// 图像加载器
 	private fileLoader = new FileLoader(LoaderFactory.manager);
+
+	// private worker = new ParseWorker();
 
 	public constructor() {
 		super();
@@ -56,16 +58,10 @@ export class TileGeometryLercLoader extends TileGeometryLoader<DEMType> {
 		clipBounds: [number, number, number, number],
 	): Promise<GeometryDataType | Float32Array> {
 		if (this.useWorker) {
-			const worker = new ParseWorker();
-			return new Promise((resolve) => {
-				worker.onmessage = (e: MessageEvent<GeometryDataType>) => {
-					resolve(e.data);
-				};
-				worker.postMessage({ demData, z, clipBounds }, [demData.demArray.buffer]);
-			});
+			const worker = new PromiseWorker(() => new ParseWorker());
+			return worker.run({ demData, z, clipBounds }, [demData.demArray.buffer]);
 		} else {
-			const geoInfo = parse(demData, z, clipBounds);
-			return geoInfo;
+			return parse(demData, z, clipBounds);
 		}
 	}
 }

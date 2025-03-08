@@ -5,7 +5,7 @@
  */
 
 import { ImageLoader, MathUtils } from "three";
-import { LoaderFactory, getBoundsCoord, TileGeometryLoader } from "../../loader";
+import { LoaderFactory, getBoundsCoord, TileGeometryLoader, PromiseWorker } from "../../loader";
 import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
@@ -38,15 +38,8 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 		const imgData = getImageDataFromRect(image, clipBounds, targetSize);
 		// 是否使用worker
 		if (this.useWorker) {
-			return new Promise((resolve) => {
-				const worker = new ParseWorker();
-				// 解析完成收到DEM
-				worker.onmessage = (e: MessageEvent<Float32Array>) => {
-					resolve(e.data);
-				};
-				// 向workder传递参数
-				worker.postMessage({ imgData }, imgData as any);
-			});
+			const worker = new PromiseWorker(() => new ParseWorker());
+			return worker.run({ imgData }, imgData as any);
 		} else {
 			// 将imageData解析成DEM
 			return parse(imgData);

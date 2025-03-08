@@ -10,6 +10,8 @@ export * from "./ITileLoaders";
 // tile factory
 export * from "./LoaderFactory";
 
+export * from "./PromiseWorker";
+
 // tile utils
 export * from "./util";
 

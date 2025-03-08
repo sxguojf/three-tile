@@ -66,11 +66,11 @@ export class TileLoader implements ITileLoader {
 	 */
 	public async load(x: number, y: number, z: number): Promise<MeshDateType> {
 		const geometry = await this.loadGeometry(x, y, z).catch((_err) => {
-			console.warn(`Tile terrain load error: (${x},${y},${z}) !`);
+			console.warn(`Tile terrain load error: (${x},${y},${z})`);
 			return new PlaneGeometry();
 		});
 		const materials = await this.loadMaterial(x, y, z).catch((_err) => {
-			console.warn(`Tile Image load error: (${x},${y},${z}) !`);
+			console.warn(`Tile Image load error: (${x},${y},${z})`);
 			return [];
 		});
 
