@@ -6,10 +6,9 @@
 
 import { BufferGeometry, Material, PlaneGeometry } from "three";
 import { ISource } from "../source";
-// import { Tile } from "../tile";
-import { CacheEx } from "./CacheEx";
 import { ITileLoader, MeshDateType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
+import { CacheEx } from "./CacheEx";
 
 /**
  * Tile loader
@@ -63,22 +62,25 @@ export class TileLoader implements ITileLoader {
 	 * @param x x coordinate of tile
 	 * @param y y coordinate of tile
 	 * @param z z coordinate of tile
-	 * @param abortSignal the abort signal to cancel the download
 	 * @returns Promise<MeshDateType> tile data
 	 */
-	public load(x: number, y: number, z: number, abortSignal: AbortSignal): Promise<MeshDateType> {
-		return new Promise((resolve) => {
-			const onGeometryLoad = () => {
-				const onMaterialLoad = () => {
-					for (let i = 0; i < materials.length; i++) {
-						geometry.addGroup(0, Infinity, i);
-					}
-					return resolve({ materials, geometry });
-				};
-				const materials = this.loadMaterial(x, y, z, onMaterialLoad, abortSignal);
-			};
-			const geometry = this.loadGeometry(x, y, z, onGeometryLoad, abortSignal);
+	public async load(x: number, y: number, z: number): Promise<MeshDateType> {
+		const geometry = await this.loadGeometry(x, y, z).catch((_err) => {
+			console.warn(`Tile terrain load error: (${x},${y},${z}) !`);
+			return new PlaneGeometry();
 		});
+		const materials = await this.loadMaterial(x, y, z).catch((_err) => {
+			console.warn(`Tile Image load error: (${x},${y},${z}) !`);
+			return [];
+		});
+
+		console.assert(materials && geometry);
+
+		for (let i = 0; i < materials.length; i++) {
+			geometry.addGroup(0, Infinity, i);
+		}
+
+		return { materials, geometry };
 	}
 
 	/**
@@ -86,28 +88,16 @@ export class TileLoader implements ITileLoader {
 	 * @param x x coordinate of tile
 	 * @param y y coordinate of tile
 	 * @param z z coordinate of tile
-	 * @param onLoad  loaded callback
-	 * @param abortSignal the abort signal to cancel the download
-	 * @returns
+	 * @returns BufferGeometry
 	 */
-	protected loadGeometry(
-		x: number,
-		y: number,
-		z: number,
-		onLoad: () => void,
-		abortSignal: AbortSignal,
-	): BufferGeometry {
-		let geometry: BufferGeometry;
-		// Load data in viewer, else create a PlaneGeometry
+	protected async loadGeometry(x: number, y: number, z: number): Promise<BufferGeometry> {
 		if (this.demSource && z >= this.demSource.minLevel && this._tileInBounds(x, y, z, this.demSource)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			loader.useWorker = this.useWorker;
-			geometry = loader.load(this.demSource, x, y, z, onLoad, abortSignal);
+			return await loader.load(this.demSource, x, y, z);
 		} else {
-			geometry = new PlaneGeometry();
-			onLoad();
+			return new PlaneGeometry();
 		}
-		return geometry;
 	}
 
 	/**
@@ -115,37 +105,21 @@ export class TileLoader implements ITileLoader {
 	 * @param x x coordinate of tile
 	 * @param y y coordinate of tile
 	 * @param z z coordinate of tile
-	 * @param onLoad loaded callback
-	 * @param abortSignal the abort signal to cancel the download
 	 * @returns Material[]
 	 */
-	protected loadMaterial(x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material[] {
+	protected async loadMaterial(x: number, y: number, z: number): Promise<Material[]> {
 		// get source in viewer
 		const sources = this.imgSource.filter((source) => z >= source.minLevel && this._tileInBounds(x, y, z, source));
 		if (sources.length === 0) {
-			onLoad();
 			return [];
 		}
-		let count = 0;
-		const materials = sources.map((source) => {
+
+		const materials = sources.map(async (source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			loader.useWorker = this.useWorker;
-			const material = loader.load(
-				source,
-				x,
-				y,
-				z,
-				() => {
-					count++;
-					if (count >= sources.length) {
-						onLoad();
-					}
-				},
-				abortSignal,
-			);
-			return material;
+			return await loader.load(source, x, y, z);
 		});
-		return materials;
+		return Promise.all(materials);
 	}
 
 	/**

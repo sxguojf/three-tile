@@ -5,8 +5,6 @@
  */
 
 import { TileMap } from "../../map";
-import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
-import * as Lerc from "./lercDecode/LercDecode.es";
 import { TileGeometryLercLoader } from "./TileGeometryLercLoader";
 
 /** ArcGis LERC 格式地形图插件 */
@@ -33,9 +31,4 @@ import { TileGeometryLercLoader } from "./TileGeometryLercLoader";
 // 		locateFile: () => decodeUrl,
 // 	}))();
 
-// 加载 LERC 格式数据解析wasm
-await Lerc.load({
-	locateFile: () => decodeUrl,
-});
-console.assert(Lerc.isLoaded());
 TileMap.registerDEMloader(new TileGeometryLercLoader());

@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { CanvasTexture, MeshBasicMaterial } from "three";
+import { CanvasTexture, Material, MeshBasicMaterial } from "three";
 import { ITileMaterialLoader } from "../../loader";
 import { ISource } from "../../source";
 
@@ -25,13 +25,11 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 	 * @param z 瓦片的z坐标
 	 * @param tile 瓦片
 	 * @returns {MeshBasicMaterial} 材质
-	 * @param onLoad 加载完成回调
 	 * @returns 材质
 	 */
-	public load(source: ISource, _x: number, _y: number, z: number, onLoad: () => void): MeshBasicMaterial {
+	public async load(source: ISource, _x: number, _y: number, z: number): Promise<Material> {
 		// 瓦片级别<4不绘制logo
 		if (z < 4) {
-			onLoad();
 			return new MeshBasicMaterial();
 		}
 
@@ -47,8 +45,6 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 			map: this._texture,
 			opacity: source.opacity,
 		});
-
-		onLoad();
 
 		return material;
 	}

@@ -26,13 +26,7 @@ export interface ITileLoader {
 	/** @description: use worker? */
 	useWorker: boolean;
 	/** @description: load tile data */
-	load(
-		x: number,
-		y: number,
-		z: number,
-		// onLoad: (material: Material[], geometry: BufferGeometry) => void,
-		abortSignal: AbortSignal,
-	): Promise<MeshDateType>;
+	load(x: number, y: number, z: number): Promise<MeshDateType>;
 }
 /** Tile loader info interface */
 export interface ITileLoaderInfo {
@@ -46,14 +40,6 @@ export interface ITileLoaderInfo {
 	discription?: string;
 }
 
-// export type TileLoaderParamsType = {
-// 	source: ISource;
-// 	x: number;
-// 	y: number;
-// 	z: number;
-// 	abortSignal: AbortSignal;
-// };
-
 /**  Material loader interface */
 export interface ITileMaterialLoader extends ITileLoaderInfo {
 	/**
@@ -62,11 +48,9 @@ export interface ITileMaterialLoader extends ITileLoaderInfo {
 	 * @param x tile x condition
 	 * @param y tile x condition
 	 * @param z tile x condition
-	 * @param onLoad load callback function
-	 * @param abortSignal abort signal
 	 * @returns {Material} tile Material
 	 */
-	load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material;
+	load(source: ISource, x: number, y: number, z: number): Promise<Material>;
 }
 
 /** geometry loader interface */
@@ -77,16 +61,7 @@ export interface ITileGeometryLoader extends ITileLoaderInfo {
 	 * @param x tile x condition
 	 * @param y tile x condition
 	 * @param z tile x condition
-	 * @param onLoad load callback function
-	 * @param abortSignal abort signal
 	 * @returns {BufferGeometry} tile Geometry
 	 */
-	load(
-		source: ISource,
-		x: number,
-		y: number,
-		z: number,
-		onLoad: () => void,
-		abortSignal: AbortSignal,
-	): BufferGeometry;
+	load(source: ISource, x: number, y: number, z: number): Promise<BufferGeometry>;
 }

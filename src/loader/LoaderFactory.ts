@@ -17,7 +17,6 @@ export class TileLoadingManager extends LoadingManager {
 
 	public parseStart(url: string) {
 		this.onParseStart && this.onParseStart(url);
-		// console.log(url);
 	}
 	public parseEnd(url: string) {
 		setTimeout(() => this.onParseEnd && this.onParseEnd!(url));

@@ -24,7 +24,7 @@ import "./wireframeLoader";
 // lerc geometry loader. Arcgis lerc地形瓦片加载器
 export * from "./lercLoader";
 // Quantized-Mesh loader. cesium Quantized-Mesh地形瓦片加载器
-import "./qmLoader";
+// import "./qmLoader";
 // Single image loader. 单图像材质加载器
 import "./singleImageLoader";
 

@@ -22,54 +22,32 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 	 * load tile's data from source
 	 * @param source
 	 * @param tile
-	 * @param onLoad
 	 * @param onError
 	 * @returns
 	 */
-	public load(
-		source: ISource,
-		x: number,
-		y: number,
-		z: number,
-		onLoad: () => void,
-		abortSignal: AbortSignal,
-	): BufferGeometry {
-		const geometry = new TileGeometry();
-		// get max level tile and bounds
+	public async load(source: ISource, x: number, y: number, z: number): Promise<BufferGeometry> {
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
-		if (url) {
-			this.doLoad(url, abortSignal)
-				.then((data) => {
-					return data;
-				})
-				.then(async (data) => {
-					LoaderFactory.manager.parseStart(url);
-					return await this.doPrase(data, x, y, z, bounds);
-				})
-				.then((geometryData) => {
-					if (geometryData instanceof Float32Array) {
-						geometry.setDEM(geometryData);
-					} else {
-						geometry.setData(geometryData);
-					}
-					onLoad();
-					LoaderFactory.manager.parseEnd(url);
-				})
-				.catch(onLoad);
-		} else {
-			onLoad();
+		if (!url) {
+			return new TileGeometry();
 		}
+		const data = await this.doLoad(url);
+		LoaderFactory.manager.parseStart(url);
+		const geometryData = await this.doPrase(data, x, y, z, bounds);
+		const geometry = new TileGeometry();
+		if (geometryData instanceof Float32Array) {
+			geometry.setDEM(geometryData);
+		} else {
+			geometry.setData(geometryData);
+		}
+		LoaderFactory.manager.parseEnd(url);
 		return geometry;
 	}
 
 	/**
 	 * Download terrain data
 	 * @param url url
-	 * @param onLoad callback on loaded
-	 * @param onError callback on error
-	 * @param abortSignal donwnload abort signal
 	 */
-	protected abstract doLoad(url: string, abortSignal: AbortSignal): Promise<TBuffer>;
+	protected abstract doLoad(url: string): Promise<TBuffer>;
 
 	/**
 	 * Parse the buffer data to geometry data
@@ -78,7 +56,6 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 	 * @param y tile y condition
 	 * @param z tile z condition
 	 * @param clipBounds the bounds of it parent
-	 * @param onParse callback when parsed
 	 */
 	protected abstract doPrase(
 		buffer: TBuffer,
@@ -86,6 +63,5 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 		y: number,
 		z: number,
 		clipBounds: [number, number, number, number],
-	): // onParse: (GeometryData: GeometryDataType | Float32Array, dem?: Uint8Array) => void,
-	Promise<GeometryDataType | Float32Array>;
+	): Promise<GeometryDataType | Float32Array>;
 }

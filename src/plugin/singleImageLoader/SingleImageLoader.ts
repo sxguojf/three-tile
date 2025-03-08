@@ -24,10 +24,9 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	 * 加载材质
 	 * @param source 数据源
 	 * @param tile 瓦片
-	 * @param onLoad 加载完成回调
 	 * @returns 材质
 	 */
-	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void): Material {
+	public async load(source: ISource, x: number, y: number, z: number): Promise<Material> {
 		const material = new TileMaterial({
 			transparent: true,
 			opacity: source.opacity,
@@ -37,28 +36,19 @@ export class SingleImageLoader implements ITileMaterialLoader {
 
 		// 请求的瓦片不在数据源范围内或没有url，直接返回材质
 		if (z < source.minLevel || z > source.maxLevel || !tileUrl) {
-			onLoad();
 			return material;
 		}
 
 		// 如果图片已加载，则设置纹理后返回材质
 		if (this._image?.complete) {
 			this._setTexture(material, source, x, y, z);
-			onLoad();
 			return material;
 		}
 
 		// 加载纹理
-		this._loadImage(tileUrl, () => {
-			this._setTexture(material, source, x, y, z);
-			onLoad();
-		});
-
+		this._image = await this._imageLoader.loadAsync(tileUrl);
+		this._setTexture(material, source, x, y, z);
 		return material;
-	}
-
-	private _loadImage(url: string, onLoad: () => void) {
-		this._image = this._imageLoader.load(url, onLoad, undefined, onLoad);
 	}
 
 	private _setTexture(material: TileMaterial, source: ISource, x: number, y: number, z: number) {

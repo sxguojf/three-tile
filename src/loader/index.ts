@@ -5,9 +5,7 @@
  */
 
 // extends the threejs loader
-export * from "./FileLoaderEx";
 export * from "./ITileLoaders";
-export * from "./ImageLoaerEx";
 
 // tile factory
 export * from "./LoaderFactory";

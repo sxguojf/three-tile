@@ -16,9 +16,6 @@ export default defineConfig({
 			name: "tt",
 			fileName: "three-tile",
 		},
-		commonjsOptions: {
-			transformMixedEsModules: true,
-		},
 		rollupOptions: {
 			external: ["three"],
 			output: {

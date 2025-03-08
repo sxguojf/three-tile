@@ -17,7 +17,7 @@ export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 	public useWorker = false;
 	public discription = "Tile debug image loader. It will draw a rectangle and coordinate on the tile.";
 
-	public load(source: ISource, x: number, y: number, z: number, onLoad: () => void): TileMaterial {
+	public async load(source: ISource, x: number, y: number, z: number): Promise<TileMaterial> {
 		const texture = new CanvasTexture(this.drawTile(x, y, z));
 		texture.needsUpdate = true;
 		const material = new TileMaterial({
@@ -25,7 +25,6 @@ export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 			map: texture,
 			opacity: source.opacity,
 		});
-		onLoad();
 		return material;
 	}
 

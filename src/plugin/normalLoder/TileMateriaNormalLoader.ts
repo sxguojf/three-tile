@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { MeshNormalMaterial } from "three";
+import { Material, MeshNormalMaterial } from "three";
 import { ISource, ITileMaterialLoader } from "../..";
 
 /**
@@ -14,13 +14,12 @@ export class TileMateriaNormalLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "normal";
 	public discription = "Tile normal material loader.";
 
-	public load(source: ISource, _x: number, _y: number, _z: number, onLoad: () => void): MeshNormalMaterial {
+	public async load(source: ISource, _x: number, _y: number, _z: number): Promise<Material> {
 		const material = new MeshNormalMaterial({
 			// transparent: true,
 			opacity: source.opacity,
 			flatShading: true,
 		});
-		onLoad();
 		return material;
 	}
 }

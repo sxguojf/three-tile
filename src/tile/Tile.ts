@@ -104,8 +104,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	private _ready = false;
 
-	private _abortController = new AbortController();
-
 	/** Max height of tile */
 	private _maxZ = 0;
 
@@ -251,7 +249,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				if (newTile.z >= minLevel) {
 					Tile._downloadThreads++;
 					// Dwonload tile data
-					loader.load(x, y, z, this._abortController.signal).then((meshData) => {
+					loader.load(x, y, z).then((meshData) => {
+						console.assert(meshData.geometry && meshData.materials);
 						Tile._downloadThreads--;
 						newTile.material = meshData.materials;
 						newTile.geometry = meshData.geometry;
@@ -389,7 +388,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public dispose(disposeSelf: boolean) {
 		if (disposeSelf && this.isTile && this.loaded) {
-			this._abortController.abort();
 			this.material.forEach((mat) => mat.dispose());
 			this.material = [];
 			this.geometry.groups = [];

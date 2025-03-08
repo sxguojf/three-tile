@@ -1,5 +1,5 @@
-import { SRGBColorSpace, Texture } from "three";
-import { getBoundsCoord, ImageLoaderEx, LoaderFactory, TileMaterialLoader } from "../../loader";
+import { ImageLoader, SRGBColorSpace, Texture } from "three";
+import { getBoundsCoord, LoaderFactory, TileMaterialLoader } from "../../loader";
 
 /**
  * Tile image loader
@@ -8,19 +8,16 @@ export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 	public dataType = "image";
 	public discription = "Tile image loader. It can load xyz tile image.";
 
-	private loader = new ImageLoaderEx(LoaderFactory.manager);
+	private loader = new ImageLoader(LoaderFactory.manager);
 
 	/**
 	 * 加载图像资源的方法
 	 *
 	 * @param url 图像资源的URL
-	 * @param abortSignal 中断信号，用于取消加载操作
 	 * @returns 返回一个Promise对象，解析为HTMLImageElement类型。
 	 */
-	protected doLoad(url: string, abortSignal: AbortSignal): Promise<HTMLImageElement> {
-		return new Promise((resolve, reject) => {
-			this.loader.load(url, resolve, undefined, reject, abortSignal);
-		});
+	protected async doLoad(url: string): Promise<HTMLImageElement> {
+		return this.loader.loadAsync(url);
 	}
 
 	/**
@@ -33,7 +30,7 @@ export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 	 * @param clipBounds 裁剪边界数组，格式为[left, top, right, bottom]。
 	 * @returns 返回一个Promise对象，解析为Texture类型。
 	 */
-	protected doPrase(
+	protected async doPrase(
 		buffer: HTMLImageElement,
 		_x: number,
 		_y: number,
@@ -49,7 +46,7 @@ export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 			texture.image = buffer;
 		}
 		texture.needsUpdate = true;
-		return Promise.resolve(texture);
+		return texture;
 	}
 }
 

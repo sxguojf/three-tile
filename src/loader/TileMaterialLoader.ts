@@ -22,51 +22,32 @@ export abstract class TileMaterialLoader<TBuffer = any> implements ITileMaterial
 	 * load tile's data from source
 	 * @param source
 	 * @param tile
-	 * @param onLoad
-	 * @param onError
 	 * @returns
 	 */
-	public load(
-		source: ISource,
-		x: number,
-		y: number,
-		z: number,
-		onLoad: () => void,
-		abortSignal: AbortSignal,
-	): Material {
+	public async load(source: ISource, x: number, y: number, z: number): Promise<Material> {
 		const material = new TileMaterial();
 		// get max level tile and bounds
 		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
-		if (url) {
-			// download tile data
-			this.doLoad(url, abortSignal)
-				.then((data) => {
-					LoaderFactory.manager.parseStart(url);
-					// parse tile data
-					this.doPrase(data, x, y, z, bounds)
-						.then((texture) => {
-							material.setTexture(texture);
-							onLoad();
-							LoaderFactory.manager.parseEnd(url);
-						})
-						.catch((err) => {
-							console.error("Parse tile data error:", err);
-						});
-				})
-				.catch(onLoad); // Download error, renturn default material
-		} else {
-			onLoad(); // No url, renturn default material
+		if (!url) {
+			return material;
 		}
+		// download tile data
+		const data = await this.doLoad(url);
+		LoaderFactory.manager.parseStart(url);
+		// parse tile data to geometry
+		const texture = await this.doPrase(data, x, y, z, bounds);
+		// set texture to material
+		material.setTexture(texture);
+		LoaderFactory.manager.parseEnd(url);
 		return material;
 	}
 
 	/**
 	 * Download terrain data
 	 * @param url url
-	 * @param abortSignal donwnload abort signal
 	 * @returns {Promise<TBuffer>} the buffer of download data
 	 */
-	protected abstract doLoad(url: string, abortSignal: AbortSignal): Promise<TBuffer>;
+	protected abstract doLoad(url: string): Promise<TBuffer>;
 
 	/**
 	 * Parse the buffer data to geometry data

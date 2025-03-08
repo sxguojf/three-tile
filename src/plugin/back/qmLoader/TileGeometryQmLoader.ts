@@ -1,5 +1,5 @@
-import { BufferGeometry } from "three";
-import { FileLoaderEx, ITileGeometryLoader, LoaderFactory } from "../../loader";
+import { BufferGeometry, FileLoader } from "three";
+import { ITileGeometryLoader, LoaderFactory } from "../../loader";
 import { ISource } from "../../source";
 import { TileQmGeometry } from "./TileQmGeometry";
 
@@ -18,7 +18,7 @@ export class QuantizedMeshTileLoader implements ITileGeometryLoader {
 	}
 
 	// 图像加载器
-	private fileLoader = new FileLoaderEx(LoaderFactory.manager);
+	private fileLoader = new FileLoader(LoaderFactory.manager);
 
 	public constructor() {
 		this.fileLoader.setResponseType("arraybuffer");

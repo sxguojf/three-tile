@@ -397,13 +397,17 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		const elapseTime = this._clock.getElapsedTime();
 		// 控制瓦片树更新速率 10fps
 		if (elapseTime > 1 / 5) {
-			this.rootTile.update({
-				camera,
-				loader: this.loader,
-				minLevel: this.minLevel,
-				maxLevel: this.maxLevel,
-				LODThreshold: this.LODThreshold,
-			});
+			try {
+				this.rootTile.update({
+					camera,
+					loader: this.loader,
+					minLevel: this.minLevel,
+					maxLevel: this.maxLevel,
+					LODThreshold: this.LODThreshold,
+				});
+			} catch (e) {
+				console.error("Error on loading tile data.");
+			}
 			this._clock.start();
 			this.dispatchEvent({ type: "update", delta: elapseTime });
 		}

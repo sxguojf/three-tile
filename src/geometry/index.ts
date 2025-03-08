@@ -5,8 +5,6 @@
  */
 
 export * from "./GeometryDataTypes";
-export * from "./back/TileSimpleGeometry";
-export * from "./back/TileDEMGeometry";
 export * from "./TileGeometry";
 export * from "./utils";
 export * from "./skirt";

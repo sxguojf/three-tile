@@ -4,10 +4,12 @@
  *@date: 2023-04-05
  */
 
+import { FileLoader } from "three";
 import { GeometryDataType } from "../../geometry";
-import { FileLoaderEx, LoaderFactory, TileGeometryLoader } from "../../loader";
+import { LoaderFactory, TileGeometryLoader } from "../../loader";
 
 import * as Lerc from "./lercDecode/LercDecode.es";
+import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
 import { DEMType, parse } from "./parse";
 import ParseWorker from "./parse.Worker?worker&inline";
 
@@ -19,7 +21,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader<DEMType> {
 	public readonly dataType = "lerc";
 	public discription = "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.";
 	// 图像加载器
-	private fileLoader = new FileLoaderEx(LoaderFactory.manager);
+	private fileLoader = new FileLoader(LoaderFactory.manager);
 
 	public constructor() {
 		super();
@@ -35,48 +37,35 @@ export class TileGeometryLercLoader extends TileGeometryLoader<DEMType> {
 		return { demArray, width, height };
 	}
 
-	protected doLoad(
-		url: string,
-		// onLoad: (buffer: DEMType) => void,
-		// onError: (event: ErrorEvent | Event | DOMException) => void,
-		abortSignal: AbortSignal,
-	): Promise<DEMType> {
-		return new Promise((resolve, reject) => {
-			this.fileLoader.load(
-				url,
-				async (buffer) => {
-					// 解码lerc数据，wasm无法放入worker
-					const decodedData = await this.decode(buffer);
-					resolve(decodedData);
-				},
-				undefined,
-				reject,
-				abortSignal,
-			);
+	protected async doLoad(url: string): Promise<DEMType> {
+		// 加载 LERC 格式数据解析wasm
+		await Lerc.load({
+			locateFile: () => decodeUrl,
 		});
+		console.assert(Lerc.isLoaded());
+		const buffer: ArrayBuffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
+		const decodedData = await this.decode(buffer);
+		return decodedData;
 	}
 
-	protected doPrase(
+	protected async doPrase(
 		demData: DEMType,
 		_x: number,
 		_y: number,
 		z: number,
 		clipBounds: [number, number, number, number],
-		// onParse: (GeometryData: GeometryDataType | Float32Array, dem?: Uint8Array) => void,
 	): Promise<GeometryDataType | Float32Array> {
-		return new Promise((resolve) => {
-			if (this.useWorker) {
-				const worker = new ParseWorker();
-				worker.onmessage = (e: MessageEvent<Float32Array>) => {
-					// onParse(e.data);
+		if (this.useWorker) {
+			const worker = new ParseWorker();
+			return new Promise((resolve) => {
+				worker.onmessage = (e: MessageEvent<GeometryDataType>) => {
 					resolve(e.data);
 				};
 				worker.postMessage({ demData, z, clipBounds }, [demData.demArray.buffer]);
-			} else {
-				const geoInfo = parse(demData, z, clipBounds);
-				// onParse(geoInfo);
-				resolve(geoInfo);
-			}
-		});
+			});
+		} else {
+			const geoInfo = parse(demData, z, clipBounds);
+			return geoInfo;
+		}
 	}
 }
