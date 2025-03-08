@@ -12,4 +12,8 @@ export class PromiseWorker {
 			this.worker.postMessage(message, transfer);
 		});
 	}
+
+	public terminate() {
+		this.worker.terminate();
+	}
 }
