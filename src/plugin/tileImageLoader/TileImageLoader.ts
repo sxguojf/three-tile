@@ -14,6 +14,7 @@ export class TileImageLoader extends TileMaterialLoader {
 	 * 加载图像资源的方法
 	 *
 	 * @param url 图像资源的URL
+	 * @param params 加载参数，包括x, y, z坐标和裁剪边界clipBounds
 	 * @returns 返回一个Promise对象，解析为HTMLImageElement类型。
 	 */
 	protected async doLoad(url: string, params: LoadParamsType): Promise<Texture> {
@@ -23,7 +24,7 @@ export class TileImageLoader extends TileMaterialLoader {
 		const { clipBounds } = params;
 		// 是否需要剪裁
 		if (clipBounds[2] - clipBounds[0] < 1) {
-			texture.image = getSubImageFromRect(img, clipBounds);
+			texture.image = getSubImage(img, clipBounds);
 		} else {
 			texture.image = img;
 		}
@@ -38,7 +39,7 @@ export class TileImageLoader extends TileMaterialLoader {
  * @bounds  rect (orgin is (0,0), range is (-1,1))
  * @returns sub image
  */
-function getSubImageFromRect(image: HTMLImageElement, bounds: [number, number, number, number]) {
+function getSubImage(image: HTMLImageElement, bounds: [number, number, number, number]) {
 	const size = image.width;
 	const canvas = new OffscreenCanvas(size, size);
 	const ctx = canvas.getContext("2d")!;

@@ -241,7 +241,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			const newTiles = createChildren(loader, this.x, this.y, this.z);
 			this.add(...newTiles);
 			// Load  children tiles
-			this._loadNewTiles(newTiles, loader, minLevel, onCreate, onLoad);
+			newTiles.forEach((newTile) => {
+				newTile._load(loader, minLevel, onCreate, onLoad);
+			});
 		} else if (action === LODAction.remove) {
 			// Show this and dispose children tiles
 			this.showing = true;
@@ -250,30 +252,32 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this;
 	}
 
-	private _loadNewTiles(
-		newTiles: Tile[],
+	/**
+	 * Asynchronously load tile data
+	 *
+	 * @param loader Tile loader
+	 * @param minLevel Minimum level
+	 * @param onCreate Callback function when a tile is created
+	 * @param onLoad Callback function when a tile is fully loaded
+	 */
+	private async _load(
 		loader: ITileLoader,
 		minLevel: number,
 		onCreate: (tile: Tile) => void,
 		onLoad: (tile: Tile) => void,
 	) {
-		// Load tiles data
-		newTiles.forEach((newTile) => {
-			const { x, y, z } = newTile;
-			onCreate(newTile);
-			if (newTile.z >= minLevel) {
-				Tile._downloadThreads++;
-
-				// Dwonload tile data
-				loader.load(x, y, z).then((meshData) => {
-					console.assert(meshData.geometry && meshData.materials);
-					Tile._downloadThreads--;
-					newTile.material = meshData.materials;
-					newTile.geometry = meshData.geometry;
-					onLoad(newTile);
-				});
-			}
-		});
+		onCreate(this);
+		if (this.z >= minLevel) {
+			Tile._downloadThreads++;
+			const { x, y, z } = this;
+			// Dwonload tile data
+			loader.load(x, y, z).then((meshData) => {
+				Tile._downloadThreads--;
+				this.material = meshData.materials;
+				this.geometry = meshData.geometry;
+				onLoad(this);
+			});
+		}
 	}
 
 	/**
@@ -315,7 +319,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	/**
-	 * Checks if the map is ready to render.
+	 * Checks if the tile is ready to render.
 	 * @param minLevel - The minimum level.
 	 * @returns The current tile.
 	 */
@@ -375,7 +379,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	private _onTileLoad(newTile: Tile) {
 		newTile._onLoad();
-		// this._calcHeightInView();
 		this.dispatchEvent({ type: "tile-loaded", tile: newTile });
 	}
 

@@ -33,22 +33,6 @@ function getDistRatio(tile: Tile): number {
 	return (tile.distToCamera / tile.sizeInWorld) * 0.8;
 }
 
-export function LODEvaluate1(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {
-	if (tile.z > minLevel && tile.index === 0 && tile.parent?.isTile) {
-		const dist = getDistRatio(tile.parent);
-		if (tile.z > maxLevel || dist > threshold * FACTOR || !tile.parent.inFrustum) {
-			return LODAction.remove;
-		}
-	}
-	if (tile.z < maxLevel && tile.isLeaf && tile.inFrustum) {
-		const dist = getDistRatio(tile);
-		if (tile.z < minLevel || dist < threshold / FACTOR) {
-			return LODAction.create;
-		}
-	}
-	return LODAction.none;
-}
-
 /**
  * Evaluate the Level of Detail (LOD) action
  *
@@ -63,7 +47,7 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 	const distRatio = getDistRatio(tile);
 
 	if (tile.isLeaf) {
-		// Leaf tile in frustum to create
+		// Leaf tile in frustum can create
 		if (
 			tile.inFrustum &&
 			tile.z < maxLevel &&
@@ -73,7 +57,7 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 			return LODAction.create;
 		}
 	} else {
-		// Non-leaf tile to remove
+		// Non-leaf tile can remove
 		if (tile.z >= minLevel && (tile.z > maxLevel || distRatio > threshold * FACTOR)) {
 			return LODAction.remove;
 		}

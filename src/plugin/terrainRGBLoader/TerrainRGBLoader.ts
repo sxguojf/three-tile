@@ -34,7 +34,7 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 		const targetSize = MathUtils.clamp((params.z + 2) * 3, 2, 64);
 		const { clipBounds } = params;
 		// 图像剪裁缩放
-		const imgData = getImageDataFromRect(img, clipBounds, targetSize);
+		const imgData = getSubImageData(img, clipBounds, targetSize);
 		const geometry = new TileGeometry();
 		let dem: Float32Array;
 		// 是否使用worker
@@ -59,7 +59,7 @@ export class TerrainRGBLoader extends TileGeometryLoader {
  * @param targetSize dest size
  * @returns imgData
  */
-function getImageDataFromRect(image: HTMLImageElement, bounds: [number, number, number, number], targetSize: number) {
+function getSubImageData(image: HTMLImageElement, bounds: [number, number, number, number], targetSize: number) {
 	const cropRect = getBoundsCoord(bounds, image.width);
 	targetSize = Math.min(targetSize, cropRect.sw);
 	const canvas = new OffscreenCanvas(targetSize, targetSize);
