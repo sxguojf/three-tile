@@ -54,7 +54,7 @@ export function showAttribution(map: tt.TileMap) {
 	const show = () => {
 		const dom = document.querySelector("#attribution");
 		if (dom) {
-			dom.innerHTML = "© " + map.getAttributions().join(" | © ");
+			dom.innerHTML = "© " + tt.plugin.getAttributions(map).join(" | © ");
 		}
 	};
 	map.addEventListener("source-changed", () => show());
@@ -78,7 +78,7 @@ export function addStats(viewer: tt.plugin.GLViewer) {
 // 状态栏显示地理位置信息
 export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void {
 	viewer.container.addEventListener("pointermove", (evt) => {
-		const lonlat = map.getLocalFromMouse(evt, viewer.camera);
+		const lonlat = tt.plugin.getLocalFromMouse(evt, map, viewer.camera);
 		if (lonlat) {
 			const dom = document.querySelector("#location")!;
 			if (dom) {

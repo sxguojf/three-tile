@@ -1,42 +1,14 @@
-import { ColorRepresentation, FogExp2 } from "three";
+import { ColorRepresentation } from "three";
 import { MapControls } from "three/examples/jsm/controls/MapControls";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { TileMap } from "../../map";
+import { MapFog } from "./MapFog";
+export { MapFog };
 
-type CreateFogParams = {
+export type CreateFogParams = {
 	controls: MapControls;
 	fogColor?: ColorRepresentation;
 };
 
-declare module "../../map" {
-	interface TileMap {
-		createFog(params: CreateFogParams): MapFog;
-	}
-}
-
-export class MapFog extends FogExp2 {
-	private _controls: OrbitControls;
-	private _factor = 1.0;
-	public get factor() {
-		return this._factor;
-	}
-	public set factor(value) {
-		this._factor = value;
-		this._controls.dispatchEvent({ type: "change" });
-	}
-
-	public constructor(controls: OrbitControls, color: ColorRepresentation) {
-		super(color);
-		this._controls = controls;
-		controls.addEventListener("change", () => {
-			const polar = Math.max(controls.getPolarAngle(), 0.1);
-			const dist = Math.max(controls.getDistance(), 0.1);
-			this.density = (polar / (dist + 5)) * this.factor * 0.25;
-		});
-	}
-}
-
 // 扩展TileMap类，原型链上添加addFog方法
-TileMap.prototype.createFog = function (params: CreateFogParams): MapFog {
-	return new MapFog(params.controls, params.fogColor ?? 0xdbf0ff);
-};
+export function createFog(controls: MapControls, fogColor: ColorRepresentation = 0xdbf0ff): MapFog {
+	return new MapFog(controls, fogColor);
+}

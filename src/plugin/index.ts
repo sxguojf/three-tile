@@ -40,6 +40,6 @@ export * from "./fakeEarth";
 // fog. 雾插件
 export * from "./fog";
 // compass. 罗盘插件
-import "./compass";
-// map extension. 地图扩展功能
-import "./mapExtension";
+export * from "./compass";
+// map ito;s. 地图工具函数
+export * from "./mapUtils";

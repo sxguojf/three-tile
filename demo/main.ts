@@ -48,20 +48,21 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 地图添加到场景
 	viewer.scene.add(map);
 
-	// 添加雾（fog插件提供功能）
-	viewer.scene.fog = map.createFog({ controls: viewer.controls });
+	// 添加雾
+	viewer.scene.fog = tt.plugin.createFog(viewer.controls);
 
-	// 填加伪球体（frakEarth插件提供功能）
-	map.createFrakEarth();
+	// 填加伪球体
+	const frakeEarth = tt.plugin.createFrakEarth(map);
+	map.add(frakeEarth);
 
-	// 添加罗盘（compass插件提供功能）
-	const compass = map.createCompass(viewer.controls);
+	// 添加罗盘
+	const compass = tt.plugin.createCompass(viewer.controls);
 	const compassContainer = document.querySelector<HTMLDivElement>("#compass-container");
 	compassContainer && compassContainer.appendChild(compass.dom);
 
-	// 防止摄像机进入地下(mapExtension插件提供功能)
+	// 防止摄像机进入地下
 	viewer.addEventListener("update", () => {
-		map.limitCameraHeight(viewer);
+		tt.plugin.limitCameraHeight(map, viewer.camera);
 	});
 
 	// 测试

@@ -1,13 +1,7 @@
 import { TileMap } from "../../map";
 import { Tile } from "../../tile";
 
-Object.defineProperty(TileMap.prototype, "tileCount", {
-	get() {
-		return getTileCount(this);
-	},
-});
-
-function getTileCount(tileMap: TileMap) {
+export function getTileCount(tileMap: TileMap) {
 	let total = 0,
 		visible = 0,
 		maxLevel = 0,

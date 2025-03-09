@@ -1,4 +1,5 @@
 import * as tt from "../../src";
+import { getTileCount } from "../../src/plugin";
 
 // 状态栏显示瓦片信息
 export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
@@ -28,15 +29,6 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 				null,
 				2,
 			);
-			// const elevation = JSON.stringify(
-			// 	{
-			// 		avg: (map.avgZInView * 1000).toFixed(1),
-			// 		max: (map.maxZInView * 1000).toFixed(1),
-			// 		min: (map.minZInView * 1000).toFixed(1),
-			// 	},
-			// 	null,
-			// 	2,
-			// );
 
 			const renderInfo = JSON.stringify(
 				Object.assign({}, viewer.renderer.info.render, {
@@ -46,7 +38,7 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 				2,
 			);
 
-			const tileTree = JSON.stringify(map.tileCount, null, 2);
+			const tileTree = JSON.stringify(getTileCount(map), null, 2);
 			const memory = JSON.stringify(viewer.renderer.info.memory, null, 2);
 			const info = `<b>Tiles:</b> ${tileTree}
 <b>Camera:</b> ${cameraInfo}
