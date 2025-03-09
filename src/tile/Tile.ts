@@ -231,7 +231,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		minLevel: number,
 		maxLevel: number,
 		threshold: number,
-		cameraWorldPosition: Vector3,
 		onCreate: (tile: Tile) => void,
 		onLoad: (tile: Tile) => void,
 	) {
@@ -242,7 +241,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			const newTiles = createChildren(loader, this.x, this.y, this.z);
 			this.add(...newTiles);
 			// Load new tiles data
-			this._loadNewTiles(newTiles, loader, minLevel, cameraWorldPosition, onCreate, onLoad);
+			this._loadNewTiles(newTiles, loader, minLevel, onCreate, onLoad);
 		} else if (action === LODAction.remove) {
 			// Remove tiles
 			const parent = this.parent;
@@ -258,18 +257,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		newTiles: Tile[],
 		loader: ITileLoader,
 		minLevel: number,
-		cameraWorldPosition: Vector3,
 		onCreate: (tile: Tile) => void,
 		onLoad: (tile: Tile) => void,
 	) {
-		newTiles.forEach((tile) => {
-			tile.distToCamera = getDistance(tile, cameraWorldPosition);
-		});
-		// Sort tiles by distance to camera
-		const sortedTiles = newTiles.sort((a, b) => a.distToCamera - b.distToCamera);
-
 		// Load tiles data
-		sortedTiles.forEach((newTile) => {
+		newTiles.forEach((newTile) => {
 			const { x, y, z } = newTile;
 			onCreate(newTile);
 			if (newTile.z >= minLevel) {
@@ -316,7 +308,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				params.minLevel,
 				params.maxLevel,
 				params.LODThreshold,
-				cameraWorldPosition,
 				this._onTileCreate.bind(this),
 				this._onTileLoad.bind(this),
 			);
