@@ -35,7 +35,7 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 		const { clipBounds } = params;
 		// 图像剪裁缩放
 		const imgData = getSubImageData(img, clipBounds, targetSize);
-		const geometry = new TileGeometry();
+
 		let dem: Float32Array;
 		// 是否使用worker
 		if (this.useWorker) {
@@ -46,6 +46,8 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 			// 将imageData解析成dem
 			dem = parse(imgData);
 		}
+
+		const geometry = new TileGeometry();
 		geometry.setDEM(dem);
 		return geometry;
 	}

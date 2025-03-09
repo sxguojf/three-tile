@@ -1,6 +1,6 @@
 [English](README.md) | [简体中文](README_CN.md)
 
-# **three-tile V0.8.6**
+# **three-tile V0.9.0**
 
 <p align='right'>hz_gjf@163.com</p>
 
@@ -60,6 +60,7 @@ https://sxguojf.github.io/mydemo/three-tile-vue/index.html
 
 ## 2. 参考
 
+-   https://threejs.org/
 -   https://github.com/CesiumGS/cesium
 -   https://github.com/mapbox/mapbox-gl-js
 -   https://leafletjs.com

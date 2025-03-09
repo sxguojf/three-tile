@@ -48,9 +48,6 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 地图添加到场景
 	viewer.scene.add(map);
 
-	// 添加雾
-	viewer.scene.fog = tt.plugin.createFog(viewer.controls);
-
 	// 填加伪球体
 	const frakeEarth = tt.plugin.createFrakEarth(map);
 	map.add(frakeEarth);

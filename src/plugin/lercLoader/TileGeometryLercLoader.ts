@@ -62,10 +62,8 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		const buffer: ArrayBuffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
 		// 解码数据
 		const decodedData = await this.decode(buffer);
-		// 瓦片z和剪裁范围
+		// 取得瓦片层级和剪裁范围
 		const { z, clipBounds } = params;
-		// 瓦片几何体对象
-		const geometry = new TileGeometry();
 		// 瓦片几何体数据
 		let geoData: GeometryDataType;
 		if (this.useWorker) {
@@ -76,6 +74,8 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 			// 解析取得几何体数据
 			geoData = parse(decodedData, z, clipBounds);
 		}
+		// 创建瓦片几何体对象
+		const geometry = new TileGeometry();
 		// 设置瓦片几何体数据
 		geometry.setData(geoData);
 		return geometry;
