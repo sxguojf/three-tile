@@ -5,7 +5,7 @@
  */
 
 import { Material, Texture } from "three";
-import { ITileMaterialLoader } from ".";
+import { ITileMaterialLoader, LoadParamsType } from ".";
 import { TileMaterial } from "../material";
 import { ISource } from "../source";
 import { getSafeTileUrlAndBounds } from "./util";
@@ -14,7 +14,7 @@ import { LoaderFactory } from "./LoaderFactory";
 /**
  * Image loader base calss
  */
-export abstract class TileMaterialLoader<TBuffer = any> implements ITileMaterialLoader {
+export abstract class TileMaterialLoader implements ITileMaterialLoader {
 	public dataType = "";
 	public useWorker = true;
 
@@ -27,16 +27,11 @@ export abstract class TileMaterialLoader<TBuffer = any> implements ITileMaterial
 	public async load(source: ISource, x: number, y: number, z: number): Promise<Material> {
 		const material = new TileMaterial();
 		// get max level tile and bounds
-		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
+		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (!url) {
 			return material;
 		}
-		// download tile data
-		const data = await this.doLoad(url);
-		LoaderFactory.manager.parseStart(url);
-		// parse tile data to geometry
-		const texture = await this.doPrase(data, x, y, z, bounds);
-		// set texture to material
+		const texture = await this.doLoad(url, { x, y, z, clipBounds: clipBounds });
 		material.setTexture(texture);
 		LoaderFactory.manager.parseEnd(url);
 		return material;
@@ -47,22 +42,5 @@ export abstract class TileMaterialLoader<TBuffer = any> implements ITileMaterial
 	 * @param url url
 	 * @returns {Promise<TBuffer>} the buffer of download data
 	 */
-	protected abstract doLoad(url: string): Promise<TBuffer>;
-
-	/**
-	 * Parse the buffer data to geometry data
-	 * @param buffer the data of download
-	 * @param x tile x condition
-	 * @param y tile y condition
-	 * @param z tile z condition
-	 * @param clipBounds the bounds of it parent
-	 * @returns {Promise<Texture>} the texture of tile
-	 */
-	protected abstract doPrase(
-		buffer: TBuffer,
-		x: number,
-		y: number,
-		z: number,
-		clipBounds: [number, number, number, number],
-	): Promise<Texture>;
+	protected abstract doLoad(url: string, params: LoadParamsType): Promise<Texture>;
 }

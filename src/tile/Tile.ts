@@ -231,6 +231,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		minLevel: number,
 		maxLevel: number,
 		threshold: number,
+		cameraWorldPosition: Vector3,
 		onCreate: (tile: Tile) => void,
 		onLoad: (tile: Tile) => void,
 	) {
@@ -240,25 +241,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			// Create children tiles
 			const newTiles = createChildren(loader, this.x, this.y, this.z);
 			this.add(...newTiles);
-			// Sort tiles by distance to camera
-			const sortedTiles = newTiles.sort((a, b) => a.distToCamera - b.distToCamera);
-			// Load tiles data
-			sortedTiles.forEach((newTile) => {
-				const { x, y, z } = newTile;
-				onCreate(newTile);
-				if (newTile.z >= minLevel) {
-					Tile._downloadThreads++;
-					// Dwonload tile data
-					loader.load(x, y, z).then((meshData) => {
-						console.assert(meshData.geometry && meshData.materials);
-						Tile._downloadThreads--;
-						newTile.material = meshData.materials;
-						newTile.geometry = meshData.geometry;
-						onLoad(newTile);
-					});
-				}
-			});
-		} else if (action === LODAction.remove && this.showing) {
+			// Load new tiles data
+			this._loadNewTiles(newTiles, loader, minLevel, cameraWorldPosition, onCreate, onLoad);
+		} else if (action === LODAction.remove) {
 			// Remove tiles
 			const parent = this.parent;
 			if (parent?.isTile) {
@@ -267,6 +252,39 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			}
 		}
 		return this;
+	}
+
+	private _loadNewTiles(
+		newTiles: Tile[],
+		loader: ITileLoader,
+		minLevel: number,
+		cameraWorldPosition: Vector3,
+		onCreate: (tile: Tile) => void,
+		onLoad: (tile: Tile) => void,
+	) {
+		newTiles.forEach((tile) => {
+			tile.distToCamera = getDistance(tile, cameraWorldPosition);
+		});
+		// Sort tiles by distance to camera
+		const sortedTiles = newTiles.sort((a, b) => a.distToCamera - b.distToCamera);
+
+		// Load tiles data
+		sortedTiles.forEach((newTile) => {
+			const { x, y, z } = newTile;
+			onCreate(newTile);
+			if (newTile.z >= minLevel) {
+				Tile._downloadThreads++;
+
+				// Dwonload tile data
+				loader.load(x, y, z).then((meshData) => {
+					console.assert(meshData.geometry && meshData.materials);
+					Tile._downloadThreads--;
+					newTile.material = meshData.materials;
+					newTile.geometry = meshData.geometry;
+					onLoad(newTile);
+				});
+			}
+		});
 	}
 
 	/**
@@ -290,7 +308,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
 			// Tile is in frustum?
 			tile.inFrustum = frustum.intersectsBox(bounds);
-			// Get the distance of camera to tile
+			// Get distance to camera
 			tile.distToCamera = getDistance(tile, cameraWorldPosition);
 			// LOD
 			tile.LOD(
@@ -298,6 +316,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				params.minLevel,
 				params.maxLevel,
 				params.LODThreshold,
+				cameraWorldPosition,
 				this._onTileCreate.bind(this),
 				this._onTileLoad.bind(this),
 			);

@@ -54,10 +54,10 @@ export function parse(data: DEMType, z: number, clipBounds: [number, number, num
 	// 几何误差
 	const maxError = maxErrors[z] / 1000 || 0;
 	// 取得Geometry数据
-	const geoData = tile.getGeometryData(maxError);
+	let geoData = tile.getGeometryData(maxError);
 	// 添加裙边
-	const mesh = addSkirt(geoData.attributes, geoData.indices, 1);
-	return mesh;
+	geoData = addSkirt(geoData.attributes, geoData.indices, 1);
+	return geoData;
 }
 
 function getSubDEM(demData: DEMType, bounds: [number, number, number, number]): DEMType {

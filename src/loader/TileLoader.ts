@@ -8,20 +8,20 @@ import { BufferGeometry, Material, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { ITileLoader, MeshDateType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
-import { CacheEx } from "./CacheEx";
+// import { CacheEx } from "./CacheEx";
 
 /**
  * Tile loader
  */
 export class TileLoader implements ITileLoader {
 	/** Get loader cache size of file  */
-	public get cacheSize() {
-		return CacheEx.size;
-	}
-	/** Set loader cache size of file  */
-	public set cacheSize(value) {
-		CacheEx.size = value;
-	}
+	// public get cacheSize() {
+	// 	return CacheEx.size;
+	// }
+	// /** Set loader cache size of file  */
+	// public set cacheSize(value) {
+	// 	CacheEx.size = value;
+	// }
 
 	private _imgSource: ISource[] = [];
 	/** Get image source */

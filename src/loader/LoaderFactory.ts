@@ -12,12 +12,8 @@ import { author, version } from "..";
 console.log(`====================three-tile V${version}==============================`);
 
 export class TileLoadingManager extends LoadingManager {
-	public onParseStart?: (url: string) => void = undefined;
 	public onParseEnd?: (url: string) => void = undefined;
 
-	public parseStart(url: string) {
-		this.onParseStart && this.onParseStart(url);
-	}
 	public parseEnd(url: string) {
 		setTimeout(() => this.onParseEnd && this.onParseEnd!(url));
 	}

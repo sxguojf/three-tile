@@ -4,20 +4,20 @@
  *@date: 2023-04-05
  */
 
-import { FileLoader } from "three";
-import { GeometryDataType } from "../../geometry";
-import { LoaderFactory, PromiseWorker, TileGeometryLoader } from "../../loader";
+import { BufferGeometry, FileLoader } from "three";
+import { GeometryDataType, TileGeometry } from "../../geometry";
+import { LoaderFactory, LoadParamsType, PromiseWorker, TileGeometryLoader } from "../../loader";
 
 import * as Lerc from "./lercDecode/LercDecode.es";
 import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
-import { DEMType, parse } from "./parse";
+import { parse } from "./parse";
 import ParseWorker from "./parse.Worker?worker&inline";
 
 /**
  * ArcGis-lerc格式瓦片几何体加载器
  * @link https://github.com/Esri/lerc
  */
-export class TileGeometryLercLoader extends TileGeometryLoader<DEMType> {
+export class TileGeometryLercLoader extends TileGeometryLoader {
 	public readonly dataType = "lerc";
 	public discription = "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.";
 	// 图像加载器
@@ -30,6 +30,12 @@ export class TileGeometryLercLoader extends TileGeometryLoader<DEMType> {
 		this.fileLoader.setResponseType("arraybuffer");
 	}
 
+	/**
+	 * 解码给定缓冲区中的Lerc数据
+	 *
+	 * @param buffer Lerc编码数据的ArrayBuffer
+	 * @returns 解码后的高度图数据、宽度和高度的对象
+	 */
 	private async decode(buffer: ArrayBuffer) {
 		const { height, width, pixels } = Lerc.decode(buffer);
 		const demArray = new Float32Array(height * width);
@@ -39,29 +45,39 @@ export class TileGeometryLercLoader extends TileGeometryLoader<DEMType> {
 		return { demArray, width, height };
 	}
 
-	protected async doLoad(url: string): Promise<DEMType> {
-		// 加载 LERC 格式数据解析wasm
+	/**
+	 * 异步加载并解析数据，返回BufferGeometry对象
+	 *
+	 * @param url 数据文件的URL
+	 * @param params 解析参数，包含瓦片xyz和裁剪边界clipBounds
+	 * @returns 返回解析后的BufferGeometry对象
+	 */
+	protected async doLoad(url: string, params: LoadParamsType): Promise<BufferGeometry> {
+		// 加载 LERC wasm
 		await Lerc.load({
 			locateFile: () => decodeUrl,
 		});
 		console.assert(Lerc.isLoaded());
+		// 下载数据
 		const buffer: ArrayBuffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
+		// 解码数据
 		const decodedData = await this.decode(buffer);
-		return decodedData;
-	}
-
-	protected async doPrase(
-		demData: DEMType,
-		_x: number,
-		_y: number,
-		z: number,
-		clipBounds: [number, number, number, number],
-	): Promise<GeometryDataType | Float32Array> {
+		// 瓦片z和剪裁范围
+		const { z, clipBounds } = params;
+		// 瓦片几何体对象
+		const geometry = new TileGeometry();
+		// 瓦片几何体数据
+		let geoData: GeometryDataType;
 		if (this.useWorker) {
 			const worker = new PromiseWorker(() => new ParseWorker());
-			return worker.run({ demData, z, clipBounds }, [demData.demArray.buffer]);
+			// 解析取得几何体数据
+			geoData = await worker.run({ demData: decodedData, z, clipBounds }, [decodedData.demArray.buffer]);
 		} else {
-			return parse(demData, z, clipBounds);
+			// 解析取得几何体数据
+			geoData = parse(decodedData, z, clipBounds);
 		}
+		// 设置瓦片几何体数据
+		geometry.setData(geoData);
+		return geometry;
 	}
 }

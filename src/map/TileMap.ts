@@ -36,7 +36,6 @@ import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./ut
  * @property {BaseEvent} "loading-complete" - Event triggered when loading is complete.
  * @property {BaseEvent & { url: string; itemsLoaded: number; itemsTotal: number }} "loading-progress" - Event triggered during loading progress, with the URL, items loaded, and total items.
  *
- * @property {BaseEvent & { url: string }} "parsing-start" - Event triggered when parsing starts, with the URL of the resource being parsed.
  * @property {BaseEvent & { url: string }} "parsing-end" - Event triggered when parsing ends, with the URL of the parsed resource.
  */
 export interface TileMapEventMap extends Object3DEventMap {
@@ -54,7 +53,6 @@ export interface TileMapEventMap extends Object3DEventMap {
 	"loading-complete": BaseEvent;
 	"loading-progress": BaseEvent & { url: string; itemsLoaded: number; itemsTotal: number };
 
-	"parsing-start": BaseEvent & { url: string };
 	"parsing-end": BaseEvent & { url: string };
 }
 
@@ -147,16 +145,16 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * Get the number of download cache files.
 	 * 下载缓存文件数量
 	 */
-	public get loadCacheSize() {
-		return this.loader.cacheSize;
-	}
-	/**
-	 * Set the number of  download cache files.
-	 * 设置瓦片下载缓存文件数量。使用该属性限制缓存瓦片数量，较大的缓存能加快数据下载速度，但会增加内存使用量，一般取<1000。
-	 */
-	public set loadCacheSize(value) {
-		this.loader.cacheSize = value;
-	}
+	// public get loadCacheSize() {
+	// 	return this.loader.cacheSize;
+	// }
+	// /**
+	//  * Set the number of  download cache files.
+	//  * 设置瓦片下载缓存文件数量。使用该属性限制缓存瓦片数量，较大的缓存能加快数据下载速度，但会增加内存使用量，一般取<1000。
+	//  */
+	// public set loadCacheSize(value) {
+	// 	this.loader.cacheSize = value;
+	// }
 
 	/**
 	 * Get central Meridian latidute

@@ -82,10 +82,8 @@ export function attachEvent(tileMap: TileMap) {
 	loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
 		dispatchLoadingEvent("loading-progress", { url, itemsLoaded, itemsTotal });
 	};
-	// 添加瓦片解析事件
-	loadingManager.onParseStart = (url) => {
-		dispatchLoadingEvent("parsing-start", { url });
-	};
+
+	// 添加瓦片解析完成事件
 	loadingManager.onParseEnd = (url) => {
 		dispatchLoadingEvent("parsing-end", { url });
 	};

@@ -1,10 +1,10 @@
 import { ImageLoader, SRGBColorSpace, Texture } from "three";
-import { getBoundsCoord, LoaderFactory, TileMaterialLoader } from "../../loader";
+import { getBoundsCoord, LoaderFactory, LoadParamsType, TileMaterialLoader } from "../../loader";
 
 /**
  * Tile image loader
  */
-export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
+export class TileImageLoader extends TileMaterialLoader {
 	public dataType = "image";
 	public discription = "Tile image loader. It can load xyz tile image.";
 
@@ -16,34 +16,16 @@ export class TileImageLoader extends TileMaterialLoader<HTMLImageElement> {
 	 * @param url 图像资源的URL
 	 * @returns 返回一个Promise对象，解析为HTMLImageElement类型。
 	 */
-	protected async doLoad(url: string): Promise<HTMLImageElement> {
-		return this.loader.loadAsync(url);
-	}
-
-	/**
-	 * 解析传入的HTMLImageElement元素，并将其转换为Texture对象。
-	 *
-	 * @param buffer 传入的HTMLImageElement元素。
-	 * @param _x x坐标参数。
-	 * @param _y y坐标参数。
-	 * @param _z z坐标参数。
-	 * @param clipBounds 裁剪边界数组，格式为[left, top, right, bottom]。
-	 * @returns 返回一个Promise对象，解析为Texture类型。
-	 */
-	protected async doPrase(
-		buffer: HTMLImageElement,
-		_x: number,
-		_y: number,
-		_z: number,
-		clipBounds: [number, number, number, number],
-	): Promise<Texture> {
+	protected async doLoad(url: string, params: LoadParamsType): Promise<Texture> {
+		const img = await this.loader.loadAsync(url);
 		const texture = new Texture();
 		texture.colorSpace = SRGBColorSpace;
+		const { clipBounds } = params;
 		// 是否需要剪裁
 		if (clipBounds[2] - clipBounds[0] < 1) {
-			texture.image = getSubImageFromRect(buffer, clipBounds);
+			texture.image = getSubImageFromRect(img, clipBounds);
 		} else {
-			texture.image = buffer;
+			texture.image = img;
 		}
 		texture.needsUpdate = true;
 		return texture;

@@ -22,7 +22,7 @@ export interface ITileLoader {
 	/** @description: terrain loader */
 	demSource: ISource | undefined;
 	/** @description: data cache size */
-	cacheSize: number;
+	// cacheSize: number;
 	/** @description: use worker? */
 	useWorker: boolean;
 	/** @description: load tile data */
@@ -65,3 +65,5 @@ export interface ITileGeometryLoader extends ITileLoaderInfo {
 	 */
 	load(source: ISource, x: number, y: number, z: number): Promise<BufferGeometry>;
 }
+
+export type LoadParamsType = { x: number; y: number; z: number; clipBounds: [number, number, number, number] };

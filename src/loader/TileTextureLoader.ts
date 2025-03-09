@@ -27,7 +27,7 @@ export class TileTextureLoader {
 		const texture = new Texture(new Image(1, 1));
 		texture.colorSpace = SRGBColorSpace;
 		// get the max level and bounds in tile
-		const { url, bounds: rect } = getSafeTileUrlAndBounds(source, x, y, z);
+		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 
 		if (!url) {
 			return texture;
@@ -36,7 +36,7 @@ export class TileTextureLoader {
 
 		// if the tile level is greater than max level, clip the max level parent of this tile image
 		if (z > source.maxLevel) {
-			texture.image = getSubImageFromRect(image, rect);
+			texture.image = getSubImageFromRect(image, clipBounds);
 		} else {
 			texture.image = image;
 		}

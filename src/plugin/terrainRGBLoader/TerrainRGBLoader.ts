@@ -4,15 +4,16 @@
  *@date: 2023-04-06
  */
 
-import { ImageLoader, MathUtils } from "three";
-import { LoaderFactory, getBoundsCoord, TileGeometryLoader, PromiseWorker } from "../../loader";
+import { BufferGeometry, ImageLoader, MathUtils } from "three";
+import { TileGeometry } from "../../geometry";
+import { getBoundsCoord, LoaderFactory, LoadParamsType, PromiseWorker, TileGeometryLoader } from "../../loader";
 import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
 /**
  * Mapbox-RGB geometry loader
  */
-export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
+export class TerrainRGBLoader extends TileGeometryLoader {
 	// 数据类型标识
 	public readonly dataType = "terrain-rgb";
 	public discription = "Mapbox-RGB terrain loader, It can load Mapbox-RGB terrain data.";
@@ -20,30 +21,33 @@ export class TerrainRGBLoader extends TileGeometryLoader<HTMLImageElement> {
 	private imageLoader = new ImageLoader(LoaderFactory.manager);
 
 	// 下载数据
-	protected async doLoad(url: string): Promise<HTMLImageElement> {
-		return await this.imageLoader.loadAsync(url);
-	}
-
-	// 解析数据
-	protected async doPrase(
-		image: HTMLImageElement,
-		_x: number,
-		_y: number,
-		z: number,
-		clipBounds: [number, number, number, number],
-	): Promise<Float32Array> {
+	/**
+	 * 异步加载BufferGeometry对象
+	 *
+	 * @param url 图片的URL地址
+	 * @param params 加载参数，包含瓦片xyz和裁剪边界clipBounds
+	 * @returns 返回解析后的BufferGeometry对象
+	 */
+	protected async doLoad(url: string, params: LoadParamsType): Promise<BufferGeometry> {
+		const img = await this.imageLoader.loadAsync(url);
 		// 抽稀像素点
-		const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);
+		const targetSize = MathUtils.clamp((params.z + 2) * 3, 2, 64);
+		const { clipBounds } = params;
 		// 图像剪裁缩放
-		const imgData = getImageDataFromRect(image, clipBounds, targetSize);
+		const imgData = getImageDataFromRect(img, clipBounds, targetSize);
+		const geometry = new TileGeometry();
+		let dem: Float32Array;
 		// 是否使用worker
 		if (this.useWorker) {
 			const worker = new PromiseWorker(() => new ParseWorker());
-			return worker.run({ imgData }, imgData as any);
+			// 将imageData解析成dem
+			dem = await worker.run({ imgData }, imgData as any);
 		} else {
-			// 将imageData解析成DEM
-			return parse(imgData);
+			// 将imageData解析成dem
+			dem = parse(imgData);
 		}
+		geometry.setDEM(dem);
+		return geometry;
 	}
 }
 

@@ -5,16 +5,16 @@
  */
 
 import { BufferGeometry } from "three";
-import { ITileGeometryLoader } from ".";
-import { GeometryDataType, TileGeometry } from "../geometry";
+import { ITileGeometryLoader, LoadParamsType } from ".";
+import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
-import { getSafeTileUrlAndBounds } from "./util";
 import { LoaderFactory } from "./LoaderFactory";
+import { getSafeTileUrlAndBounds } from "./util";
 
 /**
  * Terrain loader base calss
  */
-export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometryLoader {
+export abstract class TileGeometryLoader implements ITileGeometryLoader {
 	public dataType = "";
 	public useWorker = true;
 
@@ -26,19 +26,11 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 	 * @returns
 	 */
 	public async load(source: ISource, x: number, y: number, z: number): Promise<BufferGeometry> {
-		const { url, bounds } = getSafeTileUrlAndBounds(source, x, y, z);
+		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (!url) {
 			return new TileGeometry();
 		}
-		const data = await this.doLoad(url);
-		LoaderFactory.manager.parseStart(url);
-		const geometryData = await this.doPrase(data, x, y, z, bounds);
-		const geometry = new TileGeometry();
-		if (geometryData instanceof Float32Array) {
-			geometry.setDEM(geometryData);
-		} else {
-			geometry.setData(geometryData);
-		}
+		const geometry = await this.doLoad(url, { x, y, z, clipBounds: clipBounds });
 		LoaderFactory.manager.parseEnd(url);
 		return geometry;
 	}
@@ -47,7 +39,7 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 	 * Download terrain data
 	 * @param url url
 	 */
-	protected abstract doLoad(url: string): Promise<TBuffer>;
+	protected abstract doLoad(url: string, params: LoadParamsType): Promise<BufferGeometry>;
 
 	/**
 	 * Parse the buffer data to geometry data
@@ -57,11 +49,11 @@ export abstract class TileGeometryLoader<TBuffer = any> implements ITileGeometry
 	 * @param z tile z condition
 	 * @param clipBounds the bounds of it parent
 	 */
-	protected abstract doPrase(
-		buffer: TBuffer,
-		x: number,
-		y: number,
-		z: number,
-		clipBounds: [number, number, number, number],
-	): Promise<GeometryDataType | Float32Array>;
+	// protected abstract doPrase(
+	// 	buffer: TBuffer,
+	// 	x: number,
+	// 	y: number,
+	// 	z: number,
+	// 	clipBounds: [number, number, number, number],
+	// ): Promise<GeometryDataType | Float32Array>;
 }

@@ -29,23 +29,24 @@ export function getBoundsCoord(clipBounds: [number, number, number, number], tar
  * 因为瓦片数据并未覆盖所有级别瓦片，如MapBox地形瓦片最高只到15级，如果要显示18级以上瓦片，不能从17级瓦片中获取，只能从15级瓦片里截取一部分
  * @param source
  * @param tile
- * @returns max tile url and rect in  in maxTile
+ * @returns max tile url and bounds in  in maxTile
  */
 export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z: number) {
 	// 请求数据级别<最小级别返回空
 	if (z < source.minLevel) {
 		return {
 			url: undefined,
+			clipBounds: [0, 0, 1, 1],
 		};
 	}
 	// 请数据级别<最大级别返回图片uil已经全部图片范围
 	if (z <= source.maxLevel) {
 		const url = source._getTileUrl(x, y, z);
 		// const box = new Box2(new Vector2(-0.5, -0.5), new Vector2(0.5, 0.5));
-		const bounds: [number, number, number, number] = [0, 0, 1, 1];
+		const clipBounds: [number, number, number, number] = [0, 0, 1, 1];
 		return {
 			url,
-			bounds,
+			clipBounds,
 		};
 	}
 
@@ -58,7 +59,7 @@ export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z
 		maxLevelTileAndBox.parentNO.z,
 	);
 
-	return { url, bounds: maxLevelTileAndBox.bounds };
+	return { url, clipBounds: maxLevelTileAndBox.bounds };
 }
 
 function getMaxLevelTileAndBounds(x: number, y: number, z: number, maxLevel: number) {
