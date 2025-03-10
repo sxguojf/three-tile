@@ -242,7 +242,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			this.add(...newTiles);
 			// Load  children tiles
 			newTiles.forEach((newTile) => {
-				newTile._load(loader, minLevel, onCreate, onLoad);
+				onCreate(newTile);
+				if (newTile.z >= minLevel) {
+					newTile._load(loader).then(onLoad);
+				} else {
+					onLoad(newTile);
+				}
 			});
 		} else if (action === LODAction.remove) {
 			// Show this and dispose children tiles
@@ -256,18 +261,13 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * Asynchronously load tile data
 	 *
 	 * @param loader Tile loader
-	 * @param minLevel Minimum level
-	 * @param onCreate Callback function when a tile is created
-	 * @param onLoad Callback function when a tile is fully loaded
 	 */
 	private async _load(
 		loader: ITileLoader,
-		minLevel: number,
-		onCreate: (tile: Tile) => void,
-		onLoad: (tile: Tile) => void,
-	) {
-		onCreate(this);
-		if (this.z >= minLevel) {
+		// minLevel: number,
+		// onLoad: (tile: Tile) => void,
+	): Promise<Tile> {
+		return new Promise<Tile>((resolve) => {
 			Tile._downloadThreads++;
 			const { x, y, z } = this;
 			// Dwonload tile data
@@ -275,9 +275,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				Tile._downloadThreads--;
 				this.material = meshData.materials;
 				this.geometry = meshData.geometry;
-				onLoad(this);
+				resolve(this);
 			});
-		}
+		});
 	}
 
 	/**
@@ -397,7 +397,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @returns The current tile.
 	 */
 	public dispose(disposeSelf: boolean) {
-		if (disposeSelf && this.isTile && this.loaded) {
+		if (disposeSelf && this.isTile && this.loaded && this.material.length > 0) {
 			this.material.forEach((mat) => mat.dispose());
 			this.material = [];
 			this.geometry.groups = [];

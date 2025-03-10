@@ -47,17 +47,17 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 	const distRatio = getDistRatio(tile);
 
 	if (tile.isLeaf) {
-		// Leaf tile in frustum can create
+		// Only leaf tiles can create child tiles
 		if (
 			tile.inFrustum &&
 			tile.z < maxLevel &&
-			(tile.z < minLevel || tile.showing) &&
+			(tile.z < minLevel || tile.showing) && // Create child tilee until parent tile has showed
 			(tile.z < minLevel || distRatio < threshold / FACTOR)
 		) {
 			return LODAction.create;
 		}
 	} else {
-		// Non-leaf tile can remove
+		// Only Non-leaf tile can remove child tiles
 		if (tile.z >= minLevel && (tile.z > maxLevel || distRatio > threshold * FACTOR)) {
 			return LODAction.remove;
 		}
