@@ -6,8 +6,9 @@
 
 import { BufferGeometry, FileLoader } from "three";
 import { GeometryDataType, TileGeometry } from "../../geometry";
-import { LoaderFactory, LoadParamsType, PromiseWorker, TileGeometryLoader } from "../../loader";
+import { LoaderFactory, LoadParamsType, TileGeometryLoader } from "../../loader";
 
+import { WorkerPool } from "three/examples/jsm/utils/WorkerPool";
 import * as Lerc from "./lercDecode/LercDecode.es";
 import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
 import { parse } from "./parse";
@@ -22,12 +23,12 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	public discription = "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.";
 	// 图像加载器
 	private fileLoader = new FileLoader(LoaderFactory.manager);
-
-	// private worker = new ParseWorker();
+	private _workerPool = new WorkerPool(10);
 
 	public constructor() {
 		super();
 		this.fileLoader.setResponseType("arraybuffer");
+		this._workerPool.setWorkerCreator(() => new ParseWorker());
 	}
 
 	/**
@@ -67,9 +68,11 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		// 瓦片几何体数据
 		let geoData: GeometryDataType;
 		if (this.useWorker) {
-			const worker = new PromiseWorker(() => new ParseWorker());
-			// 解析取得几何体数据
-			geoData = await worker.run({ demData: decodedData, z, clipBounds }, [decodedData.demArray.buffer]);
+			geoData = (
+				await this._workerPool.postMessage({ demData: decodedData, z, clipBounds }, [
+					decodedData.demArray.buffer,
+				])
+			).data;
 		} else {
 			// 解析取得几何体数据
 			geoData = parse(decodedData, z, clipBounds);

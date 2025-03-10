@@ -5,11 +5,11 @@
  */
 
 import { BufferGeometry, ImageLoader, MathUtils } from "three";
+import { WorkerPool } from "three/examples/jsm/utils/WorkerPool";
 import { TileGeometry } from "../../geometry";
-import { getBoundsCoord, LoaderFactory, LoadParamsType, PromiseWorker, TileGeometryLoader } from "../../loader";
+import { getBoundsCoord, LoaderFactory, LoadParamsType, TileGeometryLoader } from "../../loader";
 import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
-
 /**
  * Mapbox-RGB geometry loader
  */
@@ -19,6 +19,12 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 	public discription = "Mapbox-RGB terrain loader, It can load Mapbox-RGB terrain data.";
 	// 使用imageLoader下载
 	private imageLoader = new ImageLoader(LoaderFactory.manager);
+	private _workerPool = new WorkerPool(10);
+
+	public constructor() {
+		super();
+		this._workerPool.setWorkerCreator(() => new ParseWorker());
+	}
 
 	// 下载数据
 	/**
@@ -39,9 +45,7 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 		let dem: Float32Array;
 		// 是否使用worker
 		if (this.useWorker) {
-			const worker = new PromiseWorker(() => new ParseWorker());
-			// 将imageData解析成dem
-			dem = await worker.run({ imgData }, imgData as any);
+			dem = (await this._workerPool.postMessage({ imgData }, [imgData.data.buffer])).data;
 		} else {
 			// 将imageData解析成dem
 			dem = parse(imgData);

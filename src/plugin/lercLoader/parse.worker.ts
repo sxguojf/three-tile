@@ -16,5 +16,5 @@ self.onmessage = (msg: MessageEvent<MessageType>) => {
 	const data = msg.data;
 	const mesh = parse(data.demData, data.z, data.clipBounds);
 	self.postMessage(mesh);
-	self.close();
+	// self.close();
 };

@@ -13,5 +13,5 @@ type MessageType = {
 self.onmessage = (msg: MessageEvent<MessageType>) => {
 	const geometry = parse(msg.data.imgData);
 	self.postMessage(geometry);
-	self.close();
+	// self.close();
 };
