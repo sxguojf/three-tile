@@ -262,11 +262,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 *
 	 * @param loader Tile loader
 	 */
-	private async _load(
-		loader: ITileLoader,
-		// minLevel: number,
-		// onLoad: (tile: Tile) => void,
-	): Promise<Tile> {
+	private async _load(loader: ITileLoader): Promise<Tile> {
 		return new Promise<Tile>((resolve) => {
 			Tile._downloadThreads++;
 			const { x, y, z } = this;
