@@ -26,6 +26,7 @@ const MAPBOXKEY = //"pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1m
 	// "pk.eyJ1IjoiaGF3azg2MTA0IiwiYSI6ImNrbTQ3cWtyeTAxejEzMHBtcW42bmc0N28ifQ.bvS9U_yWdHDh41jzaDS1dw";
 	// "pk.eyJ1IjoiMTgzODI0ZHl0IiwiYSI6ImNqbHExNDVjZzI0ZmUza2wxMDhocnlyem4ifQ.FZoJzmqTtli8hAvvAc1OPA";
 	// "pk.eyJ1Ijoibmlld3poIiwiYSI6ImNqbjRvM2F4ODA5ZDEzd2xkd2oxZnB4Y2UifQ.phMvmLw9t9lDxobKyYVbPw";
+	// "pk.eyJ1IjoiYnJhbnpoYW5nIiwiYSI6ImNqM3FycmVldjAxZTUzM2xqMmllNnBjMHkifQ.Wv3ekbtia0BuUHGWVUGoFg"
 	"pk.eyJ1Ijoiemhhbmdjb29raWUiLCJhIjoiY2tyMngybmVvMGl3cTJvcGRrNzNna2FxcyJ9.Abt7my-eFxMOmgxGXwVknA";
 export const mapBoxImgSource = new MapBoxSource({
 	token: MAPBOXKEY,

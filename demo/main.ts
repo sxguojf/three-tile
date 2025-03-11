@@ -1,4 +1,4 @@
-import { CameraHelper, Mesh, MeshStandardMaterial, SphereGeometry, SpotLight, SpotLightHelper, Vector3 } from "three";
+import { Mesh, MeshStandardMaterial, SphereGeometry, SpotLight, SpotLightHelper, Vector3 } from "three";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
@@ -80,20 +80,26 @@ function initViewer(id: string, map: tt.TileMap) {
 	return viewer;
 }
 
-function shadowTest(viewer: tt.plugin.GLViewer, _map: tt.TileMap) {
+function shadowTest(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const sphereGeometry = new SphereGeometry(5, 32, 32);
-	const sphereMaterial = new MeshStandardMaterial({ color: 0xff0000 });
+	const sphereMaterial = new MeshStandardMaterial({
+		color: 0x049ef4,
+		roughness: 0.2,
+		metalness: 0.8,
+		flatShading: true,
+	});
 	const sphere = new Mesh(sphereGeometry, sphereMaterial);
-	sphere.position.set(viewer.dirLight.target.position.x, 5, viewer.dirLight.target.position.z);
-	sphere.castShadow = true; //default is false
-	sphere.receiveShadow = true; //default
+	const centerGeo = new Vector3(110, 35, 0);
+	const centerPosition = map.geo2world(centerGeo);
+	sphere.position.set(centerPosition.x, 5, centerPosition.z);
+	sphere.castShadow = true;
+	sphere.receiveShadow = true;
 	viewer.scene.add(sphere);
 
-	const shadowLight = new SpotLight(0xffffff, 10, 4e3, Math.PI / 6, 0.2, 0.2);
-	shadowLight.position.set(0, 50, -2950);
+	const shadowLight = new SpotLight(0xffffff, 10, 4e3, Math.PI / 6, 0.2, 0);
+	shadowLight.position.set(centerPosition.x, 100, centerPosition.z + 100);
 	shadowLight.target = sphere;
 	shadowLight.castShadow = true;
-	shadowLight.power = 100;
 	viewer.scene.add(shadowLight);
 
 	const lightHelper = new SpotLightHelper(shadowLight);
@@ -103,8 +109,9 @@ function shadowTest(viewer: tt.plugin.GLViewer, _map: tt.TileMap) {
 	const shadowCamera = shadowLight.shadow.camera;
 	shadowCamera.far = 1e3;
 	shadowCamera.near = 0.1;
-	const cameraHelper = new CameraHelper(shadowCamera);
-	viewer.scene.add(cameraHelper);
+
+	// const cameraHelper = new CameraHelper(shadowCamera);
+	// viewer.scene.add(cameraHelper);
 }
 
 // function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {

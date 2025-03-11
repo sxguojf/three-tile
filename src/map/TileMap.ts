@@ -406,6 +406,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 					maxLevel: this.maxLevel,
 					LODThreshold: this.LODThreshold,
 				});
+				// shadow
 				this.rootTile.castShadow = this.castShadow;
 				this.rootTile.receiveShadow = this.receiveShadow;
 			} catch (e) {

@@ -297,11 +297,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			// shadow
 			tile.receiveShadow = this.receiveShadow;
 			tile.castShadow = this.castShadow;
-			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
+
 			// Tile is in frustum?
+			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
 			tile.inFrustum = frustum.intersectsBox(bounds);
+
 			// Get distance to camera
 			tile.distToCamera = getDistance(tile, cameraWorldPosition);
+
 			// LOD
 			tile.LOD(
 				params.loader,
