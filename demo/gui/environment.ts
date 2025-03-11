@@ -1,14 +1,15 @@
+import { Color, CubeTextureLoader } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min";
 import * as tt from "../../src";
-import { Color, CubeTextureLoader } from "three";
 
-export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
+export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
 		skyColor: new Color(0xdbf0ff),
 		skyVisible: true,
 		skybox: new CubeTextureLoader()
 			.setPath("./image/skybox/")
 			.load(["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"]),
+		shadow: false,
 	};
 
 	viewer.scene.background = vm.skybox;
@@ -69,7 +70,15 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer) => {
 		folder.add<tt.plugin.FakeEarth, "isMesh">(fakeEarth, "isMesh").name("Global mask");
 	}
 
-	folder.add(viewer.renderer.shadowMap, "enabled").name("Shadows");
+	// folder.add(viewer.renderer.shadowMap, "enabled").name("Shadows");
+	folder.add(vm, "shadow").onChange((value) => {
+		viewer.renderer.shadowMap.enabled = value;
+		viewer.dirLight.castShadow = value;
+		// viewer.scene.castShadow = value;
+		// viewer.scene.receiveShadow = value;
+		// map.castShadow = value;
+		map.receiveShadow = value;
+	});
 
 	return gui;
 };

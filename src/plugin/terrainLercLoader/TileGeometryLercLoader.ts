@@ -72,25 +72,25 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		const decodedData = await this.decode(buffer);
 		// 取得瓦片层级和剪裁范围
 		const { z, clipBounds } = params;
+		let geoData;
 
-		// 创建瓦片几何体对象
-		const geometry = new TileGeometry();
 		if (this.useWorker) {
 			if (this._workerPool.pool === 0) {
 				this._workerPool.setWorkerLimit(THREADSNUM);
 			}
 			// 解析取得几何体数据
-			const geoData = (
+			geoData = (
 				await this._workerPool.postMessage({ demData: decodedData, z, clipBounds }, [
 					decodedData.demArray.buffer,
 				])
 			).data;
-			geometry.setData(geoData);
 		} else {
 			// 解析取得几何体数据
-			const geoData = parse(decodedData, z, clipBounds);
-			geometry.setData(geoData);
+			geoData = parse(decodedData, z, clipBounds);
 		}
+		// 创建瓦片几何体对象
+		const geometry = new TileGeometry();
+		geometry.setData(geoData);
 		return geometry;
 	}
 }

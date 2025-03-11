@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { CameraHelper, Mesh, MeshStandardMaterial, SphereGeometry, SpotLight, SpotLightHelper, Vector3 } from "three";
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
@@ -33,7 +33,7 @@ function createMap() {
 	// 地图旋转到xz平面
 	map.rotateX(-Math.PI / 2);
 	// 开启阴影
-	map.receiveShadow = true;
+	// map.receiveShadow = true;
 
 	// 地图准备就绪
 	map.addEventListener("ready", () => console.log("Map ready!!!!!!"));
@@ -75,7 +75,36 @@ function initViewer(id: string, map: tt.TileMap) {
 	// const mapMesh = createBoundsMesh(mapBounds, 0x00ff00);
 	// map.add(mapMesh);
 
+	shadowTest(viewer, map);
+
 	return viewer;
+}
+
+function shadowTest(viewer: tt.plugin.GLViewer, _map: tt.TileMap) {
+	const sphereGeometry = new SphereGeometry(5, 32, 32);
+	const sphereMaterial = new MeshStandardMaterial({ color: 0xff0000 });
+	const sphere = new Mesh(sphereGeometry, sphereMaterial);
+	sphere.position.set(viewer.dirLight.target.position.x, 5, viewer.dirLight.target.position.z);
+	sphere.castShadow = true; //default is false
+	sphere.receiveShadow = true; //default
+	viewer.scene.add(sphere);
+
+	const shadowLight = new SpotLight(0xffffff, 10, 4e3, Math.PI / 6, 0.2, 0.2);
+	shadowLight.position.set(0, 50, -2950);
+	shadowLight.target = sphere;
+	shadowLight.castShadow = true;
+	shadowLight.power = 100;
+	viewer.scene.add(shadowLight);
+
+	const lightHelper = new SpotLightHelper(shadowLight);
+	viewer.scene.add(lightHelper);
+	lightHelper.updateMatrixWorld();
+
+	const shadowCamera = shadowLight.shadow.camera;
+	shadowCamera.far = 1e3;
+	shadowCamera.near = 0.1;
+	const cameraHelper = new CameraHelper(shadowCamera);
+	viewer.scene.add(cameraHelper);
 }
 
 // function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {
@@ -122,8 +151,11 @@ function fly(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const centerPosition = map.geo2world(centerGeo);
 	// 摄像经纬度高度转为世界坐标
 	const cmaeraPosition = map.geo2world(camersGeo);
+	viewer.controls.enabled = false;
 	// 飞到指定位置
-	viewer.flyTo(centerPosition, cmaeraPosition);
+	viewer.flyTo(centerPosition, cmaeraPosition, true, () => {
+		viewer.controls.enabled = true;
+	});
 }
 
 function main() {

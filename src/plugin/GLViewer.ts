@@ -84,6 +84,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			this.scene.add(this.ambLight);
 			this.dirLight = this._createDirLight();
 			this.scene.add(this.dirLight);
+			this.scene.add(this.dirLight.target);
 			this.container.appendChild(this.renderer.domElement);
 			window.addEventListener("resize", this.resize.bind(this));
 			this.resize();
@@ -201,7 +202,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	 * @param cameraPostion Camera target position
 	 * @param animate animate or not
 	 */
-	public flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate = true) {
+	public flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate = true, onComplete?: (obj: Vector3) => void) {
 		this.controls.target.copy(centerPostion);
 		if (animate) {
 			const start = this.camera.position;
@@ -209,7 +210,13 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 				// fly to 10000km
 				.to({ y: 10000, z: 0 }, 500)
 				// to taget
-				.chain(new Tween(start).to(cameraPostion, 2000).easing(Easing.Quintic.Out))
+				.chain(
+					new Tween(start)
+						.to(cameraPostion, 2000)
+						.easing(Easing.Quintic.Out)
+						.onComplete((obj) => onComplete && onComplete(obj)),
+				)
+
 				.start();
 		} else {
 			this.camera.position.copy(cameraPostion);

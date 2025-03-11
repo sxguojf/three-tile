@@ -19,7 +19,7 @@ export function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	// 加载器
 	createLoaderGui(gui, viewer, map);
 	// 环境控制
-	createEnvironmentGui(gui, viewer);
+	createEnvironmentGui(gui, viewer, map);
 	// 摄像机控制
 	createCameraGui(gui, viewer, map);
 }

@@ -45,19 +45,20 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 		// 图像剪裁缩放
 		const imgData = getSubImageData(img, clipBounds, targetSize);
 
-		const geometry = new TileGeometry();
+		let dem;
+
 		// 是否使用worker
 		if (this.useWorker) {
 			if (this._workerPool.pool === 0) {
 				this._workerPool.setWorkerLimit(THREADSNUM);
 			}
-			const dem = (await this._workerPool.postMessage({ imgData }, [imgData.data.buffer])).data;
-			geometry.setDEM(dem);
+			dem = (await this._workerPool.postMessage({ imgData }, [imgData.data.buffer])).data;
 		} else {
 			// 将imageData解析成dem
-			const dem = parse(imgData);
-			geometry.setDEM(dem);
+			dem = parse(imgData);
 		}
+		const geometry = new TileGeometry();
+		geometry.setDEM(dem);
 
 		return geometry;
 	}

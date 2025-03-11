@@ -294,6 +294,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 		// LOD for tiles
 		this.traverse((tile) => {
+			// shadow
+			tile.receiveShadow = this.receiveShadow;
+			tile.castShadow = this.castShadow;
 			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
 			// Tile is in frustum?
 			tile.inFrustum = frustum.intersectsBox(bounds);
@@ -364,8 +367,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		newTile.updateMatrix();
 		newTile.updateMatrixWorld();
 		newTile.sizeInWorld = getTileSize(newTile);
-		newTile.receiveShadow = this.receiveShadow;
-		newTile.castShadow = this.castShadow;
 		this.dispatchEvent({ type: "tile-created", tile: newTile });
 	}
 

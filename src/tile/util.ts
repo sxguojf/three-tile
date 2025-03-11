@@ -109,5 +109,6 @@ export function createChildren(loader: ITileLoader, px: number, py: number, pz: 
 		t4.scale.copy(scale);
 		children.push(t1, t2, t3, t4);
 	}
+
 	return children;
 }

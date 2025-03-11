@@ -365,15 +365,18 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 			lon0 = 0,
 		} = params;
 
+		this.loader = loader;
+
 		rootTile.matrixAutoUpdate = true;
 		rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
-
-		this.loader = loader;
 		this.rootTile = rootTile;
+
 		this.minLevel = minLevel;
 		this.maxLevel = maxLevel;
+
 		this.imgSource = imgSource;
 		this.demSource = demSource;
+
 		this.lon0 = lon0;
 
 		// 模型加入地图
@@ -393,7 +396,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public update(camera: Camera) {
 		const elapseTime = this._clock.getElapsedTime();
-		// 控制瓦片树更新速率 10fps
+		// 控制瓦片树更新速率 1/5 秒
 		if (elapseTime > 1 / 5) {
 			try {
 				this.rootTile.update({
@@ -403,6 +406,8 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 					maxLevel: this.maxLevel,
 					LODThreshold: this.LODThreshold,
 				});
+				this.rootTile.castShadow = this.castShadow;
+				this.rootTile.receiveShadow = this.receiveShadow;
 			} catch (e) {
 				console.error("Error on loading tile data.");
 			}
