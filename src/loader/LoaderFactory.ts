@@ -15,7 +15,8 @@ export class TileLoadingManager extends LoadingManager {
 	public onParseEnd?: (url: string) => void = undefined;
 
 	public parseEnd(url: string) {
-		setTimeout(() => this.onParseEnd && this.onParseEnd!(url));
+		// setTimeout(() => this.onParseEnd && this.onParseEnd!(url));
+		this.onParseEnd && this.onParseEnd!(url);
 	}
 }
 

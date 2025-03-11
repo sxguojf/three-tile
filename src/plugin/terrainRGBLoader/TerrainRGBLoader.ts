@@ -10,6 +10,9 @@ import { TileGeometry } from "../../geometry";
 import { getBoundsCoord, LoaderFactory, LoadParamsType, TileGeometryLoader } from "../../loader";
 import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
+
+const THREADSNUM = 10;
+
 /**
  * Mapbox-RGB geometry loader
  */
@@ -19,7 +22,7 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 	public discription = "Mapbox-RGB terrain loader, It can load Mapbox-RGB terrain data.";
 	// 使用imageLoader下载
 	private imageLoader = new ImageLoader(LoaderFactory.manager);
-	private _workerPool = new WorkerPool(10);
+	private _workerPool = new WorkerPool(0);
 
 	public constructor() {
 		super();
@@ -42,17 +45,20 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 		// 图像剪裁缩放
 		const imgData = getSubImageData(img, clipBounds, targetSize);
 
-		let dem: Float32Array;
+		const geometry = new TileGeometry();
 		// 是否使用worker
 		if (this.useWorker) {
-			dem = (await this._workerPool.postMessage({ imgData }, [imgData.data.buffer])).data;
+			if (this._workerPool.pool === 0) {
+				this._workerPool.setWorkerLimit(THREADSNUM);
+			}
+			const dem = (await this._workerPool.postMessage({ imgData }, [imgData.data.buffer])).data;
+			geometry.setDEM(dem);
 		} else {
 			// 将imageData解析成dem
-			dem = parse(imgData);
+			const dem = parse(imgData);
+			geometry.setDEM(dem);
 		}
 
-		const geometry = new TileGeometry();
-		geometry.setDEM(dem);
 		return geometry;
 	}
 }

@@ -12,7 +12,7 @@ import "./tileImageLoader";
 // Mapbox terrain-rgb loader. Mapbox terrain-rgb格式地形瓦片加载器
 import "./terrainRGBLoader";
 // ArcGis lerc loader. ArcGis lerc格式地形瓦片加载器
-import "./lercLoader";
+import "./terrainLercLoader";
 // debug material loader. 调试材质瓦片加载器
 import "./debugLoader";
 // logo material loader. logo材质瓦片加载器
@@ -22,7 +22,7 @@ import "./normalLoder";
 //  wireframe material loader. wireframe网格瓦片加载器
 import "./wireframeLoader";
 // lerc geometry loader. Arcgis lerc地形瓦片加载器
-export * from "./lercLoader";
+export * from "./terrainLercLoader";
 // Quantized-Mesh loader. cesium Quantized-Mesh地形瓦片加载器
 // import "./qmLoader";
 // Single image loader. 单图像材质加载器

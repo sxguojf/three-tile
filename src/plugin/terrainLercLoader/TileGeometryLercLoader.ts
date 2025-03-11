@@ -5,7 +5,7 @@
  */
 
 import { BufferGeometry, FileLoader } from "three";
-import { GeometryDataType, TileGeometry } from "../../geometry";
+import { TileGeometry } from "../../geometry";
 import { LoaderFactory, LoadParamsType, TileGeometryLoader } from "../../loader";
 
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool";
@@ -13,6 +13,10 @@ import * as Lerc from "./lercDecode/LercDecode.es";
 import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
 import { parse } from "./parse";
 import ParseWorker from "./parse.Worker?worker&inline";
+
+Lerc.load({ locateFile: () => decodeUrl });
+
+const THREADSNUM = 10;
 
 /**
  * ArcGis-lerc格式瓦片几何体加载器
@@ -23,7 +27,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	public discription = "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.";
 	// 图像加载器
 	private fileLoader = new FileLoader(LoaderFactory.manager);
-	private _workerPool = new WorkerPool(10);
+	private _workerPool: WorkerPool = new WorkerPool(0);
 
 	public constructor() {
 		super();
@@ -38,6 +42,14 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	 * @returns 解码后的高度图数据、宽度和高度的对象
 	 */
 	private async decode(buffer: ArrayBuffer) {
+		// 加载 LERC wasm
+		if (!Lerc.isLoaded) {
+			await Lerc.load({
+				locateFile: () => decodeUrl,
+			});
+		}
+		console.assert(Lerc.isLoaded());
+
 		const { height, width, pixels } = Lerc.decode(buffer);
 		const demArray = new Float32Array(height * width);
 		for (let i = 0; i < demArray.length; i++) {
@@ -54,33 +66,31 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	 * @returns 返回解析后的BufferGeometry对象
 	 */
 	protected async doLoad(url: string, params: LoadParamsType): Promise<BufferGeometry> {
-		// 加载 LERC wasm
-		await Lerc.load({
-			locateFile: () => decodeUrl,
-		});
-		console.assert(Lerc.isLoaded());
 		// 下载数据
 		const buffer: ArrayBuffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
 		// 解码数据
 		const decodedData = await this.decode(buffer);
 		// 取得瓦片层级和剪裁范围
 		const { z, clipBounds } = params;
-		// 瓦片几何体数据
-		let geoData: GeometryDataType;
+
+		// 创建瓦片几何体对象
+		const geometry = new TileGeometry();
 		if (this.useWorker) {
-			geoData = (
+			if (this._workerPool.pool === 0) {
+				this._workerPool.setWorkerLimit(THREADSNUM);
+			}
+			// 解析取得几何体数据
+			const geoData = (
 				await this._workerPool.postMessage({ demData: decodedData, z, clipBounds }, [
 					decodedData.demArray.buffer,
 				])
 			).data;
+			geometry.setData(geoData);
 		} else {
 			// 解析取得几何体数据
-			geoData = parse(decodedData, z, clipBounds);
+			const geoData = parse(decodedData, z, clipBounds);
+			geometry.setData(geoData);
 		}
-		// 创建瓦片几何体对象
-		const geometry = new TileGeometry();
-		// 设置瓦片几何体数据
-		geometry.setData(geoData);
 		return geometry;
 	}
 }
