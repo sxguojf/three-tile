@@ -103,7 +103,7 @@ export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 
 		cameraInfoToConsole: () => {
 			const cameraGeo = map.world2geo(viewer.camera.getWorldPosition(new Vector3()));
-			const targetGeo = map.geo2world(viewer.controls.target);
+			const targetGeo = map.world2geo(viewer.controls.target);
 			const code = `
 ()=>{
 	const camera = new Vector3(${cameraGeo.x},${cameraGeo.y},${cameraGeo.z})

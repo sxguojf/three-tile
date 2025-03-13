@@ -2,6 +2,7 @@ import { Mesh, MeshStandardMaterial, SphereGeometry, SpotLight, SpotLightHelper,
 import * as tt from "../src";
 import * as gui from "./gui";
 import * as source from "./mapSource";
+import { goHome } from "../src/map/util";
 
 console.log("===================================================================");
 console.log(`three-tile V${tt.version}, ${tt.author.email}`);
@@ -62,6 +63,8 @@ function initViewer(id: string, map: tt.TileMap) {
 		tt.plugin.limitCameraHeight(map, viewer.camera);
 	});
 
+	goHome(map, viewer);
+
 	// 测试
 	// const imageBounds = map.projection.getProjBounds([105, 33, 109, 37]);
 	// const imageMesh = createBoundsMesh(imageBounds, 0xffff00);
@@ -75,11 +78,12 @@ function initViewer(id: string, map: tt.TileMap) {
 	// const mapMesh = createBoundsMesh(mapBounds, 0x00ff00);
 	// map.add(mapMesh);
 
-	shadowTest(viewer, map);
+	// shadowTest(viewer, map);
 
 	return viewer;
 }
 
+//@ts-ignore
 function shadowTest(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	const sphereGeometry = new SphereGeometry(5, 32, 32);
 	const sphereMaterial = new MeshStandardMaterial({

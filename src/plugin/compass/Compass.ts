@@ -29,5 +29,6 @@ export class Compass {
 				this.text.style.transform = `rotate(${controls.getAzimuthalAngle()}rad)`;
 			}
 		});
+		this.dom.onclick = () => open("https://github.com/sxguojf/three-tile");
 	}
 }
