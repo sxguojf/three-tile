@@ -32,10 +32,10 @@ export class SingleImageLoader implements ITileMaterialLoader {
 			opacity: source.opacity,
 		});
 
-		const tileUrl = source._getTileUrl(0, 0, 0);
+		const url = source.getUrl(0, 0, 0);
 
 		// 请求的瓦片不在数据源范围内或没有url，直接返回材质
-		if (z < source.minLevel || z > source.maxLevel || !tileUrl) {
+		if (z < source.minLevel || z > source.maxLevel || !url) {
 			return material;
 		}
 
@@ -46,7 +46,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		}
 
 		// 加载纹理
-		this._image = await this._imageLoader.loadAsync(tileUrl);
+		this._image = await this._imageLoader.loadAsync(url);
 		this._setTexture(material, source, x, y, z);
 		return material;
 	}

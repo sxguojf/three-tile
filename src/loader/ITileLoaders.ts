@@ -66,4 +66,10 @@ export interface ITileGeometryLoader extends ITileLoaderInfo {
 	load(source: ISource, x: number, y: number, z: number): Promise<BufferGeometry>;
 }
 
-export type LoadParamsType = { x: number; y: number; z: number; clipBounds: [number, number, number, number] };
+export type LoadParamsType = {
+	source: ISource;
+	x: number;
+	y: number;
+	z: number;
+	clipBounds: [number, number, number, number];
+};

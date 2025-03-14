@@ -23,11 +23,11 @@ export class TXSource extends TileSource {
 		super(options);
 		Object.assign(this, options);
 	}
-	public _getTileUrl(x: number, y: number, z: number) {
+	public _convertXYZ(x: number, y: number, z: number) {
 		// https://blog.csdn.net/mygisforum/article/details/22997879
 		// 腾讯瓦片计算方法：URL = z  /  Math.Floor(x / 16.0)  / Math.Floor(y / 16.0) / x_y.png，其中x,y,z为TMS瓦片坐标参数。
 		this.sx = x >> 4;
 		this.sy = ((1 << z) - y) >> 4;
-		return super._getTileUrl(x, y, z);
+		return super._convertXYZ(x, y, z);
 	}
 }

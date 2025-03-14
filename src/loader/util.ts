@@ -31,7 +31,15 @@ export function getBoundsCoord(clipBounds: [number, number, number, number], tar
  * @param tile
  * @returns max tile url and bounds in  in maxTile
  */
-export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z: number) {
+export function getSafeTileUrlAndBounds(
+	source: ISource,
+	x: number,
+	y: number,
+	z: number,
+): {
+	url: string | undefined;
+	clipBounds: [number, number, number, number];
+} {
 	// 请求数据级别<最小级别返回空
 	if (z < source.minLevel) {
 		return {
@@ -41,7 +49,7 @@ export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z
 	}
 	// 请数据级别<最大级别返回图片uil已经全部图片范围
 	if (z <= source.maxLevel) {
-		const url = source._getTileUrl(x, y, z);
+		const url = source.getUrl(x, y, z);
 		// const box = new Box2(new Vector2(-0.5, -0.5), new Vector2(0.5, 0.5));
 		const clipBounds: [number, number, number, number] = [0, 0, 1, 1];
 		return {
@@ -53,11 +61,13 @@ export function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z
 	// 取出数据源最大级别瓦片和当前瓦片在最大瓦片中的位置
 	const maxLevelTileAndBox = getMaxLevelTileAndBounds(x, y, z, source.maxLevel);
 	// 取得瓦片的url
-	const url = source._getTileUrl(
+	const xyz = source._convertXYZ(
 		maxLevelTileAndBox.parentNO.x,
 		maxLevelTileAndBox.parentNO.y,
 		maxLevelTileAndBox.parentNO.z,
 	);
+
+	const url = source.getUrl(xyz.x, xyz.y, xyz.z);
 
 	return { url, clipBounds: maxLevelTileAndBox.bounds };
 }

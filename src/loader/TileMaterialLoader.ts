@@ -31,7 +31,8 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader {
 		if (!url) {
 			return material;
 		}
-		const texture = await this.doLoad(url, { x, y, z, clipBounds: clipBounds });
+		const xyz = source._convertXYZ(x, y, z);
+		const texture = await this.doLoad(url, { source, x: xyz.x, y: xyz.y, z: xyz.z, clipBounds: clipBounds });
 		material.setTexture(texture);
 		LoaderFactory.manager.parseEnd(url);
 		return material;

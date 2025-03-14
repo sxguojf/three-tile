@@ -26,8 +26,11 @@ export interface SourceOptions {
 	bounds?: [number, number, number, number];
 	/** Data Url template */
 	url?: string;
+
 	/** Url subdomains array or string */
 	subdomains?: string[] | string;
+	/** TMS */
+	isTMS?: boolean;
 }
 
 /**
@@ -58,14 +61,15 @@ export class TileSource implements ISource {
 	}
 
 	/**
-	 * Get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
+	 * Get url from tile coordinate, overwrite to custom generation tile url from xyz
 	 * @param x
 	 * @param y
 	 * @param z
 	 * @returns url
 	 */
-	protected getUrl(x: number, y: number, z: number): string | undefined {
-		const obj = { ...this, ...{ x, y, z } };
+	public getUrl(x: number, y: number, z: number): string | undefined {
+		const xyz = this._convertXYZ(x, y, z);
+		const obj = { ...this, ...xyz };
 		return strTemplate(this.url, obj);
 	}
 
@@ -74,9 +78,9 @@ export class TileSource implements ISource {
 	 * @param x
 	 * @param y
 	 * @param z
-	 * @returns url
+	 * @returns
 	 */
-	public _getTileUrl(x: number, y: number, z: number) {
+	public _convertXYZ(x: number, y: number, z: number): { x: number; y: number; z: number } {
 		// get subdomains random
 		const subLen = this.subdomains.length;
 		if (subLen > 0) {
@@ -87,7 +91,8 @@ export class TileSource implements ISource {
 		if (this.isTMS) {
 			reverseY = Math.pow(2, z) - 1 - y;
 		}
-		return this.getUrl(x, reverseY, z);
+		// const url = this.getUrl(x, reverseY, z);
+		return { x, y: reverseY, z };
 	}
 
 	public _getTileBounds(_x: number, _y: number, _z: number): [number, number, number, number] {

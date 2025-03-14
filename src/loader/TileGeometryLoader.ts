@@ -30,7 +30,7 @@ export abstract class TileGeometryLoader implements ITileGeometryLoader {
 		if (!url) {
 			return new TileGeometry();
 		}
-		const geometry = await this.doLoad(url, { x, y, z, clipBounds: clipBounds });
+		const geometry = await this.doLoad(url, { source, x, y, z, clipBounds: clipBounds });
 		LoaderFactory.manager.parseEnd(url);
 		return geometry;
 	}
