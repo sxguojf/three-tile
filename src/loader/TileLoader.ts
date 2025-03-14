@@ -14,15 +14,6 @@ import { LoaderFactory } from "./LoaderFactory";
  * Tile loader
  */
 export class TileLoader implements ITileLoader {
-	/** Get loader cache size of file  */
-	// public get cacheSize() {
-	// 	return CacheEx.size;
-	// }
-	// /** Set loader cache size of file  */
-	// public set cacheSize(value) {
-	// 	CacheEx.size = value;
-	// }
-
 	private _imgSource: ISource[] = [];
 	/** Get image source */
 	public get imgSource(): ISource[] {
@@ -64,12 +55,17 @@ export class TileLoader implements ITileLoader {
 	 * @param z z coordinate of tile
 	 * @returns Promise<MeshDateType> tile data
 	 */
-	public async load(x: number, y: number, z: number): Promise<MeshDateType> {
-		const geometry = await this.loadGeometry(x, y, z).catch((err) => {
+	public async load(
+		x: number,
+		y: number,
+		z: number,
+		tileBounds: [number, number, number, number],
+	): Promise<MeshDateType> {
+		const geometry = await this.loadGeometry(x, y, z, tileBounds).catch((err) => {
 			console.warn(`Tile terrain load error: (${x},${y},${z})`, err);
 			return new PlaneGeometry();
 		});
-		const materials = await this.loadMaterial(x, y, z).catch((err) => {
+		const materials = await this.loadMaterial(x, y, z, tileBounds).catch((err) => {
 			console.warn(`Tile Image load error: (${x},${y},${z})`, err);
 			return [];
 		});
@@ -90,11 +86,16 @@ export class TileLoader implements ITileLoader {
 	 * @param z z coordinate of tile
 	 * @returns BufferGeometry
 	 */
-	protected async loadGeometry(x: number, y: number, z: number): Promise<BufferGeometry> {
-		if (this.demSource && z >= this.demSource.minLevel && this._tileInBounds(x, y, z, this.demSource)) {
+	protected async loadGeometry(
+		x: number,
+		y: number,
+		z: number,
+		tileBounds: [number, number, number, number],
+	): Promise<BufferGeometry> {
+		if (this.demSource && z >= this.demSource.minLevel && this._tileBoundsInSource(this.demSource, tileBounds)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			loader.useWorker = this.useWorker;
-			return await loader.load(this.demSource, x, y, z);
+			return await loader.load(this.demSource, x, y, z, tileBounds);
 		} else {
 			return new PlaneGeometry();
 		}
@@ -107,9 +108,16 @@ export class TileLoader implements ITileLoader {
 	 * @param z z coordinate of tile
 	 * @returns Material[]
 	 */
-	protected async loadMaterial(x: number, y: number, z: number): Promise<Material[]> {
+	protected async loadMaterial(
+		x: number,
+		y: number,
+		z: number,
+		tileBounds: [number, number, number, number],
+	): Promise<Material[]> {
 		// get source in viewer
-		const sources = this.imgSource.filter((source) => z >= source.minLevel && this._tileInBounds(x, y, z, source));
+		const sources = this.imgSource.filter(
+			(source) => z >= source.minLevel && this._tileBoundsInSource(source, tileBounds),
+		);
 		if (sources.length === 0) {
 			return [];
 		}
@@ -117,29 +125,26 @@ export class TileLoader implements ITileLoader {
 		const materials = sources.map(async (source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			loader.useWorker = this.useWorker;
-			return await loader.load(source, x, y, z);
+			return await loader.load(source, x, y, z, tileBounds);
 		});
 		return Promise.all(materials);
 	}
 
 	/**
-	 * Check the tile is in the bounds
+	 * Check the tile is in the source bounds
 	 *
-	 * @param x x coordinate
-	 * @param y y coordinate
-	 * @param z z coordinate
 	 * @returns true in the bounds,else false
 	 */
-	private _tileInBounds(x: number, y: number, z: number, source: ISource): boolean {
-		const bounds = source._projectionBounds;
+	private _tileBoundsInSource(source: ISource, tilBounds: [number, number, number, number]): boolean {
+		const sourceBounds = source._projectionBounds;
 		// Get the bounds from tile xyz
-		const tileBounds = source._getTileBounds(x, y, z);
+		const tileBounds = tilBounds;
 
 		const inBounds = !(
-			tileBounds[2] < bounds[0] || // minx
-			tileBounds[3] < bounds[1] || // miny
-			tileBounds[0] > bounds[2] || // maxx
-			tileBounds[1] > bounds[3]
+			tileBounds[2] < sourceBounds[0] || // minx
+			tileBounds[3] < sourceBounds[1] || // miny
+			tileBounds[0] > sourceBounds[2] || // maxx
+			tileBounds[1] > sourceBounds[3]
 		);
 		return inBounds;
 	}

@@ -26,7 +26,6 @@ export interface SourceOptions {
 	bounds?: [number, number, number, number];
 	/** Data Url template */
 	url?: string;
-
 	/** Url subdomains array or string */
 	subdomains?: string[] | string;
 	/** TMS */
@@ -51,7 +50,7 @@ export class TileSource implements ISource {
 	//public bounds: [number, number, number, number] = [-180, -85.05112877980659, 180, 85.05112877980659];
 	public bounds: [number, number, number, number] = [-180, -85, 180, 85];
 	public _projectionBounds: [number, number, number, number] = [0, 0, 0, 0];
-	public useData: { [key: string]: any } = {};
+	public userData: { [key: string]: any } = {};
 	/**
 	 * constructor
 	 * @param options
@@ -93,10 +92,6 @@ export class TileSource implements ISource {
 		}
 		// const url = this.getUrl(x, reverseY, z);
 		return { x, y: reverseY, z };
-	}
-
-	public _getTileBounds(_x: number, _y: number, _z: number): [number, number, number, number] {
-		return [-Infinity, -Infinity, Infinity, Infinity];
 	}
 
 	/**

@@ -28,6 +28,6 @@
 		"src/plugin/PluginSDK.ts"
 	],
 	"exclude": [
-		"src/**/back"
+		"src/**/back/**"
 	]
 }

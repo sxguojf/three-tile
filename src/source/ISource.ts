@@ -30,10 +30,10 @@ export interface ISource {
 	bounds: [number, number, number, number];
 	/** Data bounds in Proejction, internal use */
 	_projectionBounds: [number, number, number, number];
+
 	getUrl(x: number, y: number, z: number): string | undefined;
 	/** Get url from xyz, internal use */
 	_convertXYZ: (x: number, y: number, z: number) => { x: number; y: number; z: number };
-	/** Get the tile bounds , internal use*/
-	_getTileBounds(x: number, y: number, z: number): [number, number, number, number];
-	useData: { [key: string]: any };
+
+	userData: { [key: string]: any };
 }

@@ -26,7 +26,13 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	 * @param tile 瓦片
 	 * @returns 材质
 	 */
-	public async load(source: ISource, x: number, y: number, z: number): Promise<Material> {
+	public async load(
+		source: ISource,
+		_x: number,
+		_y: number,
+		z: number,
+		tileBounds: [number, number, number, number],
+	): Promise<Material> {
 		const material = new TileMaterial({
 			transparent: true,
 			opacity: source.opacity,
@@ -41,24 +47,24 @@ export class SingleImageLoader implements ITileMaterialLoader {
 
 		// 如果图片已加载，则设置纹理后返回材质
 		if (this._image?.complete) {
-			this._setTexture(material, source, x, y, z);
+			this._setTexture(material, source, tileBounds);
 			return material;
 		}
 
 		// 加载纹理
 		this._image = await this._imageLoader.loadAsync(url);
-		this._setTexture(material, source, x, y, z);
+		this._setTexture(material, source, tileBounds);
 		return material;
 	}
 
-	private _setTexture(material: TileMaterial, source: ISource, x: number, y: number, z: number) {
-		const texture = this._getTileTexture(source, x, y, z);
+	private _setTexture(material: TileMaterial, source: ISource, tileBounds: [number, number, number, number]) {
+		const texture = this._getTileTexture(source, tileBounds);
 		// material.map = texture;
 		material.setTexture(texture);
 		texture.needsUpdate = true;
 	}
 
-	private _getTileTexture(source: ISource, x: number, y: number, z: number): Texture {
+	private _getTileTexture(source: ISource, tileBounds: [number, number, number, number]): Texture {
 		const sourceProj = source;
 		const tileSize = 256;
 		const canvas = new OffscreenCanvas(tileSize, tileSize);
@@ -66,7 +72,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		if (this._image) {
 			const ctx = canvas.getContext("2d")!;
 			const imageBounds = sourceProj._projectionBounds; // 图像投影坐标范围
-			const tileBounds = sourceProj._getTileBounds(x, y, z); // 瓦片投影坐标范围
+			// const tileBounds = sourceProj._getTileBounds(x, y, z); // 瓦片投影坐标范围
 
 			// if (sourceProj._tileInBounds(x, y, z)) {
 			const sizeX = this._image?.width || 256;

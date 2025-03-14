@@ -26,7 +26,7 @@ export interface ITileLoader {
 	/** @description: use worker? */
 	useWorker: boolean;
 	/** @description: load tile data */
-	load(x: number, y: number, z: number): Promise<MeshDateType>;
+	load(x: number, y: number, z: number, tileBounds?: [number, number, number, number]): Promise<MeshDateType>;
 }
 /** Tile loader info interface */
 export interface ITileLoaderInfo {
@@ -50,7 +50,13 @@ export interface ITileMaterialLoader extends ITileLoaderInfo {
 	 * @param z tile x condition
 	 * @returns {Material} tile Material
 	 */
-	load(source: ISource, x: number, y: number, z: number): Promise<Material>;
+	load(
+		source: ISource,
+		x: number,
+		y: number,
+		z: number,
+		tileBounds: [number, number, number, number],
+	): Promise<Material>;
 }
 
 /** geometry loader interface */
@@ -63,7 +69,13 @@ export interface ITileGeometryLoader extends ITileLoaderInfo {
 	 * @param z tile x condition
 	 * @returns {BufferGeometry} tile Geometry
 	 */
-	load(source: ISource, x: number, y: number, z: number): Promise<BufferGeometry>;
+	load(
+		source: ISource,
+		x: number,
+		y: number,
+		z: number,
+		tileBounds: [number, number, number, number],
+	): Promise<BufferGeometry>;
 }
 
 export type LoadParamsType = {

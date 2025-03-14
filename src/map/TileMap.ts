@@ -8,9 +8,10 @@ import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEvent
 import { ITileGeometryLoader, ITileLoader, ITileMaterialLoader, LoaderFactory, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
-import { SourceWithProjection } from "./SourceWithProjection";
+// import { SourceWithProjection } from "./SourceWithProjection";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
+import { TileMapLoader } from "./TileMapLoader";
 
 /**
  * TileMap Event Map
@@ -142,21 +143,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	}
 
 	/**
-	 * Get the number of download cache files.
-	 * 下载缓存文件数量
-	 */
-	// public get loadCacheSize() {
-	// 	return this.loader.cacheSize;
-	// }
-	// /**
-	//  * Set the number of  download cache files.
-	//  * 设置瓦片下载缓存文件数量。使用该属性限制缓存瓦片数量，较大的缓存能加快数据下载速度，但会增加内存使用量，一般取<1000。
-	//  */
-	// public set loadCacheSize(value) {
-	// 	this.loader.cacheSize = value;
-	// }
-
-	/**
 	 * Get central Meridian latidute
 	 * 取得中央子午线经度
 	 */
@@ -195,10 +181,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	private set projection(proj: IProjection) {
 		if (proj.ID != this.projection.ID || proj.lon0 != this.lon0) {
 			this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
-			this.imgSource.forEach((source) => (source.projection = proj));
-			if (this.demSource) {
-				this.demSource.projection = proj;
-			}
 			this._projection = proj;
 			this.reload();
 			// console.log("Map Projection Changed:", proj.ID, proj.lon0);
@@ -209,13 +191,13 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		}
 	}
 
-	private _imgSource: SourceWithProjection[] = [];
+	private _imgSource: ISource[] = [];
 
 	/**
 	 * Get the image data source object
 	 * 取得影像数据源
 	 */
-	public get imgSource(): SourceWithProjection[] {
+	public get imgSource(): ISource[] {
 		return this._imgSource;
 	}
 
@@ -225,35 +207,22 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public set imgSource(value: ISource | ISource[]) {
 		const sources = Array.isArray(value) ? value : [value];
-
 		if (sources.length === 0) {
 			throw new Error("imgSource can not be empty");
 		}
-
 		// 将第一个影像层的投影设置为地图投影
 		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
-
-		//用代理替换原数据源
-		const agentSource = sources.map((source) => {
-			if (source instanceof SourceWithProjection) {
-				return source;
-			} else {
-				return new SourceWithProjection(source, this.projection);
-			}
-		});
-
-		this._imgSource = agentSource;
-		this.loader.imgSource = agentSource;
-
+		this._imgSource = sources;
+		this.loader.imgSource = sources;
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
-	private _demSource: SourceWithProjection | undefined;
+	private _demSource: ISource | undefined;
 	/**
 	 * Get the terrain data source
 	 * 设置地形数据源
 	 */
-	public get demSource(): SourceWithProjection | undefined {
+	public get demSource(): ISource | undefined {
 		return this._demSource;
 	}
 
@@ -262,17 +231,8 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * 取得地形数据源
 	 */
 	public set demSource(value: ISource | undefined) {
-		if (value) {
-			if (value instanceof SourceWithProjection) {
-				this._demSource = value;
-			} else {
-				this._demSource = new SourceWithProjection(value, this.projection);
-			}
-		} else {
-			this._demSource = undefined;
-		}
+		this._demSource = value;
 		this.loader.demSource = this._demSource;
-
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -398,10 +358,11 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		const elapseTime = this._clock.getElapsedTime();
 		// 控制瓦片树更新速率 1/5 秒
 		if (elapseTime > 1 / 5) {
+			const loader = new TileMapLoader(this.loader, this.projection);
 			try {
 				this.rootTile.update({
 					camera,
-					loader: this.loader,
+					loader,
 					minLevel: this.minLevel,
 					maxLevel: this.maxLevel,
 					LODThreshold: this.LODThreshold,
@@ -410,7 +371,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 				this.rootTile.castShadow = this.castShadow;
 				this.rootTile.receiveShadow = this.receiveShadow;
 			} catch (e) {
-				console.error("Error on loading tile data.");
+				console.error("Error on loading tile data.", e);
 			}
 			this._clock.start();
 			this.dispatchEvent({ type: "update", delta: elapseTime });
