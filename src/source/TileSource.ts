@@ -66,9 +66,8 @@ export class TileSource implements ISource {
 	 * @param z
 	 * @returns url
 	 */
-	public getUrl(x: number, y: number, z: number): string | undefined {
-		const xyz = this._convertXYZ(x, y, z);
-		const obj = { ...this, ...xyz };
+	protected getUrl(x: number, y: number, z: number): string | undefined {
+		const obj = { ...this, ...{ x, y, z } };
 		return strTemplate(this.url, obj);
 	}
 
@@ -79,7 +78,7 @@ export class TileSource implements ISource {
 	 * @param z
 	 * @returns
 	 */
-	public _convertXYZ(x: number, y: number, z: number): { x: number; y: number; z: number } {
+	public _getUrl(x: number, y: number, z: number): string | undefined {
 		// get subdomains random
 		const subLen = this.subdomains.length;
 		if (subLen > 0) {
@@ -90,8 +89,7 @@ export class TileSource implements ISource {
 		if (this.isTMS) {
 			reverseY = Math.pow(2, z) - 1 - y;
 		}
-		// const url = this.getUrl(x, reverseY, z);
-		return { x, y: reverseY, z };
+		return this.getUrl(x, reverseY, z);
 	}
 
 	/**

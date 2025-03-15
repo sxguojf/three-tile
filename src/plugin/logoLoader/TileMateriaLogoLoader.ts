@@ -4,57 +4,31 @@
  *@date: 2023-04-05
  */
 
-import { CanvasTexture, Material, MeshBasicMaterial } from "three";
-import { ITileMaterialLoader } from "../../loader";
+import { TileCanvasLoader } from "../../loader";
 import { ISource } from "../../source";
 
 /**
  * LOGO tile Material loader
  */
-export class TileMaterialLogoLoader implements ITileMaterialLoader {
-	public readonly dataType: string = "logo";
-	public description = "Logo Material loader. It will draw logo on the tile.";
-	private _texture: CanvasTexture | null = null;
-	private _cachedLogo: string | null = null;
+export class TileMaterialLogoLoader extends TileCanvasLoader {
+	public readonly info = {
+		description: "Tile debug image loader. It will draw a rectangle and coordinate on the tile.",
+	};
 
-	/**
-	 * 加载材质
-	 * @param source 数据源
-	 * @param _y 瓦片的Y坐标
-	 * @param _y 瓦片的y坐标
-	 * @param z 瓦片的z坐标
-	 * @param tile 瓦片
-	 * @returns {MeshBasicMaterial} 材质
-	 * @returns 材质
-	 */
-	public async load(source: ISource, _x: number, _y: number, z: number): Promise<Material> {
-		// 瓦片级别<4不绘制logo
-		if (z < 4) {
-			return new MeshBasicMaterial();
-		}
-
-		// 绘制logo图
-		if (!this._texture || this._cachedLogo !== source.attribution) {
-			this._texture = new CanvasTexture(this.drawLogo(source.attribution));
-			this._texture.needsUpdate = true;
-			this._cachedLogo = source.attribution;
-		}
-
-		const material = new MeshBasicMaterial({
-			transparent: true,
-			map: this._texture,
-			opacity: source.opacity,
-		});
-
-		return material;
-	}
+	public dataType: string = "logo";
 
 	/**
 	 * draw LOGO
 	 * @param {string} logo - text
 	 * @returns {ImageBitmap} bitmap
 	 */
-	public drawLogo(logo: string) {
+	protected drawTile(
+		source: ISource,
+		_x: number,
+		_y: number,
+		_z: number,
+		_tileBounds: [number, number, number, number],
+	): TexImageSource | OffscreenCanvas {
 		const size = 256;
 		const canvas = new OffscreenCanvas(size, size);
 		const ctx = canvas.getContext("2d");
@@ -70,7 +44,7 @@ export class TileMaterialLogoLoader implements ITileMaterialLoader {
 			ctx.textAlign = "center";
 			ctx.translate(size / 2, size / 2);
 			ctx.rotate((30 * Math.PI) / 180);
-			ctx.fillText(`${logo}`, 0, 0);
+			ctx.fillText(`${source.attribution}`, 0, 0);
 		}
 		return canvas.transferToImageBitmap();
 	}

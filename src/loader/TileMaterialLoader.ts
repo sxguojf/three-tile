@@ -5,16 +5,19 @@
  */
 
 import { Material, Texture } from "three";
-import { ITileMaterialLoader, LoadParamsType } from ".";
+import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
 import { TileMaterial } from "../material";
-import { ISource } from "../source";
-import { getSafeTileUrlAndBounds } from "./util";
 import { LoaderFactory } from "./LoaderFactory";
+import { getSafeTileUrlAndBounds } from "./util";
 
 /**
  * Image loader base calss
  */
 export abstract class TileMaterialLoader implements ITileMaterialLoader {
+	public info = {
+		description: "Image loader base class",
+	};
+
 	public dataType = "";
 	public useWorker = true;
 
@@ -24,15 +27,15 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader {
 	 * @param tile
 	 * @returns
 	 */
-	public async load(source: ISource, x: number, y: number, z: number): Promise<Material> {
+	public async load(params: TileSourceLoadParamsType): Promise<Material> {
+		const { source, x, y, z } = params;
 		const material = new TileMaterial();
 		// get max level tile and bounds
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (!url) {
 			return material;
 		}
-		const xyz = source._convertXYZ(x, y, z);
-		const texture = await this.doLoad(url, { source, x: xyz.x, y: xyz.y, z: xyz.z, clipBounds: clipBounds });
+		const texture = await this.doLoad(url, { source, x, y, z, bounds: clipBounds });
 		material.setTexture(texture);
 		LoaderFactory.manager.parseEnd(url);
 		return material;
@@ -43,5 +46,5 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader {
 	 * @param url url
 	 * @returns {Promise<TBuffer>} the buffer of download data
 	 */
-	protected abstract doLoad(url: string, params: LoadParamsType): Promise<Texture>;
+	protected abstract doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture>;
 }

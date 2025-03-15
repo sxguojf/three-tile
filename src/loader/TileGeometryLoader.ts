@@ -5,9 +5,8 @@
  */
 
 import { BufferGeometry } from "three";
-import { ITileGeometryLoader, LoadParamsType } from ".";
+import { ITileGeometryLoader, ITileLoaderInfo, TileSourceLoadParamsType } from ".";
 import { TileGeometry } from "../geometry";
-import { ISource } from "../source";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndBounds } from "./util";
 
@@ -15,6 +14,10 @@ import { getSafeTileUrlAndBounds } from "./util";
  * Terrain loader base calss
  */
 export abstract class TileGeometryLoader implements ITileGeometryLoader {
+	public info: ITileLoaderInfo = {
+		description: "Terrain loader base class",
+	};
+
 	public dataType = "";
 	public useWorker = true;
 
@@ -25,12 +28,13 @@ export abstract class TileGeometryLoader implements ITileGeometryLoader {
 	 * @param onError
 	 * @returns
 	 */
-	public async load(source: ISource, x: number, y: number, z: number): Promise<BufferGeometry> {
+	public async load(params: TileSourceLoadParamsType): Promise<BufferGeometry> {
+		const { source, x, y, z } = params;
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (!url) {
 			return new TileGeometry();
 		}
-		const geometry = await this.doLoad(url, { source, x, y, z, clipBounds: clipBounds });
+		const geometry = await this.doLoad(url, { source, x, y, z, bounds: clipBounds });
 		LoaderFactory.manager.parseEnd(url);
 		return geometry;
 	}
@@ -39,21 +43,5 @@ export abstract class TileGeometryLoader implements ITileGeometryLoader {
 	 * Download terrain data
 	 * @param url url
 	 */
-	protected abstract doLoad(url: string, params: LoadParamsType): Promise<BufferGeometry>;
-
-	/**
-	 * Parse the buffer data to geometry data
-	 * @param buffer the data of download
-	 * @param x tile x condition
-	 * @param y tile y condition
-	 * @param z tile z condition
-	 * @param clipBounds the bounds of it parent
-	 */
-	// protected abstract doPrase(
-	// 	buffer: TBuffer,
-	// 	x: number,
-	// 	y: number,
-	// 	z: number,
-	// 	clipBounds: [number, number, number, number],
-	// ): Promise<GeometryDataType | Float32Array>;
+	protected abstract doLoad(url: string, params: TileSourceLoadParamsType): Promise<BufferGeometry>;
 }

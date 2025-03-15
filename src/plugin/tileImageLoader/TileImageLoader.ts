@@ -1,12 +1,15 @@
 import { ImageLoader, SRGBColorSpace, Texture } from "three";
-import { getBoundsCoord, LoaderFactory, LoadParamsType, TileMaterialLoader } from "../../loader";
+import { getBoundsCoord, LoaderFactory, TileSourceLoadParamsType, TileMaterialLoader } from "../../loader";
 
 /**
  * Tile image loader
  */
 export class TileImageLoader extends TileMaterialLoader {
+	public readonly info = {
+		description: "Tile image loader. It can load xyz tile image.",
+	};
+
 	public dataType = "image";
-	public discription = "Tile image loader. It can load xyz tile image.";
 
 	private loader = new ImageLoader(LoaderFactory.manager);
 
@@ -17,11 +20,11 @@ export class TileImageLoader extends TileMaterialLoader {
 	 * @param params 加载参数，包括x, y, z坐标和裁剪边界clipBounds
 	 * @returns 返回一个Promise对象，解析为HTMLImageElement类型。
 	 */
-	protected async doLoad(url: string, params: LoadParamsType): Promise<Texture> {
+	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture> {
 		const img = await this.loader.loadAsync(url);
 		const texture = new Texture();
 		texture.colorSpace = SRGBColorSpace;
-		const { clipBounds } = params;
+		const { bounds: clipBounds } = params;
 		// 是否需要剪裁
 		if (clipBounds[2] - clipBounds[0] < 1) {
 			texture.image = getSubImage(img, clipBounds);

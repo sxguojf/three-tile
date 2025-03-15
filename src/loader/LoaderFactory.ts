@@ -35,9 +35,9 @@ export const LoaderFactory = {
 	 * @param loader material loader
 	 */
 	registerMaterialLoader(loader: ITileMaterialLoader) {
-		loader.author = loader.author ?? author.name;
 		LoaderFactory.imgLoaderMap.set(loader.dataType, loader);
-		console.log(`* Register imageLoader: '${loader.dataType}', Author: '${loader.author}'`);
+		loader.info.author = loader.info.author ?? author.name;
+		console.log(`* Register imageLoader: '${loader.dataType}', Author: '${loader.info.author}'`);
 	},
 
 	/**
@@ -45,9 +45,9 @@ export const LoaderFactory = {
 	 * @param loader geometry loader
 	 */
 	registerGeometryLoader(loader: ITileGeometryLoader) {
-		loader.author = loader.author ?? author.name;
 		LoaderFactory.demLoaderMap.set(loader.dataType, loader);
-		console.log(`* Register terrainLoader: '${loader.dataType}', Author: '${loader.author}'`);
+		loader.info.author = loader.info.author ?? author.name;
+		console.log(`* Register terrainLoader: '${loader.dataType}', Author: '${loader.info.author}'`);
 	},
 
 	/**
@@ -81,11 +81,13 @@ export const LoaderFactory = {
 	getLoadersInfo() {
 		const imgLoaders = Array.from(this.imgLoaderMap.values()).map((loader) => ({
 			category: "image",
-			loader,
+			dataType: loader.dataType,
+			info: loader.info,
 		}));
 		const demLoaders = Array.from(this.demLoaderMap.values()).map((loader) => ({
 			category: "terrain",
-			loader,
+			dataType: loader.dataType,
+			info: loader.info,
 		}));
 		return [...imgLoaders, ...demLoaders];
 	},

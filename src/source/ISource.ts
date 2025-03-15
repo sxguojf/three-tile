@@ -31,9 +31,9 @@ export interface ISource {
 	/** Data bounds in Proejction, internal use */
 	_projectionBounds: [number, number, number, number];
 
-	getUrl(x: number, y: number, z: number): string | undefined;
+	// getUrl(x: number, y: number, z: number): string | undefined;
 	/** Get url from xyz, internal use */
-	_convertXYZ: (x: number, y: number, z: number) => { x: number; y: number; z: number };
+	_getUrl(x: number, y: number, z: number): string | undefined;
 
 	userData: { [key: string]: any };
 }

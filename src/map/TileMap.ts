@@ -109,6 +109,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * 地图数据加载器
 	 */
 	public readonly loader: ITileLoader;
+	public readonly _loader = new TileMapLoader();
 
 	private _minLevel = 2;
 	/**
@@ -358,11 +359,11 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		const elapseTime = this._clock.getElapsedTime();
 		// 控制瓦片树更新速率 1/5 秒
 		if (elapseTime > 1 / 5) {
-			const loader = new TileMapLoader(this.loader, this.projection);
+			this._loader.attcth(this.loader, this.projection);
 			try {
 				this.rootTile.update({
 					camera,
-					loader,
+					loader: this._loader,
 					minLevel: this.minLevel,
 					maxLevel: this.maxLevel,
 					LODThreshold: this.LODThreshold,

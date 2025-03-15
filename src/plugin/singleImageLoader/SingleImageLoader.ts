@@ -5,7 +5,7 @@
  */
 
 import { ImageLoader, Material, SRGBColorSpace, Texture } from "three";
-import { ITileMaterialLoader, LoaderFactory } from "../../loader";
+import { ITileMaterialLoader, LoaderFactory, TileSourceLoadParamsType } from "../../loader";
 import { TileMaterial } from "../../material";
 import { ISource } from "../../source";
 
@@ -13,10 +13,13 @@ import { ISource } from "../../source";
  * Single image Material loader
  */
 export class SingleImageLoader implements ITileMaterialLoader {
-	public readonly dataType: string = "single-image";
-	public discription = "Single image loader. It can load an picture and Stick to the ground.";
+	public readonly info = {
+		description: "Single image loader. It can load single image to bounds and stick to the ground.",
+	};
 
-	private _image?: HTMLImageElement | undefined;
+	public readonly dataType: string = "single-image";
+
+	// private _image?: HTMLImageElement | undefined;
 
 	private _imageLoader = new ImageLoader(LoaderFactory.manager);
 
@@ -26,60 +29,64 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	 * @param tile 瓦片
 	 * @returns 材质
 	 */
-	public async load(
-		source: ISource,
-		_x: number,
-		_y: number,
-		z: number,
-		tileBounds: [number, number, number, number],
-	): Promise<Material> {
+	public async load(params: TileSourceLoadParamsType): Promise<Material> {
+		const { source, bounds, z } = params;
+
 		const material = new TileMaterial({
 			transparent: true,
 			opacity: source.opacity,
 		});
 
-		const url = source.getUrl(0, 0, 0);
+		const url = source._getUrl(0, 0, 0);
 
 		// 请求的瓦片不在数据源范围内或没有url，直接返回材质
 		if (z < source.minLevel || z > source.maxLevel || !url) {
 			return material;
 		}
 
+		const image = source.userData.image;
+
 		// 如果图片已加载，则设置纹理后返回材质
-		if (this._image?.complete) {
-			this._setTexture(material, source, tileBounds);
+		if (image?.complete) {
+			this._setTexture(material, image, source, bounds);
 			return material;
 		}
 
 		// 加载纹理
-		this._image = await this._imageLoader.loadAsync(url);
-		this._setTexture(material, source, tileBounds);
+		source.userData.image = await this._imageLoader.loadAsync(url);
+		this._setTexture(material, image, source, bounds);
 		return material;
 	}
 
-	private _setTexture(material: TileMaterial, source: ISource, tileBounds: [number, number, number, number]) {
-		const texture = this._getTileTexture(source, tileBounds);
-		// material.map = texture;
+	private _setTexture(
+		material: TileMaterial,
+		image: HTMLImageElement,
+		source: ISource,
+		tileBounds: [number, number, number, number],
+	) {
+		const texture = this._getTileTexture(image, source, tileBounds);
 		material.setTexture(texture);
 		texture.needsUpdate = true;
 	}
 
-	private _getTileTexture(source: ISource, tileBounds: [number, number, number, number]): Texture {
+	private _getTileTexture(
+		image: HTMLImageElement,
+		source: ISource,
+		tileBounds: [number, number, number, number],
+	): Texture {
 		const sourceProj = source;
 		const tileSize = 256;
 		const canvas = new OffscreenCanvas(tileSize, tileSize);
 
-		if (this._image) {
+		if (image) {
 			const ctx = canvas.getContext("2d")!;
 			const imageBounds = sourceProj._projectionBounds; // 图像投影坐标范围
-			// const tileBounds = sourceProj._getTileBounds(x, y, z); // 瓦片投影坐标范围
 
-			// if (sourceProj._tileInBounds(x, y, z)) {
-			const sizeX = this._image?.width || 256;
-			const sizeY = this._image?.height || 256;
+			const width = image.width;
+			const height = image.height;
 
-			const scaleX = (imageBounds[2] - imageBounds[0]) / sizeX;
-			const scaleY = (imageBounds[3] - imageBounds[1]) / sizeY;
+			const scaleX = (imageBounds[2] - imageBounds[0]) / width;
+			const scaleY = (imageBounds[3] - imageBounds[1]) / height;
 
 			const sx = (tileBounds[0] - imageBounds[0]) / scaleX;
 			const sy = (imageBounds[3] - tileBounds[3]) / scaleY;
@@ -87,7 +94,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 			const swidth = (tileBounds[2] - tileBounds[0]) / scaleX;
 			const sheight = (tileBounds[3] - tileBounds[1]) / scaleY;
 
-			ctx.drawImage(this._image, sx, sy, swidth, sheight, 0, 0, tileSize, tileSize);
+			ctx.drawImage(image, sx, sy, swidth, sheight, 0, 0, tileSize, tileSize);
 		}
 
 		const texture = new Texture(canvas);

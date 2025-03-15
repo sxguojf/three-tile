@@ -4,36 +4,36 @@
  *@date: 2023-04-06
  */
 
-import { CanvasTexture } from "three";
-import { ITileMaterialLoader } from "../../loader/ITileLoaders";
-import { TileMaterial } from "../../material";
+import { TileCanvasLoader } from "../../loader/TileCanvasLoader";
 import { ISource } from "../../source";
 
 /**
- * Debug material laoder, Tt draw a rectangle and coordinate on the tile
+ * Debug material laoder, it draw a rectangle and coordinate on the tile
  */
-export class TileMaterialDebugeLoader implements ITileMaterialLoader {
-	public readonly dataType: string = "debug";
-	public useWorker = false;
-	public discription = "Tile debug image loader. It will draw a rectangle and coordinate on the tile.";
+export class TileMaterialDebugeLoader extends TileCanvasLoader {
+	/** Loader info */
+	public readonly info = {
+		description: "Tile debug image loader. It will draw a rectangle and coordinate on the tile.",
+	};
 
-	public async load(source: ISource, x: number, y: number, z: number): Promise<TileMaterial> {
-		const texture = new CanvasTexture(this.drawTile(x, y, z));
-		texture.needsUpdate = true;
-		const material = new TileMaterial({
-			transparent: true,
-			map: texture,
-			opacity: source.opacity,
-		});
-		return material;
-	}
+	/** Source data type */
+	public readonly dataType = "debug";
 
 	/**
-	 * draw a box and coordiante
-	 * @param tile
-	 * @returns bitmap
+	 * @param source Tile source
+	 * @param x Tile x coordinate
+	 * @param y Tile y coordinate
+	 * @param z Tile z coordinate
+	 * @param tileBounds Tile bounds in projection coordinate system. [minX, minY, maxX, maxY]
+	 * @returns Canvas
 	 */
-	public drawTile(x: number, y: number, z: number) {
+	protected drawTile(
+		_source: ISource,
+		x: number,
+		y: number,
+		z: number,
+		tileBounds: [number, number, number, number],
+	) {
 		const size = 256;
 		const canvas = new OffscreenCanvas(size, size);
 		const ctx = canvas.getContext("2d")!;
@@ -50,8 +50,12 @@ export class TileMaterialDebugeLoader implements ITileMaterialLoader {
 			ctx.shadowOffsetY = 1;
 			ctx.font = "bold 20px arial";
 			ctx.textAlign = "center";
-			ctx.fillText(`Tile Test - level: ${z}`, size / 2, 50);
+			ctx.fillText(`Level: ${z}`, size / 2, 50);
 			ctx.fillText(`[${x}, ${y}]`, size / 2, 80);
+
+			ctx.font = "16px arial";
+			ctx.fillText(`[${tileBounds[0].toFixed(3)}, ${tileBounds[1].toFixed(3)}]`, size / 2, size - 50);
+			ctx.fillText(`[${tileBounds[2].toFixed(3)}, ${tileBounds[3].toFixed(3)}]`, size / 2, size - 30);
 		}
 		return canvas.transferToImageBitmap();
 	}

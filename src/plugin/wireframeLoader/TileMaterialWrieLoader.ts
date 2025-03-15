@@ -5,23 +5,25 @@
  */
 
 import { Color, Material, MeshBasicMaterial } from "three";
-import { ITileMaterialLoader } from "../../loader";
-import { ISource } from "../../source";
+import { ITileMaterialLoader, TileSourceLoadParamsType } from "../../loader";
 
 /**
  * Wireframe material loader
  */
 export class TileMaterialWrieLoader implements ITileMaterialLoader {
-	public readonly dataType: string = "wireframe";
-	public discription = "Tile wireframe material loader.";
+	public readonly info = {
+		description: "Tile wireframe material loader.",
+	};
 
-	public async load(source: ISource, _x: number, _y: number, z: number): Promise<Material> {
-		const color = new Color(`hsl(${z * 14}, 100%, 50%)`);
+	public readonly dataType: string = "wireframe";
+
+	public async load(params: TileSourceLoadParamsType): Promise<Material> {
+		const color = new Color(`hsl(${params.z * 14}, 100%, 50%)`);
 		const material = new MeshBasicMaterial({
 			transparent: true,
 			wireframe: true,
 			color,
-			opacity: source.opacity,
+			opacity: params.source.opacity,
 			depthTest: false,
 		});
 		return material;

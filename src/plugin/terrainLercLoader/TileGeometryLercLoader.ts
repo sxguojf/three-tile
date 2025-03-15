@@ -6,7 +6,7 @@
 
 import { BufferGeometry, FileLoader } from "three";
 import { TileGeometry } from "../../geometry";
-import { LoaderFactory, LoadParamsType, TileGeometryLoader } from "../../loader";
+import { LoaderFactory, TileSourceLoadParamsType, TileGeometryLoader } from "../../loader";
 
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool";
 import * as Lerc from "./lercDecode/LercDecode.es";
@@ -23,8 +23,11 @@ const THREADSNUM = 10;
  * @link https://github.com/Esri/lerc
  */
 export class TileGeometryLercLoader extends TileGeometryLoader {
+	public readonly info = {
+		description: "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.",
+	};
+
 	public readonly dataType = "lerc";
-	public discription = "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.";
 	// 图像加载器
 	private fileLoader = new FileLoader(LoaderFactory.manager);
 	private _workerPool: WorkerPool = new WorkerPool(0);
@@ -65,13 +68,13 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	 * @param params 解析参数，包含瓦片xyz和裁剪边界clipBounds
 	 * @returns 返回解析后的BufferGeometry对象
 	 */
-	protected async doLoad(url: string, params: LoadParamsType): Promise<BufferGeometry> {
+	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<BufferGeometry> {
 		// 下载数据
 		const buffer: ArrayBuffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
 		// 解码数据
 		const decodedData = await this.decode(buffer);
 		// 取得瓦片层级和剪裁范围
-		const { z, clipBounds } = params;
+		const { z, bounds } = params;
 		let geoData;
 
 		if (this.useWorker) {
@@ -80,13 +83,13 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 			}
 			// 解析取得几何体数据
 			geoData = (
-				await this._workerPool.postMessage({ demData: decodedData, z, clipBounds }, [
+				await this._workerPool.postMessage({ demData: decodedData, z, clipBounds: bounds }, [
 					decodedData.demArray.buffer,
 				])
 			).data;
 		} else {
 			// 解析取得几何体数据
-			geoData = parse(decodedData, z, clipBounds);
+			geoData = parse(decodedData, z, bounds);
 		}
 		// 创建瓦片几何体对象
 		const geometry = new TileGeometry();

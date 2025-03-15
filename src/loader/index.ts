@@ -25,3 +25,5 @@ export * from "./TileTextureLoader";
 export * from "./TileGeometryLoader";
 // tile material loader base class
 export * from "./TileMaterialLoader";
+
+export * from "./TileCanvasLoader";

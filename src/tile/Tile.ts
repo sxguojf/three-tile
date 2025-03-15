@@ -267,7 +267,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			Tile._downloadThreads++;
 			const { x, y, z } = this;
 			// Dwonload tile data
-			loader.load(x, y, z).then((meshData) => {
+			loader.load({ x, y, z, bounds: [-Infinity, -Infinity, Infinity, Infinity] }).then((meshData) => {
 				Tile._downloadThreads--;
 				this.material = meshData.materials;
 				this.geometry = meshData.geometry;

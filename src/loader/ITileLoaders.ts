@@ -8,9 +8,32 @@ import { BufferGeometry, Material } from "three";
 import { ISource } from "../source";
 import { TileLoadingManager } from "./LoaderFactory";
 
+/** Tile mesh data type */
 export type MeshDateType = {
 	materials: Material[];
 	geometry: BufferGeometry;
+};
+
+/**
+ * @description: tile load params type
+ */
+export type TileLoadParamsType = {
+	/** Tile x coordinate */
+	x: number;
+	/** Tile y coordinate */
+	y: number;
+	/** Tile z coordinate */
+	z: number;
+	/** Tile bounds */
+	bounds: [number, number, number, number];
+};
+
+/**
+ * @description: tile load params type
+ */
+export type TileSourceLoadParamsType = TileLoadParamsType & {
+	/** Tile data source  */
+	source: ISource;
 };
 
 /** Tile loader interface */
@@ -26,62 +49,35 @@ export interface ITileLoader {
 	/** @description: use worker? */
 	useWorker: boolean;
 	/** @description: load tile data */
-	load(x: number, y: number, z: number, tileBounds?: [number, number, number, number]): Promise<MeshDateType>;
+	load(params: TileLoadParamsType): Promise<MeshDateType>;
 }
+
 /** Tile loader info interface */
 export interface ITileLoaderInfo {
+	/** @description: loader author */
+	author?: string;
+	/** @description: loader description */
+	description?: string;
+}
+
+/**  Material loader interface */
+export interface ITileMaterialLoader {
+	info: ITileLoaderInfo;
 	/** @description: tile data type */
 	dataType: string;
 	/** @description: use workere */
 	useWorker?: boolean;
-	/** @description: loader author */
-	author?: string;
-	/** @description: loader discription */
-	discription?: string;
-}
-
-/**  Material loader interface */
-export interface ITileMaterialLoader extends ITileLoaderInfo {
-	/**
-	 * @description: load tile material data
-	 * @param source source data info
-	 * @param x tile x condition
-	 * @param y tile x condition
-	 * @param z tile x condition
-	 * @returns {Material} tile Material
-	 */
-	load(
-		source: ISource,
-		x: number,
-		y: number,
-		z: number,
-		tileBounds: [number, number, number, number],
-	): Promise<Material>;
+	/** Load image data from source */
+	load(params: TileSourceLoadParamsType): Promise<Material>;
 }
 
 /** geometry loader interface */
-export interface ITileGeometryLoader extends ITileLoaderInfo {
-	/**
-	 * @description: load tile geometry data
-	 * @param source source data info
-	 * @param x tile x condition
-	 * @param y tile x condition
-	 * @param z tile x condition
-	 * @returns {BufferGeometry} tile Geometry
-	 */
-	load(
-		source: ISource,
-		x: number,
-		y: number,
-		z: number,
-		tileBounds: [number, number, number, number],
-	): Promise<BufferGeometry>;
+export interface ITileGeometryLoader {
+	info: ITileLoaderInfo;
+	/** tile data type */
+	dataType: string;
+	/** use workere */
+	useWorker?: boolean;
+	/** Load terrain data from source */
+	load(params: TileSourceLoadParamsType): Promise<BufferGeometry>;
 }
-
-export type LoadParamsType = {
-	source: ISource;
-	x: number;
-	y: number;
-	z: number;
-	clipBounds: [number, number, number, number];
-};
