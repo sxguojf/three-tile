@@ -1,83 +1,82 @@
 /**
- *@description: Tile loader interface
- *@author: 郭江峰
- *@date: 2023-04-06
+ * Tile Loader Interface
+ * @author: 郭江峰
+ * @date: 2023-04-06
  */
 
 import { BufferGeometry, Material } from "three";
 import { ISource } from "../source";
 import { TileLoadingManager } from "./LoaderFactory";
 
-/** Tile mesh data type */
+/** Tile Mesh Data Type */
 export type MeshDateType = {
 	materials: Material[];
 	geometry: BufferGeometry;
 };
 
 /**
- * @description: tile load params type
+ * Tile Load Params Type
  */
 export type TileLoadParamsType = {
-	/** Tile x coordinate */
+	/** Tile X Coordinate */
 	x: number;
-	/** Tile y coordinate */
+	/** Tile Y Coordinate */
 	y: number;
-	/** Tile z coordinate */
+	/** Tile Z Coordinate */
 	z: number;
-	/** Tile bounds */
+	/** Tile Bounds */
 	bounds: [number, number, number, number];
 };
 
 /**
- * @description: tile load params type
+ * Tile Source Load Params Type
  */
 export type TileSourceLoadParamsType = TileLoadParamsType & {
-	/** Tile data source  */
+	/** Tile Data Source */
 	source: ISource;
 };
 
-/** Tile loader interface */
+/** Tile Loader Interface */
 export interface ITileLoader {
-	/** @description: load tile data */
+	/** Load Tile Data */
 	manager: TileLoadingManager;
-	/** @description: image loader */
+	/** Image Loader */
 	imgSource: ISource[];
-	/** @description: terrain loader */
+	/** Terrain Loader */
 	demSource: ISource | undefined;
-	/** @description: data cache size */
-	// cacheSize: number;
-	/** @description: use worker? */
+	/** Use Worker? */
 	useWorker: boolean;
-	/** @description: load tile data */
+	/** Load Tile Data */
 	load(params: TileLoadParamsType): Promise<MeshDateType>;
 }
 
-/** Tile loader info interface */
+/** Tile Loader Info Interface */
 export interface ITileLoaderInfo {
-	/** @description: loader author */
+	/** Loader Author */
 	author?: string;
-	/** @description: loader description */
+	/** Loader Description */
 	description?: string;
 }
 
-/**  Material loader interface */
+/** Material Loader Interface */
 export interface ITileMaterialLoader {
 	info: ITileLoaderInfo;
-	/** @description: tile data type */
+	/** Tile Data Type */
 	dataType: string;
-	/** @description: use workere */
+	/** Use Worker? */
 	useWorker?: boolean;
-	/** Load image data from source */
+	/** Load Image Data From Source */
 	load(params: TileSourceLoadParamsType): Promise<Material>;
 }
 
-/** geometry loader interface */
+/** Geometry Loader Interface */
 export interface ITileGeometryLoader {
+	/** Loader Info */
 	info: ITileLoaderInfo;
-	/** tile data type */
+	/** Tile Data Type */
 	dataType: string;
-	/** use workere */
+	/** Use Worker? */
 	useWorker?: boolean;
-	/** Load terrain data from source */
+	/** Load Terrain Data From Source */
 	load(params: TileSourceLoadParamsType): Promise<BufferGeometry>;
 }

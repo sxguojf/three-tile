@@ -4,8 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { TileCanvasLoader } from "../../loader";
-import { ISource } from "../../source";
+import { TileCanvasLoader, TileSourceLoadParamsType } from "../../loader";
 
 /**
  * LOGO tile Material loader
@@ -18,34 +17,20 @@ export class TileMaterialLogoLoader extends TileCanvasLoader {
 	public dataType: string = "logo";
 
 	/**
-	 * draw LOGO
-	 * @param {string} logo - text
-	 * @returns {ImageBitmap} bitmap
+	 * Draw tile on canvas
+	 * @param ctx Tile canvas context
+	 * @param params Tile load params
 	 */
-	protected drawTile(
-		source: ISource,
-		_x: number,
-		_y: number,
-		_z: number,
-		_tileBounds: [number, number, number, number],
-	): TexImageSource | OffscreenCanvas {
-		const size = 256;
-		const canvas = new OffscreenCanvas(size, size);
-		const ctx = canvas.getContext("2d");
-		if (ctx) {
-			ctx.scale(1, -1);
-			ctx.translate(0, -size);
-			ctx.fillStyle = "white";
-			ctx.shadowColor = "black";
-			ctx.shadowBlur = 5;
-			ctx.shadowOffsetX = 1;
-			ctx.shadowOffsetY = 1;
-			ctx.font = "bold 14px arial";
-			ctx.textAlign = "center";
-			ctx.translate(size / 2, size / 2);
-			ctx.rotate((30 * Math.PI) / 180);
-			ctx.fillText(`${source.attribution}`, 0, 0);
-		}
-		return canvas.transferToImageBitmap();
+	protected drawTile(ctx: OffscreenCanvasRenderingContext2D, params: TileSourceLoadParamsType) {
+		ctx.fillStyle = "white";
+		ctx.shadowColor = "black";
+		ctx.shadowBlur = 5;
+		ctx.shadowOffsetX = 1;
+		ctx.shadowOffsetY = 1;
+		ctx.font = "bold 14px arial";
+		ctx.textAlign = "center";
+		ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+		ctx.rotate((30 * Math.PI) / 180);
+		ctx.fillText(`${params.source.attribution}`, 0, 0);
 	}
 }
