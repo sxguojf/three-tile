@@ -8,7 +8,6 @@ import { BufferGeometry, Material, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { ITileLoader, MeshDateType, TileLoadParamsType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
-// import { CacheEx } from "./CacheEx";
 
 /**
  * Tile loader
@@ -110,7 +109,6 @@ export class TileLoader implements ITileLoader {
 		z: number,
 		bounds: [number, number, number, number],
 	): Promise<Material[]> {
-		// const { x, y, z, bounds } = params;
 		// get source in viewer
 		const sources = this.imgSource.filter(
 			(source) => z >= source.minLevel && this._isBoundsInSource(source, bounds),
@@ -130,17 +128,16 @@ export class TileLoader implements ITileLoader {
 
 	/**
 	 * Check the tile is in the source bounds
-	 *
 	 * @returns true in the bounds,else false
 	 */
 	private _isBoundsInSource(source: ISource, bounds: [number, number, number, number]): boolean {
 		const sourceBounds = source._projectionBounds;
 		const inBounds = !(
-			bounds[2] < sourceBounds[0] || // minx
-			bounds[3] < sourceBounds[1] || // miny
-			bounds[0] > sourceBounds[2] || // maxx
+			bounds[2] < sourceBounds[0] ||
+			bounds[3] < sourceBounds[1] ||
+			bounds[0] > sourceBounds[2] ||
 			bounds[1] > sourceBounds[3]
-		);
+		); //[minx, miny, maxx, maxy]
 		return inBounds;
 	}
 }

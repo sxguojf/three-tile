@@ -22,7 +22,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader {
 	public useWorker = true;
 
 	/**
-	 * load tile's data from source
+	 * Load tile data from source
 	 * @param source
 	 * @param tile
 	 * @returns

@@ -10,7 +10,9 @@ import { TileLoadingManager } from "./LoaderFactory";
 
 /** Tile Mesh Data Type */
 export type MeshDateType = {
+	/** Tile materials */
 	materials: Material[];
+	/** Tile geometry */
 	geometry: BufferGeometry;
 };
 
