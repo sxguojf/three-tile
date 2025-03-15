@@ -90,13 +90,18 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 	// 是否为LOD模型（LOD模型，当autoUpdate为真时渲染时会自动调用update方法）
 	public readonly isLOD = true;
-
 	/**
 	 * Whether the LOD object is updated automatically by the renderer per frame or not.
 	 * If set to false, you have to call LOD.update() in the render loop by yourself. Default is true.
 	 * 瓦片是否在每帧渲染时自动更新，默认为真
 	 */
 	public autoUpdate = true;
+
+	/**
+	 * Tile tree update interval, unit: ms (default 100ms)
+	 * 瓦片树更新间隔，单位毫秒（默认100ms）
+	 */
+	public updateInterval = 100;
 
 	/**
 	 * Root tile, it is the root node of tile tree.
@@ -357,8 +362,8 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public update(camera: Camera) {
 		const elapseTime = this._clock.getElapsedTime();
-		// 控制瓦片树更新速率 1/5 秒
-		if (elapseTime > 1 / 5) {
+		// 控制瓦片树更新速率
+		if (elapseTime > this.updateInterval / 1000) {
 			this._loader.attcth(this.loader, this.projection);
 			try {
 				this.rootTile.update({
