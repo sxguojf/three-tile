@@ -30,10 +30,8 @@ export interface ISource {
 	bounds: [number, number, number, number];
 	/** Data bounds in Proejction, internal use */
 	_projectionBounds: [number, number, number, number];
-
-	// getUrl(x: number, y: number, z: number): string | undefined;
 	/** Get url from xyz, internal use */
 	_getUrl(x: number, y: number, z: number): string | undefined;
-
+	/** User data */
 	userData: { [key: string]: any };
 }

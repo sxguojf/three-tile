@@ -12,6 +12,7 @@ import { ITileMaterialLoader, TileSourceLoadParamsType } from "../../loader";
  */
 export class TileMaterialWrieLoader implements ITileMaterialLoader {
 	public readonly info = {
+		version: "0.10.0",
 		description: "Tile wireframe material loader.",
 	};
 

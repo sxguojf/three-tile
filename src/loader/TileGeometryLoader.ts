@@ -15,6 +15,7 @@ import { getSafeTileUrlAndBounds } from "./util";
  */
 export abstract class TileGeometryLoader implements ITileGeometryLoader {
 	public info: ITileLoaderInfo = {
+		version: "0.10.0",
 		description: "Terrain loader base class",
 	};
 

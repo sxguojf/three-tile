@@ -13,6 +13,7 @@ import { TileMaterial } from "../material";
  */
 export abstract class TileCanvasLoader implements ITileMaterialLoader {
 	public readonly info = {
+		version: "0.10.0",
 		description: "Canvas tile abstract loader",
 	};
 

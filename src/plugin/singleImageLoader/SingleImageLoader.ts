@@ -14,6 +14,7 @@ import { ISource } from "../../source";
  */
 export class SingleImageLoader implements ITileMaterialLoader {
 	public readonly info = {
+		version: "0.10.0",
 		description: "Single image loader. It can load single image to bounds and stick to the ground.",
 	};
 

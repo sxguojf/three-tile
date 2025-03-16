@@ -54,6 +54,8 @@ export interface ITileLoader {
 
 /** Tile Loader Info Interface */
 export interface ITileLoaderInfo {
+	/** Loader Version */
+	version: string;
 	/** Loader Author */
 	author?: string;
 	/** Loader Description */
@@ -62,6 +64,7 @@ export interface ITileLoaderInfo {
 
 /** Material Loader Interface */
 export interface ITileMaterialLoader {
+	/** Loader Info */
 	info: ITileLoaderInfo;
 	/** Tile Data Type */
 	dataType: string;

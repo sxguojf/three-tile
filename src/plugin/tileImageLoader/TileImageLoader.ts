@@ -6,6 +6,7 @@ import { getBoundsCoord, LoaderFactory, TileSourceLoadParamsType, TileMaterialLo
  */
 export class TileImageLoader extends TileMaterialLoader {
 	public readonly info = {
+		version: "0.10.0",
 		description: "Tile image loader. It can load xyz tile image.",
 	};
 

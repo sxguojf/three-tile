@@ -18,6 +18,7 @@ const THREADSNUM = 10;
  */
 export class TerrainRGBLoader extends TileGeometryLoader {
 	public readonly info = {
+		version: "0.10.0",
 		description: "Mapbox-RGB terrain loader, It can load Mapbox-RGB terrain data.",
 	};
 

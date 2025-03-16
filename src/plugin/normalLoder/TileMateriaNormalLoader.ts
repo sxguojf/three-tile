@@ -12,6 +12,7 @@ import { ITileMaterialLoader, TileSourceLoadParamsType } from "../..";
  */
 export class TileMateriaNormalLoader implements ITileMaterialLoader {
 	public readonly info = {
+		version: "0.10.0",
 		description: "Tile normal material loader.",
 	};
 	public readonly dataType: string = "normal";

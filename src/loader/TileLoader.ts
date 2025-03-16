@@ -56,14 +56,16 @@ export class TileLoader implements ITileLoader {
 	 */
 	public async load(params: TileLoadParamsType): Promise<MeshDateType> {
 		const { x, y, z, bounds } = params;
-		const geometry = await this.loadGeometry(x, y, z, bounds).catch((_err) => {
-			// console.warn(`Tile terrain load error: (${x},${y},${z})`);
-			return new PlaneGeometry();
-		});
-		const materials = await this.loadMaterial(x, y, z, bounds).catch((_err) => {
-			// console.warn(`Tile Image load error: (${x},${y},${z})`);
-			return [];
-		});
+		const geometry = await this.loadGeometry(x, y, z, bounds);
+		// .catch((_err) => {
+		// 	console.log(`Tile terrain load error: (${x},${y},${z})`);
+		// 	return new PlaneGeometry();
+		// });
+		const materials = await this.loadMaterial(x, y, z, bounds);
+		// .catch((_err) => {
+		// 	console.log(`Tile Image load error: (${x},${y},${z})`);
+		// 	return [];
+		// });
 
 		console.assert(materials && geometry);
 

@@ -11,6 +11,7 @@ import { TileCanvasLoader, TileSourceLoadParamsType } from "../../loader";
  */
 export class TileMaterialLogoLoader extends TileCanvasLoader {
 	public readonly info = {
+		version: "0.10.0",
 		description: "Tile debug image loader. It will draw a rectangle and coordinate on the tile.",
 	};
 

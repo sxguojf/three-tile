@@ -15,6 +15,7 @@ import { getSafeTileUrlAndBounds } from "./util";
  */
 export abstract class TileMaterialLoader implements ITileMaterialLoader {
 	public info = {
+		version: "0.10.0",
 		description: "Image loader base class",
 	};
 

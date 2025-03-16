@@ -1,5 +1,5 @@
 /**
- *@description: Base Class of map source
+ *@description: Base Class of data source
  *@author: 郭江峰
  *@date: 2023-04-05
  */
@@ -28,43 +28,59 @@ export interface SourceOptions {
 	url?: string;
 	/** Url subdomains array or string */
 	subdomains?: string[] | string;
-	/** TMS */
+	/** Is TMS scheme */
 	isTMS?: boolean;
+	/** User data */
+	userData?: { [key: string]: any };
 }
 
 /**
- * base source class, custom source can inherit from it
+ *  Base class for data sources, users can customize data sources by inheriting this class
  */
 export class TileSource implements ISource {
+	/** Data type that determines which loader to use for loading and processing data. Default is "image" type */
 	public dataType = "image";
+	/** Copyright attribution information for the data source, used for displaying map copyright notices */
 	public attribution = "ThreeTile";
+	/** Minimum zoom level supported by the data source. Default is 0 */
 	public minLevel = 0;
+	/** Maximum zoom level supported by the data source. Default is 18 */
 	public maxLevel = 18;
+	/** Data projection type. Default is "3857" Mercator projection */
 	public projectionID: ProjectionType = "3857";
+	/** URL template for tile data. Uses variables like {x},{y},{z} to construct tile request URLs */
 	public url = "";
+	/** List of URL subdomains for load balancing. Can be an array of strings or a single string */
 	protected subdomains: string[] | string = [];
+	/** Currently used subdomain. Randomly selected from subdomains when requesting tiles */
 	protected s: string = "";
+	/** Layer opacity. Range 0-1, default is 1.0 (completely opaque) */
 	public opacity: number = 1.0;
+	/** Whether to use TMS tile coordinate system. Default false uses XYZ system, true uses TMS system */
 	public isTMS = false;
-	// public bounds: [number, number, number, number] = [60, 10, 140, 60];
-	//public bounds: [number, number, number, number] = [-180, -85.05112877980659, 180, 85.05112877980659];
+	/** Data bounds in format [minLon, minLat, maxLon, maxLat]. Default covers global range excluding polar regions */
 	public bounds: [number, number, number, number] = [-180, -85, 180, 85];
-	public _projectionBounds: [number, number, number, number] = [0, 0, 0, 0];
-	public userData: { [key: string]: any } = {};
+	/** Projected data bounds */
+	public _projectionBounds: [number, number, number, number] = [-Infinity, -Infinity, Infinity, Infinity];
+	/** User-defined data. Can store any key-value pairs */
+	public userData: { [key: string]: any } = {
+		name: "TileSource",
+	};
+
 	/**
 	 * constructor
-	 * @param options
+	 * @param options SourceOptions
 	 */
 	constructor(options?: SourceOptions) {
 		Object.assign(this, options);
 	}
 
 	/**
-	 * Get url from tile coordinate, overwrite to custom generation tile url from xyz
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @returns url
+	 * Get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
+	 * @param x tile x coordinate
+	 * @param y tile y coordinate
+	 * @param z tile z coordinate
+	 * @returns url tile url
 	 */
 	protected getUrl(x: number, y: number, z: number): string | undefined {
 		const obj = { ...this, ...{ x, y, z } };
@@ -73,10 +89,10 @@ export class TileSource implements ISource {
 
 	/**
 	 * Get url from tile coordinate, public，called by TileLoader
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @returns
+	 * @param x tile x coordinate
+	 * @param y tile y coordinate
+	 * @param z tile z coordinate
+	 * @returns url tile url
 	 */
 	public _getUrl(x: number, y: number, z: number): string | undefined {
 		// get subdomains random
@@ -85,17 +101,15 @@ export class TileSource implements ISource {
 			const index = Math.floor(Math.random() * subLen);
 			this.s = this.subdomains[index];
 		}
-		let reverseY = y;
-		if (this.isTMS) {
-			reverseY = Math.pow(2, z) - 1 - y;
-		}
+		// reverse y coordinate if TMS scheme
+		const reverseY = this.isTMS ? Math.pow(2, z) - 1 - y : y;
 		return this.getUrl(x, reverseY, z);
 	}
 
 	/**
-	 * source factory function, create source directly through factoy functions.
-	 * @param options
-	 * @returns ISource
+	 * Create source directly through factoy functions.
+	 * @param options source options
+	 * @returns ISource data source instance
 	 */
 	public static create(options: SourceOptions) {
 		return new TileSource(options);

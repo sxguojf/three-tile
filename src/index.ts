@@ -24,3 +24,9 @@ export * from "./map";
 // build-in plugin
 import * as plugin from "./plugin";
 export { plugin };
+
+export async function waitingForLoaded(condition: boolean, delay = 100): Promise<void> {
+	while (!condition) {
+		await new Promise((resolve) => setTimeout(resolve, delay));
+	}
+}

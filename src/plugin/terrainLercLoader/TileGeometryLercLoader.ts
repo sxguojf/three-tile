@@ -24,6 +24,7 @@ const THREADSNUM = 10;
  */
 export class TileGeometryLercLoader extends TileGeometryLoader {
 	public readonly info = {
+		version: "0.10.0",
 		description: "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.",
 	};
 
