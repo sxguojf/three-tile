@@ -39,7 +39,7 @@ export type TileSourceLoadParamsType = TileLoadParamsType & {
 };
 
 /** Tile Loader Interface */
-export interface ITileLoader {
+export interface ITileLoader<TMeshData extends MeshDateType = MeshDateType> {
 	/** Load Tile Data */
 	manager: TileLoadingManager;
 	/** Image Loader */
@@ -49,7 +49,7 @@ export interface ITileLoader {
 	/** Use Worker? */
 	useWorker: boolean;
 	/** Load Tile Data */
-	load(params: TileLoadParamsType): Promise<MeshDateType>;
+	load(params: TileLoadParamsType): Promise<TMeshData>;
 }
 
 /** Tile Loader Info Interface */
@@ -63,7 +63,7 @@ export interface ITileLoaderInfo {
 }
 
 /** Material Loader Interface */
-export interface ITileMaterialLoader {
+export interface ITileMaterialLoader<TMaterial extends Material = Material> {
 	/** Loader Info */
 	info: ITileLoaderInfo;
 	/** Tile Data Type */
@@ -71,11 +71,11 @@ export interface ITileMaterialLoader {
 	/** Use Worker? */
 	useWorker?: boolean;
 	/** Load Image Data From Source */
-	load(params: TileSourceLoadParamsType): Promise<Material>;
+	load(params: TileSourceLoadParamsType): Promise<TMaterial>;
 }
 
 /** Geometry Loader Interface */
-export interface ITileGeometryLoader {
+export interface ITileGeometryLoader<TGeometry extends BufferGeometry = BufferGeometry> {
 	/** Loader Info */
 	info: ITileLoaderInfo;
 	/** Tile Data Type */
@@ -83,5 +83,5 @@ export interface ITileGeometryLoader {
 	/** Use Worker? */
 	useWorker?: boolean;
 	/** Load Terrain Data From Source */
-	load(params: TileSourceLoadParamsType): Promise<BufferGeometry>;
+	load(params: TileSourceLoadParamsType): Promise<TGeometry>;
 }
