@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, PlaneGeometry } from "three";
+import { BufferGeometry, Material, MeshBasicMaterial, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { ITileLoader, MeshDateType, TileLoadParamsType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
@@ -57,15 +57,7 @@ export class TileLoader implements ITileLoader {
 	public async load(params: TileLoadParamsType): Promise<MeshDateType> {
 		const { x, y, z, bounds } = params;
 		const geometry = await this.loadGeometry(x, y, z, bounds);
-		// .catch((_err) => {
-		// 	console.log(`Tile terrain load error: (${x},${y},${z})`);
-		// 	return new PlaneGeometry();
-		// });
 		const materials = await this.loadMaterial(x, y, z, bounds);
-		// .catch((_err) => {
-		// 	console.log(`Tile Image load error: (${x},${y},${z})`);
-		// 	return [];
-		// });
 
 		console.assert(materials && geometry);
 
@@ -92,7 +84,11 @@ export class TileLoader implements ITileLoader {
 		if (this.demSource && z >= this.demSource.minLevel && this._isBoundsInSource(this.demSource, tileBounds)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			loader.useWorker = this.useWorker;
-			return await loader.load({ source: this.demSource, x, y, z, bounds: tileBounds });
+			const source = this.demSource;
+			return await loader.load({ source, x, y, z, bounds: tileBounds }).catch((_err) => {
+				console.error("Load material error", source.dataType, x, y, z);
+				return new PlaneGeometry();
+			});
 		} else {
 			return new PlaneGeometry();
 		}
@@ -122,8 +118,10 @@ export class TileLoader implements ITileLoader {
 		const materials = sources.map(async (source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			loader.useWorker = this.useWorker;
-
-			return await loader.load({ source, x, y, z, bounds });
+			return await loader.load({ source, x, y, z, bounds }).catch((_err) => {
+				console.error("Load material error", source.dataType, x, y, z);
+				return new MeshBasicMaterial();
+			});
 		});
 		return Promise.all(materials);
 	}

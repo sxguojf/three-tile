@@ -53,6 +53,8 @@ export class SingleImageLoader implements ITileMaterialLoader {
 			return material;
 		}
 
+		console.log("loadi image...", url);
+
 		// 加载纹理
 		source.userData.image = await this._imageLoader.loadAsync(url);
 		this._setTexture(material, image, source, bounds);
