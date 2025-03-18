@@ -25,8 +25,18 @@ export * from "./map";
 import * as plugin from "./plugin";
 export { plugin };
 
-export async function waitingForLoaded(condition: boolean, delay = 100): Promise<void> {
-	while (!condition) {
-		await new Promise((resolve) => setTimeout(resolve, delay));
-	}
+// export async function waitingForLoaded(condition: boolean, delay = 100): Promise<void> {
+// 	while (!condition) {
+// 		await new Promise((resolve) => setTimeout(resolve, delay));
+// 	}
+// }
+export function waitFor(condition: boolean, delay = 100) {
+	return new Promise<void>((resolve) => {
+		const interval = setInterval(() => {
+			if (condition) {
+				clearInterval(interval);
+				resolve();
+			}
+		}, delay);
+	});
 }
