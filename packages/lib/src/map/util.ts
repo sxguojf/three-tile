@@ -7,7 +7,7 @@
 import { Camera, CanvasTexture, Intersection, Raycaster, Sprite, SpriteMaterial, Vector2, Vector3 } from "three";
 import { Tile } from "../tile";
 import { TileMap } from "./TileMap";
-import { GLViewer } from "../plugin";
+// import { GLViewer } from "../../tt";
 
 /**
  * ground location inifo type
@@ -117,34 +117,34 @@ export function getAttributions(tileMap: TileMap) {
 	return [...new Set(attributions)];
 }
 
-export function goHome(map: TileMap, viewer: GLViewer) {
-	// 按下 F1 键事件
-	window.addEventListener("keydown", (event) => {
-		if (event.key === "F1") {
-			event.preventDefault();
-			if (!map.getObjectByName("boards")) {
-				// open("https://github.com/sxguojf/three-tile");
-				const boards = createBillboards("three-tile");
-				boards.name = "boards";
-				map.add(boards);
+// export function goHome(map: TileMap, viewer: GLViewer) {
+// 	// 按下 F1 键事件
+// 	window.addEventListener("keydown", (event) => {
+// 		if (event.key === "F1") {
+// 			event.preventDefault();
+// 			if (!map.getObjectByName("boards")) {
+// 				// open("https://github.com/sxguojf/three-tile");
+// 				const boards = createBillboards("three-tile");
+// 				boards.name = "boards";
+// 				map.add(boards);
 
-				map.addEventListener("loading-complete", () => {
-					const info = map.getLocalInfoFromGeo(lonlat);
-					if (info) {
-						// boards.visible = (info.object as Tile).z > 10;
-						boards.visible = true;
-						const pos = map.geo2map(info.location);
-						boards.position.copy(pos);
-					}
-				});
-			}
-			const lonlat = new Vector3(108.94236, 34.2855, 0);
-			const centerPosition = map.geo2world(lonlat);
-			const cameraPosition = centerPosition.clone().add(new Vector3(-1, 2, 0));
-			viewer.flyTo(centerPosition, cameraPosition);
-		}
-	});
-}
+// 				map.addEventListener("loading-complete", () => {
+// 					const info = map.getLocalInfoFromGeo(lonlat);
+// 					if (info) {
+// 						// boards.visible = (info.object as Tile).z > 10;
+// 						boards.visible = true;
+// 						const pos = map.geo2map(info.location);
+// 						boards.position.copy(pos);
+// 					}
+// 				});
+// 			}
+// 			const lonlat = new Vector3(108.94236, 34.2855, 0);
+// 			const centerPosition = map.geo2world(lonlat);
+// 			const cameraPosition = centerPosition.clone().add(new Vector3(-1, 2, 0));
+// 			viewer.flyTo(centerPosition, cameraPosition);
+// 		}
+// 	});
+// }
 
 export function drawBillboards(txt: string, size: number = 128) {
 	const canvas = document.createElement("canvas");

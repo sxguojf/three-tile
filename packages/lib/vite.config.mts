@@ -13,7 +13,7 @@ export default defineConfig({
 		target: "esnext",
 		lib: {
 			entry: path.resolve(__dirname, "src/index.ts"),
-			name: "tt",
+			name: "ThreeTile", //打包后全局变量名，umd中使用
 			fileName: "three-tile",
 		},
 		rollupOptions: {

@@ -1,42 +1,18 @@
 {
 	"name": "three-tile-packages",
 	"private": false,
-	"version": "0.9.0",
-	"type": "module",
-	"files": [
-		"dist"
-	],
-	"main": "dist/three-tile.umd.cjs",
-	"module": "dist/three-tile.js",
-	"types": "./dist/three-tile.es.d.ts",
-	"exports": {
-		".": {
-			"import": "./dist/three-tile.js",
-			"require": "./dist/three-tile.umd.cjs",
-			"types": "./dist/three-tile.es.d.ts"
-		}
-	},
-	"description": "A lightweight tile map using threejs",
-	"license": "GPL-3.0",
-	"author": {
-		"name": "GuoJF",
-		"email": "hz_gjf@163.com"
-	},
-	"keywords": [
-		"three",
-		"gis",
-		"tile",
-		"map",
-		"3D",
-		"cesium"
-	],
 	"scripts": {
-		"dev1": "vite --config vite.config.dev.ts",
-		"lib": "tsc && vite build  --config vite.config.lib.ts",
-		"dev:demo": "npm run dev --workspace=packages/demo",
+		"dev": "npm run dev --workspace=packages/demo",
+		"lib": "npm run build --workspace=packages/lib",
+		"docs:dev": "npm run dev --workspace=packages/docs",
+		"docs:build": "npm run build --workspace=packages/docs",
+
 		"build:lib": "npm run build --workspace=packages/lib",
 		"build:plugin": "npm run build --workspace=packages/plugin",
+		"build:docs": "npm run build --workspace=packages/docs",
+
 		"preview": "vite preview --config vite.config.demo.ts",
+		
 		"docs": "typedoc src --out ./docs",
 		"test": "vitest"
 	},
@@ -52,9 +28,6 @@
 	},
 	"peerDependencies": {
 		"three": ">=0.165.0"
-	},
-	"publishConfig": {
-		"registry": "https://registry.npmjs.org/"
 	},
 	"workspaces": [
 		"packages/*"

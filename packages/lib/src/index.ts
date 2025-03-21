@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-export { version, author } from "../../../package.json";
+export { version, author } from "../package.json";
 
 // core
 export * from "./tile";
@@ -22,7 +22,7 @@ export * from "./map";
 // export * from "./plugin/PluginSDK";
 
 // build-in plugin
-import * as plugin from "./plugin";
+import * as plugin from "../../plugin/src";
 export { plugin };
 
 // export async function waitingForLoaded(condition: boolean, delay = 100): Promise<void> {
