@@ -7,3 +7,4 @@
 import { TileMap } from "../../map";
 import { SingleImageLoader } from "./SingleImageLoader";
 TileMap.registerImgLoader(new SingleImageLoader());
+export { SingleImageSource } from "./singleImageSource";

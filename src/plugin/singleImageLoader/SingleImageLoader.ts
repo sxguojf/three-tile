@@ -8,6 +8,7 @@ import { ImageLoader, Material, SRGBColorSpace, Texture } from "three";
 import { ITileMaterialLoader, LoaderFactory, TileSourceLoadParamsType } from "../../loader";
 import { TileMaterial } from "../../material";
 import { ISource } from "../../source";
+import { SingleImageSource } from "./singleImageSource";
 
 /**
  * Single image Material loader
@@ -30,7 +31,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	 * @param tile 瓦片
 	 * @returns 材质
 	 */
-	public async load(params: TileSourceLoadParamsType): Promise<Material> {
+	public async load(params: TileSourceLoadParamsType<SingleImageSource>): Promise<Material> {
 		const { source, bounds, z } = params;
 
 		const material = new TileMaterial({
@@ -45,19 +46,19 @@ export class SingleImageLoader implements ITileMaterialLoader {
 			return material;
 		}
 
-		const image = source.userData.image;
+		// const image = source.image; // .userData.image;
 
 		// 如果图片已加载，则设置纹理后返回材质
-		if (image?.complete) {
-			this._setTexture(material, image, source, bounds);
+		if (source.image?.complete) {
+			this._setTexture(material, source.image, source, bounds);
 			return material;
 		}
 
 		console.log("loadi image...", url);
 
 		// 加载纹理
-		source.userData.image = await this._imageLoader.loadAsync(url);
-		this._setTexture(material, image, source, bounds);
+		source.image = await this._imageLoader.loadAsync(url);
+		this._setTexture(material, source.image, source, bounds);
 		return material;
 	}
 

@@ -33,9 +33,9 @@ export type TileLoadParamsType = {
 /**
  * Tile Source Load Params Type
  */
-export type TileSourceLoadParamsType = TileLoadParamsType & {
+export type TileSourceLoadParamsType<TSource extends ISource = ISource> = TileLoadParamsType & {
 	/** Tile Data Source */
-	source: ISource;
+	source: TSource;
 };
 
 /** Tile Loader Interface */
