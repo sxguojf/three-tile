@@ -1,0 +1,19 @@
+{
+	"name": "three-tile",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "vite build"
+	},
+	"dependencies": {
+		"three": ">=0.165.0"
+	},
+	"devDependencies": {
+		"@types/node": "^20.2.3",
+		"@types/three": "^0.165.0",
+		"typescript": "^5.4.5",
+		"vite": "^5.4.11",
+		"vite-plugin-dts": "^4.0.3"
+	}
+}

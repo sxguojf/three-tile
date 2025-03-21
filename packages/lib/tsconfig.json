@@ -17,6 +17,6 @@
 		"forceConsistentCasingInFileNames": true,
 		"types": ["vite/client"]
 	},
-	"include": ["packages/lib/src/*"],
+	"include": ["src/**/*.ts"],
 	"exclude": ["src/**/back/**"]
 }
