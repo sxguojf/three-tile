@@ -43,6 +43,7 @@ export interface TTileEventMap extends Object3DEventMap {
 	ready: BaseEvent;
 	"tile-created": BaseEvent & { tile: Tile };
 	"tile-loaded": BaseEvent & { tile: Tile };
+	"tile-dispose": BaseEvent & { tile: Tile };
 }
 
 // Default geometry of tile
@@ -84,6 +85,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	/** Children of tile */
 	public readonly children: this[] = [];
 
+	private _ready = false;
+
+	/** return this.minLevel < map.minLevel, True mean do not needs load tile data */
+	private _isDummy = false;
+	public get isDummy() {
+		return this._isDummy;
+	}
+
 	private _showing = false;
 
 	/**
@@ -102,11 +111,8 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this.material.forEach((mat) => (mat.visible = value));
 	}
 
-	private _ready = false;
-
 	/** Max height of tile */
 	private _maxZ = 0;
-
 	/**
 	 * Gets the maximum height of the tile.
 	 */
@@ -233,6 +239,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		threshold: number,
 		onCreate: (tile: Tile) => void,
 		onLoad: (tile: Tile) => void,
+		onDispose: (tile: Tile) => void,
 	) {
 		// LOD evaluate
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
@@ -242,8 +249,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			this.add(...newTiles);
 			// Load  children tiles
 			newTiles.forEach((newTile) => {
+				newTile._isDummy = newTile.z < minLevel;
 				onCreate(newTile);
-				if (newTile.z >= minLevel) {
+				if (!newTile.isDummy) {
 					newTile._load(loader).then(onLoad);
 				} else {
 					onLoad(newTile);
@@ -252,7 +260,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		} else if (action === LODAction.remove) {
 			// Show this and dispose children tiles
 			this.showing = true;
-			this.dispose(false);
+			this.dispose(false, onDispose);
 		}
 		return this;
 	}
@@ -263,17 +271,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param loader Tile loader
 	 */
 	private async _load(loader: ITileLoader): Promise<Tile> {
-		return new Promise<Tile>((resolve) => {
-			Tile._downloadThreads++;
-			const { x, y, z } = this;
-			// Dwonload tile data
-			loader.load({ x, y, z, bounds: [-Infinity, -Infinity, Infinity, Infinity] }).then((meshData) => {
-				Tile._downloadThreads--;
-				this.material = meshData.materials;
-				this.geometry = meshData.geometry;
-				resolve(this);
-			});
-		});
+		Tile._downloadThreads++;
+		const { x, y, z } = this;
+		// Dwonload tile data
+		const meshData = await loader.load({ x, y, z, bounds: [-Infinity, -Infinity, Infinity, Infinity] });
+		this.material = meshData.materials;
+		this.geometry = meshData.geometry;
+		Tile._downloadThreads--;
+		return this;
 	}
 
 	/**
@@ -313,23 +318,23 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 				params.LODThreshold,
 				this._onTileCreate.bind(this),
 				this._onTileLoad.bind(this),
+				this._onDispose.bind(this),
 			);
 		});
 
-		this._checkReady(params.minLevel);
+		this._checkReady();
 		return this;
 	}
 
 	/**
 	 * Checks if the tile is ready to render.
-	 * @param minLevel - The minimum level.
 	 * @returns The current tile.
 	 */
-	private _checkReady(minLevel: number) {
+	private _checkReady() {
 		if (!this._ready) {
 			this._ready = true;
 			this.traverse((child) => {
-				if (child.isLeaf && child.loaded && child.z >= minLevel) {
+				if (child.isLeaf && child.loaded && !child.isDummy) {
 					this._ready = false;
 					return;
 				}
@@ -367,6 +372,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param newTile - The newly created tile object.
 	 */
 	private _onTileCreate(newTile: Tile) {
+		console.assert(this.z === 0);
 		newTile.updateMatrix();
 		newTile.updateMatrixWorld();
 		newTile.sizeInWorld = getTileSize(newTile);
@@ -378,8 +384,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param newTile - The loaded tile object.
 	 */
 	private _onTileLoad(newTile: Tile) {
+		console.assert(this.z === 0);
 		newTile._onLoad();
 		this.dispatchEvent({ type: "tile-loaded", tile: newTile });
+	}
+
+	private _onDispose(tile: Tile) {
+		console.assert(this.z === 0);
+		this.dispatchEvent({ type: "tile-dispose", tile });
 	}
 
 	/**
@@ -387,7 +399,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @returns The current tile.
 	 */
 	public reload() {
-		this.dispose(true);
+		this.dispose(true, this._onDispose.bind(this));
 		return this;
 	}
 
@@ -396,16 +408,17 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param disposeSelf - Whether to dispose the tile itself.
 	 * @returns The current tile.
 	 */
-	public dispose(disposeSelf: boolean) {
-		if (disposeSelf && this.isTile && this.loaded && this.material.length > 0) {
+	public dispose(disposeSelf: boolean, onDispose: (tile: Tile) => void) {
+		if (disposeSelf && this.isTile && !this.isDummy) {
 			this.material.forEach((mat) => mat.dispose());
 			this.material = [];
 			this.geometry.groups = [];
 			this.geometry.dispose();
 			this.dispatchEvent({ type: "dispose" });
+			onDispose(this);
 		}
 		// remove all children recursively
-		this.children.forEach((child) => child.dispose(true));
+		this.children.forEach((child) => child.dispose(true, onDispose));
 		this.clear();
 		return this;
 	}

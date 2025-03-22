@@ -101,6 +101,11 @@ export function attachEvent(map: TileMap) {
 	map.rootTile.addEventListener("tile-loaded", (evt) => {
 		dispatchLoadingEvent("tile-loaded", { tile: evt.tile });
 	});
+
+	// 瓦片释放事件
+	map.rootTile.addEventListener("tile-dispose", (evt) => {
+		dispatchLoadingEvent("tile-dispose", { tile: evt.tile });
+	});
 }
 
 export function getAttributions(tileMap: TileMap) {

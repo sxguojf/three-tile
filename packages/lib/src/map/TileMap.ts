@@ -45,6 +45,7 @@ export interface TileMapEventMap extends Object3DEventMap {
 
 	"tile-created": BaseEvent & { tile: Tile };
 	"tile-loaded": BaseEvent & { tile: Tile };
+	"tile-dispose": BaseEvent & { tile: Tile };
 
 	"projection-changed": BaseEvent & { projection: IProjection };
 	"source-changed": BaseEvent & { source: ISource | ISource[] | undefined };
