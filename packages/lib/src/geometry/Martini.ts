@@ -101,15 +101,15 @@ export class Martini {
 		}
 	}
 
-	public createTile(terrain: Float32Array): Tile {
-		return new Tile(terrain, this);
+	public createTile(terrain: Float32Array): MartiniTile {
+		return new MartiniTile(terrain, this);
 	}
 }
 
 /**
  * Class describes the generation of a tile using the Martini method.
  */
-class Tile {
+class MartiniTile {
 	/**
 	 * Pointer to the martini generator object.
 	 */
