@@ -232,37 +232,32 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param onLoad - The callback function when a tile is loaded.
 	 * @returns The current tile.
 	 */
-	protected LOD(
-		loader: ITileLoader,
-		minLevel: number,
-		maxLevel: number,
-		threshold: number,
-		onCreate: (tile: Tile) => void,
-		onLoad: (tile: Tile) => void,
-		onDispose: (tile: Tile) => void,
-	) {
+	protected LOD(loader: ITileLoader, minLevel: number, maxLevel: number, threshold: number) {
+		let newTiles: Tile[] = [];
 		// LOD evaluate
 		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
 		if (Tile.downloadThreads < THREADSNUM && action === LODAction.create) {
 			// Create children tiles
-			const newTiles = createChildren(loader, this.x, this.y, this.z);
+			newTiles = createChildren(loader, this.x, this.y, this.z);
 			this.add(...newTiles);
-			// Load  children tiles
-			newTiles.forEach((newTile) => {
-				newTile._isDummy = newTile.z < minLevel;
-				onCreate(newTile);
-				if (!newTile.isDummy) {
-					newTile._load(loader).then(onLoad);
-				} else {
-					onLoad(newTile);
-				}
-			});
 		} else if (action === LODAction.remove) {
 			// Show this and dispose children tiles
 			this.showing = true;
-			this.dispose(false, onDispose);
 		}
-		return this;
+		return { action, newTiles };
+	}
+
+	/**
+	 * Checks the visibility of the tile.
+	 */
+	private _checkVisible() {
+		const parent = this.parent;
+		if (parent && parent.isTile) {
+			const children = parent.children.filter((child) => child.isTile);
+			const allLoaded = children.every((child) => child.loaded);
+			parent.showing = !allLoaded;
+			children.forEach((child) => (child.showing = allLoaded));
+		}
 	}
 
 	/**
@@ -277,16 +272,25 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		const meshData = await loader.load({ x, y, z, bounds: [-Infinity, -Infinity, Infinity, Infinity] });
 		this.material = meshData.materials;
 		this.geometry = meshData.geometry;
+		this._loaded = true;
+		this._checkVisible();
+		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		Tile._downloadThreads--;
 		return this;
 	}
 
+	private _init() {
+		this.updateMatrix();
+		this.updateMatrixWorld();
+		this.sizeInWorld = getTileSize(this);
+	}
 	/**
 	 * Updates the tile.
 	 * @param params - The update parameters.
 	 * @returns The current tile.
 	 */
 	public update(params: TileUpdateParames) {
+		console.assert(this.z === 0);
 		if (!this.parent) {
 			return this;
 		}
@@ -297,11 +301,13 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		// Get camera position
 		const cameraWorldPosition = params.camera.getWorldPosition(tempVec3);
 
+		const root = this;
+
 		// LOD for tiles
-		this.traverse((tile) => {
+		root.traverse((tile) => {
 			// shadow
-			tile.receiveShadow = this.receiveShadow;
-			tile.castShadow = this.castShadow;
+			tile.receiveShadow = root.receiveShadow;
+			tile.castShadow = root.castShadow;
 
 			// Tile is in frustum?
 			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
@@ -311,15 +317,24 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			tile.distToCamera = getDistance(tile, cameraWorldPosition);
 
 			// LOD
-			tile.LOD(
-				params.loader,
-				params.minLevel,
-				params.maxLevel,
-				params.LODThreshold,
-				this._onTileCreate.bind(this),
-				this._onTileLoad.bind(this),
-				this._onDispose.bind(this),
-			);
+			const { action, newTiles } = tile.LOD(params.loader, params.minLevel, params.maxLevel, params.LODThreshold);
+
+			if (action === LODAction.create) {
+				newTiles.forEach((newTile) => {
+					newTile._init();
+					newTile._isDummy = newTile.z < params.minLevel;
+					root.dispatchEvent({ type: "tile-created", tile: newTile });
+					if (!newTile.isDummy) {
+						newTile._load(params.loader).then(() => {
+							root.dispatchEvent({ type: "tile-loaded", tile: newTile });
+						});
+					}
+				});
+			} else if (action === LODAction.remove) {
+				tile.dispose(false, params.loader);
+				this.dispatchEvent({ type: "tile-dispose", tile });
+				params.loader?.unload?.(this);
+			}
 		});
 
 		this._checkReady();
@@ -346,60 +361,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this;
 	}
 
-	/** Called when tile loaded  */
-	private _onLoad() {
-		this._loaded = true;
-		this._checkVisible();
-		// Update Z
-		this.maxZ = this.geometry.boundingBox?.max.z || 0;
-	}
-
-	/**
-	 * Checks the visibility of the tile.
-	 */
-	private _checkVisible() {
-		const parent = this.parent;
-		if (parent && parent.isTile) {
-			const children = parent.children.filter((child) => child.isTile);
-			const allLoaded = children.every((child) => child.loaded);
-			parent.showing = !allLoaded;
-			children.forEach((child) => (child.showing = allLoaded));
-		}
-	}
-
-	/**
-	 * Callback function triggered when a tile is created.
-	 * @param newTile - The newly created tile object.
-	 */
-	private _onTileCreate(newTile: Tile) {
-		console.assert(this.z === 0);
-		newTile.updateMatrix();
-		newTile.updateMatrixWorld();
-		newTile.sizeInWorld = getTileSize(newTile);
-		this.dispatchEvent({ type: "tile-created", tile: newTile });
-	}
-
-	/**
-	 * Callback function triggered when a tile is loaded completely.
-	 * @param newTile - The loaded tile object.
-	 */
-	private _onTileLoad(newTile: Tile) {
-		console.assert(this.z === 0);
-		newTile._onLoad();
-		this.dispatchEvent({ type: "tile-loaded", tile: newTile });
-	}
-
-	private _onDispose(tile: Tile) {
-		console.assert(this.z === 0);
-		this.dispatchEvent({ type: "tile-dispose", tile });
-	}
-
 	/**
 	 * Reloads the tile data.
 	 * @returns The current tile.
 	 */
-	public reload() {
-		this.dispose(true, this._onDispose.bind(this));
+	public reload(loader: ITileLoader) {
+		this.dispose(true, loader);
 		return this;
 	}
 
@@ -408,17 +375,17 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param disposeSelf - Whether to dispose the tile itself.
 	 * @returns The current tile.
 	 */
-	public dispose(disposeSelf: boolean, onDispose: (tile: Tile) => void) {
+	public dispose(disposeSelf: boolean, loader: ITileLoader) {
 		if (disposeSelf && this.isTile && !this.isDummy) {
 			this.material.forEach((mat) => mat.dispose());
 			this.material = [];
 			this.geometry.groups = [];
 			this.geometry.dispose();
 			this.dispatchEvent({ type: "dispose" });
-			onDispose(this);
+			loader?.unload?.(this);
 		}
 		// remove all children recursively
-		this.children.forEach((child) => child.dispose(true, onDispose));
+		this.children.forEach((child) => child.dispose(true, loader));
 		this.clear();
 		return this;
 	}
