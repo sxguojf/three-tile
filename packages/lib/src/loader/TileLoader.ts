@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, MeshBasicMaterial, PlaneGeometry } from "three";
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { ITileLoader, MeshDateType, TileLoadParamsType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
@@ -68,6 +68,16 @@ export class TileLoader implements ITileLoader {
 		return { materials, geometry };
 	}
 
+	public unload(tileMesh: Mesh): void {
+		const materials = tileMesh.material as Material[];
+		const geometry = tileMesh.geometry as BufferGeometry;
+		console.log(materials, geometry);
+		for (let i = 0; i < materials.length; i++) {
+			materials[i].dispose();
+		}
+		geometry.dispose();
+	}
+
 	/**
 	 * Load geometry
 	 * @param x x coordinate of tile
@@ -81,7 +91,11 @@ export class TileLoader implements ITileLoader {
 		z: number,
 		tileBounds: [number, number, number, number],
 	): Promise<BufferGeometry> {
-		if (this.demSource && z >= this.demSource.minLevel && this._isBoundsInSource(this.demSource, tileBounds)) {
+		if (
+			this.demSource &&
+			z >= this.demSource.minLevel &&
+			this._isBoundsInSourceBounds(this.demSource, tileBounds)
+		) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			loader.useWorker = this.useWorker;
 			const source = this.demSource;
@@ -109,7 +123,7 @@ export class TileLoader implements ITileLoader {
 	): Promise<Material[]> {
 		// get source in viewer
 		const sources = this.imgSource.filter(
-			(source) => z >= source.minLevel && this._isBoundsInSource(source, bounds),
+			(source) => z >= source.minLevel && this._isBoundsInSourceBounds(source, bounds),
 		);
 		if (sources.length === 0) {
 			return [];
@@ -127,10 +141,10 @@ export class TileLoader implements ITileLoader {
 	}
 
 	/**
-	 * Check the tile is in the source bounds
+	 * Check the tile is in the source bounds. (projection coordinate)
 	 * @returns true in the bounds,else false
 	 */
-	private _isBoundsInSource(source: ISource, bounds: [number, number, number, number]): boolean {
+	private _isBoundsInSourceBounds(source: ISource, bounds: [number, number, number, number]): boolean {
 		const sourceBounds = source._projectionBounds;
 		const inBounds = !(
 			bounds[2] < sourceBounds[0] ||

@@ -45,7 +45,7 @@ export interface TileMapEventMap extends Object3DEventMap {
 
 	"tile-created": BaseEvent & { tile: Tile };
 	"tile-loaded": BaseEvent & { tile: Tile };
-	"tile-dispose": BaseEvent & { tile: Tile };
+	"tile-unload": BaseEvent & { tile: Tile };
 
 	"projection-changed": BaseEvent & { projection: IProjection };
 	"source-changed": BaseEvent & { source: ISource | ISource[] | undefined };
@@ -399,7 +399,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 * 重新加载地图，在改变地图数据源后调用它才能生效
 	 */
 	public reload() {
-		this.rootTile.reload();
+		this.rootTile.reload(this.loader);
 	}
 
 	/**

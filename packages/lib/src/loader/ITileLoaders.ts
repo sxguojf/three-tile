@@ -4,7 +4,7 @@
  * @date: 2023-04-06
  */
 
-import { BufferGeometry, Material } from "three";
+import { BufferGeometry, Material, Mesh } from "three";
 import { ISource } from "../source";
 import { TileLoadingManager } from "./LoaderFactory";
 
@@ -50,6 +50,8 @@ export interface ITileLoader<TMeshData extends MeshDateType = MeshDateType> {
 	useWorker: boolean;
 	/** Load Tile Data */
 	load(params: TileLoadParamsType): Promise<TMeshData>;
+	/** Unload Tile Data */
+	unload?(tileMesh: Mesh): void;
 }
 
 /** Tile Loader Info Interface */
@@ -72,6 +74,8 @@ export interface ITileMaterialLoader<TMaterial extends Material = Material> {
 	useWorker?: boolean;
 	/** Load Image Data From Source */
 	load(params: TileSourceLoadParamsType): Promise<TMaterial>;
+	/** Unload material Data */
+	unload?(material: TMaterial): void;
 }
 
 /** Geometry Loader Interface */
@@ -84,4 +88,6 @@ export interface ITileGeometryLoader<TGeometry extends BufferGeometry = BufferGe
 	useWorker?: boolean;
 	/** Load Terrain Data From Source */
 	load(params: TileSourceLoadParamsType): Promise<TGeometry>;
+	/** Unload geometry Data */
+	unload?(geometry: TGeometry): void;
 }

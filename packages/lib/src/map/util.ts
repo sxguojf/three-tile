@@ -28,7 +28,7 @@ export function getLocalInfoFromRay(map: TileMap, ray: Raycaster) {
 		if (intersect.object instanceof Tile) {
 			// intersect point to local point
 			const point = map.worldToLocal(intersect.point.clone());
-			const lonlat = map.pos2geo(point);
+			const lonlat = map.map2geo(point);
 			return Object.assign(intersect, {
 				location: lonlat,
 			}) as LocationInfo;
@@ -103,8 +103,8 @@ export function attachEvent(map: TileMap) {
 	});
 
 	// 瓦片释放事件
-	map.rootTile.addEventListener("tile-dispose", (evt) => {
-		dispatchLoadingEvent("tile-dispose", { tile: evt.tile });
+	map.rootTile.addEventListener("tile-unload", (evt) => {
+		dispatchLoadingEvent("tile-unload", { tile: evt.tile });
 	});
 }
 
