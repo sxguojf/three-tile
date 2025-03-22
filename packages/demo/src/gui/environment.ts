@@ -1,6 +1,6 @@
 import { Color, CubeTextureLoader } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
-import * as tt from "@/index";
+import * as tt from "three-tile";
 
 export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {

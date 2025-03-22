@@ -2,7 +2,7 @@ import { Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 
-import * as tt from "@/index";
+import * as tt from "three-tile";
 import { createCameraGui } from "./camera";
 import { createMapOptionsGui } from "./mapOptions";
 import { createEnvironmentGui } from "./environment";
@@ -43,9 +43,9 @@ export function showLoading(map: tt.TileMap) {
 			loading.style.color = "red";
 			console.error("Downloading error:", evt.url);
 		});
-		map.addEventListener("parsing-end", () => {
-			loading.innerHTML = "Parsing end!";
-		});
+		// map.addEventListener("parsing-end", () => {
+		// 	loading.innerHTML = "Parsing end!";
+		// });
 
 		map.addEventListener("tile-dispose", (tile) => {
 			console.log("tile-dispose", tile);

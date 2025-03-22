@@ -10,11 +10,6 @@ export default defineConfig({
 			},
 		},
 	},
-	resolve: {
-		alias: {
-			"@": path.resolve(__dirname, "packages/lib/src"),
-		},
-	},
 	server: {
 		port: 8001,
 	},

@@ -1,4 +1,4 @@
-import * as tt from "@/index";
+import * as tt from "three-tile";
 const {
 	ArcGisDemSource,
 	ArcGisSource,

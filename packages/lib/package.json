@@ -30,8 +30,8 @@
 		"cesium"
 	],
 	"scripts": {
-		"build": "vite build",
-		"prepublishOnly": "npm run build"
+		"dev": "vite build --watch",
+		"build": "vue-tsc && vite build"
 	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/",
@@ -44,5 +44,8 @@
 	"bugs": {
 		"url": "https://github.com/sxguojf/three-tile/issues"
 	},
-	"homepage": "https://github.com/sxguojf/three-tile#readme"
+	"homepage": "https://github.com/sxguojf/three-tile#readme",
+	"devDependencies": {
+		"vite-plugin-wasm": "^3.4.1"
+	}
 }

@@ -1,4 +1,4 @@
-import * as tt from "@/index";
+import * as tt from "three-tile";
 
 // 状态栏显示瓦片信息
 export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {

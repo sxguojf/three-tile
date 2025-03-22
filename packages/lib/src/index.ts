@@ -22,7 +22,7 @@ export * from "./map";
 // export * from "./plugin/PluginSDK";
 
 // build-in plugin
-import * as plugin from "../../plugin/src";
+import * as plugin from "./plugin";
 export { plugin };
 
 // export async function waitingForLoaded(condition: boolean, delay = 100): Promise<void> {

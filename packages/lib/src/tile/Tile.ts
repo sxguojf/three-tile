@@ -272,7 +272,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		this.geometry = meshData.geometry;
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
 		this._loaded = true;
-		this._checkVisible();
 		Tile._downloadThreads--;
 		return this;
 	}
@@ -327,6 +326,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 					root.dispatchEvent({ type: "tile-created", tile: newTile });
 					if (!newTile.isDummy) {
 						newTile._load(params.loader).then(() => {
+							newTile._checkVisible();
 							root.dispatchEvent({ type: "tile-loaded", tile: newTile });
 						});
 					}

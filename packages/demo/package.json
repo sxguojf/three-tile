@@ -4,6 +4,5 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite"
-	},
-	"dependencies": {}
+	}
 }

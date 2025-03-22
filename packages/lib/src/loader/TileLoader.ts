@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
+import { BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, NormalBufferAttributes, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { ITileLoader, MeshDateType, TileLoadParamsType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
@@ -68,10 +68,14 @@ export class TileLoader implements ITileLoader {
 		return { materials, geometry };
 	}
 
+	/**
+	 * Unload tile mesh data
+	 * @param tileMesh tile mesh
+	 */
 	public unload(tileMesh: Mesh): void {
 		const materials = tileMesh.material as Material[];
 		const geometry = tileMesh.geometry as BufferGeometry;
-		console.log(materials, geometry);
+		// console.log(materials, geometry);
 		for (let i = 0; i < materials.length; i++) {
 			materials[i].dispose();
 		}
@@ -91,6 +95,7 @@ export class TileLoader implements ITileLoader {
 		z: number,
 		tileBounds: [number, number, number, number],
 	): Promise<BufferGeometry> {
+		let geometry: BufferGeometry;
 		if (
 			this.demSource &&
 			z >= this.demSource.minLevel &&
@@ -99,13 +104,22 @@ export class TileLoader implements ITileLoader {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			loader.useWorker = this.useWorker;
 			const source = this.demSource;
-			return await loader.load({ source, x, y, z, bounds: tileBounds }).catch((_err) => {
+			geometry = await loader.load({ source, x, y, z, bounds: tileBounds }).catch((_err) => {
 				console.error("Load material error", source.dataType, x, y, z);
 				return new PlaneGeometry();
 			});
+			const dispose = (evt: { target: BufferGeometry<NormalBufferAttributes> }) => {
+				loader.unload && loader.unload(evt.target);
+				evt.target.removeEventListener("dispose", dispose);
+			};
+			geometry.addEventListener("dispose", () => {
+				loader.unload && loader.unload(geometry);
+			});
 		} else {
-			return new PlaneGeometry();
+			geometry = new PlaneGeometry();
 		}
+
+		return geometry;
 	}
 
 	/**
@@ -129,15 +143,23 @@ export class TileLoader implements ITileLoader {
 			return [];
 		}
 
-		const materials = sources.map(async (source) => {
+		const materialsPromise = sources.map(async (source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			loader.useWorker = this.useWorker;
-			return await loader.load({ source, x, y, z, bounds }).catch((_err) => {
+			const material = await loader.load({ source, x, y, z, bounds }).catch((_err) => {
 				console.error("Load material error", source.dataType, x, y, z);
 				return new MeshBasicMaterial();
 			});
+			const dispose = (evt: Event<"dispose", Material>) => {
+				loader.unload && loader.unload(evt.target);
+				evt.target.removeEventListener("dispose", dispose);
+			};
+			if (!(material instanceof MeshBasicMaterial)) {
+				material.addEventListener("dispose", dispose);
+			}
+			return material;
 		});
-		return Promise.all(materials);
+		return Promise.all(materialsPromise);
 	}
 
 	/**

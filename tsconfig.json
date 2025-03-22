@@ -22,11 +22,6 @@
 		"types": [
 			"vite/client"
 		],
-		"paths": {
-			"@/*": [
-				"packages/lib/src/*"
-			]
-		}
 	},
 	"include": [
 		"packages/lib/src/*",

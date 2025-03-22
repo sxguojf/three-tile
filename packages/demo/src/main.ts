@@ -1,6 +1,6 @@
 import { Mesh, MeshStandardMaterial, SphereGeometry, SpotLight, SpotLightHelper, Vector3 } from "three";
 
-import * as tt from "@/index";
+import * as tt from "three-tile";
 import * as gui from "./gui";
 import * as source from "./mapSource";
 

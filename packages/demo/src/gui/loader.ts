@@ -1,7 +1,7 @@
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 
-import * as tt from "@/index";
+import * as tt from "three-tile";
 
 export const createLoaderGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {

@@ -3,17 +3,9 @@
 	"private": false,
 	"scripts": {
 		"dev": "npm run dev --workspace=packages/demo",
-		"lib": "npm run build --workspace=packages/lib",
-		"docs:dev": "npm run dev --workspace=packages/docs",
-		"docs:build": "npm run build --workspace=packages/docs",
-
+		"lib": "npm run dev --workspace=packages/lib",
 		"build:lib": "npm run build --workspace=packages/lib",
-		"build:plugin": "npm run build --workspace=packages/plugin",
-		"build:docs": "npm run build --workspace=packages/docs",
-
 		"preview": "vite preview --config vite.config.demo.ts",
-		
-		"docs": "typedoc src --out ./docs",
 		"test": "vitest"
 	},
 	"devDependencies": {
@@ -31,5 +23,8 @@
 	},
 	"workspaces": [
 		"packages/*"
-	]
+	],
+	"dependencies": {
+		"three-tile": "^0.10.0"
+	}
 }
