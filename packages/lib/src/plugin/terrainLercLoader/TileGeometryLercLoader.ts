@@ -7,15 +7,12 @@
 import { BufferGeometry, FileLoader } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool";
 import * as Lerc from "./lercDecode/LercDecode.es";
-import decodeUrl from "./lercDecode/lerc-wasm.wasm?url";
 import { parse } from "./parse";
 import ParseWorker from "./parse.Worker?worker&inline";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
 import { TileGeometry } from "../../geometry/TileGeometry";
 
 const THREADSNUM = 10;
-
-Lerc.load({ locateFile: () => decodeUrl });
 
 /**
  * ArcGis-lerc格式瓦片几何体加载器
@@ -36,7 +33,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		super();
 		this.fileLoader.setResponseType("arraybuffer");
 		this._workerPool.setWorkerCreator(() => new ParseWorker());
-		// Lerc.load({ locateFile: () => decodeUrl });
+		// Lerc.load();
 	}
 
 	/**
@@ -46,10 +43,6 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	 * @returns 解码后的高度图数据、宽度和高度的对象
 	 */
 	private async decode(buffer: ArrayBuffer) {
-		// 加载 LERC wasm
-		if (!Lerc.isLoaded) {
-			await Lerc.load({ locateFile: () => decodeUrl });
-		}
 		console.assert(Lerc.isLoaded());
 
 		const { height, width, pixels } = Lerc.decode(buffer);
