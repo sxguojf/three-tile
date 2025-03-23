@@ -11,8 +11,11 @@ import { parse } from "./parse";
 import ParseWorker from "./parse.Worker?worker&inline";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
 import { TileGeometry } from "../../geometry/TileGeometry";
+import decoder from "./lercDecode/lerc-wasm.wasm?url";
 
 const THREADSNUM = 10;
+/* @vite-ignore */
+// const decoder = new URL("lerc-wasm.wasm", import.meta.url).href;
 
 /**
  * ArcGis-lerc格式瓦片几何体加载器
@@ -33,6 +36,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		super();
 		this.fileLoader.setResponseType("arraybuffer");
 		this._workerPool.setWorkerCreator(() => new ParseWorker());
+		Lerc.load({ locateFile: () => decoder });
 		// Lerc.load();
 	}
 
@@ -43,6 +47,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	 * @returns 解码后的高度图数据、宽度和高度的对象
 	 */
 	private async decode(buffer: ArrayBuffer) {
+		await waitFor(Lerc.isLoaded());
 		console.assert(Lerc.isLoaded());
 
 		const { height, width, pixels } = Lerc.decode(buffer);
@@ -65,6 +70,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		const buffer: ArrayBuffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
 		// 解码数据
 		const decodedData = await this.decode(buffer);
+
 		// 取得瓦片层级和剪裁范围
 		const { z, bounds } = params;
 		let geoData;
@@ -84,8 +90,17 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 			geoData = parse(decodedData, z, bounds);
 		}
 		// 创建瓦片几何体对象
-		const geometry = new TileGeometry();
-		geometry.setData(geoData);
-		return geometry;
+		return new TileGeometry().setData(geoData);
 	}
+}
+
+function waitFor(condition: boolean, delay = 100) {
+	return new Promise<void>((resolve) => {
+		const interval = setInterval(() => {
+			if (condition) {
+				clearInterval(interval);
+				resolve();
+			}
+		}, delay);
+	});
 }

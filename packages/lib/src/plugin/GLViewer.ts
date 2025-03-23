@@ -217,12 +217,20 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 						.onComplete((obj) => onComplete && onComplete(obj)),
 				)
 
-				.start()
-				.onUpdate((vec, elapsed) => {
-					console.log(vec, elapsed);
-				});
+				.start();
 		} else {
 			this.camera.position.copy(cameraPostion);
 		}
+	}
+
+	/**
+	 * Get current scens state
+	 * @returns center position and camera position
+	 */
+	public getState() {
+		return {
+			centerPosition: this.controls.target,
+			cameraPosition: this.camera.position,
+		};
 	}
 }

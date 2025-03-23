@@ -151,7 +151,7 @@ export function getAttributions(tileMap: TileMap) {
 // 	});
 // }
 
-export function drawBillboards(txt: string, size: number = 128) {
+function drawBillboards(txt: string, size: number = 128) {
 	const canvas = document.createElement("canvas");
 	const ctx = canvas.getContext("2d");
 
@@ -195,12 +195,9 @@ export function drawBillboards(txt: string, size: number = 128) {
 
 export function createBillboards(txt: string, size = 128) {
 	const boardTexture = new CanvasTexture(drawBillboards(txt, size));
-	// boardTexture.magFilter = NearestFilter;
-	// boardTexture.minFilter = NearestFilter;
 	const boardsMaterial = new SpriteMaterial({
 		map: boardTexture,
 		sizeAttenuation: false,
-		// depthTest: false,
 	});
 	const boards = new Sprite(boardsMaterial);
 	boards.visible = false;

@@ -230,13 +230,14 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 * @param threshold - The threshold.
 	 * @returns this
 	 */
-	protected LOD(loader: ITileLoader, minLevel: number, maxLevel: number, threshold: number) {
+	protected LOD(params: TileUpdateParames) {
 		if (Tile.downloadThreads > THREADSNUM) {
 			return { action: LODAction.none };
 		}
 		let newTiles: Tile[] = [];
 		// LOD evaluate
-		const action = LODEvaluate(this, minLevel, maxLevel, threshold);
+		const { loader, minLevel, maxLevel, LODThreshold } = params;
+		const action = LODEvaluate(this, minLevel, maxLevel, LODThreshold);
 		if (action === LODAction.create) {
 			newTiles = createChildren(loader, this.x, this.y, this.z);
 			this.add(...newTiles);
@@ -244,6 +245,16 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return { action, newTiles };
 	}
 
+	/**
+	 * Checks the visibility of the tile.
+	 */
+	// private _checkChildrenVisible() {
+	// 	const children = this.children.filter((child) => child.isTile);
+	// 	const allLoaded = children.every((child) => child.loaded);
+	// 	this.showing = !allLoaded;
+	// 	children.forEach((child) => (child.showing = allLoaded));
+	// 	return this;
+	// }
 	/**
 	 * Checks the visibility of the tile.
 	 */
@@ -300,13 +311,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		// Get camera position
 		const cameraWorldPosition = params.camera.getWorldPosition(tempVec3);
 
-		const root = this;
-
 		// LOD for tiles
-		root.traverse((tile) => {
+		this.traverse((tile) => {
 			// shadow
-			tile.receiveShadow = root.receiveShadow;
-			tile.castShadow = root.castShadow;
+			tile.receiveShadow = this.receiveShadow;
+			tile.castShadow = this.castShadow;
 
 			// Tile is in frustum?
 			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
@@ -316,31 +325,37 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			tile.distToCamera = getDistance(tile, cameraWorldPosition);
 
 			// LOD
-			const { action, newTiles } = tile.LOD(params.loader, params.minLevel, params.maxLevel, params.LODThreshold);
+			const { action, newTiles } = tile.LOD(params);
 
-			if (action === LODAction.create) {
-				// Load new tiles data
-				newTiles?.forEach((newTile) => {
-					newTile._init();
-					newTile._isDummy = newTile.z < params.minLevel;
-					root.dispatchEvent({ type: "tile-created", tile: newTile });
-					if (!newTile.isDummy) {
-						newTile._load(params.loader).then(() => {
-							newTile._checkVisible();
-							root.dispatchEvent({ type: "tile-loaded", tile: newTile });
-						});
-					}
-				});
-			} else if (action === LODAction.remove) {
-				tile.showing = true;
-				// unload children tiles
-				tile._unLoad(false, params.loader);
-				params.loader.unload?.(this);
-				this.dispatchEvent({ type: "tile-unload", tile });
-			}
+			this._doAction(tile, action, newTiles, params);
 		});
 
 		this._checkReady();
+		return this;
+	}
+
+	private _doAction(currentTile: this, action: LODAction, newTiles: Tile[] | undefined, params: TileUpdateParames) {
+		const root = this;
+		if (action === LODAction.create) {
+			// Load new tiles data
+			newTiles?.forEach((newTile) => {
+				newTile._init();
+				newTile._isDummy = newTile.z < params.minLevel;
+				root.dispatchEvent({ type: "tile-created", tile: newTile });
+				if (!newTile.isDummy) {
+					newTile._load(params.loader).then(() => {
+						// Show tile when all children has loaded
+						newTile._checkVisible();
+						root.dispatchEvent({ type: "tile-loaded", tile: newTile });
+					});
+				}
+			});
+		} else if (action === LODAction.remove) {
+			currentTile.showing = true;
+			// unload children tiles
+			currentTile._unLoad(false, params.loader);
+			root.dispatchEvent({ type: "tile-unload", tile: currentTile });
+		}
 		return this;
 	}
 

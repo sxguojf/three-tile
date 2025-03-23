@@ -5,6 +5,13 @@ import * as tt from "three-tile";
 
 import * as ms from "../mapSource";
 
+import { GeoJSONLoader, GeoJSONSource, MVTLoader, MVTSource } from "../vectorTile/index";
+
+// 注册GeoJSON加载器
+tt.TileMap.registerImgLoader(new GeoJSONLoader());
+// // 注册MVT加载器
+tt.TileMap.registerImgLoader(new MVTLoader());
+
 export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
 		setMapBox: () => {
@@ -192,6 +199,117 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			});
 			map.reload();
 		},
+
+		setGeoJSON() {
+			// https://geo.datav.aliyun.com/areas_v3/bound/100000.json
+			// https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json
+			// https://geo.datav.aliyun.com/areas_v3/bound/100000_full_city.json
+
+			// const world = new GeoJSONSource({
+			//     url: "world.json",
+			//     style: {
+			//         stroke: true,
+			//         color: "white",
+			//         fill: false,
+			//         weight: 1,
+			//         shadowColor: "black",
+			//         shadowBlur: 1,
+			//         shadowOffset: [1, 1],
+			//     },
+			// });
+
+			const country = new GeoJSONSource({
+				url: "https://geo.datav.aliyun.com/areas_v3/bound/100000.json",
+				// url: "./省道_线.json",
+				style: {
+					stroke: true,
+					color: "red",
+					weight: 2,
+					shadowColor: "black",
+					shadowBlur: 3,
+					shadowOffset: [2, 2],
+				},
+			});
+
+			const province = new GeoJSONSource({
+				url: "https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json",
+				style: {
+					stroke: true,
+					fill: false,
+					color: "Aqua",
+					weight: 1,
+				},
+			});
+
+			const city = new GeoJSONSource({
+				url: "https://geo.datav.aliyun.com/areas_v3/bound/100000_full_city.json",
+				style: {
+					stroke: true,
+					color: "yellow",
+					weight: 0.6,
+				},
+			});
+
+			const cityPoint = new GeoJSONSource({
+				url: "city.geojson",
+				style: {
+					minLevel: 4,
+					fill: true,
+					fillColor: "white",
+					fillOpacity: 1,
+					color: "black",
+					weight: 1,
+					shadowBlur: 3,
+					shadowColor: "black",
+				},
+			});
+
+			map.imgSource = [ms.arcGisSource, province, country, city, cityPoint];
+			map.reload();
+		},
+
+		setMVT() {
+			const mvtTest = new MVTSource({
+				// maxLevel: 14,
+				url: "https://api.maptiler.com/tiles/v3-openmaptiles/{z}/{x}/{y}.pbf?key=4SbPVVkPORGgXetw2vsf",
+				style: {
+					layer: {
+						boundary: {
+							color: "blue",
+							weight: 1,
+							shadowBlur: 3,
+							shadowColor: "black",
+							// fill: true,
+							// dashArray: [3, 3],
+						},
+						transportation: {
+							// visible: false,
+							color: "yellow",
+							weight: 1,
+							shadowBlur: 2,
+							shadowColor: "black",
+						},
+						water: {
+							fill: true,
+							color: "red",
+							weight: 0,
+							fillColor: "skyblue",
+							fillOpacity: 0.3,
+						},
+						// place: {
+						//     minLevel: 6,
+						//     fill: true,
+						//     fillColor: "white",
+						//     fillOpacity: 1,
+						//     shadowBlur: 2,
+						//     shadowColor: "black",
+						// },
+					},
+				},
+			});
+			map.imgSource = [ms.arcGisSource, mvtTest];
+			map.reload();
+		},
 	};
 
 	// 数据源
@@ -213,6 +331,9 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	imgFolder.add(vm, "setOpentopomap").name("OpenTopoMap");
 
 	imgFolder.add(vm, "setTdt_c").name("TDT(4326 projection)");
+
+	imgFolder.add(vm, "setGeoJSON").name("GeoJSON-test");
+	imgFolder.add(vm, "setMVT").name("MVT-test");
 
 	// 地形数据源
 	const demFolder = folder.addFolder("Terrain data");
