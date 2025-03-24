@@ -1,3 +1,4 @@
+import path from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
@@ -7,6 +8,11 @@ export default defineConfig({
 			input: {
 				main: "index.html",
 			},
+		},
+	},
+	resolve: {
+		alias: {
+			"three-tile": path.resolve(__dirname, "../lib/src"),
 		},
 	},
 
