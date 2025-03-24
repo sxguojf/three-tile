@@ -4,15 +4,15 @@
  *@date: 2023-04-06
  */
 
-import { BufferAttribute, BufferGeometry } from "three";
+import { BufferAttribute, PlaneGeometry } from "three";
 import { GeometryDataType } from "./GeometryDataTypes";
-import { getGeometryDataFromDem } from "./utils";
 import { addSkirt } from "./skirt";
+import { getGeometryDataFromDem } from "./utils";
 
 /**
  * Inherit of PlaneGeometry, add setData and setDEM method
  */
-export class TileGeometry extends BufferGeometry {
+export class TileGeometry extends PlaneGeometry {
 	public readonly type = "TileGeometry";
 
 	/**
