@@ -67,7 +67,7 @@ export abstract class Projection implements IProjection {
 	 * @param bounds 经纬度边界
 	 * @returns 投影坐标
 	 */
-	public getProjBounds(bounds: [number, number, number, number]): [number, number, number, number] {
+	public getProjBoundsFromLonLat(bounds: [number, number, number, number]): [number, number, number, number] {
 		// 加上投影中心经度后，投影x坐标范围与设置的经度范围不一定相等，所以判断是否为全球范围投影
 		const withCenter = bounds[0] === -180 && bounds[2] === 180;
 		const p1 = this.project(bounds[0] + (withCenter ? this._lon0 : 0), bounds[1]);
@@ -85,9 +85,16 @@ export abstract class Projection implements IProjection {
 	 * @param z  瓦片层级
 	 * @returns 
 	 */
-	public getTileBounds(x: number, y: number, z: number): [number, number, number, number] {
+	public getProjBoundsFromXYZ(x: number, y: number, z: number): [number, number, number, number] {
 		const p1 = this.getTileXYZproj(x, y, z);
 		const p2 = this.getTileXYZproj(x + 1, y + 1, z);
 		return [Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.max(p1.x, p2.x), Math.max(p1.y, p2.y)];
+	}
+
+	public getLonLatBoundsFromXYZ(x: number, y: number, z: number): [number, number, number, number] {
+		const projectBounds = this.getProjBoundsFromXYZ(x, y, z);
+		const p1 = this.unProject(projectBounds[0], projectBounds[1]);
+		const p2 = this.unProject(projectBounds[2], projectBounds[3]);
+		return [p1.lon, p1.lat, p2.lon, p2.lat];
 	}
 }

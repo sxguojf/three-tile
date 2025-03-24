@@ -25,7 +25,7 @@ export class TileMaterialDebugeLoader extends TileCanvasLoader {
 	 * @param params Tile load params
 	 */
 	protected drawTile(ctx: OffscreenCanvasRenderingContext2D, params: TileSourceLoadParamsType) {
-		const { x, y, z, bounds } = params;
+		const { x, y, z, bounds, lonLatBounds } = params;
 		const width = ctx.canvas.width;
 		const height = ctx.canvas.height;
 
@@ -43,8 +43,15 @@ export class TileMaterialDebugeLoader extends TileCanvasLoader {
 		ctx.fillText(`Level: ${z}`, width / 2, 50);
 		ctx.fillText(`[${x}, ${y}]`, height / 2, 80);
 
-		ctx.font = "16px arial";
-		ctx.fillText(`[${bounds[0].toFixed(3)}, ${bounds[1].toFixed(3)}]`, width / 2, width - 50);
-		ctx.fillText(`[${bounds[2].toFixed(3)}, ${bounds[3].toFixed(3)}]`, width / 2, height - 30);
+		const centerX = width / 2;
+		ctx.font = "14px arial";
+		ctx.fillText(`[${bounds[0].toFixed(3)}, ${bounds[1].toFixed(3)}]`, centerX, height - 50);
+		ctx.fillText(`[${bounds[2].toFixed(3)}, ${bounds[3].toFixed(3)}]`, centerX, height - 30);
+
+		if (lonLatBounds) {
+			// ctx.fillStyle = "red";
+			ctx.fillText(`[${lonLatBounds[0].toFixed(3)}, ${lonLatBounds[1].toFixed(3)}]`, centerX, height - 120);
+			ctx.fillText(`[${lonLatBounds[2].toFixed(3)}, ${lonLatBounds[3].toFixed(3)}]`, centerX, height - 100);
+		}
 	}
 }

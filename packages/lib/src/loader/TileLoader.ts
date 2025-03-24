@@ -49,15 +49,11 @@ export class TileLoader implements ITileLoader {
 	/**
 	 * Load getmetry and materail of tile from x, y and z coordinate.
 	 *
-	 * @param x x coordinate of tile
-	 * @param y y coordinate of tile
-	 * @param z z coordinate of tile
 	 * @returns Promise<MeshDateType> tile data
 	 */
 	public async load(params: TileLoadParamsType): Promise<MeshDateType> {
-		const { x, y, z, bounds } = params;
-		const geometry = await this.loadGeometry(x, y, z, bounds);
-		const materials = await this.loadMaterial(x, y, z, bounds);
+		const geometry = await this.loadGeometry(params);
+		const materials = await this.loadMaterial(params);
 
 		console.assert(!!materials && !!geometry);
 
@@ -84,28 +80,20 @@ export class TileLoader implements ITileLoader {
 
 	/**
 	 * Load geometry
-	 * @param x x coordinate of tile
-	 * @param y y coordinate of tile
-	 * @param z z coordinate of tile
 	 * @returns BufferGeometry
 	 */
-	protected async loadGeometry(
-		x: number,
-		y: number,
-		z: number,
-		tileBounds: [number, number, number, number],
-	): Promise<BufferGeometry> {
+	protected async loadGeometry(params: TileLoadParamsType): Promise<BufferGeometry> {
 		let geometry: BufferGeometry;
 		if (
 			this.demSource &&
-			z >= this.demSource.minLevel &&
-			this._isBoundsInSourceBounds(this.demSource, tileBounds)
+			params.z >= this.demSource.minLevel &&
+			this._isBoundsInSourceBounds(this.demSource, params.bounds)
 		) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			loader.useWorker = this.useWorker;
 			const source = this.demSource;
-			geometry = await loader.load({ source, x, y, z, bounds: tileBounds }).catch((_err) => {
-				console.error("Load material error", source.dataType, x, y, z);
+			geometry = await loader.load({ source, ...params }).catch((_err) => {
+				console.error("Load material error", source.dataType, params);
 				return new PlaneGeometry();
 			});
 			const dispose = (evt: { target: BufferGeometry<NormalBufferAttributes> }) => {
@@ -129,25 +117,16 @@ export class TileLoader implements ITileLoader {
 	 * @param z z coordinate of tile
 	 * @returns Material[]
 	 */
-	protected async loadMaterial(
-		x: number,
-		y: number,
-		z: number,
-		bounds: [number, number, number, number],
-	): Promise<Material[]> {
-		// get source in viewer
+	protected async loadMaterial(params: TileLoadParamsType): Promise<Material[]> {
 		const sources = this.imgSource.filter(
-			(source) => z >= source.minLevel && this._isBoundsInSourceBounds(source, bounds),
+			(source) => params.z >= source.minLevel && this._isBoundsInSourceBounds(source, params.bounds),
 		);
-		if (sources.length === 0) {
-			return [];
-		}
 
 		const materialsPromise = sources.map(async (source) => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			loader.useWorker = this.useWorker;
-			const material = await loader.load({ source, x, y, z, bounds }).catch((_err) => {
-				console.error("Load material error", source.dataType, x, y, z);
+			const material = await loader.load({ source, ...params }).catch((_err) => {
+				console.error("Load material error", source.dataType, params);
 				return new MeshBasicMaterial();
 			});
 			const dispose = (evt: Event<"dispose", Material>) => {

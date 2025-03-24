@@ -26,8 +26,10 @@ export type TileLoadParamsType = {
 	y: number;
 	/** Tile Z Coordinate */
 	z: number;
-	/** Tile Bounds */
+	/** Tile projection Bounds */
 	bounds: [number, number, number, number];
+	/** Tile lonlat Bounds */
+	lonLatBounds?: [number, number, number, number];
 };
 
 /**

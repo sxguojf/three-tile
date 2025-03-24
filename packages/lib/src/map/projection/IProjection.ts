@@ -20,6 +20,7 @@ export interface IProjection {
 	project(lon: number, lat: number): { x: number; y: number };
 	unProject(x: number, y: number): { lon: number; lat: number };
 	getTileXWithCenterLon(x: number, z: number): number;
-	getProjBounds(bounds: [number, number, number, number]): [number, number, number, number];
-	getTileBounds(x: number, y: number, z: number): [number, number, number, number];
+	getProjBoundsFromLonLat(bounds: [number, number, number, number]): [number, number, number, number];
+	getProjBoundsFromXYZ(x: number, y: number, z: number): [number, number, number, number];
+	getLonLatBoundsFromXYZ(x: number, y: number, z: number): [number, number, number, number];
 }

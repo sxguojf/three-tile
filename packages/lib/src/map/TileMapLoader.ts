@@ -18,10 +18,10 @@ export class TileMapLoader extends TileLoader {
 		const demSource = loader.demSource;
 		// 计算数据源投影范围
 		imgSource.forEach((source) => {
-			source._projectionBounds = projection.getProjBounds(source.bounds);
+			source._projectionBounds = projection.getProjBoundsFromLonLat(source.bounds);
 		});
 		if (demSource) {
-			demSource._projectionBounds = this._projection.getProjBounds(demSource.bounds);
+			demSource._projectionBounds = this._projection.getProjBoundsFromLonLat(demSource.bounds);
 		}
 	}
 
@@ -33,7 +33,10 @@ export class TileMapLoader extends TileLoader {
 		// 计算投影后的瓦片x坐标
 		const newX = this._projection.getTileXWithCenterLon(x, z);
 		// 计算瓦片投影范围
-		const bounds = this._projection.getTileBounds(x, y, z);
-		return super.load({ x: newX, y, z, bounds });
+		const bounds = this._projection.getProjBoundsFromXYZ(x, y, z);
+		// 计算瓦片经纬度范围
+		const lonLatBounds = this._projection.getLonLatBoundsFromXYZ(x, y, z);
+
+		return super.load({ x: newX, y, z, bounds, lonLatBounds });
 	}
 }
