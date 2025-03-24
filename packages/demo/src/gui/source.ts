@@ -310,6 +310,12 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 			map.imgSource = [ms.arcGisSource, mvtTest];
 			map.reload();
 		},
+
+		setTif: () => {
+			// map.imgSource = [ms.arcGisSource];
+			map.demSource = ms.tiffDEM;
+			map.reload();
+		},
 	};
 
 	// 数据源
@@ -342,6 +348,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 	demFolder.add(vm, "setMapTilerDem").name("MapTiler terrain(maxLevel=12)");
 	// demFolder.add(vm, "setZkXtDem").name("ZKXT(maxLevel=10)");
 	demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
+	demFolder.add(vm, "setTif").name("TIF DEM");
 
 	// 测试数据
 	const testFolder = folder.addFolder("Test data");

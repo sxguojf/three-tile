@@ -35,6 +35,8 @@ import "./wireframeLoader";
 // Single image loader. 单图像材质加载器
 import "./singleImageLoader";
 
+import "./tifDEMLoader";
+
 /*-------------------------------------------------------------------
                         utils 辅助工具
 ---------------------------------------------------------------------*/

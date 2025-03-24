@@ -179,3 +179,9 @@ export const singleImage = new tt.TileSource({
 	url: "./image/test.jpg",
 	bounds: [105, 33, 109, 37],
 });
+
+export const tiffDEM = new tt.TileSource({
+	dataType: "tif-dem",
+	url: "./evl.tif",
+	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
+});

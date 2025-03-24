@@ -25,6 +25,7 @@
 		"packages/*"
 	],
 	"dependencies": {
+		"geotiff": "^2.1.3",
 		"three-tile": "^0.10.0"
 	}
 }

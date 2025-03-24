@@ -6,6 +6,6 @@
 
 import { TileMap } from "../../map/TileMap";
 import { SingleImageLoader } from "./SingleImageLoader";
-export { SingleImageSource } from "./SingleImageSource1";
+export { SingleImageSource } from "./SingleImageSource";
 
 TileMap.registerImgLoader(new SingleImageLoader());
