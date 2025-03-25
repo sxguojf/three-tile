@@ -173,6 +173,8 @@ export const googleSource = new GoogleSource();
 // 测试瓦片
 export const testSource = new tt.TileSource({ dataType: "debug" });
 
+export const wrieframe = tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 });
+
 // 单张图片测试瓦片源
 export const singleImage = new tt.TileSource({
 	dataType: "single-image",

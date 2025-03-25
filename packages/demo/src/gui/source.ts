@@ -312,7 +312,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		},
 
 		setTif: () => {
-			// map.imgSource = [ms.arcGisSource];
+			map.imgSource = [ms.arcGisSource];
 			map.demSource = ms.tiffDEM;
 			map.reload();
 		},
