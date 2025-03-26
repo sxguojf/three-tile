@@ -7,7 +7,7 @@
 import { Martini } from "../../geometry/Martini";
 
 export type DEMType = {
-	demArray: Float32Array;
+	array: Float32Array;
 	width: number;
 	height: number;
 };
@@ -44,7 +44,7 @@ export function parse(data: DEMType, z: number, clipBounds: [number, number, num
 		demData = getSubDEM(data, clipBounds);
 	}
 
-	const { demArray, width: gridSize } = demData;
+	const { array: demArray, width: gridSize } = demData;
 
 	// 构建Martin
 	const martini = new Martini(gridSize);
@@ -99,7 +99,7 @@ function getSubDEM(demData: DEMType, bounds: [number, number, number, number]): 
 	const height = piexlRect.sh + 1;
 	// 瓦片剪裁并缩放
 	const demArray = arrayclipAndResize(
-		demData.demArray,
+		demData.array,
 		demData.width,
 		piexlRect.sx,
 		piexlRect.sy,
@@ -108,7 +108,7 @@ function getSubDEM(demData: DEMType, bounds: [number, number, number, number]): 
 		width,
 		height,
 	);
-	return { demArray, width, height };
+	return { array: demArray, width, height };
 }
 
 function getBoundsCoord(clipBounds: [number, number, number, number], targetSize: number) {

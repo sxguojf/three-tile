@@ -55,7 +55,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		for (let i = 0; i < demArray.length; i++) {
 			demArray[i] = pixels[0][i] / 1000;
 		}
-		return { demArray, width, height };
+		return { array: demArray, width, height };
 	}
 
 	/**
@@ -82,7 +82,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 			// 解析取得几何体数据
 			geoData = (
 				await this._workerPool.postMessage({ demData: decodedData, z, clipBounds: bounds }, [
-					decodedData.demArray.buffer,
+					decodedData.array.buffer,
 				])
 			).data;
 		} else {
