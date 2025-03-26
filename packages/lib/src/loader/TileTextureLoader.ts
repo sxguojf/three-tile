@@ -29,18 +29,17 @@ export class TileTextureLoader {
 		// get the max level and bounds in tile
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 
-		if (!url) {
-			return texture;
-		}
-		const image = await this.loader.loadAsync(url);
+		if (url) {
+			const image = await this.loader.loadAsync(url);
 
-		// if the tile level is greater than max level, clip the max level parent of this tile image
-		if (z > source.maxLevel) {
-			texture.image = getSubImageFromRect(image, clipBounds);
-		} else {
-			texture.image = image;
+			// if the tile level is greater than max level, clip the max level parent of this tile image
+			if (z > source.maxLevel) {
+				texture.image = getSubImageFromRect(image, clipBounds);
+			} else {
+				texture.image = image;
+			}
+			texture.needsUpdate = true;
 		}
-		texture.needsUpdate = true;
 		return texture;
 	}
 }

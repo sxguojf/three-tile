@@ -44,12 +44,12 @@ export function parse(data: DEMType, z: number, clipBounds: [number, number, num
 		demData = getSubDEM(data, clipBounds);
 	}
 
-	const { array: demArray, width: gridSize } = demData;
+	const { array: terrain, width: gridSize } = demData;
 
 	// 构建Martin
 	const martini = new Martini(gridSize);
 	// 简化
-	const tile = martini.createTile(demArray);
+	const tile = martini.createTile(terrain);
 	// 几何误差
 	const maxError = maxErrors[z] / 1000 || 0;
 	// 返回Geometry数据

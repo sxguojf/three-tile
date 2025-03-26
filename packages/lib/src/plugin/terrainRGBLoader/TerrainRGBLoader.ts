@@ -4,12 +4,12 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, ImageLoader, MathUtils } from "three";
+import { ImageLoader, MathUtils } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool";
+import { TileGeometry } from "../../geometry/TileGeometry";
 import { getBoundsCoord, LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
 import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
-import { TileGeometry } from "../../geometry/TileGeometry";
 
 const THREADSNUM = 10;
 
@@ -42,7 +42,7 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 	 * @param params 加载参数，包含瓦片xyz和裁剪边界clipBounds
 	 * @returns 返回解析后的BufferGeometry对象
 	 */
-	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<BufferGeometry> {
+	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<TileGeometry> {
 		const img = await this.imageLoader.loadAsync(url);
 		// 抽稀像素点
 		const targetSize = MathUtils.clamp((params.z + 2) * 3, 2, 64);

@@ -4,17 +4,16 @@
  *@date: 2023-04-05
  */
 
-import { BufferGeometry, FileLoader } from "three";
+import { FileLoader } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool";
+import { TileGeometry } from "../../geometry/TileGeometry";
+import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
+import decoder from "./lercDecode/lerc-wasm.wasm?url";
 import * as Lerc from "./lercDecode/LercDecode.es";
 import { parse } from "./parse";
 import ParseWorker from "./parse.Worker?worker&inline";
-import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
-import { TileGeometry } from "../../geometry/TileGeometry";
-import decoder from "./lercDecode/lerc-wasm.wasm?url";
 
 const THREADSNUM = 10;
-/* @vite-ignore */
 // const decoder = new URL("lerc-wasm.wasm", import.meta.url).href;
 
 /**
@@ -65,7 +64,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	 * @param params 解析参数，包含瓦片xyz和裁剪边界clipBounds
 	 * @returns 返回解析后的BufferGeometry对象
 	 */
-	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<BufferGeometry> {
+	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<TileGeometry> {
 		// 下载数据
 		const buffer: ArrayBuffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
 		// 解码数据
