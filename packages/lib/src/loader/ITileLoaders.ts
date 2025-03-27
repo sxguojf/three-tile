@@ -4,7 +4,7 @@
  * @date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh } from "three";
+import { BufferGeometry, Material, Mesh, Texture } from "three";
 import { ISource } from "../source";
 import { TileLoadingManager } from "./LoaderFactory";
 
@@ -15,7 +15,9 @@ export type MeshDateType = {
 	/** Tile geometry */
 	geometry: BufferGeometry;
 };
-
+export interface ITileMaterial extends Material {
+	map?: Texture | null;
+}
 /**
  * Tile Load Params Type
  */

@@ -4,16 +4,20 @@
  *@date: 2023-04-06
  */
 
-import { Texture } from "three";
+import { Material, Texture } from "three";
 import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
 import { TileMaterial } from "../material";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndBounds } from "./util";
 
+interface ITileMaterial extends Material {
+	map?: Texture | null;
+}
+
 /**
  * Image loader base calss
  */
-export abstract class TileMaterialLoader implements ITileMaterialLoader<TileMaterial> {
+export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMaterial> {
 	public info = {
 		version: "0.10.0",
 		description: "Image loader base class",
@@ -28,17 +32,15 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<TileMate
 	 * @param tile
 	 * @returns
 	 */
-	public async load(params: TileSourceLoadParamsType): Promise<TileMaterial> {
+	public async load(params: TileSourceLoadParamsType): Promise<ITileMaterial> {
 		const { source, x, y, z } = params;
 		const material = new TileMaterial();
 		// get max level tile and bounds
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
 			const texture = await this.doLoad(url, { source, x, y, z, bounds: clipBounds });
-			if ("map" in material) {
-				material.map = texture;
-				texture.needsUpdate = true;
-			}
+			material.map = texture;
+			texture.needsUpdate = true;
 			LoaderFactory.manager.parseEnd(url);
 		}
 		return material;
