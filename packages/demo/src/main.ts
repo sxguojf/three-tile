@@ -1,10 +1,11 @@
-import { Mesh, MeshStandardMaterial, SphereGeometry, SpotLight, SpotLightHelper, Vector3 } from "three";
+import { Mesh, MeshStandardMaterial, SphereGeometry, SpotLight, SpotLightHelper, Vector3, REVISION } from "three";
 
 import * as tt from "three-tile";
 import * as gui from "./gui";
 import * as source from "./mapSource";
 
 console.log("===================================================================");
+console.log(`threejs V${REVISION}`);
 console.log(`three-tile V${tt.version}, ${tt.author.email}`);
 document.querySelector<HTMLSpanElement>("#version")!.innerText = tt.version;
 

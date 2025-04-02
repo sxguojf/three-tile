@@ -21,7 +21,7 @@ export class TileMapLoader extends TileLoader {
 			source._projectionBounds = projection.getProjBoundsFromLonLat(source.bounds);
 		});
 		if (demSource) {
-			demSource._projectionBounds = this._projection.getProjBoundsFromLonLat(demSource.bounds);
+			demSource._projectionBounds = projection.getProjBoundsFromLonLat(demSource.bounds);
 		}
 	}
 
