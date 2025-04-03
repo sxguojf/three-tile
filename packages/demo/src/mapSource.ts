@@ -1,4 +1,6 @@
 import * as tt from "three-tile";
+import * as ttp from "three-tile-plugin";
+import { GeoJSONSource, MVTSource } from "./vectorTile";
 const {
 	ArcGisDemSource,
 	ArcGisSource,
@@ -13,7 +15,7 @@ const {
 	TXSource,
 	ZKXTQMSource,
 	ZKXTSource,
-} = tt.plugin;
+} = ttp.mapSource;
 
 // import * as tt from "../dist/three-tile";
 // await lercInit();
@@ -186,4 +188,89 @@ export const tiffDEM = new tt.TileSource({
 	dataType: "tif-dem",
 	url: "./evl.tif",
 	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
+});
+
+export const mvtTest = new MVTSource({
+	// maxLevel: 14,
+	url: "https://api.maptiler.com/tiles/v3-openmaptiles/{z}/{x}/{y}.pbf?key=4SbPVVkPORGgXetw2vsf",
+	style: {
+		layer: {
+			boundary: {
+				color: "blue",
+				weight: 1,
+				shadowBlur: 3,
+				shadowColor: "black",
+				// fill: true,
+				// dashArray: [3, 3],
+			},
+			transportation: {
+				// visible: false,
+				color: "yellow",
+				weight: 1,
+				shadowBlur: 2,
+				shadowColor: "black",
+			},
+			water: {
+				fill: true,
+				color: "red",
+				weight: 0,
+				fillColor: "skyblue",
+				fillOpacity: 0.3,
+			},
+			// place: {
+			//     minLevel: 6,
+			//     fill: true,
+			//     fillColor: "white",
+			//     fillOpacity: 1,
+			//     shadowBlur: 2,
+			//     shadowColor: "black",
+			// },
+		},
+	},
+});
+
+export const geojsonCountry = new GeoJSONSource({
+	url: "https://geo.datav.aliyun.com/areas_v3/bound/100000.json",
+	// url: "./省道_线.json",
+	style: {
+		stroke: true,
+		color: "red",
+		weight: 2,
+		shadowColor: "black",
+		shadowBlur: 3,
+		shadowOffset: [2, 2],
+	},
+});
+
+export const geojsonProvince = new GeoJSONSource({
+	url: "https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json",
+	style: {
+		stroke: true,
+		fill: false,
+		color: "Aqua",
+		weight: 1,
+	},
+});
+
+export const geojsonCity = new GeoJSONSource({
+	url: "https://geo.datav.aliyun.com/areas_v3/bound/100000_full_city.json",
+	style: {
+		stroke: true,
+		color: "yellow",
+		weight: 0.6,
+	},
+});
+
+export const geojsonCityPoint = new GeoJSONSource({
+	url: "city.geojson",
+	minLevel: 4,
+	style: {
+		fill: true,
+		fillColor: "white",
+		fillOpacity: 1,
+		color: "black",
+		weight: 1,
+		shadowBlur: 3,
+		shadowColor: "black",
+	},
 });

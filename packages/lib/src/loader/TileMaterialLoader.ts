@@ -40,7 +40,6 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		if (url) {
 			const texture = await this.doLoad(url, { source, x, y, z, bounds: clipBounds });
 			material.map = texture;
-			texture.needsUpdate = true;
 			LoaderFactory.manager.parseEnd(url);
 		}
 		return material;

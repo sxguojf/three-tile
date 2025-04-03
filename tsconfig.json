@@ -4,7 +4,10 @@
 		"target": "ESNext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
-		"lib": ["ESNext", "DOM"],
+		"lib": [
+			"ESNext",
+			"DOM"
+		],
 		"moduleResolution": "Node",
 		"strict": true,
 		"resolveJsonModule": true,
@@ -16,11 +19,23 @@
 		"noImplicitReturns": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"types": ["vite/client"],
+		"types": [
+			"vite/client"
+		],
 		"paths": {
-			"three-tile": ["./packages/lib/src"]
+			"three-tile": [
+				"./packages/lib/src"
+			],
+			"three-tile-plugin": [
+				"./packages/plugin/src"
+			],
 		}
 	},
-	"include": ["packages/lib/src/*", "packages/demo/src/*"],
-	"exclude": ["src/**/back/**"]
+	"include": [
+		"packages/lib/src/*",
+		"packages/demo/src/*"
+	],
+	"exclude": [
+		"src/**/back/**"
+	]
 }

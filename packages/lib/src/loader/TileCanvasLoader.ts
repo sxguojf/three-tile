@@ -29,7 +29,6 @@ export abstract class TileCanvasLoader implements ITileMaterialLoader {
 		const ctx = this._creatCanvasContext(256, 256);
 		this.drawTile(ctx, params);
 		const texture = new CanvasTexture(ctx.canvas.transferToImageBitmap());
-		texture.needsUpdate = true;
 		const material = new TileMaterial({
 			transparent: true,
 			map: texture,

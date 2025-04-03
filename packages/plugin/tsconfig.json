@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		"baseUrl": ".",
 		"target": "ESNext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
@@ -22,17 +21,15 @@
 		"types": [
 			"vite/client"
 		],
+		"declaration": false,
 		"paths": {
 			"three-tile": [
 				"../lib/src"
-			],
-			"three-tile-plugin": [
-				"../plugin/src"
-			],
+			]
 		}
 	},
 	"include": [
-		"src/*"
+		"src/**/*.ts"
 	],
 	"exclude": [
 		"src/**/back/**"

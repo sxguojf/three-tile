@@ -38,7 +38,6 @@ export class TileTextureLoader {
 			} else {
 				texture.image = image;
 			}
-			texture.needsUpdate = true;
 		}
 		return texture;
 	}

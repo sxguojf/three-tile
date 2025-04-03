@@ -1,0 +1,40 @@
+{
+	"name": "three-tile-plugin",
+	"version": "0.10.0",
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"main": "dist/three-tile-plugin.umd.cjs",
+	"module": "dist/three-tile-plugin.js",
+	"types": "./dist/three-tile-plugin.es.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/three-tile-plugin.js",
+			"require": "./dist/three-tile-plugin.umd.cjs",
+			"types": "./dist/three-tile-plugin.es.d.ts"
+		}
+	},
+	"description": "three-tile plugin",
+	"license": "GPL-3.0",
+	"author": {
+		"name": "GuoJF",
+		"email": "hz_gjf@163.com"
+	},
+	"keywords": [
+		"three",
+		"gis",
+		"tile",
+		"map",
+		"3D",
+		"cesium",
+		"three-tile"
+	],
+	"scripts": {
+		"dev": "vite build --watch",
+		"build": "tsc && vite build"
+	},
+	"dependencies": {
+		"geotiff": "^2.1.3"
+	}
+}

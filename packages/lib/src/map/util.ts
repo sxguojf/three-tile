@@ -108,19 +108,19 @@ export function attachEvent(map: TileMap) {
 	});
 }
 
-export function getAttributions(tileMap: TileMap) {
-	const attributions: string[] = [];
-	const imgSources = Array.isArray(tileMap.imgSource) ? tileMap.imgSource : [tileMap.imgSource];
-	imgSources.forEach((source) => {
-		const attr = source.attribution;
-		attr && attributions.push(attr);
-	});
-	if (tileMap.demSource) {
-		const attr = tileMap.demSource.attribution;
-		attr && attributions.push(attr);
-	}
-	return [...new Set(attributions)];
-}
+// export function getAttributions(tileMap: TileMap) {
+// 	const attributions: string[] = [];
+// 	const imgSources = Array.isArray(tileMap.imgSource) ? tileMap.imgSource : [tileMap.imgSource];
+// 	imgSources.forEach((source) => {
+// 		const attr = source.attribution;
+// 		attr && attributions.push(attr);
+// 	});
+// 	if (tileMap.demSource) {
+// 		const attr = tileMap.demSource.attribution;
+// 		attr && attributions.push(attr);
+// 	}
+// 	return [...new Set(attributions)];
+// }
 
 // export function goHome(map: TileMap, viewer: GLViewer) {
 // 	// 按下 F1 键事件
