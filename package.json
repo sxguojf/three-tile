@@ -1,6 +1,11 @@
 {
-	"name": "three-tile-packages",
+	"name": "three-tile",
 	"private": false,
+	"version": "0.10.0",
+	"author": {
+		"name": "GuoJF",
+		"email": "hz_gjf@163.com"
+	},
 	"scripts": {
 		"dev": "npm run dev --workspace=packages/demo",
 		"lib": "npm run dev --workspace=packages/lib",
