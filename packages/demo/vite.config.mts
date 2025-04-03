@@ -10,12 +10,12 @@ export default defineConfig({
 			},
 		},
 	},
-	resolve: {
-		alias: {
-			"three-tile": path.resolve(__dirname, "../lib/src"),
-			"three-tile-plugin": path.resolve(__dirname, "../plugin/src"),
-		},
-	},
+	// resolve: {
+	// 	alias: {
+	// 		"three-tile": path.resolve(__dirname, "../lib/src"),
+	// 		"three-tile-plugin": path.resolve(__dirname, "../plugin/src"),
+	// 	},
+	// },
 
 	server: {
 		port: 8001,

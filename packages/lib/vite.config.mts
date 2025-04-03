@@ -7,12 +7,13 @@ export default defineConfig({
 	plugins: [
 		// wasm(),
 		dts({
-			outDir: ["dist"],
+			// outDir: ["dist"],
 			rollupTypes: true,
 		}),
 	],
 	build: {
 		target: "esnext",
+		outDir: "./dist",
 		lib: {
 			entry: path.resolve(__dirname, "src/index.ts"),
 			name: "ThreeTile", //打包后全局变量名，umd中使用

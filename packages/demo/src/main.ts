@@ -1,7 +1,7 @@
 import { Mesh, MeshStandardMaterial, SphereGeometry, SpotLight, SpotLightHelper, Vector3, REVISION } from "three";
 
 import * as tt from "three-tile";
-import * as ttp from "three-tile-plugin";
+import * as plugin from "three-tile-plugin";
 import * as gui from "./gui";
 import * as source from "./mapSource";
 import "./plugin";
@@ -57,7 +57,7 @@ function initViewer(id: string, map: tt.TileMap) {
 	map.add(frakeEarth);
 
 	// 添加罗盘
-	const compass = ttp.createCompass(viewer.controls);
+	const compass = plugin.createCompass(viewer.controls);
 	const compassContainer = document.querySelector<HTMLDivElement>("#compass-container");
 	compassContainer && compassContainer.appendChild(compass.dom);
 

@@ -1,5 +1,4 @@
 import * as tt from "three-tile";
-// import * as ttp from "three-tile-plugin";
 import "three-tile-plugin";
 
 import { GeoJSONLoader, MVTLoader } from "./vectorTile/index";

@@ -22,11 +22,11 @@
 			"vite/client"
 		],
 		"declaration": false,
-		"paths": {
-			"three-tile": [
-				"../lib/src"
-			]
-		}
+		// "paths": {
+		// 	"three-tile": [
+		// 		"../lib/src"
+		// 	]
+		// }
 	},
 	"include": [
 		"src/**/*.ts"

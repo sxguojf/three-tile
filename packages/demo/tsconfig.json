@@ -22,17 +22,18 @@
 		"types": [
 			"vite/client"
 		],
-		"paths": {
-			"three-tile": [
-				"../lib/src"
-			],
-			"three-tile-plugin": [
-				"../plugin/src"
-			],
-		}
+		// "paths": {
+		// 	"three-tile": [
+		// 		"../lib/src"
+		// 	],
+		// 	"three-tile-plugin": [
+		// 		"../plugin/src"
+		// 	],
+		// }
 	},
 	"include": [
-		"src/*"
+		"src/*",
+		"src/vectorTile"
 	],
 	"exclude": [
 		"src/**/back/**"

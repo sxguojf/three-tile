@@ -5,5 +5,9 @@
 	"scripts": {
 		"dev": "vite",
 		"build": "vue-tsc && vite build"
+	},
+	"dependencies": {
+		"three-tile": "file:../lib/src",
+		"three-tile-plugin": "file:../plugin/src"
 	}
 }

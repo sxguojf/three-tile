@@ -22,14 +22,14 @@
 		"types": [
 			"vite/client"
 		],
-		"paths": {
-			"three-tile": [
-				"./packages/lib/src"
-			],
-			"three-tile-plugin": [
-				"./packages/plugin/src"
-			],
-		}
+		// "paths": {
+		// 	"three-tile": [
+		// 		"./packages/lib/src"
+		// 	],
+		// 	"three-tile-plugin": [
+		// 		"./packages/plugin/src"
+		// 	],
+		// }
 	},
 	"include": [
 		"packages/lib/src/*",

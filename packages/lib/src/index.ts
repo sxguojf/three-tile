@@ -5,7 +5,11 @@
  */
 
 export { version, author } from "../package.json";
-
+// export const version = "0.10.0";
+// export const author = {
+// 	name: "GuoJF",
+// 	email: "hz_gjf@163.com",
+// };
 // core
 export * from "./tile";
 // material

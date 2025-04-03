@@ -4,6 +4,7 @@ export * from "./normalLoder";
 export * from "./wireframeLoader";
 export * from "./singleImageLoader";
 export * from "./singleTifDEMLoader";
+export * from "../../demo/src/vectorTile";
 export * from "./compass";
 export * as mapSource from "./mapSource";
 

@@ -1,7 +1,26 @@
 {
-	"name": "three-tile",
+	"name": "three-tile-packages",
 	"private": false,
 	"version": "0.10.0",
+	"type": "module",
+	"files": [
+		"dist"
+	],
+	"main": "dist/three-tile.umd.cjs",
+	"module": "dist/three-tile.js",
+	"types": "dist/three-tile.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/three-tile.js",
+			"require": "./dist/three-tile.umd.cjs",
+			"types": "./dist/three-tile.d.ts"
+		},
+		"./plugin": {
+			"import": "./dist/three-tile-plugin.js",
+			"require": "./dist/three-tile-plugin.umd.cjs",
+			"types": "./dist/three-tile-plugin.d.ts"
+		}
+	},
 	"author": {
 		"name": "GuoJF",
 		"email": "hz_gjf@163.com"
@@ -9,7 +28,9 @@
 	"scripts": {
 		"dev": "npm run dev --workspace=packages/demo",
 		"lib": "npm run dev --workspace=packages/lib",
-		"build:lib": "npm run build --workspace=packages/lib",
+		"build:lib": "vite build",
+		"build:plugin": "vite build --config vite.config.plugin.mts",
+		"build": "npm run build:lib && npm run build:plugin",
 		"preview": "vite preview --config vite.config.demo.ts",
 		"test": "vitest"
 	},
@@ -27,5 +48,31 @@
 	},
 	"workspaces": [
 		"packages/*"
-	]
+	],
+	"description": "A lightweight tile map using threejs with plugins",
+	"license": "GPL-3.0",
+	"keywords": [
+		"three",
+		"gis",
+		"tile",
+		"map",
+		"3D",
+		"cesium"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sxguojf/three-tile.git"
+	},
+	"bugs": {
+		"url": "https://github.com/sxguojf/three-tile/issues"
+	},
+	"homepage": "https://sxguojf.github.io/three-tile-doc",
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/",
+		"access": "public"
+	},
+	"dependencies": {
+		"three-tile": "^0.10.0",
+		"three-tile-plugin": "^0.10.0"
+	}
 }
