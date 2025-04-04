@@ -26,15 +26,15 @@ export const createLoaderGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 						save(new Blob([gltf], { type: "application/octet-stream" }), "map.glb");
 					}
 				},
-				function (error: any) {
-					console.log("An error happened: " + error);
+				function (error: ErrorEvent) {
+					console.log("An error happened: " + error.message);
 				},
 				{
 					trs: false,
 					onlyVisible: true,
 					binary: true,
 					maxTextureSize: 1024,
-				},
+				}
 			);
 		},
 	};

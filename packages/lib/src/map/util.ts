@@ -74,7 +74,7 @@ export function attachEvent(map: TileMap) {
 	loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
 		dispatchLoadingEvent("loading-start", { url, itemsLoaded, itemsTotal });
 	};
-	loadingManager.onError = (url) => {
+	loadingManager.onError = url => {
 		dispatchLoadingEvent("loading-error", { url });
 	};
 	loadingManager.onLoad = () => {
@@ -85,7 +85,7 @@ export function attachEvent(map: TileMap) {
 	};
 
 	// 添加瓦片解析完成事件
-	loadingManager.onParseEnd = (url) => {
+	loadingManager.onParseEnd = url => {
 		dispatchLoadingEvent("parsing-end", { url });
 	};
 
@@ -93,17 +93,17 @@ export function attachEvent(map: TileMap) {
 	map.rootTile.addEventListener("ready", () => dispatchLoadingEvent("ready"));
 
 	// 瓦片创建完成事件
-	map.rootTile.addEventListener("tile-created", (evt) => {
+	map.rootTile.addEventListener("tile-created", evt => {
 		dispatchLoadingEvent("tile-created", { tile: evt.tile });
 	});
 
 	// 瓦片加载完成事件
-	map.rootTile.addEventListener("tile-loaded", (evt) => {
+	map.rootTile.addEventListener("tile-loaded", evt => {
 		dispatchLoadingEvent("tile-loaded", { tile: evt.tile });
 	});
 
 	// 瓦片释放事件
-	map.rootTile.addEventListener("tile-unload", (evt) => {
+	map.rootTile.addEventListener("tile-unload", evt => {
 		dispatchLoadingEvent("tile-unload", { tile: evt.tile });
 	});
 }

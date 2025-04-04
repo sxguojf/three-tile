@@ -70,6 +70,7 @@ export interface ITileLoaderInfo {
 
 /** Material Loader Interface */
 export interface ITileMaterialLoader<TMaterial extends Material = Material> {
+	isMaterialLoader?: true;
 	/** Loader Info */
 	info: ITileLoaderInfo;
 	/** Tile Data Type */
@@ -84,6 +85,7 @@ export interface ITileMaterialLoader<TMaterial extends Material = Material> {
 
 /** Geometry Loader Interface */
 export interface ITileGeometryLoader<TGeometry extends BufferGeometry = BufferGeometry> {
+	isMaterialLoader?: false;
 	/** Loader Info */
 	info: ITileLoaderInfo;
 	/** Tile Data Type */

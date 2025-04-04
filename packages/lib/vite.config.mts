@@ -28,5 +28,9 @@ export default defineConfig({
 			},
 		},
 		// sourcemap: true,
+		watch: {
+			include: "src/**",
+			clearScreen: false,
+		},
 	},
 });

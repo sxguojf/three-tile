@@ -22,9 +22,9 @@ export class PromiseWorker {
 	 * @param transfer 可转移对象的数组，用于优化内存传输。
 	 * @returns 返回一个Promise，解析为worker返回的结果。
 	 */
-	public async run<T = any>(message: any, transfer: Transferable[]) {
-		return new Promise<T>((resolve) => {
-			this.worker.onmessage = (e) => {
+	public async run<T = unknown>(message: Record<string, unknown>, transfer: Transferable[]) {
+		return new Promise<T>(resolve => {
+			this.worker.onmessage = e => {
 				resolve(e.data);
 			};
 			this.worker.postMessage(message, transfer);

@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { TileMap } from "../../map/TileMap";
+import { registerDEMLoader } from "../..";
 import { TerrainRGBLoader } from "./TerrainRGBLoader";
 
-TileMap.registerDEMloader(new TerrainRGBLoader());
+registerDEMLoader(new TerrainRGBLoader());

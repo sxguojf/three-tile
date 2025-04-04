@@ -1,5 +1,4 @@
 import { AmbientLight } from 'three';
-import { author } from '../package.json';
 import { BaseEvent } from 'three';
 import { BufferGeometry } from 'three';
 import { Camera } from 'three';
@@ -27,7 +26,6 @@ import { Sprite } from 'three';
 import { Texture } from 'three';
 import { Vector2 } from 'three';
 import { Vector3 } from 'three';
-import { version } from '../package.json';
 import { WebGLRenderer } from 'three';
 
 /**
@@ -65,9 +63,9 @@ export declare type AttributesType = {
     };
 };
 
-export { author }
+export declare const author: any;
 
-export declare function concatenateTypedArrays<T>(...typedArrays: T[]): T;
+export declare function concatenateTypedArrays<T extends TypedArray>(...typedArrays: T[]): T;
 
 export declare function createBillboards(txt: string, size?: number): Sprite<Object3DEventMap>;
 
@@ -311,12 +309,13 @@ export declare interface ISource {
     _getUrl(x: number, y: number, z: number): string | undefined;
     /** User data */
     userData: {
-        [key: string]: any;
+        [key: string]: unknown;
     };
 }
 
 /** Geometry Loader Interface */
 export declare interface ITileGeometryLoader<TGeometry extends BufferGeometry = BufferGeometry> {
+    isMaterialLoader?: false;
     /** Loader Info */
     info: ITileLoaderInfo;
     /** Tile Data Type */
@@ -365,6 +364,7 @@ declare interface ITileMaterial_2 extends Material {
 
 /** Material Loader Interface */
 export declare interface ITileMaterialLoader<TMaterial extends Material = Material> {
+    isMaterialLoader?: true;
     /** Loader Info */
     info: ITileLoaderInfo;
     /** Tile Data Type */
@@ -413,11 +413,6 @@ export declare const LoaderFactory: {
      * @returns geometry loader
      */
     getGeometryLoader(source: ISource): ITileGeometryLoader<BufferGeometry<NormalBufferAttributes>>;
-    getLoadersInfo(): {
-        category: string;
-        dataType: string;
-        info: ITileLoaderInfo;
-    }[];
 };
 
 /**
@@ -589,12 +584,16 @@ export declare class PromiseWorker {
      * @param transfer 可转移对象的数组，用于优化内存传输。
      * @returns 返回一个Promise，解析为worker返回的结果。
      */
-    run<T = any>(message: any, transfer: Transferable[]): Promise<T>;
+    run<T = unknown>(message: Record<string, unknown>, transfer: Transferable[]): Promise<T>;
     /**
      * 终止当前工作进程。
      */
     terminate(): void;
 }
+
+export declare function registerDEMLoader(loader: ITileGeometryLoader): ITileGeometryLoader<BufferGeometry<NormalBufferAttributes>>;
+
+export declare function registerImgLoader(loader: ITileMaterialLoader): ITileMaterialLoader<Material>;
 
 /**
  * source construtor params type
@@ -621,7 +620,7 @@ export declare interface SourceOptions {
     isTMS?: boolean;
     /** User data */
     userData?: {
-        [key: string]: any;
+        [key: string]: unknown;
     };
 }
 
@@ -1155,13 +1154,6 @@ export declare class TileMap extends Mesh<BufferGeometry, Material, TileMapEvent
      * 取得当前正在下载的瓦片数量
      */
     get downloading(): number;
-    static get loaderInfo(): {
-        category: string;
-        dataType: string;
-        info: ITileLoaderInfo;
-    }[];
-    static registerImgLoader(loader: ITileMaterialLoader): ITileMaterialLoader<Material>;
-    static registerDEMloader(loader: ITileGeometryLoader): ITileGeometryLoader<BufferGeometry<NormalBufferAttributes>>;
 }
 
 /**
@@ -1175,20 +1167,27 @@ export declare class TileMap extends Mesh<BufferGeometry, Material, TileMapEvent
  * @interface TileMapEventMap
  *
  * @property {BaseEvent} ready - Event triggered when the TileMap is ready.
- * @property {BaseEvent & { delta: number }} update - Event triggered when the TileMap is updated, with a delta value.
+ * @property {BaseEvent & { delta: number }} update - Event triggered when the TileMap is updated.
  *
- * @property {BaseEvent & { tile: Tile }} "tile-created" - Event triggered when a tile is created, with the created tile.
- * @property {BaseEvent & { tile: Tile }} "tile-loaded" - Event triggered when a tile is loaded, with the loaded tile.
+ * @property {BaseEvent & { tile: Tile }} "tile-created" - Event triggered when a tile is created.
+ * @property {BaseEvent & { tile: Tile }} "tile-loaded" - Event triggered when a tile is loaded.
  *
- * @property {BaseEvent & { projection: IProjection }} "projection-changed" - Event triggered when the projection changes, with the new projection.
- * @property {BaseEvent & { source: ISource | ISource[] | undefined }} "source-changed" - Event triggered when the source changes, with the new source(s).
+ * @property {BaseEvent & { projection: IProjection }} "projection-changed" -
+ *   Event triggered when the projection changes, with the new projection.
+ * @property {BaseEvent & { source: ISource | ISource[] | undefined }} "source-changed" -
+ *   Event triggered when the source changes, with the new source(s).
  *
- * @property {BaseEvent & { itemsLoaded: number; itemsTotal: number }} "loading-start" - Event triggered when loading starts, with the number of items loaded and total items.
- * @property {BaseEvent & { url: string }} "loading-error" - Event triggered when there is a loading error, with the URL of the failed resource.
- * @property {BaseEvent} "loading-complete" - Event triggered when loading is complete.
- * @property {BaseEvent & { url: string; itemsLoaded: number; itemsTotal: number }} "loading-progress" - Event triggered during loading progress, with the URL, items loaded, and total items.
+ * @property {BaseEvent & { itemsLoaded: number; itemsTotal: number }} "loading-start" -
+ *   Event triggered when loading starts, with the number of items loaded and total items.
+ * @property {BaseEvent & { url: string }} "loading-error" -
+ *   Event triggered when there is a loading error, with the URL of the failed resource.
+ * @property {BaseEvent} "loading-complete" -
+ *   Event triggered when loading is complete.
+ * @property {BaseEvent & { url: string; itemsLoaded: number; itemsTotal: number }} "loading-progress" -
+ *   Event triggered during loading progress, with the URL, items loaded, and total items.
  *
- * @property {BaseEvent & { url: string }} "parsing-end" - Event triggered when parsing ends, with the URL of the parsed resource.
+ * @property {BaseEvent & { url: string }} "parsing-end" -
+ *   Event triggered when parsing ends, with the URL of the parsed resource.
  */
 export declare interface TileMapEventMap extends Object3DEventMap {
     ready: BaseEvent;
@@ -1286,9 +1285,9 @@ export declare class TileSource implements ISource {
     /** URL template for tile data. Uses variables like {x},{y},{z} to construct tile request URLs */
     url: string;
     /** List of URL subdomains for load balancing. Can be an array of strings or a single string */
-    protected subdomains: string[] | string;
+    subdomains: string[] | string;
     /** Currently used subdomain. Randomly selected from subdomains when requesting tiles */
-    protected s: string;
+    s: string;
     /** Layer opacity. Range 0-1, default is 1.0 (completely opaque) */
     opacity: number;
     /** Whether to use TMS tile coordinate system. Default false uses XYZ system, true uses TMS system */
@@ -1299,7 +1298,7 @@ export declare class TileSource implements ISource {
     _projectionBounds: [number, number, number, number];
     /** User-defined data. Can store any key-value pairs */
     userData: {
-        [key: string]: any;
+        [key: string]: unknown;
     };
     /**
      * constructor
@@ -1307,13 +1306,13 @@ export declare class TileSource implements ISource {
      */
     constructor(options?: SourceOptions);
     /**
-     * Get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
+     * Get url from tile coordinate, public, overwrite to custom generation tile url from xyz
      * @param x tile x coordinate
      * @param y tile y coordinate
      * @param z tile z coordinate
      * @returns url tile url
      */
-    protected getUrl(x: number, y: number, z: number): string | undefined;
+    getUrl(x: number, y: number, z: number): string | undefined;
     /**
      * Get url from tile coordinate, public，called by TileLoader
      * @param x tile x coordinate
@@ -1380,12 +1379,14 @@ export declare interface TTileEventMap extends Object3DEventMap {
     };
 }
 
+declare type TypedArray = Int8Array | Uint8Array | Uint8ClampedArray | Int16Array | Uint16Array | Int32Array | Uint32Array | Float32Array | Float64Array;
+
 /**
  * 矢量特征值
  */
 export declare type VectorFeature = {
     geometry: Point[][];
-    properties?: Record<string, any>;
+    properties?: Record<string, unknown>;
     size?: number;
 };
 
@@ -1454,7 +1455,7 @@ export declare class VectorTileRender {
     private _renderPolygon;
 }
 
-export { version }
+export declare const version: any;
 
 export declare function waitFor(condition: boolean, delay?: number): Promise<void>;
 

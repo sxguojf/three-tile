@@ -7,7 +7,7 @@
 import { LoadingManager } from "three";
 import { ISource } from "../source";
 import { ITileGeometryLoader, ITileMaterialLoader } from "./ITileLoaders";
-import { author, version } from "..";
+import { author, version } from "../../package.json";
 
 console.log(`====================three-tile V${version}==============================`);
 
@@ -78,17 +78,17 @@ export const LoaderFactory = {
 		}
 	},
 
-	getLoadersInfo() {
-		const imgLoaders = Array.from(this.imgLoaderMap.values()).map((loader) => ({
-			category: "image",
-			dataType: loader.dataType,
-			info: loader.info,
-		}));
-		const demLoaders = Array.from(this.demLoaderMap.values()).map((loader) => ({
-			category: "terrain",
-			dataType: loader.dataType,
-			info: loader.info,
-		}));
-		return [...imgLoaders, ...demLoaders];
-	},
+	// getLoadersInfo() {
+	// 	const imgLoaders = Array.from(this.imgLoaderMap.values()).map((loader) => ({
+	// 		category: "image",
+	// 		dataType: loader.dataType,
+	// 		info: loader.info,
+	// 	}));
+	// 	const demLoaders = Array.from(this.demLoaderMap.values()).map((loader) => ({
+	// 		category: "terrain",
+	// 		dataType: loader.dataType,
+	// 		info: loader.info,
+	// 	}));
+	// 	return [...imgLoaders, ...demLoaders];
+	// },
 };

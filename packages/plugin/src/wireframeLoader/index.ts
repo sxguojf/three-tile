@@ -4,8 +4,8 @@
  *@date: 2023-04-05
  */
 
-import { TileMap } from "three-tile";
+import { registerImgLoader } from "three-tile";
 import { TileMaterialWrieLoader } from "./TileMaterialWrieLoader";
 
 // register
-TileMap.registerImgLoader(new TileMaterialWrieLoader());
+registerImgLoader(new TileMaterialWrieLoader());

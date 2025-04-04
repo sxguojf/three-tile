@@ -33,5 +33,5 @@ export interface ISource {
 	/** Get url from xyz, internal use */
 	_getUrl(x: number, y: number, z: number): string | undefined;
 	/** User data */
-	userData: { [key: string]: any };
+	userData: { [key: string]: unknown };
 }

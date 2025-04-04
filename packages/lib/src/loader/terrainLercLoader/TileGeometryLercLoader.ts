@@ -94,7 +94,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 }
 
 function waitFor(condition: boolean, delay = 100) {
-	return new Promise<void>((resolve) => {
+	return new Promise<void>(resolve => {
 		const interval = setInterval(() => {
 			if (condition) {
 				clearInterval(interval);

@@ -66,7 +66,7 @@ function getSubDEM(demData: DEMType, bounds: [number, number, number, number]): 
 		sw: number,
 		sh: number,
 		dw: number,
-		dh: number,
+		dh: number
 	) {
 		// clip
 		const clippedData = new Float32Array(sw * sh);
@@ -106,7 +106,7 @@ function getSubDEM(demData: DEMType, bounds: [number, number, number, number]): 
 		piexlRect.sw,
 		piexlRect.sh,
 		width,
-		height,
+		height
 	);
 	return { array: demArray, width, height };
 }

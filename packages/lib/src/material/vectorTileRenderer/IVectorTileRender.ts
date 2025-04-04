@@ -73,6 +73,6 @@ export type Point = { x: number; y: number };
  */
 export type VectorFeature = {
 	geometry: Point[][];
-	properties?: Record<string, any>;
+	properties?: Record<string, unknown>;
 	size?: number;
 };

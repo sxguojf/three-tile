@@ -65,7 +65,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		material: TileMaterial,
 		image: HTMLImageElement,
 		source: ISource,
-		tileBounds: [number, number, number, number],
+		tileBounds: [number, number, number, number]
 	) {
 		const texture = this._getTileTexture(image, source, tileBounds);
 		material.setTexture(texture);
@@ -75,7 +75,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	private _getTileTexture(
 		image: HTMLImageElement,
 		source: ISource,
-		tileBounds: [number, number, number, number],
+		tileBounds: [number, number, number, number]
 	): Texture {
 		const sourceProj = source;
 		const tileSize = 256;

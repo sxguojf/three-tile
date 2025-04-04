@@ -9,9 +9,9 @@ export type MapBoxSourceOptions = SourceOptions & {
  * MapBox datasource
  */
 export class MapBoxSource extends TileSource {
-	protected token: string = "";
-	protected format: string = "webp";
-	protected style: string = "mapbox.satellite";
+	public token: string = "";
+	public format: string = "webp";
+	public style: string = "mapbox.satellite";
 	public attribution = "MapBox";
 	public maxLevel: number = 19;
 	public url = "https://api.mapbox.com/v4/{style}/{z}/{x}/{y}.{format}?access_token={token}";

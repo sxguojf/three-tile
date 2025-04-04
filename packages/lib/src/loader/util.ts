@@ -35,7 +35,7 @@ export function getSafeTileUrlAndBounds(
 	source: ISource,
 	x: number,
 	y: number,
-	z: number,
+	z: number
 ): {
 	url: string | undefined;
 	clipBounds: [number, number, number, number];

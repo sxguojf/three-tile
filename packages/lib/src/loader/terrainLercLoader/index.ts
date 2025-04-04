@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { TileMap } from "../../map/TileMap";
+import { registerDEMLoader } from "../..";
 import { TileGeometryLercLoader } from "./TileGeometryLercLoader";
 
-TileMap.registerDEMloader(new TileGeometryLercLoader());
+registerDEMLoader(new TileGeometryLercLoader());

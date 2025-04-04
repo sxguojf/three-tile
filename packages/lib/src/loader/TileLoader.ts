@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, NormalBufferAttributes, PlaneGeometry } from "three";
+import { BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
 import { ISource } from "../source";
 import { ITileLoader, MeshDateType, TileLoadParamsType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
@@ -92,14 +92,10 @@ export class TileLoader implements ITileLoader {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			loader.useWorker = this.useWorker;
 			const source = this.demSource;
-			geometry = await loader.load({ source, ...params }).catch((_err) => {
+			geometry = await loader.load({ source, ...params }).catch(_err => {
 				console.error("Load material error", source.dataType, params);
 				return new PlaneGeometry();
 			});
-			const dispose = (evt: { target: BufferGeometry<NormalBufferAttributes> }) => {
-				loader.unload && loader.unload(evt.target);
-				evt.target.removeEventListener("dispose", dispose);
-			};
 			geometry.addEventListener("dispose", () => {
 				loader.unload && loader.unload(geometry);
 			});
@@ -119,13 +115,13 @@ export class TileLoader implements ITileLoader {
 	 */
 	protected async loadMaterial(params: TileLoadParamsType): Promise<Material[]> {
 		const sources = this.imgSource.filter(
-			(source) => params.z >= source.minLevel && this._isBoundsInSourceBounds(source, params.bounds),
+			source => params.z >= source.minLevel && this._isBoundsInSourceBounds(source, params.bounds)
 		);
 
-		const materialsPromise = sources.map(async (source) => {
+		const materialsPromise = sources.map(async source => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			loader.useWorker = this.useWorker;
-			const material = await loader.load({ source, ...params }).catch((_err) => {
+			const material = await loader.load({ source, ...params }).catch(_err => {
 				console.error("Load material error", source.dataType, params);
 				return new MeshBasicMaterial();
 			});

@@ -106,11 +106,11 @@ export class TifDEMLoder implements ITileGeometryLoader {
 		// 瓦片的边界框，格式为 [xMin, yMin, xMax, yMax]
 		tileBounds: [number, number, number, number],
 		// 目标数据的大小，用于指定输出数据的宽度和高度
-		targetSize: number,
+		targetSize: number
 	) {
 		// 调用 parse 函数从原始数据中提取指定瓦片的DEM数据
 		const dem = parse(raster, sourceProjBbox, tileBounds, targetSize, targetSize);
 		// 对提取的DEM数据中的每个高程值进行缩放，除以1000
-		return dem.map((h) => h / 1000);
+		return dem.map(h => h / 1000);
 	}
 }

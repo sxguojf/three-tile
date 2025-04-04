@@ -108,7 +108,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public set showing(value) {
 		this._showing = value;
-		this.material.forEach((mat) => (mat.visible = value));
+		this.material.forEach(mat => (mat.visible = value));
 	}
 
 	/** Max height of tile */
@@ -168,7 +168,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	/** Tile is a leaf ?  */
 	public get isLeaf(): boolean {
-		return this.children.filter((child) => child.isTile).length === 0;
+		return this.children.filter(child => child.isTile).length === 0;
 	}
 
 	/**
@@ -193,7 +193,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	 */
 	public traverse(callback: (object: this) => void): void {
 		callback(this);
-		this.children.forEach((tile) => {
+		this.children.forEach(tile => {
 			tile.isTile && tile.traverse(callback);
 		});
 	}
@@ -205,7 +205,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	public traverseVisible(callback: (object: this) => void): void {
 		if (this.visible) {
 			callback(this);
-			this.children.forEach((tile) => {
+			this.children.forEach(tile => {
 				tile.isTile && tile.traverseVisible(callback);
 			});
 		}
@@ -261,10 +261,10 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	private _checkVisible() {
 		const parent = this.parent;
 		if (parent && parent.isTile) {
-			const children = parent.children.filter((child) => child.isTile);
-			const allLoaded = children.every((child) => child.loaded);
+			const children = parent.children.filter(child => child.isTile);
+			const allLoaded = children.every(child => child.loaded);
 			parent.showing = !allLoaded;
-			children.forEach((child) => (child.showing = allLoaded));
+			children.forEach(child => (child.showing = allLoaded));
 		}
 		return this;
 	}
@@ -278,7 +278,12 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	private async _load(loader: ITileLoader): Promise<Tile> {
 		Tile._downloadThreads++;
 		const { x, y, z } = this;
-		const meshData = await loader.load({ x, y, z, bounds: [-Infinity, -Infinity, Infinity, Infinity] });
+		const meshData = await loader.load({
+			x,
+			y,
+			z,
+			bounds: [-Infinity, -Infinity, Infinity, Infinity],
+		});
 		this.material = meshData.materials;
 		this.geometry = meshData.geometry;
 		this.maxZ = this.geometry.boundingBox?.max.z || 0;
@@ -306,13 +311,13 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 		// Get camera frustum
 		frustum.setFromProjectionMatrix(
-			tempMat4.multiplyMatrices(params.camera.projectionMatrix, params.camera.matrixWorldInverse),
+			tempMat4.multiplyMatrices(params.camera.projectionMatrix, params.camera.matrixWorldInverse)
 		);
 		// Get camera position
 		const cameraWorldPosition = params.camera.getWorldPosition(tempVec3);
 
 		// LOD for tiles
-		this.traverse((tile) => {
+		this.traverse(tile => {
 			// shadow
 			tile.receiveShadow = this.receiveShadow;
 			tile.castShadow = this.castShadow;
@@ -334,11 +339,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this;
 	}
 
-	private _doAction(currentTile: this, action: LODAction, newTiles: Tile[] | undefined, params: TileUpdateParames) {
+	private _doAction(currentTile: Tile, action: LODAction, newTiles: Tile[] | undefined, params: TileUpdateParames) {
 		const root = this;
 		if (action === LODAction.create) {
 			// Load new tiles data
-			newTiles?.forEach((newTile) => {
+			newTiles?.forEach(newTile => {
 				newTile._init();
 				newTile._isDummy = newTile.z < params.minLevel;
 				root.dispatchEvent({ type: "tile-created", tile: newTile });
@@ -375,7 +380,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	private _checkReady() {
 		if (!this._ready) {
 			this._ready = true;
-			this.traverse((child) => {
+			this.traverse(child => {
 				if (child.isLeaf && child.loaded && !child.isDummy) {
 					this._ready = false;
 					return;
@@ -399,7 +404,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			loader?.unload?.(this);
 		}
 		// remove all children recursively
-		this.children.forEach((child) => child._unLoad(true, loader));
+		this.children.forEach(child => child._unLoad(true, loader));
 		this.clear();
 		return this;
 	}

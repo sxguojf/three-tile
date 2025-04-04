@@ -4,8 +4,8 @@
  *@date: 2023-04-05
  */
 
-import { TileMap } from "three-tile";
+import { registerImgLoader } from "three-tile";
 import { SingleImageLoader } from "./SingleImageLoader";
 export { SingleImageSource } from "./SingleImageSource";
 
-TileMap.registerImgLoader(new SingleImageLoader());
+registerImgLoader(new SingleImageLoader());

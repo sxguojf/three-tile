@@ -18,7 +18,7 @@ export function parse(
 	sourceBounds: [number, number, number, number],
 	clipBounds: [number, number, number, number],
 	targetWidth: number = 64,
-	targetHeight: number = 64,
+	targetHeight: number = 64
 ) {
 	// 解构原始数据的边界范围
 	const [sxMin, syMin, sxMax, syMax] = sourceBounds;
@@ -65,7 +65,7 @@ function extractAndScaleFloat32Data(
 	subBounds: [number, number, number, number],
 	targetWidth: number,
 	targetHeight: number,
-	fillValue: number = 0,
+	fillValue: number = 0
 ): Float32Array {
 	// 参数校验，确保缓冲区长度与宽度和高度匹配
 	if (buffer.length !== srcWidth * srcHeight) {

@@ -8,7 +8,7 @@ export function getTileCount(tileMap: TileMap) {
 		leaf = 0,
 		downloading = 0;
 
-	tileMap.rootTile.traverse((tile) => {
+	tileMap.rootTile.traverse(tile => {
 		if (!tile.isTile) return;
 
 		total++;

@@ -31,7 +31,7 @@ export interface SourceOptions {
 	/** Is TMS scheme */
 	isTMS?: boolean;
 	/** User data */
-	userData?: { [key: string]: any };
+	userData?: { [key: string]: unknown };
 }
 
 /**
@@ -51,9 +51,9 @@ export class TileSource implements ISource {
 	/** URL template for tile data. Uses variables like {x},{y},{z} to construct tile request URLs */
 	public url = "";
 	/** List of URL subdomains for load balancing. Can be an array of strings or a single string */
-	protected subdomains: string[] | string = [];
+	public subdomains: string[] | string = [];
 	/** Currently used subdomain. Randomly selected from subdomains when requesting tiles */
-	protected s: string = "";
+	public s: string = "";
 	/** Layer opacity. Range 0-1, default is 1.0 (completely opaque) */
 	public opacity: number = 1.0;
 	/** Whether to use TMS tile coordinate system. Default false uses XYZ system, true uses TMS system */
@@ -63,7 +63,7 @@ export class TileSource implements ISource {
 	/** Projected data bounds */
 	public _projectionBounds: [number, number, number, number] = [-Infinity, -Infinity, Infinity, Infinity];
 	/** User-defined data. Can store any key-value pairs */
-	public userData: { [key: string]: any } = {
+	public userData: { [key: string]: unknown } = {
 		name: "TileSource",
 	};
 
@@ -76,13 +76,13 @@ export class TileSource implements ISource {
 	}
 
 	/**
-	 * Get url from tile coordinate, protected, overwrite to custom generation tile url from xyz
+	 * Get url from tile coordinate, public, overwrite to custom generation tile url from xyz
 	 * @param x tile x coordinate
 	 * @param y tile y coordinate
 	 * @param z tile z coordinate
 	 * @returns url tile url
 	 */
-	protected getUrl(x: number, y: number, z: number): string | undefined {
+	public getUrl(x: number, y: number, z: number): string | undefined {
 		const obj = { ...this, ...{ x, y, z } };
 		return strTemplate(this.url, obj);
 	}

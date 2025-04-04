@@ -39,35 +39,35 @@ Developed using Vue:
 
 Disclaimer:
 
--   This framework does not contain any map data. The maps used in the examples directly call third-party data. Please comply with legal and regulatory requirements when using them.
+- This framework does not contain any map data. The maps used in the examples directly call third-party data. Please comply with legal and regulatory requirements when using them.
 
 ### 1.1 Features
 
--   Lightweight: The map is provided as a 3D model, without any impact on the existing program architecture.
--   Few dependencies: The entire framework only has one dependency, which is threejs (R165).
--   Fast: Low resource consumption, capable of running smoothly at 60FPS even on integrated graphics.
--   Easy to use: Familiarity with threejs means virtually no learning curve.
--   Highly extensible: Data, models, textures, materials, and the rendering process can all be extended and replaced according to your needs.
+- Lightweight: The map is provided as a 3D model, without any impact on the existing program architecture.
+- Few dependencies: The entire framework only has one dependency, which is threejs (R165).
+- Fast: Low resource consumption, capable of running smoothly at 60FPS even on integrated graphics.
+- Easy to use: Familiarity with threejs means virtually no learning curve.
+- Highly extensible: Data, models, textures, materials, and the rendering process can all be extended and replaced according to your needs.
 
 ### 1.2 Development Environment
 
--   Language: 100% TypeScript
--   IDE: VSCode
--   Bundler: Vite 4.0
--   Dependency: three 0.165
+- Language: 100% TypeScript
+- IDE: VSCode
+- Bundler: Vite 4.0
+- Dependency: three 0.165
 
 ---
 
 ## 3. References
 
--   https://threejs.org/
--   https://github.com/CesiumGS/cesium
--   https://github.com/mapbox/mapbox-gl-js
--   https://leafletjs.com
--   https://github.com/tentone/geo-three
--   https://github.com/ebeaufay/threedtiles
--   https://github.com/NASA-AMMOS/3DTilesRendererJS
--   https://github.com/wlgys8/GPUDrivenTerrainLearn
--   https://github.com/lijundacom/LeoGPUDriven
--   https://github.com/mapbox/martini
--   https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
+- https://threejs.org/
+- https://github.com/CesiumGS/cesium
+- https://github.com/mapbox/mapbox-gl-js
+- https://leafletjs.com
+- https://github.com/tentone/geo-three
+- https://github.com/ebeaufay/threedtiles
+- https://github.com/NASA-AMMOS/3DTilesRendererJS
+- https://github.com/wlgys8/GPUDrivenTerrainLearn
+- https://github.com/lijundacom/LeoGPUDriven
+- https://github.com/mapbox/martini
+- https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts

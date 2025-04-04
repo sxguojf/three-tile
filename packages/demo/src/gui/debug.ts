@@ -2,7 +2,7 @@ import * as tt from "three-tile";
 
 // 状态栏显示瓦片信息
 export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
-	viewer.addEventListener("update", (evt) => {
+	viewer.addEventListener("update", evt => {
 		const debug = document.querySelector("#debug");
 		if (debug) {
 			const controls = JSON.stringify(
@@ -15,7 +15,7 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 					targetZ: viewer.controls.target.z.toFixed(2),
 				},
 				null,
-				2,
+				2
 			);
 			const cameraInfo = JSON.stringify(
 				{
@@ -26,7 +26,7 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 					far: viewer.camera.far.toFixed(3),
 				},
 				null,
-				2,
+				2
 			);
 
 			const renderInfo = JSON.stringify(
@@ -34,7 +34,7 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 					FPS: Math.round(1 / evt.delta),
 				}),
 				null,
-				2,
+				2
 			);
 
 			const tileTree = JSON.stringify(tt.plugin.getTileCount(map), null, 2);
@@ -44,7 +44,7 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 <b>Controls:</b> ${controls}
 <b>Memory:</b> ${memory}
 <b>Render:</b> ${renderInfo}`;
-			debug.innerHTML = info.replaceAll('"', "").replaceAll("{", "").replaceAll("}", "");
+			debug.innerHTML = info.replaceAll("\"", "").replaceAll("{", "").replaceAll("}", "");
 		}
 	});
 }

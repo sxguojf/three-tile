@@ -5,7 +5,7 @@
  *@date: 2023-04-05
  */
 
-import { TileMap } from "three-tile";
+import { registerImgLoader } from "three-tile";
 import { TileMaterialDebugeLoader } from "./DebugeLoader";
 
-TileMap.registerImgLoader(new TileMaterialDebugeLoader());
+registerImgLoader(new TileMaterialDebugeLoader());

@@ -39,35 +39,35 @@ https://sxguojf.github.io/mydemo/three-tile-vue/index.html
 
 免责声明：
 
--   本框架不含任何地图数据，Example 中使用的地图均为直接调用第三方数据，使用中请遵循法律法规要求。
+- 本框架不含任何地图数据，Example 中使用的地图均为直接调用第三方数据，使用中请遵循法律法规要求。
 
 ### 1.1 特点
 
--   轻量级：地图以一个三维模型方式提供，不会对已有程序架构产生任何影响。
--   依赖少：整个框架仅有 threejs（R165）一个依赖。
--   速度快：对资源占少，核显也能轻松跑到 60FPS。
--   使用简单：熟悉 threejs 基本上没有学习成本。
--   扩展性强：数据、模型、纹理、材质、渲染过程均能根据自己需要扩展和替换。
+- 轻量级：地图以一个三维模型方式提供，不会对已有程序架构产生任何影响。
+- 依赖少：整个框架仅有 threejs（R165）一个依赖。
+- 速度快：对资源占少，核显也能轻松跑到 60FPS。
+- 使用简单：熟悉 threejs 基本上没有学习成本。
+- 扩展性强：数据、模型、纹理、材质、渲染过程均能根据自己需要扩展和替换。
 
 ### 1.2 开发环境
 
--   语言：TypeScript 100%
--   IDE： VSCode
--   打包：Vite 4.0
--   依赖：three 0.165
+- 语言：TypeScript 100%
+- IDE： VSCode
+- 打包：Vite 4.0
+- 依赖：three 0.165
 
 ---
 
 ## 2. 参考
 
--   https://threejs.org/
--   https://github.com/CesiumGS/cesium
--   https://github.com/mapbox/mapbox-gl-js
--   https://leafletjs.com
--   https://github.com/tentone/geo-three
--   https://github.com/ebeaufay/threedtiles
--   https://github.com/NASA-AMMOS/3DTilesRendererJS
--   https://github.com/wlgys8/GPUDrivenTerrainLearn
--   https://github.com/lijundacom/LeoGPUDriven
--   https://github.com/mapbox/martini
--   https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
+- https://threejs.org/
+- https://github.com/CesiumGS/cesium
+- https://github.com/mapbox/mapbox-gl-js
+- https://leafletjs.com
+- https://github.com/tentone/geo-three
+- https://github.com/ebeaufay/threedtiles
+- https://github.com/NASA-AMMOS/3DTilesRendererJS
+- https://github.com/wlgys8/GPUDrivenTerrainLearn
+- https://github.com/lijundacom/LeoGPUDriven
+- https://github.com/mapbox/martini
+- https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts

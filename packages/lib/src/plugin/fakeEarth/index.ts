@@ -14,7 +14,7 @@ export { FakeEarth };
 export function createFrakEarth(
 	map: TileMap,
 	bkColor: ColorRepresentation = 0xdbf0ff,
-	airColor: ColorRepresentation = 0x6699cc,
+	airColor: ColorRepresentation = 0x6699cc
 ): FakeEarth {
 	const fakeEarth = new FakeEarth(new Color(bkColor), new Color(airColor));
 	fakeEarth.name = "fakeearth";

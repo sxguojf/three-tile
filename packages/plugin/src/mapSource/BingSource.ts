@@ -30,7 +30,10 @@ export class BingSource extends TileSource {
 
 	public getUrl(x: number, y: number, z: number): string {
 		const key = quadKey(z, x, y);
-		return `https://t${this.s}.dynamic.tiles.ditu.live.com/comp/ch/${key}?mkt=${this.mkt}&ur=CN&it=${this.style}&n=z&og=804&cstl=vb`;
+		return (
+			`https://t${this.s}.dynamic.tiles.ditu.live.com/comp/ch/${key}?` +
+			`mkt=${this.mkt}&ur=CN&it=${this.style}&n=z&og=804&cstl=vb`
+		);
 	}
 }
 

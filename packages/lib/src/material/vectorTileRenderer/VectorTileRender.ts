@@ -23,7 +23,7 @@ export class VectorTileRender {
 		type: VectorFeatureTypes,
 		feature: VectorFeature,
 		style: VectorStyle,
-		scale: number = 1,
+		scale: number = 1
 	): void {
 		ctx.lineCap = "round";
 		ctx.lineJoin = "round";
@@ -78,7 +78,7 @@ export class VectorTileRender {
 		feature: VectorFeature,
 		scale: number = 1,
 		textFiled: string = "name",
-		fontOffset: [number, number] = [0, 0],
+		fontOffset: [number, number] = [0, 0]
 	) {
 		const points = feature.geometry;
 		ctx.beginPath();
@@ -94,7 +94,7 @@ export class VectorTileRender {
 			ctx.fillText(
 				properties[textFiled] as string,
 				points[0][0].x * scale + fontOffset[0],
-				points[0][0].y * scale + fontOffset[1],
+				points[0][0].y * scale + fontOffset[1]
 			);
 		}
 	}
@@ -103,7 +103,7 @@ export class VectorTileRender {
 	private _renderLineString(
 		ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 		feature: VectorFeature,
-		scale: number,
+		scale: number
 	) {
 		const lines = feature.geometry;
 
@@ -124,7 +124,7 @@ export class VectorTileRender {
 	private _renderPolygon(
 		ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
 		feature: VectorFeature,
-		scale: number,
+		scale: number
 	) {
 		const polygons = feature.geometry;
 

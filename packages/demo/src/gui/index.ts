@@ -28,17 +28,17 @@ export function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 export function showLoading(map: tt.TileMap) {
 	const loading = document.querySelector<HTMLDivElement>("#loading");
 	if (loading) {
-		map.addEventListener("loading-start", (evt) => {
+		map.addEventListener("loading-start", evt => {
 			loading.innerHTML = "Started: " + evt.itemsLoaded + " of " + evt.itemsTotal + " files.";
 		});
-		map.addEventListener("loading-progress", (evt) => {
+		map.addEventListener("loading-progress", evt => {
 			loading.innerHTML = "Loading: " + evt.itemsLoaded + " of " + evt.itemsTotal + " files.";
 		});
 		map.addEventListener("loading-complete", () => {
 			loading.innerHTML = "Loading complete!";
 			loading.style.color = "";
 		});
-		map.addEventListener("loading-error", (evt) => {
+		map.addEventListener("loading-error", evt => {
 			loading.innerHTML = "There was an error loading " + evt.url;
 			loading.style.color = "red";
 			console.error("Downloading error:", evt.url);
@@ -47,7 +47,7 @@ export function showLoading(map: tt.TileMap) {
 		// 	loading.innerHTML = "Parsing end!";
 		// });
 
-		map.addEventListener("tile-dispose", (tile) => {
+		map.addEventListener("tile-dispose", tile => {
 			console.log("tile-dispose", tile);
 		});
 	}
@@ -81,7 +81,7 @@ export function addStats(viewer: tt.plugin.GLViewer) {
 
 // 状态栏显示地理位置信息
 export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void {
-	viewer.container.addEventListener("pointermove", (evt) => {
+	viewer.container.addEventListener("pointermove", evt => {
 		const lonlat = tt.plugin.getLocalFromMouse(evt, map, viewer.camera);
 		if (lonlat) {
 			const dom = document.querySelector("#location")!;
@@ -95,7 +95,7 @@ export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void 
 
 // 显示鼠标点击处瓦片
 export function showClickedTile(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
-	viewer.container.addEventListener("click", (evt) => {
+	viewer.container.addEventListener("click", evt => {
 		const pointer = new Vector2();
 		pointer.x = (evt.offsetX / viewer.width) * 2 - 1;
 		pointer.y = -(evt.offsetY / viewer.height) * 2 + 1;
@@ -119,8 +119,8 @@ export function addMapBackground(map: tt.TileMap) {
 	const backGround = new Mesh(
 		new PlaneGeometry(),
 		new MeshLambertMaterial({
-			map: new TextureLoader().load("./image/tile0.png", (texture) => (texture.colorSpace = SRGBColorSpace)),
-		}),
+			map: new TextureLoader().load("./image/tile0.png", texture => (texture.colorSpace = SRGBColorSpace)),
+		})
 	);
 	backGround.renderOrder = -1;
 	backGround.name = "background";

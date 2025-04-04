@@ -5,6 +5,6 @@
  */
 
 import { TileImageLoader } from "./TileImageLoader";
-import { TileMap } from "../../map/TileMap";
+import { registerImgLoader } from "../..";
 
-TileMap.registerImgLoader(new TileImageLoader());
+registerImgLoader(new TileImageLoader());

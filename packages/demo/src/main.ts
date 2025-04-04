@@ -1,10 +1,11 @@
-import { Mesh, MeshStandardMaterial, SphereGeometry, SpotLight, SpotLightHelper, Vector3, REVISION } from "three";
+import { REVISION, Vector3 } from "three";
 
 import * as tt from "three-tile";
-import * as plugin from "three-tile-plugin";
+import "three-tile-plugin";
+
 import * as gui from "./gui";
 import * as source from "./mapSource";
-import "./plugin";
+import "./usePlugin";
 
 console.log("===================================================================");
 console.log(`threejs V${REVISION}`);
@@ -57,9 +58,10 @@ function initViewer(id: string, map: tt.TileMap) {
 	map.add(frakeEarth);
 
 	// 添加罗盘
-	const compass = plugin.createCompass(viewer.controls);
-	const compassContainer = document.querySelector<HTMLDivElement>("#compass-container");
-	compassContainer && compassContainer.appendChild(compass.dom);
+
+	// const compass = tt.plugin.createCompass(viewer.controls);
+	// const compassContainer = document.querySelector<HTMLDivElement>("#compass-container");
+	// compassContainer && compassContainer.appendChild(compass.dom);
 
 	// 防止摄像机进入地下
 	viewer.addEventListener("update", () => {
@@ -81,45 +83,42 @@ function initViewer(id: string, map: tt.TileMap) {
 	// const mapMesh = createBoundsMesh(mapBounds, 0x00ff00);
 	// map.add(mapMesh);
 
-	// shadowTest(viewer, map);
-
 	return viewer;
 }
 
-//@ts-ignore
-function shadowTest(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
-	const sphereGeometry = new SphereGeometry(5, 32, 32);
-	const sphereMaterial = new MeshStandardMaterial({
-		color: 0x049ef4,
-		roughness: 0.2,
-		metalness: 0.8,
-		flatShading: true,
-	});
-	const sphere = new Mesh(sphereGeometry, sphereMaterial);
-	const centerGeo = new Vector3(110, 35, 0);
-	const centerPosition = map.geo2world(centerGeo);
-	sphere.position.set(centerPosition.x, 5, centerPosition.z);
-	sphere.castShadow = true;
-	sphere.receiveShadow = true;
-	viewer.scene.add(sphere);
+// function shadowTest(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+// 	const sphereGeometry = new SphereGeometry(5, 32, 32);
+// 	const sphereMaterial = new MeshStandardMaterial({
+// 		color: 0x049ef4,
+// 		roughness: 0.2,
+// 		metalness: 0.8,
+// 		flatShading: true,
+// 	});
+// 	const sphere = new Mesh(sphereGeometry, sphereMaterial);
+// 	const centerGeo = new Vector3(110, 35, 0);
+// 	const centerPosition = map.geo2world(centerGeo);
+// 	sphere.position.set(centerPosition.x, 5, centerPosition.z);
+// 	sphere.castShadow = true;
+// 	sphere.receiveShadow = true;
+// 	viewer.scene.add(sphere);
 
-	const shadowLight = new SpotLight(0xffffff, 10, 4e3, Math.PI / 6, 0.2, 0);
-	shadowLight.position.set(centerPosition.x, 100, centerPosition.z + 100);
-	shadowLight.target = sphere;
-	shadowLight.castShadow = true;
-	viewer.scene.add(shadowLight);
+// 	const shadowLight = new SpotLight(0xffffff, 10, 4e3, Math.PI / 6, 0.2, 0);
+// 	shadowLight.position.set(centerPosition.x, 100, centerPosition.z + 100);
+// 	shadowLight.target = sphere;
+// 	shadowLight.castShadow = true;
+// 	viewer.scene.add(shadowLight);
 
-	const lightHelper = new SpotLightHelper(shadowLight);
-	viewer.scene.add(lightHelper);
-	lightHelper.updateMatrixWorld();
+// 	const lightHelper = new SpotLightHelper(shadowLight);
+// 	viewer.scene.add(lightHelper);
+// 	lightHelper.updateMatrixWorld();
 
-	const shadowCamera = shadowLight.shadow.camera;
-	shadowCamera.far = 1e3;
-	shadowCamera.near = 0.1;
+// 	const shadowCamera = shadowLight.shadow.camera;
+// 	shadowCamera.far = 1e3;
+// 	shadowCamera.near = 0.1;
 
-	// const cameraHelper = new CameraHelper(shadowCamera);
-	// viewer.scene.add(cameraHelper);
-}
+// 	// const cameraHelper = new CameraHelper(shadowCamera);
+// 	// viewer.scene.add(cameraHelper);
+// }
 
 // function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {
 // 	const points = [];
@@ -181,8 +180,6 @@ function main() {
 	initGui(viewer, map);
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);
-	// 打印加载器信息
-	console.log("Loaders", tt.TileMap.loaderInfo);
 }
 
 main();

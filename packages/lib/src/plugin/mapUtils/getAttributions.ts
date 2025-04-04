@@ -3,7 +3,7 @@ import { TileMap } from "../../map/TileMap";
 export function getAttributions(map: TileMap) {
 	const attributions = new Set<string>();
 	const imgSources = Array.isArray(map.imgSource) ? map.imgSource : [map.imgSource];
-	imgSources.forEach((source) => {
+	imgSources.forEach(source => {
 		const attr = source.attribution;
 		attr && attributions.add(attr);
 	});

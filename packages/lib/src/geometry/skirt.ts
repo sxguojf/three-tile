@@ -7,18 +7,30 @@
 
 import { AttributesType, GeometryDataType } from "./GeometryDataTypes";
 
-export function concatenateTypedArrays<T>(...typedArrays: T[]): T {
-	// @ts-ignore
-	const arrays = typedArrays as TypedArray[];
-	const TypedArrayConstructor = (arrays && arrays.length > 1 && arrays[0].constructor) || null;
+type TypedArray =
+	| Int8Array
+	| Uint8Array
+	| Uint8ClampedArray
+	| Int16Array
+	| Uint16Array
+	| Int32Array
+	| Uint32Array
+	| Float32Array
+	| Float64Array;
+type TypedArrayConstructor = new (length: number) => TypedArray;
+
+export function concatenateTypedArrays<T extends TypedArray>(...typedArrays: T[]): T {
+	const arrays = typedArrays;
+	const TypedArrayConstructor =
+		((arrays && arrays.length > 1 && arrays[0].constructor) as TypedArrayConstructor) || null;
 	if (!TypedArrayConstructor) {
 		throw new Error(
-			'"concatenateTypedArrays" - incorrect quantity of arguments or arguments have incompatible data types',
+			"concatenateTypedArrays - incorrect quantity of arguments or arguments have incompatible data types"
 		);
 	}
 
 	const sumLength = arrays.reduce((acc, value) => acc + value.length, 0);
-	const result = new TypedArrayConstructor(sumLength);
+	const result = new TypedArrayConstructor(sumLength) as T;
 	let offset = 0;
 	for (const array of arrays) {
 		result.set(array, offset);
@@ -46,7 +58,7 @@ export function addSkirt(
 	attributes: AttributesType,
 	triangles: Uint16Array | Uint32Array,
 	skirtHeight: number,
-	outsideIndices?: EdgeIndices,
+	outsideIndices?: EdgeIndices
 ): GeometryDataType {
 	const outsideEdges = outsideIndices
 		? getOutsideEdgesFromIndices(outsideIndices, attributes.position.value)
@@ -152,7 +164,7 @@ function getOutsideEdgesFromIndices(indices: EdgeIndices, position: Float32Array
 	const edges: number[][] = [];
 
 	// 遍历索引对象的值
-	Object.values(indices).forEach((indexGroup) => {
+	Object.values(indices).forEach(indexGroup => {
 		// 如果索引组长度大于1
 		if (indexGroup.length > 1) {
 			// 遍历索引组，除了最后一个索引

@@ -10,46 +10,46 @@ hz_gjf@163.com
 
 ## 2. 插件有什么好处
 
--   灵活性：插件允许在不修改主程序代码的情况下扩展功能，插件可以是不同人独立开发，更容易单独测试和维护。
--   低耦合：插件与宿主程序强制解耦合，即宿主程序不可能引用插件，必须单向引用，耦合少，宿主可脱离插件运行。
--   易于升级：插件可以单独更新，而不需要重新编译或部署整个程序。
+- 灵活性：插件允许在不修改主程序代码的情况下扩展功能，插件可以是不同人独立开发，更容易单独测试和维护。
+- 低耦合：插件与宿主程序强制解耦合，即宿主程序不可能引用插件，必须单向引用，耦合少，宿主可脱离插件运行。
+- 易于升级：插件可以单独更新，而不需要重新编译或部署整个程序。
 
 ## 3. 如何开发插件
 
--   在编译型语言中，插件通常是通过动态链接库（DLL）或共享对象（SO）实现。运行时宿主程序会动态加载这些库文件，并通过反射机制实现宿主程序与插件之间的交互。
+- 在编译型语言中，插件通常是通过动态链接库（DLL）或共享对象（SO）实现。运行时宿主程序会动态加载这些库文件，并通过反射机制实现宿主程序与插件之间的交互。
 
--   在 JavaScript 等脚本语言中，插件的编写较为容易，几乎与普通模块开发没有区别，只需要遵循宿主程序的一些约定即可。
+- 在 JavaScript 等脚本语言中，插件的编写较为容易，几乎与普通模块开发没有区别，只需要遵循宿主程序的一些约定即可。
 
 ## 4. three-tile 插件介绍
 
--   three-tile 的架构，就是一个动态 LOD 模型和一些加载器，宿主程序负责瓦片的创建、销毁、调度、渲染等，插件根据宿主传来的参数实现瓦片数据的加载并生成瓦片模型。
+- three-tile 的架构，就是一个动态 LOD 模型和一些加载器，宿主程序负责瓦片的创建、销毁、调度、渲染等，插件根据宿主传来的参数实现瓦片数据的加载并生成瓦片模型。
 
--   three-tile 插件的主要作用是通过编写加载器，扩展各种格式地图瓦片读取功能。
+- three-tile 插件的主要作用是通过编写加载器，扩展各种格式地图瓦片读取功能。
 
--   three-tile 加载器有三种，一种是影像加载器，实现影像瓦片的加载，返回一个材质。一种是地形加载器，实现地形瓦片的加载，返回一个几何体。还有一种是瓦片加载器，它调用影像加载器和地形加载器将返回结果组合成一个瓦片 Mesh。
+- three-tile 加载器有三种，一种是影像加载器，实现影像瓦片的加载，返回一个材质。一种是地形加载器，实现地形瓦片的加载，返回一个几何体。还有一种是瓦片加载器，它调用影像加载器和地形加载器将返回结果组合成一个瓦片 Mesh。
 
--   three-tile 加载器编写，遵循 threejs 的加载器代码风格（threejs 内置大量加载器，实现不同格式模型的加载），只需要实现一个 load 函数，根据输入参数返回一个材质（影像）或一个几何体（地形）。
+- three-tile 加载器编写，遵循 threejs 的加载器代码风格（threejs 内置大量加载器，实现不同格式模型的加载），只需要实现一个 load 函数，根据输入参数返回一个材质（影像）或一个几何体（地形）。
 
 ## 5. three-tile 插件开发
 
 ### 5.1 three-tile 总体架构
 
--   三维瓦片地图和二维瓦片地图在设计理念上类似，都是为了解决海量地图数据下载显示问题，将地图切片分块保存为瓦片数据文件，根据层级使用金字塔结构（四叉树）管理，运行时仅加载和渲染可视区域的瓦片以节省资源，最后将多块瓦片模型拼接成一张完整的地图。
+- 三维瓦片地图和二维瓦片地图在设计理念上类似，都是为了解决海量地图数据下载显示问题，将地图切片分块保存为瓦片数据文件，根据层级使用金字塔结构（四叉树）管理，运行时仅加载和渲染可视区域的瓦片以节省资源，最后将多块瓦片模型拼接成一张完整的地图。
 
--   three-tile 的核心是一个动态 LOD 模型，该模型根据摄像机位置和与瓦片的距离，确定需要渲染的瓦片编号，并调用的加载器创建对应的瓦片 Mesh 模型。
+- three-tile 的核心是一个动态 LOD 模型，该模型根据摄像机位置和与瓦片的距离，确定需要渲染的瓦片编号，并调用的加载器创建对应的瓦片 Mesh 模型。
 
 瓦片之间留点接缝，看出来什么叫“瓦片”地图了吧：
 ![alt text](../../images/plugin-image-05.png)
 
--   为了简化插件开发，插件中的加载器并不需要生成一个完整的 Mesh 模型，而是只编写影像加载器（材质）或地形加载器（几何体），thee-tile 会通过一个公用的瓦片加载器（TileLoader）调用材质和纹理加载器，并将他们返回的结果组合成一个瓦片 Mesh 模型传给地图。
+- 为了简化插件开发，插件中的加载器并不需要生成一个完整的 Mesh 模型，而是只编写影像加载器（材质）或地形加载器（几何体），thee-tile 会通过一个公用的瓦片加载器（TileLoader）调用材质和纹理加载器，并将他们返回的结果组合成一个瓦片 Mesh 模型传给地图。
 
--   three-tile 维护一个加载器列表，保存所有加载器实例，插件引入后，需要向系统注册加载器，如：LoaderFactory.registerGeometryLoader(new TerrainRGBLoader())是向系统注册了一个 TerrainRGBLoader 地形加载器。程序启动时可在控制台看到加载器列表，下图注册了 10 个加载器：
+- three-tile 维护一个加载器列表，保存所有加载器实例，插件引入后，需要向系统注册加载器，如：LoaderFactory.registerGeometryLoader(new TerrainRGBLoader())是向系统注册了一个 TerrainRGBLoader 地形加载器。程序启动时可在控制台看到加载器列表，下图注册了 10 个加载器：
 
-    ![alt text](../../images/plugin-image-06.png)
+  ![alt text](../../images/plugin-image-06.png)
 
--   每个数据源有一个 dataType 属性，每个加载器也有一个 dataType 属性，运行时会根据数据源的 datatype 属性，选取 dataType 值相等的加载器来加载瓦片。
+- 每个数据源有一个 dataType 属性，每个加载器也有一个 dataType 属性，运行时会根据数据源的 datatype 属性，选取 dataType 值相等的加载器来加载瓦片。
 
--   总结：加载器插件只需要实现一个 load 函数，根据输入参数（数据源、瓦片 x、y、z 坐标）返回一个材质（影像）或一个几何体（地形），three-tile 会根据数据源的 dataType 属性，选取 dataType 值相同的加载器来生成瓦片。
+- 总结：加载器插件只需要实现一个 load 函数，根据输入参数（数据源、瓦片 x、y、z 坐标）返回一个材质（影像）或一个几何体（地形），three-tile 会根据数据源的 dataType 属性，选取 dataType 值相同的加载器来生成瓦片。
 
 ### 5.2 影像图加载器插件开发
 
@@ -71,7 +71,7 @@ export class TileImageLoader implements ITileMaterialLoader {
 		y: number,
 		z: number,
 		onLoad: () => void,
-		abortSignal: AbortSignal,
+		abortSignal: AbortSignal
 	): Material {
 		const material = new TileMaterial(); // 创建一个瓦片材质
 		material.opacity = source.opacity; // 设置材质透明度
@@ -88,7 +88,7 @@ export class TileImageLoader implements ITileMaterialLoader {
 				onLoad();
 			},
 			onLoad, // 加载失败回调函数
-			abortSignal, // 加载中断信号，用于中止加载
+			abortSignal // 加载中断信号，用于中止加载
 		);
 
 		return material;
@@ -124,16 +124,23 @@ export interface ITileMaterialLoader {
 	//插件作者
 	author?: string;
 	// load函数
-	load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): Material;
+	load(
+		source: ISource,
+		x: number,
+		y: number,
+		z: number,
+		onLoad: () => void,
+		abortSignal: AbortSignal
+	): Material;
 }
 ```
 
 主要是实现 load 函数,它的参数:
 
--   source: 地图数据源, 其中包含了瓦片影像的 url 模板、数据格式等信息
--   x, y, z: 瓦片的 xyz 坐标
--   onLoad： 加载完成回调函数，当瓦片影像加载完成后，调用该函数通知主程序渲染
--   abortSignal：加载中断信号，用于取消加载
+- source: 地图数据源, 其中包含了瓦片影像的 url 模板、数据格式等信息
+- x, y, z: 瓦片的 xyz 坐标
+- onLoad： 加载完成回调函数，当瓦片影像加载完成后，调用该函数通知主程序渲染
+- abortSignal：加载中断信号，用于取消加载
 
 影像为图片（jpg、png、webp 等），所以它的加载比较简单: 先创建一个 TileMaterial 材质，然后下载瓦片图像生成纹理，下载完成将纹理赋给材质的 map 属性。瓦片纹理下载已封装在 TileTextureLoader 中，只需调用即可。
 
@@ -177,7 +184,7 @@ export class TileMaterial extends MeshStandardMaterial {
 
 three-tile 内置了一些影像加载器插件：
 
--   **debugLoader**：影像瓦片调试加载器，绘制瓦片边框和瓦片编号，使用 CanvasTexture 实现。
+- **debugLoader**：影像瓦片调试加载器，绘制瓦片边框和瓦片编号，使用 CanvasTexture 实现。
 
 https://github.com/sxguojf/three-tile/blob/master/src/plugin/debugLoader/DebugeLoader.ts
 
@@ -185,19 +192,19 @@ https://github.com/sxguojf/three-tile/blob/master/src/plugin/debugLoader/DebugeL
 
 https://github.com/sxguojf/three-tile/blob/master/src/plugin/logoLoader/TileMateriaLogoLoader.ts
 
--   **logoLoader**：logo 加载器，绘制 logo 水印，使用 CanvasTexture 实现。
+- **logoLoader**：logo 加载器，绘制 logo 水印，使用 CanvasTexture 实现。
 
 ![alt text](../../images/plugin-image-02.png)
 
 https://github.com/sxguojf/three-tile/blob/master/src/plugin/wireframeLoader/TileMaterialWrieLoader.ts
 
--   **wireframeLoader**：显示瓦片的 wieframe，直接返回一个 wireframe=true 的 BascicMeshMaterial。
+- **wireframeLoader**：显示瓦片的 wieframe，直接返回一个 wireframe=true 的 BascicMeshMaterial。
 
 ![alt text](../../images/plugin-image-03.png)
 
 https://github.com/sxguojf/three-tile/blob/master/src/plugin/normalLoder/TileMateriaNormalLoader.ts
 
--   **normalLoader**：显示地形法向量，直接返回一个法向量材质 MeshNormalMaterial
+- **normalLoader**：显示地形法向量，直接返回一个法向量材质 MeshNormalMaterial
 
 ![alt text](../../images/plugin-image-04.png)
 
@@ -221,7 +228,7 @@ export interface ITileGeometryLoader {
 		y: number,
 		z: number,
 		onLoad: () => void,
-		abortSignal: AbortSignal,
+		abortSignal: AbortSignal
 	): BufferGeometry;
 }
 ```
@@ -288,12 +295,11 @@ https://github.com/sxguojf/three-tile/blob/master/src/plugin/terrainRGBLoader/Te
 2. **数据下载**: doLoader中直接调用ImageLoaderEx.loade()下载数据。
 
 3. **数据解析**：实现doParse方法，将图片RGB数据转换为高程数组（DEM）。RGB转高程公式：
-    $$height = -10000 + ((R * 256 * 256 + G * 256 + B) * 0.1)$$
+   $$height = -10000 + ((R * 256 * 256 + G * 256 + B) * 0.1)$$
 
-    > 需要注意的是，当瓦片的层级大于数据数据源的最大层级时，需要从数据源最大层级瓦片中取出当前瓦片对应区域的数据，比如 mapbox 地形的瓦片的最大层级只到 15 级，当地图缩放的 15 级以上时，就需要从 15 级的瓦片中裁剪出当前瓦片的区域数据，所以，doParse方法中有clipBounds的参数，表示需要从父瓦片中剪裁的范围。
+   > 需要注意的是，当瓦片的层级大于数据数据源的最大层级时，需要从数据源最大层级瓦片中取出当前瓦片对应区域的数据，比如 mapbox 地形的瓦片的最大层级只到 15 级，当地图缩放的 15 级以上时，就需要从 15 级的瓦片中裁剪出当前瓦片的区域数据，所以，doParse方法中有clipBounds的参数，表示需要从父瓦片中剪裁的范围。
 
-	> 另外，地形几何体并不需要也没必要每个像素都对应一个顶点，大量的顶点会极大影响渲染速度，而效果也不会因为顶点多好多少。需要对顶点重采样抽稀，本插件目前采用简单地图像缩小来实现重采样。
-	
+   > 另外，地形几何体并不需要也没必要每个像素都对应一个顶点，大量的顶点会极大影响渲染速度，而效果也不会因为顶点多好多少。需要对顶点重采样抽稀，本插件目前采用简单地图像缩小来实现重采样。
 
 #### 5.3.3 ArcGIS 的 lerc 地形加载器
 
@@ -401,8 +407,8 @@ https://github.com/sxguojf/three-tile-example/blob/master/src/step4.2/MyLoader.t
 
 step4.1-4.7 中有 7 个自定义瓦片加载器和影像加载器、地形加载器插件示例：
 
--   https://github.com/sxguojf/three-tile-example/tree/master/src
--   https://sxguojf.github.io/three-tile-example/
+- https://github.com/sxguojf/three-tile-example/tree/master/src
+- https://sxguojf.github.io/three-tile-example/
 
 ## 6. 结语
 

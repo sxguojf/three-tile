@@ -1,37 +1,26 @@
 {
 	"compilerOptions": {
+		"baseUrl": ".",
 		"target": "ESNext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
-		"lib": [
-			"ESNext",
-			"DOM"
-		],
+		"lib": ["ESNext", "DOM"],
 		"moduleResolution": "Node",
 		"strict": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"esModuleInterop": true,
-		"noEmit": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
 		"noImplicitReturns": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"types": [
-			"vite/client"
-		],
-		"declaration": false,
-		// "paths": {
-		// 	"three-tile": [
-		// 		"../lib/src"
-		// 	]
-		// }
+		"types": ["vite/client"],
+		"incremental": true,
+		"declaration": true,
+		"outDir": "./dist",
+		"rootDir": "./src"
 	},
-	"include": [
-		"src/**/*.ts"
-	],
-	"exclude": [
-		"src/**/back/**"
-	]
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules", "dist", "**/*.d.ts", "**/*.test.ts"]
 }

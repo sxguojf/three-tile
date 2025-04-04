@@ -130,7 +130,7 @@ class MartiniTile {
 
 		if (terrain.length !== size * size) {
 			throw new Error(
-				`Expected terrain data of length ${size * size} (${size} x ${size}), got ${terrain.length}.`,
+				`Expected terrain data of length ${size * size} ` + `(${size} x ${size}), got ${terrain.length}.`
 			);
 		}
 
@@ -215,8 +215,8 @@ class MartiniTile {
 		countElements(0, 0, max, max, max, 0);
 		countElements(max, max, 0, 0, 0, max);
 
-		let numTotalVertices = numVertices * 2;
-		let numTotalTriangles = numTriangles * 3;
+		const numTotalVertices = numVertices * 2;
+		const numTotalTriangles = numTriangles * 3;
 
 		const vertices = new Uint16Array(numTotalVertices);
 		const triangles = new Uint32Array(numTotalTriangles);
@@ -264,7 +264,7 @@ class MartiniTile {
 	private _getMeshAttributes(
 		terrain: Float32Array,
 		vertices: Uint16Array,
-		indices: Uint16Array | Uint32Array,
+		indices: Uint16Array | Uint32Array
 	): AttributesType {
 		const gridSize = Math.floor(Math.sqrt(terrain.length));
 		const tileSize = gridSize - 1;

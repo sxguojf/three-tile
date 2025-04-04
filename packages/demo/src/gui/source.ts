@@ -184,11 +184,13 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 				dataType: "quantized-mesh",
 				// url: "./tiles/layer/{z}/{x}/{y}.terrain",
 				url: "./tiles/layer/14/26302/11288.terrain",
-				// url: "https://api.maptiler.com/tiles/terrain-quantized-mesh-v2/{z}/{x}/{y}.terrain?key=FQHg9Gb5IgjIGLFg7tKz",
-				// url: "https://assets.ion.cesium.com/ap-northeast-1/asset_depot/1/CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?extensions=octvertexnormals-watermask-metadata&v=1.2.0",
+				// url: "https://api.maptiler.com/tiles/terrain-quantized-mesh-v2/" +
+				// 	"{z}/{x}/{y}.terrain?key=FQHg9Gb5IgjIGLFg7tKz",
+				// url: "https://assets.ion.cesium.com/ap-northeast-1/asset_depot/1/" +
+				// 	"CesiumWorldTerrain/v1.2/{z}/{x}/{y}.terrain?" +
+				// 	"extensions=octvertexnormals-watermask-metadata&v=1.2.0",
 				// url: "/qm/terrain/{z}/{x}/{y}.terrain",
 				// bounds: [-124.7333, 24.5333, -67.95, 49.3833],
-				// bounds: [70, 10, 150, 60],
 				maxLevel: 15,
 			});
 			map.reload();

@@ -71,7 +71,7 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: 
 	}
 
 	// folder.add(viewer.renderer.shadowMap, "enabled").name("Shadows");
-	folder.add(vm, "shadow").onChange((value) => {
+	folder.add(vm, "shadow").onChange(value => {
 		viewer.renderer.shadowMap.enabled = value;
 		viewer.dirLight.castShadow = value;
 		// viewer.scene.castShadow = value;
