@@ -24,10 +24,11 @@
 		"diagnostics": true,
 		"declaration": true,
 		"outDir": "./dist",
-		"rootDir": "./src"
+		"rootDir": "."
 	},
 	"include": [
-		"src/**/*.ts"
+		"src/**/*.ts",
+		"vite.config.mts"
 	],
 	"exclude": [
 		"node_modules",
