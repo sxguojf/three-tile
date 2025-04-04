@@ -1,7 +1,8 @@
 import * as tt from "three-tile";
+import * as plugin from "three-tile-plugin";
 
 // 状态栏显示瓦片信息
-export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
+export function showDebug(map: tt.TileMap, viewer: plugin.GLViewer) {
 	viewer.addEventListener("update", evt => {
 		const debug = document.querySelector("#debug");
 		if (debug) {
@@ -37,14 +38,14 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 				2
 			);
 
-			const tileTree = JSON.stringify(tt.plugin.getTileCount(map), null, 2);
+			const tileTree = JSON.stringify(map.getTileCount(), null, 2);
 			const memory = JSON.stringify(viewer.renderer.info.memory, null, 2);
 			const info = `<b>Tiles:</b> ${tileTree}
 <b>Camera:</b> ${cameraInfo}
 <b>Controls:</b> ${controls}
 <b>Memory:</b> ${memory}
 <b>Render:</b> ${renderInfo}`;
-			debug.innerHTML = info.replaceAll("\"", "").replaceAll("{", "").replaceAll("}", "");
+			debug.innerHTML = info.replaceAll('"', "").replaceAll("{", "").replaceAll("}", "");
 		}
 	});
 }

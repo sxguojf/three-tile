@@ -340,18 +340,18 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	private _doAction(currentTile: Tile, action: LODAction, newTiles: Tile[] | undefined, params: TileUpdateParames) {
-		const root = this;
+		
 		if (action === LODAction.create) {
 			// Load new tiles data
 			newTiles?.forEach(newTile => {
 				newTile._init();
 				newTile._isDummy = newTile.z < params.minLevel;
-				root.dispatchEvent({ type: "tile-created", tile: newTile });
+				this.dispatchEvent({ type: "tile-created", tile: newTile });
 				if (!newTile.isDummy) {
 					newTile._load(params.loader).then(() => {
 						// Show tile when all children has loaded
 						newTile._checkVisible();
-						root.dispatchEvent({ type: "tile-loaded", tile: newTile });
+						this.dispatchEvent({ type: "tile-loaded", tile: newTile });
 					});
 				}
 			});
@@ -359,7 +359,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			currentTile.showing = true;
 			// unload children tiles
 			currentTile._unLoad(false, params.loader);
-			root.dispatchEvent({ type: "tile-unload", tile: currentTile });
+			this.dispatchEvent({ type: "tile-unload", tile: currentTile });
 		}
 		return this;
 	}

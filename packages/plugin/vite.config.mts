@@ -12,23 +12,22 @@ export default defineConfig({
 	build: {
 		target: "esnext",
 		outDir: "./dist",
+		sourcemap: true,
 		lib: {
 			entry: path.resolve(__dirname, "src/index.ts"),
 			name: "ThreeTilePlugin", //打包后全局变量名，umd中使用
 			fileName: "three-tile-plugin",
 		},
 		rollupOptions: {
-			external: ["three", "three-tile"],
+			external: ["three", "three-tile-lib"],
 			output: {
-				inlineDynamicImports: true, // 合并动态导入
 				globals: {
 					three: "THREE",
-					"three-tile": "three-tile",
+					"three-tile-lib": "ThreeTile",
 				},
+				sourcemapExcludeSources: false,
 			},
 		},
-
-		// sourcemap: true,
 		watch: {
 			include: 'src/**',
 			clearScreen: false,

@@ -3,6 +3,7 @@ import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 
 import * as tt from "three-tile";
+import * as plugin from "three-tile-plugin";
 import { createCameraGui } from "./camera";
 import { createMapOptionsGui } from "./mapOptions";
 import { createEnvironmentGui } from "./environment";
@@ -10,7 +11,7 @@ import { createLoaderGui } from "./loader";
 import { createSourceGui } from "./source";
 export { showDebug } from "./debug";
 
-export function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+export function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
 	const gui = new GUI();
 	// 数据源
 	createSourceGui(gui, viewer, map);
@@ -58,7 +59,7 @@ export function showAttribution(map: tt.TileMap) {
 	const show = () => {
 		const dom = document.querySelector("#attribution");
 		if (dom) {
-			dom.innerHTML = "© " + tt.plugin.getAttributions(map).join(" | © ");
+			dom.innerHTML = "© " + plugin.getAttributions(map).join(" | © ");
 		}
 	};
 	map.addEventListener("source-changed", () => show());
@@ -66,7 +67,7 @@ export function showAttribution(map: tt.TileMap) {
 }
 
 // 添加性能监视器
-export function addStats(viewer: tt.plugin.GLViewer) {
+export function addStats(viewer: plugin.GLViewer) {
 	const stats = new Stats();
 	stats.dom.style.left = "";
 	stats.dom.style.top = "";
@@ -80,9 +81,9 @@ export function addStats(viewer: tt.plugin.GLViewer) {
 }
 
 // 状态栏显示地理位置信息
-export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void {
+export function showLocation(viewer: plugin.GLViewer, map: tt.TileMap): void {
 	viewer.container.addEventListener("pointermove", evt => {
-		const lonlat = tt.plugin.getLocalFromMouse(evt, map, viewer.camera);
+		const lonlat = plugin.getLocalFromMouse(evt, map, viewer.camera);
 		if (lonlat) {
 			const dom = document.querySelector("#location")!;
 			if (dom) {
@@ -94,7 +95,7 @@ export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void 
 }
 
 // 显示鼠标点击处瓦片
-export function showClickedTile(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+export function showClickedTile(viewer: plugin.GLViewer, map: tt.TileMap) {
 	viewer.container.addEventListener("click", evt => {
 		const pointer = new Vector2();
 		pointer.x = (evt.offsetX / viewer.width) * 2 - 1;

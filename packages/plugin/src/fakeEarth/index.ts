@@ -6,7 +6,7 @@
 
 import { Color, ColorRepresentation } from "three";
 import { FakeEarth } from "./FakeEarth";
-import { TileMap } from "../../map/TileMap";
+import { TileMap } from "three-tile";
 
 export { EarthMaskMaterial } from "./EarthMaskMaterial";
 export { FakeEarth };

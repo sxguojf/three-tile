@@ -14,6 +14,7 @@ export default defineConfig({
 	build: {
 		target: "esnext",
 		outDir: "./dist",
+		sourcemap: true,
 		lib: {
 			entry: path.resolve(__dirname, "src/index.ts"),
 			name: "ThreeTile", //打包后全局变量名，umd中使用
@@ -25,9 +26,9 @@ export default defineConfig({
 				globals: {
 					three: "THREE",
 				},
+				sourcemapExcludeSources: false,
 			},
 		},
-		// sourcemap: true,
 		watch: {
 			include: "src/**",
 			clearScreen: false,

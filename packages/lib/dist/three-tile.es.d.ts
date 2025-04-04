@@ -1,32 +1,20 @@
-import { AmbientLight } from 'three';
 import { BaseEvent } from 'three';
 import { BufferGeometry } from 'three';
 import { Camera } from 'three';
-import { Color } from 'three';
-import { ColorRepresentation } from 'three';
-import { DirectionalLight } from 'three';
-import { EventDispatcher } from 'three';
-import { FogExp2 } from 'three';
 import { Intersection } from 'three';
 import { LoadingManager } from 'three';
-import { MapControls } from 'three/examples/jsm/controls/MapControls';
 import { Material } from 'three';
 import { Mesh } from 'three';
 import { MeshStandardMaterial } from 'three';
 import { MeshStandardMaterialParameters } from 'three';
 import { NormalBufferAttributes } from 'three';
 import { Object3DEventMap } from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { PerspectiveCamera } from 'three';
 import { PlaneGeometry } from 'three';
 import { Raycaster } from 'three';
-import { Scene } from 'three';
-import { ShaderMaterial } from 'three';
 import { Sprite } from 'three';
 import { Texture } from 'three';
 import { Vector2 } from 'three';
 import { Vector3 } from 'three';
-import { WebGLRenderer } from 'three';
 
 /**
  * Add skirt to existing mesh
@@ -69,25 +57,6 @@ export declare function concatenateTypedArrays<T extends TypedArray>(...typedArr
 
 export declare function createBillboards(txt: string, size?: number): Sprite<Object3DEventMap>;
 
-declare function createFog(controls: MapControls, fogColor?: ColorRepresentation): MapFog;
-
-declare type CreateFogParams = {
-    controls: MapControls;
-    fogColor?: ColorRepresentation;
-};
-
-declare function createFrakEarth(map: TileMap, bkColor?: ColorRepresentation, airColor?: ColorRepresentation): FakeEarth;
-
-/**
- * a fake ball Material
- */
-declare class EarthMaskMaterial extends ShaderMaterial {
-    constructor(parameters: {
-        bkColor: Color;
-        airColor: Color;
-    });
-}
-
 export declare type EdgeIndices = {
     westIndices: Uint16Array | Uint32Array;
     southIndices: Uint16Array | Uint32Array;
@@ -96,23 +65,12 @@ export declare type EdgeIndices = {
 };
 
 /**
- * A Earth ball mask
- */
-declare class FakeEarth extends Mesh<BufferGeometry, EarthMaskMaterial> {
-    get bkColor(): Color;
-    set bkColor(value: Color);
-    constructor(bkColor: Color, airColor?: Color);
-}
-
-/**
  * Geometry Attributes and indices type
  */
 export declare type GeometryDataType = {
     attributes: AttributesType;
     indices: Uint16Array | Uint32Array;
 };
-
-declare function getAttributions(map: TileMap): string[];
 
 /**
  * Get bounds to clip image
@@ -143,8 +101,6 @@ export declare function getGeometryDataFromDem(dem: Float32Array, skirt?: boolea
  * @returns 网格索引数组
  */
 export declare function getGridIndices(height: number, width: number): Uint16Array;
-
-declare function getLocalFromMouse(pointerEvent: PointerEvent, map: TileMap, camera: Camera): Vector3 | undefined;
 
 /**
  * get ground info from an ary
@@ -189,75 +145,6 @@ export declare function getNormals(vertices: Float32Array, indices: Uint16Array 
 export declare function getSafeTileUrlAndBounds(source: ISource, x: number, y: number, z: number): {
     url: string | undefined;
     clipBounds: [number, number, number, number];
-};
-
-declare function getTileCount(tileMap: TileMap): {
-    total: number;
-    visible: number;
-    leaf: number;
-    maxLevel: number;
-    downloading: number;
-};
-
-/**
- * threejs scene viewer initialize class
- */
-declare class GLViewer extends EventDispatcher<GLViewerEventMap> {
-    readonly scene: Scene;
-    readonly renderer: WebGLRenderer;
-    readonly camera: PerspectiveCamera;
-    readonly controls: MapControls;
-    readonly ambLight: AmbientLight;
-    readonly dirLight: DirectionalLight;
-    readonly container: HTMLElement;
-    private readonly _clock;
-    private _fogFactor;
-    get fogFactor(): number;
-    set fogFactor(value: number);
-    get width(): number;
-    get height(): number;
-    constructor(container: HTMLElement | string, options?: GLViewerOptions);
-    private _createScene;
-    private _createRenderer;
-    private _createCamera;
-    private _createControls;
-    private _createAmbLight;
-    private _createDirLight;
-    resize(): this;
-    private animate;
-    /**
-     * Fly to a position
-     * @param centerPostion Map center target position
-     * @param cameraPostion Camera target position
-     * @param animate animate or not
-     */
-    flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate?: boolean, onComplete?: (obj: Vector3) => void): void;
-    /**
-     * Get current scens state
-     * @returns center position and camera position
-     */
-    getState(): {
-        centerPosition: Vector3;
-        cameraPosition: Vector3;
-    };
-}
-
-/**
- * GlViewer event map
- */
-declare interface GLViewerEventMap extends Object3DEventMap {
-    update: BaseEvent & {
-        delta: number;
-    };
-}
-
-/**
- * GlViewer options
- */
-declare type GLViewerOptions = {
-    antialias?: boolean;
-    stencil?: boolean;
-    logarithmicDepthBuffer?: boolean;
 };
 
 /**
@@ -377,13 +264,6 @@ export declare interface ITileMaterialLoader<TMaterial extends Material = Materi
     unload?(material: TMaterial): void;
 }
 
-declare function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limitHeight?: number): boolean;
-
-declare type LimitCameraHeightParams = {
-    camera: PerspectiveCamera;
-    limitHeight?: number;
-};
-
 /**
  * Factory for loader
  */
@@ -426,14 +306,6 @@ declare enum LODAction {
     none = 0,
     create = 1,
     remove = 2
-}
-
-declare class MapFog extends FogExp2 {
-    private _controls;
-    private _factor;
-    get factor(): number;
-    set factor(value: number);
-    constructor(controls: OrbitControls, color: ColorRepresentation);
 }
 
 /**
@@ -516,24 +388,6 @@ export declare type MeshDateType = {
     /** Tile geometry */
     geometry: BufferGeometry;
 };
-
-export declare namespace plugin {
-    export {
-        GLViewerEventMap,
-        GLViewer,
-        createFrakEarth,
-        EarthMaskMaterial,
-        FakeEarth,
-        createFog,
-        MapFog,
-        CreateFogParams,
-        getAttributions,
-        getLocalFromMouse,
-        limitCameraHeight,
-        LimitCameraHeightParams,
-        getTileCount
-    }
-}
 
 /**
  * 点类型
@@ -1154,6 +1008,13 @@ export declare class TileMap extends Mesh<BufferGeometry, Material, TileMapEvent
      * 取得当前正在下载的瓦片数量
      */
     get downloading(): number;
+    getTileCount(): {
+        total: number;
+        visible: number;
+        leaf: number;
+        maxLevel: number;
+        downloading: number;
+    };
 }
 
 /**

@@ -1,9 +1,26 @@
+import { AmbientLight } from 'three';
+import { BaseEvent } from 'three';
 import { BufferGeometry } from 'three';
+import { Camera } from 'three';
+import { Color } from 'three';
+import { ColorRepresentation } from 'three';
+import { DirectionalLight } from 'three';
+import { EventDispatcher } from 'three';
+import { FogExp2 } from 'three';
 import { ITileGeometryLoader } from 'three-tile';
+import { MapControls } from 'three/examples/jsm/controls/MapControls';
+import { Mesh } from 'three';
+import { Object3DEventMap } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { PerspectiveCamera } from 'three';
+import { Scene } from 'three';
+import { ShaderMaterial } from 'three';
 import { SourceOptions } from 'three-tile';
+import { TileMap } from 'three-tile';
 import { TileSource } from 'three-tile';
 import { TileSourceLoadParamsType } from 'three-tile';
+import { Vector3 } from 'three';
+import { WebGLRenderer } from 'three';
 
 /**
  * ArcGis terrain datasource
@@ -78,11 +95,39 @@ export declare class Compass {
 /** 创建罗盘实例 */
 export declare function createCompass(controls: OrbitControls): Compass;
 
+export declare function createFog(controls: MapControls, fogColor?: ColorRepresentation): MapFog;
+
+export declare type CreateFogParams = {
+    controls: MapControls;
+    fogColor?: ColorRepresentation;
+};
+
+export declare function createFrakEarth(map: TileMap, bkColor?: ColorRepresentation, airColor?: ColorRepresentation): FakeEarth;
+
 declare type DEMType = {
     buffer: Float32Array;
     width: number;
     height: number;
 };
+
+/**
+ * a fake ball Material
+ */
+export declare class EarthMaskMaterial extends ShaderMaterial {
+    constructor(parameters: {
+        bkColor: Color;
+        airColor: Color;
+    });
+}
+
+/**
+ * A Earth ball mask
+ */
+export declare class FakeEarth extends Mesh<BufferGeometry, EarthMaskMaterial> {
+    get bkColor(): Color;
+    set bkColor(value: Color);
+    constructor(bkColor: Color, airColor?: Color);
+}
 
 /**
  * GaoDe datasource
@@ -117,6 +162,71 @@ declare type GeoqSourceOptions = SourceOptions & {
     style?: string;
 };
 
+export declare function getAttributions(map: TileMap): string[];
+
+export declare function getLocalFromMouse(pointerEvent: PointerEvent, map: TileMap, camera: Camera): Vector3 | undefined;
+
+/**
+ * threejs scene viewer initialize class
+ */
+export declare class GLViewer extends EventDispatcher<GLViewerEventMap> {
+    readonly scene: Scene;
+    readonly renderer: WebGLRenderer;
+    readonly camera: PerspectiveCamera;
+    readonly controls: MapControls;
+    readonly ambLight: AmbientLight;
+    readonly dirLight: DirectionalLight;
+    readonly container: HTMLElement;
+    private readonly _clock;
+    private _fogFactor;
+    get fogFactor(): number;
+    set fogFactor(value: number);
+    get width(): number;
+    get height(): number;
+    constructor(container: HTMLElement | string, options?: GLViewerOptions);
+    private _createScene;
+    private _createRenderer;
+    private _createCamera;
+    private _createControls;
+    private _createAmbLight;
+    private _createDirLight;
+    resize(): this;
+    private animate;
+    /**
+     * Fly to a position
+     * @param centerPostion Map center target position
+     * @param cameraPostion Camera target position
+     * @param animate animate or not
+     */
+    flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate?: boolean, onComplete?: (obj: Vector3) => void): void;
+    /**
+     * Get current scens state
+     * @returns center position and camera position
+     */
+    getState(): {
+        centerPosition: Vector3;
+        cameraPosition: Vector3;
+    };
+}
+
+/**
+ * GlViewer event map
+ */
+export declare interface GLViewerEventMap extends Object3DEventMap {
+    update: BaseEvent & {
+        delta: number;
+    };
+}
+
+/**
+ * GlViewer options
+ */
+declare type GLViewerOptions = {
+    antialias?: boolean;
+    stencil?: boolean;
+    logarithmicDepthBuffer?: boolean;
+};
+
 /**
  * Google datasource, can not uese in CN
  */
@@ -132,6 +242,13 @@ declare class GoogleSource extends TileSource {
 
 declare type GoogleSourceOptions = SourceOptions & {
     style?: Style_2;
+};
+
+export declare function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limitHeight?: number): boolean;
+
+export declare type LimitCameraHeightParams = {
+    camera: PerspectiveCamera;
+    limitHeight?: number;
 };
 
 /**
@@ -151,6 +268,14 @@ declare type MapBoxSourceOptions = SourceOptions & {
     style?: string;
     token: string;
 };
+
+export declare class MapFog extends FogExp2 {
+    private _controls;
+    private _factor;
+    get factor(): number;
+    set factor(value: number);
+    constructor(controls: OrbitControls, color: ColorRepresentation);
+}
 
 export declare namespace mapSource {
     export {

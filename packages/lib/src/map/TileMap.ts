@@ -524,16 +524,24 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		return Tile.downloadThreads;
 	}
 
-	// public static get loaderInfo() {
-	// 	return LoaderFactory.getLoadersInfo();
-	// }
-	// public static registerImgLoader(loader: ITileMaterialLoader) {
-	// 	LoaderFactory.registerMaterialLoader(loader);
-	// 	return loader;
-	// }
+	public getTileCount() {
+		let total = 0,
+			visible = 0,
+			maxLevel = 0,
+			leaf = 0,
+			downloading = 0;
 
-	// public static registerDEMloader(loader: ITileGeometryLoader) {
-	// 	LoaderFactory.registerGeometryLoader(loader);
-	// 	return loader;
-	// }
+		this.rootTile.traverse(tile => {
+			if (!tile.isTile) return;
+
+			total++;
+			if (tile.isLeaf) {
+				leaf++;
+				if (tile.inFrustum) visible++;
+			}
+			maxLevel = Math.max(maxLevel, tile.z);
+			downloading = Tile.downloadThreads;
+		});
+		return { total, visible, leaf, maxLevel: maxLevel, downloading: downloading };
+	}
 }
