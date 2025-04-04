@@ -5,6 +5,7 @@
  */
 
 import { Martini } from "../../geometry/Martini";
+import { GeometryDataType } from "../../geometry/GeometryDataTypes";
 
 export type DEMType = {
 	array: Float32Array;
@@ -36,7 +37,7 @@ const maxErrors: { [key: number]: number } = {
 	20: 0.05,
 };
 
-export function parse(data: DEMType, z: number, clipBounds: [number, number, number, number]) {
+export function parse(data: DEMType, z: number, clipBounds: [number, number, number, number]): GeometryDataType {
 	let demData = data;
 	// 地形从父瓦片取需要剪裁
 	if (clipBounds[2] - clipBounds[0] < 1) {

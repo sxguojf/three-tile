@@ -1,0 +1,33 @@
+/**
+ *@description: LOGO loader
+ *@author: 郭江峰
+ *@date: 2023-04-05
+ */
+import { TileCanvasLoader } from "three-tile";
+/**
+ * LOGO tile Material loader
+ */
+export class TileMaterialLogoLoader extends TileCanvasLoader {
+    info = {
+        version: "0.10.0",
+        description: "Tile debug image loader. It will draw a rectangle and coordinate on the tile.",
+    };
+    dataType = "logo";
+    /**
+     * Draw tile on canvas
+     * @param ctx Tile canvas context
+     * @param params Tile load params
+     */
+    drawTile(ctx, params) {
+        ctx.fillStyle = "white";
+        ctx.shadowColor = "black";
+        ctx.shadowBlur = 5;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 1;
+        ctx.font = "bold 14px arial";
+        ctx.textAlign = "center";
+        ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+        ctx.rotate((30 * Math.PI) / 180);
+        ctx.fillText(`${params.source.attribution}`, 0, 0);
+    }
+}

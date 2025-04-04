@@ -1,5 +1,5 @@
 import { ColorRepresentation, FogExp2 } from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 export class MapFog extends FogExp2 {
 	private _controls: OrbitControls;

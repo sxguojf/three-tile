@@ -23,7 +23,6 @@
 		"incremental": true,
 		"diagnostics": true,
 		"declaration": true,
-		"outDir": "./dist",
 		"rootDir": "."
 	},
 	"include": [

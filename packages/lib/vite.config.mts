@@ -1,13 +1,10 @@
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 import path from "path";
-// import wasm from "vite-plugin-wasm";
 
 export default defineConfig({
 	plugins: [
-		// wasm(),
 		dts({
-			// outDir: ["dist"],
 			rollupTypes: true,
 		}),
 	],
@@ -29,9 +26,9 @@ export default defineConfig({
 				sourcemapExcludeSources: false,
 			},
 		},
-		watch: {
-			include: "src/**",
-			clearScreen: false,
-		},
+		// watch: {
+		// 	include: "src/**",
+		// 	clearScreen: false,
+		// },
 	},
 });

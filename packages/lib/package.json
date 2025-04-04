@@ -3,14 +3,14 @@
 	"version": "0.10.1",
 	"type": "module",
 	"files": [],
-	"main": "../../dist/three-tile.umd.cjs",
-	"module": "../../dist/three-tile.js",
-	"types": "../../dist/three-tile.d.ts",
+	"main": "./dist/three-tile.umd.cjs",
+	"module": "./dist/three-tile.js",
+	"types": "./dist/three-tile.d.ts",
 	"exports": {
 		".": {
-			"import": "../../dist/three-tile.js",
-			"require": "../../dist/three-tile.umd.cjs",
-			"types": "../../dist/three-tile.d.ts"
+			"import": "./dist/three-tile.js",
+			"require": "./dist/three-tile.umd.cjs",
+			"types": "./dist/three-tile.d.ts"
 		}
 	},
 	"description": "A lightweight tile map using threejs",
@@ -29,7 +29,7 @@
 	],
 	"scripts": {
 		"dev": "vite build --watch",
-		"build": "tsc && vite build --outDir ../../dist"
+		"build": "tsc && vite build"
 	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/",

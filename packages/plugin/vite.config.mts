@@ -5,7 +5,6 @@ import path from "path";
 export default defineConfig({
 	plugins: [
 		dts({
-			// outDir: ["dist"],
 			rollupTypes: true,
 		}),
 	],
@@ -19,19 +18,19 @@ export default defineConfig({
 			fileName: "three-tile-plugin",
 		},
 		rollupOptions: {
-			external: ["three", "three-tile-lib"],
+			external: ["three", "three-tile"],
 			output: {
 				globals: {
 					three: "THREE",
-					"three-tile-lib": "ThreeTile",
+					"three-tile": "ThreeTile",
 				},
 				sourcemapExcludeSources: false,
 			},
 		},
-		watch: {
-			include: 'src/**',
-			clearScreen: false,
-		},
+		// watch: {
+		// 	include: "src/**",
+		// 	clearScreen: false,
+		// },
 	},
 	// resolve: {
 	// 	alias: {

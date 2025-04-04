@@ -3,14 +3,14 @@
 	"version": "0.10.1",
 	"type": "module",
 	"files": [],
-	"main": "../../dist/three-tile-plugin.umd.cjs",
-	"module": "../../dist/three-tile-plugin.js",
-	"types": "../../dist/three-tile-plugin.d.ts",
+	"main": "./dist/three-tile-plugin.umd.cjs",
+	"module": "./dist/three-tile-plugin.js",
+	"types": "./dist/three-tile-plugin.d.ts",
 	"exports": {
 		".": {
-			"import": "../../dist/three-tile-plugin.js",
-			"require": "../../dist/three-tile-plugin.umd.cjs",
-			"types": "../../dist/three-tile-plugin.d.ts"
+			"import": "./dist/three-tile-plugin.js",
+			"require": "./dist/three-tile-plugin.umd.cjs",
+			"types": "./dist/three-tile-plugin.d.ts"
 		}
 	},
 	"description": "three-tile plugin",
@@ -30,7 +30,7 @@
 	],
 	"scripts": {
 		"dev": "vite build --watch",
-		"build": "tsc && vite build --outDir ../../dist"
+		"build": "tsc && vite build"
 	},
 	"dependencies": {
 		"geotiff": "^2.1.3",
