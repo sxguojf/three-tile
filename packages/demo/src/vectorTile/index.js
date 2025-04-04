@@ -1,6 +1,5 @@
 var dt = Object.defineProperty;
-var ft = (i, t, e) =>
-	t in i ? dt(i, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : (i[t] = e);
+var ft = (i, t, e) => (t in i ? dt(i, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : (i[t] = e));
 var g = (i, t, e) => ft(i, typeof t != "symbol" ? t + "" : t, e);
 import { FileLoader as it, Texture as Z, CanvasTexture as nt } from "three";
 import {
@@ -64,8 +63,7 @@ function C(i, t) {
 }
 function gt(i, t) {
 	const e = [];
-	if (i.type === "FeatureCollection")
-		for (let n = 0; n < i.features.length; n++) k(e, i.features[n], t, n);
+	if (i.type === "FeatureCollection") for (let n = 0; n < i.features.length; n++) k(e, i.features[n], t, n);
 	else i.type === "Feature" ? k(e, i, t) : k(e, { geometry: i }, t);
 	return e;
 }
@@ -77,8 +75,7 @@ function k(i, t, e, n) {
 		o = Math.pow(e.tolerance / ((1 << e.maxZoom) * e.extent), 2);
 	let l = [],
 		a = t.id;
-	if ((e.promoteId ? (a = t.properties[e.promoteId]) : e.generateId && (a = n || 0), r === "Point"))
-		H(s, l);
+	if ((e.promoteId ? (a = t.properties[e.promoteId]) : e.generateId && (a = n || 0), r === "Point")) H(s, l);
 	else if (r === "MultiPoint") for (const h of s) H(h, l);
 	else if (r === "LineString") j(s, l, o, !1);
 	else if (r === "MultiLineString")
@@ -119,20 +116,12 @@ function j(i, t, e, n) {
 		const h = at(i[a][0]),
 			c = ht(i[a][1]);
 		t.push(h, c, 0),
-			a > 0 &&
-				(n
-					? (o += (s * c - h * r) / 2)
-					: (o += Math.sqrt(Math.pow(h - s, 2) + Math.pow(c - r, 2)))),
+			a > 0 && (n ? (o += (s * c - h * r) / 2) : (o += Math.sqrt(Math.pow(h - s, 2) + Math.pow(c - r, 2)))),
 			(s = h),
 			(r = c);
 	}
 	const l = t.length - 3;
-	(t[2] = 1),
-		R(t, 0, l, e),
-		(t[l + 2] = 1),
-		(t.size = Math.abs(o)),
-		(t.start = 0),
-		(t.end = t.size);
+	(t[2] = 1), R(t, 0, l, e), (t[l + 2] = 1), (t.size = Math.abs(o)), (t.start = 0), (t.end = t.size);
 }
 function G(i, t, e, n) {
 	for (let s = 0; s < i.length; s++) {
@@ -251,9 +240,7 @@ function mt(i, t) {
 		r = _(i, 1, 1 - e, 2 + e, 0, -1, 2, t);
 	return (
 		(s || r) &&
-			((n = _(i, 1, -e, 1 + e, 0, -1, 2, t) || []),
-			s && (n = W(s, 1).concat(n)),
-			r && (n = n.concat(W(r, -1)))),
+			((n = _(i, 1, -e, 1 + e, 0, -1, 2, t) || []), s && (n = W(s, 1).concat(n)), r && (n = n.concat(W(r, -1)))),
 		n
 	);
 }
@@ -356,12 +343,7 @@ function Pt(i, t, e, n) {
 		}
 		const a = {
 			geometry: o,
-			type:
-				r === "Polygon" || r === "MultiPolygon"
-					? 3
-					: r === "LineString" || r === "MultiLineString"
-						? 2
-						: 1,
+			type: r === "Polygon" || r === "MultiPolygon" ? 3 : r === "LineString" || r === "MultiLineString" ? 2 : 1,
 			tags: l,
 		};
 		t.id !== null && (a.id = t.id), i.features.push(a);
@@ -380,8 +362,7 @@ function A(i, t, e, n, s, r) {
 }
 function Mt(i, t) {
 	let e = 0;
-	for (let n = 0, s = i.length, r = s - 2; n < s; r = n, n += 2)
-		e += (i[n] - i[r]) * (i[n + 1] + i[r + 1]);
+	for (let n = 0, s = i.length, r = s - 2; n < s; r = n, n += 2) e += (i[n] - i[r]) * (i[n + 1] + i[r + 1]);
 	if (e > 0 === t)
 		for (let n = 0, s = i.length; n < s / 2; n += 2) {
 			const r = i[n],
@@ -417,8 +398,7 @@ class Vt {
 		const n = e.debug;
 		if ((n && console.time("preprocess data"), e.maxZoom < 0 || e.maxZoom > 24))
 			throw new Error("maxZoom should be in the 0-24 range");
-		if (e.promoteId && e.generateId)
-			throw new Error("promoteId and generateId cannot be used together.");
+		if (e.promoteId && e.generateId) throw new Error("promoteId and generateId cannot be used together.");
 		let s = gt(t, e);
 		(this.tiles = {}),
 			(this.tileCoords = []),
@@ -432,11 +412,7 @@ class Vt {
 			s.length && this.splitTile(s, 0, 0, 0),
 			n &&
 				(s.length &&
-					console.log(
-						"features: %d, points: %d",
-						this.tiles[0].numFeatures,
-						this.tiles[0].numPoints
-					),
+					console.log("features: %d, points: %d", this.tiles[0].numFeatures, this.tiles[0].numPoints),
 				console.timeEnd("generate tiles"),
 				console.log("tiles generated:", this.total, JSON.stringify(this.stats)));
 	}
@@ -530,8 +506,7 @@ class Vt {
 		for (; !d && h > 0; ) h--, (c = c >> 1), (u = u >> 1), (d = this.tiles[J(h, c, u)]);
 		return !d || !d.source
 			? null
-			: (o > 1 &&
-					(console.log("found parent tile z%d-%d-%d", h, c, u), console.time("drilling down")),
+			: (o > 1 && (console.log("found parent tile z%d-%d-%d", h, c, u), console.time("drilling down")),
 				this.splitTile(d.source, h, c, u, t, e, n),
 				o > 1 && console.timeEnd("drilling down"),
 				this.tiles[a] ? K(this.tiles[a], r) : null);
@@ -1019,10 +994,7 @@ class ut {
 			const d = [];
 			for (const x of l) d.push(x[0]);
 			const f = h(d);
-			c =
-				d.length === 1
-					? { type: "Point", coordinates: f[0] }
-					: { type: "MultiPoint", coordinates: f };
+			c = d.length === 1 ? { type: "Point", coordinates: f[0] } : { type: "MultiPoint", coordinates: f };
 		} else if (this.type === 2) {
 			const d = l.map(h);
 			c =
@@ -1033,10 +1005,7 @@ class ut {
 			const d = Bt(l),
 				f = [];
 			for (const x of d) f.push(x.map(h));
-			c =
-				f.length === 1
-					? { type: "Polygon", coordinates: f[0] }
-					: { type: "MultiPolygon", coordinates: f };
+			c = f.length === 1 ? { type: "Polygon", coordinates: f[0] } : { type: "MultiPolygon", coordinates: f };
 		} else throw new Error("unknown feature type");
 		const u = {
 			type: "Feature",
@@ -1071,9 +1040,7 @@ function Bt(i) {
 	let n, s;
 	for (let r = 0; r < t; r++) {
 		const o = It(i[r]);
-		o !== 0 &&
-			(s === void 0 && (s = o < 0),
-			s === o < 0 ? (n && e.push(n), (n = [i[r]])) : n && n.push(i[r]));
+		o !== 0 && (s === void 0 && (s = o < 0), s === o < 0 ? (n && e.push(n), (n = [i[r]])) : n && n.push(i[r]));
 	}
 	return n && e.push(n), e;
 }
@@ -1260,9 +1227,7 @@ class Xt {
 	readString() {
 		const t = this.readVarint() + this.pos,
 			e = this.pos;
-		return (
-			(this.pos = t), t - e >= kt && tt ? tt.decode(this.buf.subarray(e, t)) : Kt(this.buf, e, t)
-		);
+		return (this.pos = t), t - e >= kt && tt ? tt.decode(this.buf.subarray(e, t)) : Kt(this.buf, e, t);
 	}
 	readBytes() {
 		const t = this.readVarint() + this.pos,
@@ -1639,19 +1604,10 @@ function At(i, t) {
 				((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)),
 				i &&
 					((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)),
-					i &&
-						((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)),
-						i && (t.buf[t.pos++] = i & 127)))));
+					i && ((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)), i && (t.buf[t.pos++] = i & 127)))));
 }
 function et(i, t, e) {
-	const n =
-		t <= 16383
-			? 1
-			: t <= 2097151
-				? 2
-				: t <= 268435455
-					? 3
-					: Math.floor(Math.log(t) / (Math.LN2 * 7));
+	const n = t <= 16383 ? 1 : t <= 2097151 ? 2 : t <= 268435455 ? 3 : Math.floor(Math.log(t) / (Math.LN2 * 7));
 	e.realloc(n);
 	for (let s = e.pos - 1; s >= i; s--) e.buf[s + n] = e.buf[s];
 }
@@ -1694,8 +1650,7 @@ function Kt(i, t, e) {
 		l === 1
 			? r < 128 && (o = r)
 			: l === 2
-				? ((a = i[s + 1]),
-					(a & 192) === 128 && ((o = ((r & 31) << 6) | (a & 63)), o <= 127 && (o = null)))
+				? ((a = i[s + 1]), (a & 192) === 128 && ((o = ((r & 31) << 6) | (a & 63)), o <= 127 && (o = null)))
 				: l === 3
 					? ((a = i[s + 1]),
 						(h = i[s + 2]),
@@ -1715,9 +1670,7 @@ function Kt(i, t, e) {
 			o === null
 				? ((o = 65533), (l = 1))
 				: o > 65535 &&
-					((o -= 65536),
-					(n += String.fromCharCode(((o >>> 10) & 1023) | 55296)),
-					(o = 56320 | (o & 1023))),
+					((o -= 65536), (n += String.fromCharCode(((o >>> 10) & 1023) | 55296)), (o = 56320 | (o & 1023))),
 			(n += String.fromCharCode(o)),
 			(s += l);
 	}
@@ -1732,9 +1685,7 @@ function Qt(i, t, e) {
 					continue;
 				} else (s = ((r - 55296) << 10) | (s - 56320) | 65536), (r = null);
 			else {
-				s > 56319 || n + 1 === t.length
-					? ((i[e++] = 239), (i[e++] = 191), (i[e++] = 189))
-					: (r = s);
+				s > 56319 || n + 1 === t.length ? ((i[e++] = 239), (i[e++] = 191), (i[e++] = 189)) : (r = s);
 				continue;
 			}
 		else r && ((i[e++] = 239), (i[e++] = 191), (i[e++] = 189), (r = null));

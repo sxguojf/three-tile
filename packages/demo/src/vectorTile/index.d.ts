@@ -44,15 +44,7 @@ export declare class GeoJSONLoader extends TileMaterialLoader {
 		tileCoords: default_2.TileCoords;
 		total: number;
 		stats: Record<`z${number}`, number>;
-		splitTile(
-			features: default_2.Tile,
-			z: number,
-			x: number,
-			y: number,
-			cz: number,
-			cx: number,
-			cy: number
-		): void;
+		splitTile(features: default_2.Tile, z: number, x: number, y: number, cz: number, cx: number, cy: number): void;
 		getTile(z: number | string, x: number | string, y: number | string): null | default_2.Tile;
 	}>;
 	private drawTile;

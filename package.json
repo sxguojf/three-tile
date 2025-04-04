@@ -6,19 +6,19 @@
 	"files": [
 		"dist"
 	],
-	"main": "dist/three-tile.umd.cjs",
-	"module": "dist/three-tile.js",
-	"types": "dist/three-tile.d.ts",
+	"main": "./packages/lib/dist/three-tile.umd.cjs",
+	"module": "./packages/lib/dist/three-tile.js",
+	"types": "./packages/lib/dist/three-tile.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/three-tile.js",
-			"require": "./dist/three-tile.umd.cjs",
-			"types": "./dist/three-tile.d.ts"
+			"import": "./packages/lib/dist/three-tile.js",
+			"require": "./packages/lib/dist/three-tile.umd.cjs",
+			"types": "./packages/lib/dist/three-tile.d.ts"
 		},
 		"./plugin": {
-			"import": "./dist/three-tile-plugin.js",
-			"require": "./dist/three-tile-plugin.umd.cjs",
-			"types": "./dist/three-tile-plugin.d.ts"
+			"import": "./packages/plugin/dist/three-tile-plugin.js",
+			"require": "./packages/plugin/dist/three-tile-plugin.umd.cjs",
+			"types": "./packages/plugin/dist/three-tile-plugin.d.ts"
 		}
 	},
 	"author": {
@@ -31,13 +31,9 @@
 		"build:plugin": "npm run build --workspace=packages/plugin",
 		"build:demo": "npm run build --workspace=packages/demo",
 		"build": "npm run build:lib && npm run build:plugin",
-		"test": "npm run test --workspaces",
-		"test:watch": "npm run test:watch --workspaces",
 		"lint": "eslint . --ext .ts",
 		"lint:fix": "eslint . --ext .ts --fix",
-		"format": "prettier --write \"**/*.{ts,js,json,md}\"",
-		"prepare": "husky install",
-		"pre-commit": "lint-staged"
+		"format": "prettier --write \"**/*.{ts,js,json,md}\""
 	},
 	"devDependencies": {
 		"@types/node": "^20.17.30",
@@ -48,7 +44,6 @@
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-prettier": "^5.1.3",
-		"husky": "^9.0.11",
 		"lint-staged": "^15.2.2",
 		"prettier": "^3.2.5",
 		"typedoc": "^0.25.13",
@@ -57,12 +52,12 @@
 		"vite-plugin-dts": "^4.0.3"
 	},
 	"peerDependencies": {
-		"three": "0.165.0"
+		"three": "^0.165.0"
 	},
 	"workspaces": [
 		"packages/*"
 	],
-	"description": "A lightweight tile map using threejs with plugins",
+	"description": "A lightweight tile map using threejs",
 	"license": "GPL-3.0",
 	"keywords": [
 		"three",

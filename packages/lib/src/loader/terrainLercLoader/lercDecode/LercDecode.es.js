@@ -102,10 +102,7 @@ var Module = (() => {
 				scriptDirectory = _scriptDir;
 			}
 			if (scriptDirectory.indexOf("blob:") !== 0) {
-				scriptDirectory = scriptDirectory.substr(
-					0,
-					scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1
-				);
+				scriptDirectory = scriptDirectory.substr(0, scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1);
 			} else {
 				scriptDirectory = "";
 			}
@@ -539,10 +536,7 @@ var Module = (() => {
 			for (var cutDown = 1; cutDown <= 4; cutDown *= 2) {
 				var overGrownHeapSize = oldSize * (1 + 0.2 / cutDown);
 				overGrownHeapSize = Math.min(overGrownHeapSize, requestedSize + 100663296);
-				var newSize = Math.min(
-					maxHeapSize,
-					alignUp(Math.max(requestedSize, overGrownHeapSize), 65536)
-				);
+				var newSize = Math.min(maxHeapSize, alignUp(Math.max(requestedSize, overGrownHeapSize), 65536));
 				var replacement = emscripten_realloc_buffer(newSize);
 				if (replacement) {
 					return true;
@@ -695,8 +689,7 @@ function load(options = {}) {
 	if (loadPromise) {
 		return loadPromise;
 	}
-	const locateFile =
-		options.locateFile || ((wasmFileName, scriptDir) => `${scriptDir}${wasmFileName}`);
+	const locateFile = options.locateFile || ((wasmFileName, scriptDir) => `${scriptDir}${wasmFileName}`);
 	loadPromise = Module({ locateFile }).then(lercFactory =>
 		lercFactory.ready.then(() => {
 			initLercLib(lercFactory);
@@ -720,14 +713,11 @@ function copyBytesFromWasm(wasmHeapU8, ptr_data, data) {
 	data.set(wasmHeapU8.slice(ptr_data, ptr_data + data.length));
 }
 function initLercLib(lercFactory) {
-	const { _malloc, _free, _lerc_getBlobInfo, _lerc_getDataRanges, _lerc_decode_4D, asm } =
-		lercFactory;
+	const { _malloc, _free, _lerc_getBlobInfo, _lerc_getDataRanges, _lerc_decode_4D, asm } = lercFactory;
 	// do not use HeapU8 as memory dynamically grows from the initial 16MB
 	// test case: landsat_6band_8bit.24
 	let heapU8;
-	const memory = Object.values(asm).find(
-		val => val && "buffer" in val && val.buffer === lercFactory.HEAPU8.buffer
-	);
+	const memory = Object.values(asm).find(val => val && "buffer" in val && val.buffer === lercFactory.HEAPU8.buffer);
 	// avoid pointer for detached memory, malloc once:
 	const mallocMultiple = byteLengths => {
 		const lens = byteLengths.map(len => normalizeByteLength(len));
@@ -750,11 +740,7 @@ function initLercLib(lercFactory) {
 		const rangeArrSize = 3;
 		const infoArr = new Uint8Array(infoArrSize * 4);
 		const rangeArr = new Uint8Array(rangeArrSize * 8);
-		const [ptr, ptr_info, ptr_range] = mallocMultiple([
-			blob.length,
-			infoArr.length,
-			rangeArr.length,
-		]);
+		const [ptr, ptr_info, ptr_range] = mallocMultiple([blob.length, infoArr.length, rangeArr.length]);
 		heapU8.set(blob, ptr);
 		heapU8.set(infoArr, ptr_info);
 		heapU8.set(rangeArr, ptr_range);
@@ -873,8 +859,7 @@ function initLercLib(lercFactory) {
 		return headerInfo;
 	};
 	lercLib.decode = (blob, blobInfo) => {
-		const { maskCount, depthCount, bandCount, width, height, dataType, bandCountWithNoData } =
-			blobInfo;
+		const { maskCount, depthCount, bandCount, width, height, dataType, bandCountWithNoData } = blobInfo;
 		// if the heap is increased dynamically between raw data, mask, and data, the malloc pointer is invalid as it will raise error when accessing mask:
 		// Cannot perform %TypedArray%.prototype.slice on a detached ArrayBuffer
 		const pixelTypeInfo = pixelTypeInfoMap[dataType];
@@ -978,13 +963,11 @@ function decode(input, options = {}) {
 	var _a, _b;
 	// get blob info
 	const inputOffset = (_a = options.inputOffset) !== null && _a !== void 0 ? _a : 0;
-	const blob =
-		input instanceof Uint8Array ? input.subarray(inputOffset) : new Uint8Array(input, inputOffset);
+	const blob = input instanceof Uint8Array ? input.subarray(inputOffset) : new Uint8Array(input, inputOffset);
 	const blobInfo = lercLib.getBlobInfo(blob);
 	// decode
 	const { data, maskData } = lercLib.decode(blob, blobInfo);
-	const { width, height, bandCount, dimCount, depthCount, dataType, maskCount, statistics } =
-		blobInfo;
+	const { width, height, bandCount, dimCount, depthCount, dataType, maskCount, statistics } = blobInfo;
 	// get pixels, per-band masks, and statistics
 	const pixelTypeInfo = pixelTypeInfoMap[dataType];
 	const data1 = new pixelTypeInfo.ctor(data.buffer);
@@ -993,10 +976,7 @@ function decode(input, options = {}) {
 	const numPixels = width * height;
 	const numElementsPerBand = numPixels * depthCount;
 	// options.returnPixelInterleavedDims will be removed in next release
-	const swap =
-		(_b = options.returnInterleaved) !== null && _b !== void 0
-			? _b
-			: options.returnPixelInterleavedDims;
+	const swap = (_b = options.returnInterleaved) !== null && _b !== void 0 ? _b : options.returnPixelInterleavedDims;
 	for (let i = 0; i < bandCount; i++) {
 		const band = data1.subarray(i * numElementsPerBand, (i + 1) * numElementsPerBand);
 		if (swap) {
@@ -1021,9 +1001,7 @@ function decode(input, options = {}) {
 	// apply no data value
 	const { noDataValue } = options;
 	const applyNoDataValue =
-		noDataValue != null &&
-		pixelTypeInfo.range[0] <= noDataValue &&
-		pixelTypeInfo.range[1] >= noDataValue;
+		noDataValue != null && pixelTypeInfo.range[0] <= noDataValue && pixelTypeInfo.range[1] >= noDataValue;
 	if (maskCount > 0 && applyNoDataValue) {
 		for (let i = 0; i < bandCount; i++) {
 			const band = pixels[i];
@@ -1074,8 +1052,7 @@ function decode(input, options = {}) {
 function getBlobInfo(input, options = {}) {
 	var _a;
 	const inputOffset = (_a = options.inputOffset) !== null && _a !== void 0 ? _a : 0;
-	const blob =
-		input instanceof Uint8Array ? input.subarray(inputOffset) : new Uint8Array(input, inputOffset);
+	const blob = input instanceof Uint8Array ? input.subarray(inputOffset) : new Uint8Array(input, inputOffset);
 	return lercLib.getBlobInfo(blob);
 }
 function getBandCount(input, options = {}) {

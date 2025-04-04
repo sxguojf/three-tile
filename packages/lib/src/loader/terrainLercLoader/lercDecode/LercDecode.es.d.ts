@@ -54,16 +54,8 @@ export interface LercData {
 	bandMasks?: Uint8Array[];
 }
 
-export function load(options?: {
-	locateFile?: (wasmFileName?: string, scriptDir?: string) => string;
-}): Promise<void>;
+export function load(options?: { locateFile?: (wasmFileName?: string, scriptDir?: string) => string }): Promise<void>;
 export function isLoaded(): boolean;
 export function decode(input: ArrayBuffer | Uint8Array, options?: DecodeOptions): LercData;
-export function getBlobInfo(
-	input: ArrayBuffer | Uint8Array,
-	options?: { inputOffset?: number }
-): LercHeaderInfo;
-export function getBandCount(
-	input: ArrayBuffer | Uint8Array,
-	options?: { inputOffset?: number }
-): number;
+export function getBlobInfo(input: ArrayBuffer | Uint8Array, options?: { inputOffset?: number }): LercHeaderInfo;
+export function getBandCount(input: ArrayBuffer | Uint8Array, options?: { inputOffset?: number }): number;

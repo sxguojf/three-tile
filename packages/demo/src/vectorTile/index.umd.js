@@ -65,8 +65,7 @@
 	}
 	function lt(i, t) {
 		const e = [];
-		if (i.type === "FeatureCollection")
-			for (let n = 0; n < i.features.length; n++) Y(e, i.features[n], t, n);
+		if (i.type === "FeatureCollection") for (let n = 0; n < i.features.length; n++) Y(e, i.features[n], t, n);
 		else i.type === "Feature" ? Y(e, i, t) : Y(e, { geometry: i }, t);
 		return e;
 	}
@@ -78,10 +77,7 @@
 			o = Math.pow(e.tolerance / ((1 << e.maxZoom) * e.extent), 2);
 		let a = [],
 			l = t.id;
-		if (
-			(e.promoteId ? (l = t.properties[e.promoteId]) : e.generateId && (l = n || 0), r === "Point")
-		)
-			$(s, a);
+		if ((e.promoteId ? (l = t.properties[e.promoteId]) : e.generateId && (l = n || 0), r === "Point")) $(s, a);
 		else if (r === "MultiPoint") for (const h of s) $(h, a);
 		else if (r === "LineString") N(s, a, o, !1);
 		else if (r === "MultiLineString")
@@ -96,8 +92,7 @@
 				J(h, u, o, !0), a.push(u);
 			}
 		else if (r === "GeometryCollection") {
-			for (const h of t.geometry.geometries)
-				Y(i, { id: l, geometry: h, properties: t.properties }, e, n);
+			for (const h of t.geometry.geometries) Y(i, { id: l, geometry: h, properties: t.properties }, e, n);
 			return;
 		} else throw new Error("Input data is not a valid GeoJSON object.");
 		i.push(D(l, r, a, t.properties));
@@ -113,20 +108,12 @@
 			const h = W(i[l][0]),
 				u = K(i[l][1]);
 			t.push(h, u, 0),
-				l > 0 &&
-					(n
-						? (o += (s * u - h * r) / 2)
-						: (o += Math.sqrt(Math.pow(h - s, 2) + Math.pow(u - r, 2)))),
+				l > 0 && (n ? (o += (s * u - h * r) / 2) : (o += Math.sqrt(Math.pow(h - s, 2) + Math.pow(u - r, 2)))),
 				(s = h),
 				(r = u);
 		}
 		const a = t.length - 3;
-		(t[2] = 1),
-			G(t, 0, a, e),
-			(t[a + 2] = 1),
-			(t.size = Math.abs(o)),
-			(t.start = 0),
-			(t.end = t.size);
+		(t[2] = 1), G(t, 0, a, e), (t[a + 2] = 1), (t.size = Math.abs(o)), (t.start = 0), (t.end = t.size);
 	}
 	function J(i, t, e, n) {
 		for (let s = 0; s < i.length; s++) {
@@ -332,8 +319,7 @@
 			(i.maxY = Math.max(i.maxY, t.maxY)),
 			r === "Point" || r === "MultiPoint")
 		)
-			for (let a = 0; a < s.length; a += 3)
-				o.push(s[a], s[a + 1]), i.numPoints++, i.numSimplified++;
+			for (let a = 0; a < s.length; a += 3) o.push(s[a], s[a + 1]), i.numPoints++, i.numSimplified++;
 		else if (r === "LineString") Z(o, s, i, e, !1, !1);
 		else if (r === "MultiLineString" || r === "Polygon")
 			for (let a = 0; a < s.length; a++) Z(o, s[a], i, e, r === "Polygon", a === 0);
@@ -352,11 +338,7 @@
 			const l = {
 				geometry: o,
 				type:
-					r === "Polygon" || r === "MultiPolygon"
-						? 3
-						: r === "LineString" || r === "MultiLineString"
-							? 2
-							: 1,
+					r === "Polygon" || r === "MultiPolygon" ? 3 : r === "LineString" || r === "MultiLineString" ? 2 : 1,
 				tags: a,
 			};
 			t.id !== null && (l.id = t.id), i.features.push(l);
@@ -375,8 +357,7 @@
 	}
 	function gt(i, t) {
 		let e = 0;
-		for (let n = 0, s = i.length, r = s - 2; n < s; r = n, n += 2)
-			e += (i[n] - i[r]) * (i[n + 1] + i[r + 1]);
+		for (let n = 0, s = i.length, r = s - 2; n < s; r = n, n += 2) e += (i[n] - i[r]) * (i[n + 1] + i[r + 1]);
 		if (e > 0 === t)
 			for (let n = 0, s = i.length; n < s / 2; n += 2) {
 				const r = i[n],
@@ -402,8 +383,7 @@
 			const n = e.debug;
 			if ((n && console.time("preprocess data"), e.maxZoom < 0 || e.maxZoom > 24))
 				throw new Error("maxZoom should be in the 0-24 range");
-			if (e.promoteId && e.generateId)
-				throw new Error("promoteId and generateId cannot be used together.");
+			if (e.promoteId && e.generateId) throw new Error("promoteId and generateId cannot be used together.");
 			let s = lt(t, e);
 			(this.tiles = {}),
 				(this.tileCoords = []),
@@ -417,11 +397,7 @@
 				s.length && this.splitTile(s, 0, 0, 0),
 				n &&
 					(s.length &&
-						console.log(
-							"features: %d, points: %d",
-							this.tiles[0].numFeatures,
-							this.tiles[0].numPoints
-						),
+						console.log("features: %d, points: %d", this.tiles[0].numFeatures, this.tiles[0].numPoints),
 					console.timeEnd("generate tiles"),
 					console.log("tiles generated:", this.total, JSON.stringify(this.stats)));
 		}
@@ -509,8 +485,7 @@
 			for (; !d && h > 0; ) h--, (u = u >> 1), (c = c >> 1), (d = this.tiles[j(h, u, c)]);
 			return !d || !d.source
 				? null
-				: (o > 1 &&
-						(console.log("found parent tile z%d-%d-%d", h, u, c), console.time("drilling down")),
+				: (o > 1 && (console.log("found parent tile z%d-%d-%d", h, u, c), console.time("drilling down")),
 					this.splitTile(d.source, h, u, c, t, e, n),
 					o > 1 && console.timeEnd("drilling down"),
 					this.tiles[l] ? et(this.tiles[l], r) : null);
@@ -807,10 +782,7 @@
 				const d = [];
 				for (const x of a) d.push(x[0]);
 				const f = h(d);
-				u =
-					d.length === 1
-						? { type: "Point", coordinates: f[0] }
-						: { type: "MultiPoint", coordinates: f };
+				u = d.length === 1 ? { type: "Point", coordinates: f[0] } : { type: "MultiPoint", coordinates: f };
 			} else if (this.type === 2) {
 				const d = a.map(h);
 				u =
@@ -821,10 +793,7 @@
 				const d = Vt(a),
 					f = [];
 				for (const x of d) f.push(x.map(h));
-				u =
-					f.length === 1
-						? { type: "Polygon", coordinates: f[0] }
-						: { type: "MultiPolygon", coordinates: f };
+				u = f.length === 1 ? { type: "Polygon", coordinates: f[0] } : { type: "MultiPolygon", coordinates: f };
 			} else throw new Error("unknown feature type");
 			const c = { type: "Feature", geometry: u, properties: this.properties };
 			return this.id != null && (c.id = this.id), c;
@@ -855,9 +824,7 @@
 		let n, s;
 		for (let r = 0; r < t; r++) {
 			const o = _t(i[r]);
-			o !== 0 &&
-				(s === void 0 && (s = o < 0),
-				s === o < 0 ? (n && e.push(n), (n = [i[r]])) : n && n.push(i[r]));
+			o !== 0 && (s === void 0 && (s = o < 0), s === o < 0 ? (n && e.push(n), (n = [i[r]])) : n && n.push(i[r]));
 		}
 		return n && e.push(n), e;
 	}
@@ -972,13 +939,11 @@
 			return (this.pos += 4), t;
 		}
 		readFixed64() {
-			const t =
-				this.dataView.getUint32(this.pos, !0) + this.dataView.getUint32(this.pos + 4, !0) * R;
+			const t = this.dataView.getUint32(this.pos, !0) + this.dataView.getUint32(this.pos + 4, !0) * R;
 			return (this.pos += 8), t;
 		}
 		readSFixed64() {
-			const t =
-				this.dataView.getUint32(this.pos, !0) + this.dataView.getInt32(this.pos + 4, !0) * R;
+			const t = this.dataView.getUint32(this.pos, !0) + this.dataView.getInt32(this.pos + 4, !0) * R;
 			return (this.pos += 8), t;
 		}
 		readFloat() {
@@ -1016,9 +981,7 @@
 		readString() {
 			const t = this.readVarint() + this.pos,
 				e = this.pos;
-			return (
-				(this.pos = t), t - e >= It && rt ? rt.decode(this.buf.subarray(e, t)) : Rt(this.buf, e, t)
-			);
+			return (this.pos = t), t - e >= It && rt ? rt.decode(this.buf.subarray(e, t)) : Rt(this.buf, e, t);
 		}
 		readBytes() {
 			const t = this.readVarint() + this.pos,
@@ -1089,10 +1052,7 @@
 			for (; e < this.pos + t; ) e *= 2;
 			if (e !== this.length) {
 				const n = new Uint8Array(e);
-				n.set(this.buf),
-					(this.buf = n),
-					(this.dataView = new DataView(n.buffer)),
-					(this.length = e);
+				n.set(this.buf), (this.buf = n), (this.dataView = new DataView(n.buffer)), (this.length = e);
 			}
 		}
 		finish() {
@@ -1277,18 +1237,10 @@
 					i &&
 						((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)),
 						i &&
-							((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)),
-							i && (t.buf[t.pos++] = i & 127)))));
+							((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)), i && (t.buf[t.pos++] = i & 127)))));
 	}
 	function ot(i, t, e) {
-		const n =
-			t <= 16383
-				? 1
-				: t <= 2097151
-					? 2
-					: t <= 268435455
-						? 3
-						: Math.floor(Math.log(t) / (Math.LN2 * 7));
+		const n = t <= 16383 ? 1 : t <= 2097151 ? 2 : t <= 268435455 ? 3 : Math.floor(Math.log(t) / (Math.LN2 * 7));
 		e.realloc(n);
 		for (let s = e.pos - 1; s >= i; s--) e.buf[s + n] = e.buf[s];
 	}
@@ -1331,8 +1283,7 @@
 			a === 1
 				? r < 128 && (o = r)
 				: a === 2
-					? ((l = i[s + 1]),
-						(l & 192) === 128 && ((o = ((r & 31) << 6) | (l & 63)), o <= 127 && (o = null)))
+					? ((l = i[s + 1]), (l & 192) === 128 && ((o = ((r & 31) << 6) | (l & 63)), o <= 127 && (o = null)))
 					: a === 3
 						? ((l = i[s + 1]),
 							(h = i[s + 2]),
@@ -1369,9 +1320,7 @@
 						continue;
 					} else (s = ((r - 55296) << 10) | (s - 56320) | 65536), (r = null);
 				else {
-					s > 56319 || n + 1 === t.length
-						? ((i[e++] = 239), (i[e++] = 191), (i[e++] = 189))
-						: (r = s);
+					s > 56319 || n + 1 === t.length ? ((i[e++] = 239), (i[e++] = 191), (i[e++] = 189)) : (r = s);
 					continue;
 				}
 			else r && ((i[e++] = 239), (i[e++] = 191), (i[e++] = 189), (r = null));

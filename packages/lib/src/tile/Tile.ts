@@ -340,7 +340,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	private _doAction(currentTile: Tile, action: LODAction, newTiles: Tile[] | undefined, params: TileUpdateParames) {
-		
 		if (action === LODAction.create) {
 			// Load new tiles data
 			newTiles?.forEach(newTile => {
