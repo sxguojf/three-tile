@@ -5,7 +5,7 @@
  */
 
 import { FileLoader } from "three";
-import { WorkerPool } from "three/examples/jsm/utils/WorkerPool";
+import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
 import decoder from "./lercDecode/lerc-wasm.wasm?url";
@@ -79,11 +79,13 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 				this._workerPool.setWorkerLimit(THREADSNUM);
 			}
 			// 解析取得几何体数据
-			geoData = (
-				await this._workerPool.postMessage({ demData: decodedData, z, clipBounds: bounds }, [
-					decodedData.array.buffer,
-				])
-			).data;
+			const message = {
+				demData: decodedData,
+				z,
+				clipBounds: bounds,
+			};
+			const transferList = [decodedData.array.buffer];
+			geoData = (await this._workerPool.postMessage(message, transferList)).data;
 		} else {
 			// 解析取得几何体数据
 			geoData = parse(decodedData, z, bounds);

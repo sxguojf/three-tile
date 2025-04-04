@@ -5,7 +5,7 @@
  */
 
 import { ImageLoader, MathUtils } from "three";
-import { WorkerPool } from "three/examples/jsm/utils/WorkerPool";
+import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import { getBoundsCoord, LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
 import { parse } from "./parse";

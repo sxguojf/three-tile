@@ -4,8 +4,11 @@
 		"target": "ESNext",
 		"useDefineForClassFields": true,
 		"module": "ESNext",
-		"lib": ["ESNext", "DOM"],
-		"moduleResolution": "Node",
+		"lib": [
+			"ESNext",
+			"DOM"
+		],
+		"moduleResolution": "bundler",
 		"strict": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
@@ -16,9 +19,18 @@
 		"noImplicitReturns": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"types": ["vite/client"],
+		"types": [
+			"vite/client"
+		],
 		"incremental": true
 	},
-	"include": ["packages/**/src/**/*.ts"],
-	"exclude": ["node_modules", "dist", "**/*.d.ts", "**/*.test.ts"]
+	"include": [
+		"packages/**/src/**/*.ts"
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"**/*.d.ts",
+		"**/*.test.ts"
+	]
 }

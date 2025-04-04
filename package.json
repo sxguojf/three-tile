@@ -1,24 +1,24 @@
 {
 	"name": "three-tile",
 	"private": false,
-	"version": "0.10.0",
+	"version": "0.10.1",
 	"type": "module",
 	"files": [
 		"dist"
 	],
-	"main": "./packages/lib/dist/three-tile.umd.cjs",
-	"module": "./packages/lib/dist/three-tile.js",
-	"types": "./packages/lib/dist/three-tile.d.ts",
+	"main": "./dist/three-tile.umd.cjs",
+	"module": "./dist/three-tile.js",
+	"types": "./dist/three-tile.d.ts",
 	"exports": {
 		".": {
-			"import": "./packages/lib/dist/three-tile.js",
-			"require": "./packages/lib/dist/three-tile.umd.cjs",
-			"types": "./packages/lib/dist/three-tile.d.ts"
+			"import": "./dist/three-tile.js",
+			"require": "./dist/three-tile.umd.cjs",
+			"types": "./dist/three-tile.d.ts"
 		},
 		"./plugin": {
-			"import": "./packages/plugin/dist/three-tile-plugin.js",
-			"require": "./packages/plugin/dist/three-tile-plugin.umd.cjs",
-			"types": "./packages/plugin/dist/three-tile-plugin.d.ts"
+			"import": "./dist/three-tile-plugin.js",
+			"require": "./dist/three-tile-plugin.umd.cjs",
+			"types": "./dist/three-tile-plugin.d.ts"
 		}
 	},
 	"author": {
