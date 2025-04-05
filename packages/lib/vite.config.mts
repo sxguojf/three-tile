@@ -1,21 +1,19 @@
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
-import path from "path";
 
 export default defineConfig({
 	plugins: [
 		dts({
+			outDir: ["./dist"],
 			rollupTypes: true,
 		}),
 	],
 	build: {
-		target: "esnext",
+		target: "es2015",
 		outDir: "./dist",
-		sourcemap: true,
 		lib: {
-			entry: path.resolve(__dirname, "src/index.ts"),
-			name: "ThreeTile", //打包后全局变量名，umd中使用
-			fileName: "three-tile",
+			entry: "./src/index.ts",
+			name: "ThreeTile",
 		},
 		rollupOptions: {
 			external: ["three"],
@@ -23,12 +21,8 @@ export default defineConfig({
 				globals: {
 					three: "THREE",
 				},
-				sourcemapExcludeSources: false,
 			},
 		},
-		// watch: {
-		// 	include: "src/**",
-		// 	clearScreen: false,
-		// },
+		// sourcemap: true,
 	},
 });

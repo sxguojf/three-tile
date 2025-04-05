@@ -1,1 +1,0 @@
-{"version":3,"file":"StadiaSource.d.ts","sourceRoot":"","sources":["StadiaSource.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,UAAU,EAAE,MAAM,YAAY,CAAC;AAEvD;;GAEG;AACH,qBAAa,YAAa,SAAQ,UAAU;IACpC,QAAQ,EAAE,MAAM,CAAW;IAC3B,WAAW,SAAY;IACvB,GAAG,SAA0E;gBACxE,OAAO,CAAC,EAAE,aAAa;CAInC"}

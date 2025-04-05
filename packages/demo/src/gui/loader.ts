@@ -2,9 +2,8 @@ import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 
 import * as tt from "three-tile";
-import * as plugin from "three-tile-plugin";
 
-export const createLoaderGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileMap) => {
+export const createLoaderGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
 		lon90: () => {
 			map.lon0 = 90;

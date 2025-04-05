@@ -1,7 +1,5 @@
 import { REVISION, Vector3 } from "three";
-
 import * as tt from "three-tile";
-import * as plugin from "three-tile-plugin";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
@@ -54,12 +52,12 @@ function createMap() {
 // 初始化三维场景
 function initViewer(id: string, map: tt.TileMap) {
 	// 初始化场景
-	const viewer = new plugin.GLViewer(id);
+	const viewer = new tt.plugin.GLViewer(id);
 	// 地图添加到场景
 	viewer.scene.add(map);
 
 	// 填加伪球体
-	const frakeEarth = plugin.createFrakEarth(map);
+	const frakeEarth = tt.plugin.createFrakEarth(map);
 	map.add(frakeEarth);
 
 	// 添加罗盘
@@ -70,7 +68,7 @@ function initViewer(id: string, map: tt.TileMap) {
 
 	// 防止摄像机进入地下
 	viewer.addEventListener("update", () => {
-		plugin.limitCameraHeight(map, viewer.camera);
+		tt.plugin.limitCameraHeight(map, viewer.camera);
 	});
 
 	// tt.goHome(map, viewer);
@@ -140,7 +138,7 @@ function initViewer(id: string, map: tt.TileMap) {
 // }
 
 // 初始化GUI
-function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
+function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	// 初始化配置项
 	gui.initGui(viewer, map);
 	// 添加地图背景
@@ -160,7 +158,7 @@ function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
 }
 
 // 动画漫游指定位置
-function fly(viewer: plugin.GLViewer, map: tt.TileMap) {
+function fly(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 	// 地图中心坐标(经度，纬度，高度)
 	const centerGeo = new Vector3(110, 35, 0);
 	// 摄像坐标(经度，纬度，高度)

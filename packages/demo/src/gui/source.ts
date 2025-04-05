@@ -2,11 +2,10 @@ import { Vector3 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 import * as tt from "three-tile";
-import * as plugin from "three-tile-plugin";
 
 import * as ms from "../mapSource";
 
-export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileMap) => {
+export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
 		setMapBox: () => {
 			map.imgSource = [ms.mapBoxImgSource, ms.tdtCiaSource_w];
@@ -26,7 +25,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 		setArcGisHillShader: () => {
 			map.imgSource = [
-				new plugin.mapSource.ArcGisSource({
+				new tt.plugin.mapSource.ArcGisSource({
 					style: "Elevation/World_HillShade_Dark",
 				}),
 
@@ -36,11 +35,11 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 		setGoogle: () => {
 			// map.imgSource = [new GoogleSource({ style: "y" })];
-			map.imgSource = [new plugin.mapSource.GoogleSource()];
+			map.imgSource = [new tt.plugin.mapSource.GoogleSource()];
 			map.reload();
 		},
 		setGoogleP: () => {
-			map.imgSource = [new plugin.mapSource.GoogleSource({ style: "p", maxLevel: 15 })];
+			map.imgSource = [new tt.plugin.mapSource.GoogleSource({ style: "p", maxLevel: 15 })];
 			map.reload();
 		},
 
@@ -197,13 +196,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 
 		setGeoJSON() {
-			map.imgSource = [
-				ms.arcGisSource,
-				ms.geojsonProvince,
-				ms.geojsonCountry,
-				ms.geojsonCity,
-				ms.geojsonCityPoint,
-			];
+			map.imgSource = [ms.arcGisSource, ms.geojsonProvince, ms.geojsonCountry, ms.geojsonCity, ms.geojsonCityPoint];
 			map.reload();
 		},
 

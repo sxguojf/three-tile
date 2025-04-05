@@ -1,5 +1,4 @@
 import * as tt from "three-tile";
-import * as plugin from "three-tile-plugin";
 import { GeoJSONSource, MVTSource } from "./vectorTile";
 
 const {
@@ -16,7 +15,7 @@ const {
 	TXSource,
 	ZKXTQMSource,
 	ZKXTSource,
-} = plugin.mapSource;
+} = tt.plugin.mapSource;
 
 // MapBox
 const MAPBOXKEY = //"pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA";

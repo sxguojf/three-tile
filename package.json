@@ -1,26 +1,8 @@
 {
-	"name": "three-tile",
+	"name": "three-tile-packages",
 	"private": false,
 	"version": "0.10.1",
 	"type": "module",
-	"files": [
-		"dist"
-	],
-	"main": "./dist/three-tile.umd.cjs",
-	"module": "./dist/three-tile.js",
-	"types": "./dist/three-tile.d.ts",
-	"exports": {
-		".": {
-			"import": "./dist/three-tile.js",
-			"require": "./dist/three-tile.umd.cjs",
-			"types": "./dist/three-tile.d.ts"
-		},
-		"./plugin": {
-			"import": "./dist/three-tile-plugin.js",
-			"require": "./dist/three-tile-plugin.umd.cjs",
-			"types": "./dist/three-tile-plugin.d.ts"
-		}
-	},
 	"author": {
 		"name": "GuoJF",
 		"email": "hz_gjf@163.com"
@@ -28,9 +10,7 @@
 	"scripts": {
 		"dev": "npm run dev --workspace=packages/demo",
 		"build:lib": "npm run build --workspace=packages/lib",
-		"build:plugin": "npm run build --workspace=packages/plugin",
 		"build:demo": "npm run build --workspace=packages/demo",
-		"build": "npm run build:lib && npm run build:plugin",
 		"lint": "eslint . --ext .ts",
 		"lint:fix": "eslint . --ext .ts --fix",
 		"format": "prettier --write \"**/*.{ts,js,json,md}\""

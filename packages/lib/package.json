@@ -1,8 +1,10 @@
 {
-	"name": "three-tile-lib",
+	"name": "three-tile",
 	"version": "0.10.1",
 	"type": "module",
-	"files": [],
+	"files": [
+		"dist"
+	],
 	"main": "./dist/three-tile.umd.cjs",
 	"module": "./dist/three-tile.js",
 	"types": "./dist/three-tile.d.ts",
@@ -25,11 +27,18 @@
 		"tile",
 		"map",
 		"3D",
-		"cesium"
+		"cesium",
+		"mapbox"
 	],
 	"scripts": {
 		"dev": "vite build --watch",
 		"build": "tsc && vite build"
+	},
+	"dependencies": {
+		"geotiff": "^2.1.3"
+	},
+	"peerDependencies": {
+		"three": "^0.165.0"
 	},
 	"publishConfig": {
 		"registry": "https://registry.npmjs.org/",

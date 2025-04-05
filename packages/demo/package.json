@@ -1,13 +1,14 @@
 {
 	"name": "three-tile-demo",
-	"version": "1.0.0",
 	"private": true,
+	"version": "0.10.1",
+	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build"
+		"build": "vite build",
+		"preview": "vite preview"
 	},
 	"dependencies": {
-		"three-tile": "file:../lib/src",
-		"three-tile-plugin": "file:../plugin/src"
+		"three-tile": "file:../lib/src"
 	}
 }

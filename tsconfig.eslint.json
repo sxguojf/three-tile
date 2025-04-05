@@ -1,4 +1,0 @@
-{
-	"extends": "./tsconfig.json",
-	"include": ["packages/**/src/**/*.ts", ".eslintrc.cjs", ".prettierrc.cjs", ".lintstagedrc.cjs"]
-}
