@@ -1,7 +1,7 @@
 {
 	"name": "three-tile-packages",
 	"private": false,
-	"version": "0.10.1",
+	"version": "0.10.2",
 	"type": "module",
 	"author": {
 		"name": "GuoJF",
@@ -46,17 +46,5 @@
 		"map",
 		"3D",
 		"cesium"
-	],
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/sxguojf/three-tile.git"
-	},
-	"bugs": {
-		"url": "https://github.com/sxguojf/three-tile/issues"
-	},
-	"homepage": "https://sxguojf.github.io/three-tile-doc",
-	"publishConfig": {
-		"registry": "https://registry.npmjs.org/",
-		"access": "public"
-	}
+	]
 }
