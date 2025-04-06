@@ -7,23 +7,23 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 		if (debug) {
 			const controls = JSON.stringify(
 				{
-					distance: viewer.controls.getDistance().toFixed(2),
-					azimuthal: viewer.controls.getAzimuthalAngle().toFixed(2),
-					polar: viewer.controls.getPolarAngle().toFixed(2),
-					targetX: viewer.controls.target.x.toFixed(2),
-					targetY: viewer.controls.target.y.toFixed(2),
-					targetZ: viewer.controls.target.z.toFixed(2),
+					distance: viewer.controls.getDistance().toFixed(0),
+					azimuthal: viewer.controls.getAzimuthalAngle().toFixed(0),
+					polar: viewer.controls.getPolarAngle().toFixed(0),
+					targetX: viewer.controls.target.x.toFixed(0),
+					targetY: viewer.controls.target.y.toFixed(0),
+					targetZ: viewer.controls.target.z.toFixed(0),
 				},
 				null,
 				2
 			);
 			const cameraInfo = JSON.stringify(
 				{
-					x: viewer.camera.position.x.toFixed(2),
-					y: viewer.camera.position.y.toFixed(2),
-					z: viewer.camera.position.z.toFixed(2),
-					near: viewer.camera.near.toFixed(3),
-					far: viewer.camera.far.toFixed(3),
+					x: viewer.camera.position.x.toFixed(0),
+					y: viewer.camera.position.y.toFixed(0),
+					z: viewer.camera.position.z.toFixed(0),
+					near: viewer.camera.near.toFixed(0),
+					far: viewer.camera.far.toFixed(0),
 				},
 				null,
 				2

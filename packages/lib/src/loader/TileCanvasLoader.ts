@@ -18,7 +18,6 @@ export abstract class TileCanvasLoader implements ITileMaterialLoader {
 	};
 
 	public dataType = "";
-	public useWorker = false;
 
 	/**
 	 * Asynchronously load tile material

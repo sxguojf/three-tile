@@ -50,8 +50,6 @@ export interface ITileLoader<TMeshData extends MeshDateType = MeshDateType> {
 	imgSource: ISource[];
 	/** Terrain Loader */
 	demSource: ISource | undefined;
-	/** Use Worker? */
-	useWorker: boolean;
 	/** Load Tile Data */
 	load(params: TileLoadParamsType): Promise<TMeshData>;
 	/** Unload Tile Data */
@@ -75,8 +73,6 @@ export interface ITileMaterialLoader<TMaterial extends Material = Material> {
 	info: ITileLoaderInfo;
 	/** Tile Data Type */
 	dataType: string;
-	/** Use Worker? */
-	useWorker?: boolean;
 	/** Load Image Data From Source */
 	load(params: TileSourceLoadParamsType): Promise<TMaterial>;
 	/** Unload material Data */
@@ -90,8 +86,6 @@ export interface ITileGeometryLoader<TGeometry extends BufferGeometry = BufferGe
 	info: ITileLoaderInfo;
 	/** Tile Data Type */
 	dataType: string;
-	/** Use Worker? */
-	useWorker?: boolean;
 	/** Load Terrain Data From Source */
 	load(params: TileSourceLoadParamsType): Promise<TGeometry>;
 	/** Unload geometry Data */

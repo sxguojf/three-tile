@@ -8,7 +8,6 @@ import { ImageLoader, MathUtils } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import { getBoundsCoord, LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
-import { parse } from "./parse";
 import ParseWorker from "./parse.worker?worker&inline";
 
 const THREADSNUM = 10;
@@ -51,16 +50,11 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 
 		let dem;
 
-		// 是否使用worker
-		if (this.useWorker) {
-			if (this._workerPool.pool === 0) {
-				this._workerPool.setWorkerLimit(THREADSNUM);
-			}
-			dem = (await this._workerPool.postMessage({ imgData }, [imgData.data.buffer])).data;
-		} else {
-			// 将imageData解析成dem
-			dem = parse(imgData);
+		if (this._workerPool.pool === 0) {
+			this._workerPool.setWorkerLimit(THREADSNUM);
 		}
+		dem = (await this._workerPool.postMessage({ imgData }, [imgData.data.buffer])).data;
+
 		const geometry = new TileGeometry();
 		geometry.setData(dem);
 

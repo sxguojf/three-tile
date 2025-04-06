@@ -8,8 +8,7 @@
 })(this, function (y, p, g) {
 	"use strict";
 	var Wt = Object.defineProperty;
-	var Kt = (y, p, g) =>
-		p in y ? Wt(y, p, { enumerable: !0, configurable: !0, writable: !0, value: g }) : (y[p] = g);
+	var Kt = (y, p, g) => (p in y ? Wt(y, p, { enumerable: !0, configurable: !0, writable: !0, value: g }) : (y[p] = g));
 	var w = (y, p, g) => Kt(y, typeof p != "symbol" ? p + "" : p, g);
 	function G(i, t, e, n) {
 		let s = n;
@@ -232,9 +231,7 @@
 			r = _(i, 1, 1 - e, 2 + e, 0, -1, 2, t);
 		return (
 			(s || r) &&
-				((n = _(i, 1, -e, 1 + e, 0, -1, 2, t) || []),
-				s && (n = tt(s, 1).concat(n)),
-				r && (n = n.concat(tt(r, -1)))),
+				((n = _(i, 1, -e, 1 + e, 0, -1, 2, t) || []), s && (n = tt(s, 1).concat(n)), r && (n = n.concat(tt(r, -1)))),
 			n
 		);
 	}
@@ -337,8 +334,7 @@
 			}
 			const l = {
 				geometry: o,
-				type:
-					r === "Polygon" || r === "MultiPolygon" ? 3 : r === "LineString" || r === "MultiLineString" ? 2 : 1,
+				type: r === "Polygon" || r === "MultiPolygon" ? 3 : r === "LineString" || r === "MultiLineString" ? 2 : 1,
 				tags: a,
 			};
 			t.id !== null && (l.id = t.id), i.features.push(l);
@@ -396,8 +392,7 @@
 				(s = dt(s, e)),
 				s.length && this.splitTile(s, 0, 0, 0),
 				n &&
-					(s.length &&
-						console.log("features: %d, points: %d", this.tiles[0].numFeatures, this.tiles[0].numPoints),
+					(s.length && console.log("features: %d, points: %d", this.tiles[0].numFeatures, this.tiles[0].numPoints),
 					console.timeEnd("generate tiles"),
 					console.log("tiles generated:", this.total, JSON.stringify(this.stats)));
 		}
@@ -785,10 +780,7 @@
 				u = d.length === 1 ? { type: "Point", coordinates: f[0] } : { type: "MultiPoint", coordinates: f };
 			} else if (this.type === 2) {
 				const d = a.map(h);
-				u =
-					d.length === 1
-						? { type: "LineString", coordinates: d[0] }
-						: { type: "MultiLineString", coordinates: d };
+				u = d.length === 1 ? { type: "LineString", coordinates: d[0] } : { type: "MultiLineString", coordinates: d };
 			} else if (this.type === 3) {
 				const d = Vt(a),
 					f = [];
@@ -1236,8 +1228,7 @@
 					((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)),
 					i &&
 						((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)),
-						i &&
-							((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)), i && (t.buf[t.pos++] = i & 127)))));
+						i && ((t.buf[t.pos++] = (i & 127) | ((i >>>= 7) ? 128 : 0)), i && (t.buf[t.pos++] = i & 127)))));
 	}
 	function ot(i, t, e) {
 		const n = t <= 16383 ? 1 : t <= 2097151 ? 2 : t <= 268435455 ? 3 : Math.floor(Math.log(t) / (Math.LN2 * 7));
@@ -1303,9 +1294,7 @@
 				o === null
 					? ((o = 65533), (a = 1))
 					: o > 65535 &&
-						((o -= 65536),
-						(n += String.fromCharCode(((o >>> 10) & 1023) | 55296)),
-						(o = 56320 | (o & 1023))),
+						((o -= 65536), (n += String.fromCharCode(((o >>> 10) & 1023) | 55296)), (o = 56320 | (o & 1023))),
 				(n += String.fromCharCode(o)),
 				(s += a);
 		}
@@ -1328,9 +1317,7 @@
 				? (i[e++] = s)
 				: (s < 2048
 						? (i[e++] = (s >> 6) | 192)
-						: (s < 65536
-								? (i[e++] = (s >> 12) | 224)
-								: ((i[e++] = (s >> 18) | 240), (i[e++] = ((s >> 12) & 63) | 128)),
+						: (s < 65536 ? (i[e++] = (s >> 12) | 224) : ((i[e++] = (s >> 18) | 240), (i[e++] = ((s >> 12) & 63) | 128)),
 							(i[e++] = ((s >> 6) & 63) | 128)),
 					(i[e++] = (s & 63) | 128));
 		}

@@ -34,7 +34,7 @@ const maxErrors: { [key: number]: number } = {
 	17: 0.5,
 	18: 0.2,
 	19: 0.1,
-	20: 0.05,
+	20: 0.01,
 };
 
 export function parse(data: DEMType, z: number, clipBounds: [number, number, number, number]): GeometryDataType {
@@ -52,7 +52,7 @@ export function parse(data: DEMType, z: number, clipBounds: [number, number, num
 	// 简化
 	const tile = martini.createTile(terrain);
 	// 几何误差
-	const maxError = maxErrors[z] / 1000 || 0;
+	const maxError = maxErrors[z] || 0;
 	// 返回Geometry数据
 	return tile.getGeometryData(maxError);
 }

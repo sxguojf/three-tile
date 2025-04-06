@@ -82,7 +82,7 @@ export function addStats(viewer: tt.plugin.GLViewer) {
 
 // 状态栏显示地理位置信息
 export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void {
-	viewer.container.addEventListener("pointermove", evt => {
+	viewer.container?.addEventListener("pointermove", evt => {
 		const lonlat = tt.plugin.getLocalFromMouse(evt, map, viewer.camera);
 		if (lonlat) {
 			const dom = document.querySelector("#location")!;
@@ -96,7 +96,7 @@ export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void 
 
 // 显示鼠标点击处瓦片
 export function showClickedTile(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
-	viewer.container.addEventListener("click", evt => {
+	viewer.container?.addEventListener("click", evt => {
 		const pointer = new Vector2();
 		pointer.x = (evt.offsetX / viewer.width) * 2 - 1;
 		pointer.y = -(evt.offsetY / viewer.height) * 2 + 1;
@@ -126,7 +126,7 @@ export function addMapBackground(map: tt.TileMap) {
 	backGround.renderOrder = -1;
 	backGround.name = "background";
 	backGround.applyMatrix4(map.rootTile.matrix);
-	backGround.translateZ(-2);
+	backGround.translateZ(-2000);
 	map.add(backGround);
 
 	return backGround;

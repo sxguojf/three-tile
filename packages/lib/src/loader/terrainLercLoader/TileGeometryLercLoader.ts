@@ -10,7 +10,6 @@ import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
 import decoder from "./lercDecode/lerc-wasm.wasm?url";
 import * as Lerc from "./lercDecode/LercDecode.es";
-import { parse } from "./parse";
 import ParseWorker from "./parse.Worker?worker&inline";
 
 const THREADSNUM = 10;
@@ -52,7 +51,7 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		const { height, width, pixels } = Lerc.decode(buffer);
 		const demArray = new Float32Array(height * width);
 		for (let i = 0; i < demArray.length; i++) {
-			demArray[i] = pixels[0][i] / 1000;
+			demArray[i] = pixels[0][i];
 		}
 		return { array: demArray, width, height };
 	}
@@ -74,22 +73,18 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		const { z, bounds } = params;
 		let geoData;
 
-		if (this.useWorker) {
-			if (this._workerPool.pool === 0) {
-				this._workerPool.setWorkerLimit(THREADSNUM);
-			}
-			// 解析取得几何体数据
-			const message = {
-				demData: decodedData,
-				z,
-				clipBounds: bounds,
-			};
-			const transferList = [decodedData.array.buffer];
-			geoData = (await this._workerPool.postMessage(message, transferList)).data;
-		} else {
-			// 解析取得几何体数据
-			geoData = parse(decodedData, z, bounds);
+		if (this._workerPool.pool === 0) {
+			this._workerPool.setWorkerLimit(THREADSNUM);
 		}
+		// 解析取得几何体数据
+		const message = {
+			demData: decodedData,
+			z,
+			clipBounds: bounds,
+		};
+		const transferList = [decodedData.array.buffer];
+		geoData = (await this._workerPool.postMessage(message, transferList)).data;
+
 		// 创建瓦片几何体对象
 		return new TileGeometry().setData(geoData);
 	}

@@ -10,24 +10,24 @@ import { addSkirt } from "./skirt";
 import { getGeometryDataFromDem } from "./utils";
 
 /**
- * Inherit of PlaneGeometry, add setData and setDEM method
+ * Inherit of PlaneGeometry, add setData method
  */
 export class TileGeometry extends PlaneGeometry {
 	public readonly type = "TileGeometry";
 
 	/**
 	 * set attribute data to geometry
-	 * @param data geometry data
+	 * @param data geometry or DEM data
 	 * @returns this
 	 */
 	public setData(data: GeometryDataType | Float32Array) {
-		if (data instanceof Float32Array) {
-			data = getGeometryDataFromDem(data, true);
-		}
-		data = addSkirt(data.attributes, data.indices, 10);
+		let geoData = data instanceof Float32Array ? getGeometryDataFromDem(data) : data;
 
-		this.setIndex(new BufferAttribute(data.indices, 1));
-		const { attributes } = data;
+		// Add a skirt(1000m) to the geometry
+		geoData = addSkirt(geoData.attributes, geoData.indices, 1000);
+
+		const { attributes, indices } = geoData;
+		this.setIndex(new BufferAttribute(indices, 1));
 		this.setAttribute("position", new BufferAttribute(attributes.position.value, attributes.position.size));
 		this.setAttribute("uv", new BufferAttribute(attributes.texcoord.value, attributes.texcoord.size));
 		this.setAttribute("normal", new BufferAttribute(attributes.normal.value, attributes.normal.size));
@@ -37,16 +37,4 @@ export class TileGeometry extends PlaneGeometry {
 		this.computeBoundingSphere();
 		return this;
 	}
-
-	// /**
-	//  * set DEM data to geometry
-	//  *
-	//  * @param dem Float32Array类型，表示地形高度图数据
-	//  * @returns 返回设置地形高度图数据后的对象
-	//  */
-	// public setDEM(dem: Float32Array) {
-	// 	let geoData = getGeometryDataFromDem(dem, true);
-	// 	geoData = addSkirt(geoData.attributes, geoData.indices, 1);
-	// 	return this.setData(geoData);
-	// }
 }

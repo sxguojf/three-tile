@@ -31,9 +31,7 @@ var Module = (() => {
 		var ENVIRONMENT_IS_WEB = typeof window == "object";
 		var ENVIRONMENT_IS_WORKER = typeof importScripts == "function";
 		var ENVIRONMENT_IS_NODE =
-			typeof process == "object" &&
-			typeof process.versions == "object" &&
-			typeof process.versions.node == "string";
+			typeof process == "object" && typeof process.versions == "object" && typeof process.versions.node == "string";
 		var scriptDirectory = "";
 		function locateFile(path) {
 			if (Module["locateFile"]) {
@@ -429,11 +427,7 @@ var Module = (() => {
 				"Assertion failed: " +
 					UTF8ToString(condition) +
 					", at: " +
-					[
-						filename ? UTF8ToString(filename) : "unknown filename",
-						line,
-						func ? UTF8ToString(func) : "unknown function",
-					]
+					[filename ? UTF8ToString(filename) : "unknown filename", line, func ? UTF8ToString(func) : "unknown function"]
 			);
 		}
 		function ___cxa_allocate_exception(size) {
@@ -575,10 +569,7 @@ var Module = (() => {
 			return (Module["_free"] = Module["asm"]["o"]).apply(null, arguments);
 		};
 		var ___cxa_is_pointer_type = (Module["___cxa_is_pointer_type"] = function () {
-			return (___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = Module["asm"]["p"]).apply(
-				null,
-				arguments
-			);
+			return (___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = Module["asm"]["p"]).apply(null, arguments);
 		});
 		var calledRun;
 		function ExitStatus(status) {

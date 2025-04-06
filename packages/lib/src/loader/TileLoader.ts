@@ -33,16 +33,6 @@ export class TileLoader implements ITileLoader {
 		this._demSource = value;
 	}
 
-	private _useWorker = true;
-	/** Get use worker */
-	public get useWorker() {
-		return this._useWorker;
-	}
-	/** Set use worker */
-	public set useWorker(value: boolean) {
-		this._useWorker = value;
-	}
-
 	/** Loader manager */
 	public manager = LoaderFactory.manager;
 
@@ -90,7 +80,6 @@ export class TileLoader implements ITileLoader {
 			this._isBoundsInSourceBounds(this.demSource, params.bounds)
 		) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
-			loader.useWorker = this.useWorker;
 			const source = this.demSource;
 			geometry = await loader.load({ source, ...params }).catch(_err => {
 				console.error("Load material error", source.dataType, params);
@@ -120,7 +109,6 @@ export class TileLoader implements ITileLoader {
 
 		const materialsPromise = sources.map(async source => {
 			const loader = LoaderFactory.getMaterialLoader(source);
-			loader.useWorker = this.useWorker;
 			const material = await loader.load({ source, ...params }).catch(_err => {
 				console.error("Load material error", source.dataType, params);
 				return new MeshBasicMaterial();

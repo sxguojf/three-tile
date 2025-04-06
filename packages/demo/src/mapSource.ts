@@ -15,7 +15,7 @@ const {
 	TXSource,
 	ZKXTQMSource,
 	ZKXTSource,
-} = tt.plugin.mapSource;
+} = tt.plugin;
 
 // MapBox
 const MAPBOXKEY = //"pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA";

@@ -19,7 +19,6 @@ export abstract class TileGeometryLoader implements ITileGeometryLoader<TileGeom
 	};
 
 	public dataType = "";
-	public useWorker = true;
 
 	/**
 	 * load tile's data from source

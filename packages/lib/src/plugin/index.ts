@@ -9,5 +9,5 @@ export * from "./singleImageLoader";
 export * from "./singleTifDEMLoader";
 export * from "./wireframeLoader";
 
-export * as mapSource from "./mapSource";
+export * from "./mapSource";
 export * from "./utils";

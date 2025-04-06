@@ -24,7 +24,6 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	};
 
 	public dataType = "";
-	public useWorker = true;
 
 	/**
 	 * Load tile data from source

@@ -5,15 +5,13 @@
  */
 
 import { AttributesType, GeometryDataType } from "./GeometryDataTypes";
-import { addSkirt } from "./skirt";
 
 /**
  * 根据DEM数组计算瓦片gemetry的顶点、UV、法向量和三角形索引
  * @param dem - DEM
- * @param skirt - 是否加裙边
  * @returns - 顶点、UV、法向量和索引
  */
-export function getGeometryDataFromDem(dem: Float32Array, skirt: boolean = true): GeometryDataType {
+export function getGeometryDataFromDem(dem: Float32Array): GeometryDataType {
 	if (dem.length < 4) {
 		throw new Error(`DEM array must > 4, got ${dem.length}!`);
 	}
@@ -26,12 +24,7 @@ export function getGeometryDataFromDem(dem: Float32Array, skirt: boolean = true)
 	// 计算顶点坐标、UV坐标和法向量
 	const attributes = getAttributes(dem, height, width);
 
-	// 添加裙边
-	if (skirt) {
-		return addSkirt(attributes, indices, 1);
-	} else {
-		return { attributes, indices };
-	}
+	return { attributes, indices };
 }
 
 /**

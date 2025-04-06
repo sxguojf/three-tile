@@ -45,7 +45,7 @@ export function getLocalInfoFromRay(map: TileMap, ray: Raycaster) {
 export function getLocalInfoFromWorld(map: TileMap, worldPosition: Vector3) {
 	const downVec3 = new Vector3(0, -1, 0);
 	// // 原点（高空10km）
-	const origin = new Vector3(worldPosition.x, 10, worldPosition.z);
+	const origin = new Vector3(worldPosition.x, 10 * 1000, worldPosition.z);
 	// 从原点垂直地面向下做一条射线
 	const ray = new Raycaster(origin, downVec3);
 	return getLocalInfoFromRay(map, ray);

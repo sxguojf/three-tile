@@ -34,13 +34,16 @@ export interface GLViewerEventMap extends Object3DEventMap {
  * GlViewer options
  */
 type GLViewerOptions = {
+	/** Whether to use antialiasing. Default is false. */
 	antialias?: boolean;
+	/** Whether to use stencil buffer. Default is true. */
 	stencil?: boolean;
+	/** Whether to use logarithmic depth buffer. Default is true. */
 	logarithmicDepthBuffer?: boolean;
 };
 
 /**
- * threejs scene viewer initialize class
+ * Threejs scene initialize class
  */
 export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	public readonly scene: Scene;
@@ -49,51 +52,78 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	public readonly controls: MapControls;
 	public readonly ambLight: AmbientLight;
 	public readonly dirLight: DirectionalLight;
-	public readonly container: HTMLElement;
+	public container?: HTMLElement;
 	private readonly _clock: Clock = new Clock();
 
 	private _fogFactor = 1.0;
+
+	/** Get fog factor */
 	public get fogFactor() {
 		return this._fogFactor;
 	}
+
+	/** Set fog factor, default 1 */
 	public set fogFactor(value) {
 		this._fogFactor = value;
 		this.controls.dispatchEvent({ type: "change" });
 	}
 
+	/** Container width */
 	public get width() {
-		return this.container.clientWidth;
+		return this.container?.clientWidth || 0;
 	}
 
+	/** Container height */
 	public get height() {
-		return this.container.clientHeight;
+		return this.container?.clientHeight || 0;
 	}
 
-	constructor(container: HTMLElement | string, options: GLViewerOptions = {}) {
+	/**
+	 * Constructor
+	 * @param container container element or selector string
+	 * @param options GLViewer options
+	 */
+	constructor(container?: HTMLElement | string, options: GLViewerOptions = {}) {
 		super();
+
+		const { antialias = false, stencil = true, logarithmicDepthBuffer = true } = options;
+		this.renderer = this._createRenderer(antialias, stencil, logarithmicDepthBuffer);
+		this.scene = this._createScene();
+		this.camera = this._createCamera();
+		if (container) {
+			this.addTo(container);
+		}
+		this.controls = this._createControls();
+		this.ambLight = this._createAmbLight();
+		this.scene.add(this.ambLight);
+		this.dirLight = this._createDirLight();
+		this.scene.add(this.dirLight);
+		this.scene.add(this.dirLight.target);
+
+		this.renderer.setAnimationLoop(this.animate.bind(this));
+	}
+
+	/**
+	 * Add the renderer to a container
+	 * @param container container element or selector string
+	 * @returns this
+	 */
+	public addTo(container: HTMLElement | string) {
 		const el = typeof container === "string" ? document.querySelector(container) : container;
 		if (el instanceof HTMLElement) {
-			const { antialias = false, stencil = true, logarithmicDepthBuffer = true } = options;
-
 			this.container = el;
-			this.renderer = this._createRenderer(antialias, stencil, logarithmicDepthBuffer);
-			this.scene = this._createScene();
-			this.camera = this._createCamera();
-			this.controls = this._createControls();
-			this.ambLight = this._createAmbLight();
-			this.scene.add(this.ambLight);
-			this.dirLight = this._createDirLight();
-			this.scene.add(this.dirLight);
-			this.scene.add(this.dirLight.target);
-			this.container.appendChild(this.renderer.domElement);
-			window.addEventListener("resize", this.resize.bind(this));
-			this.resize();
-			this.renderer.setAnimationLoop(this.animate.bind(this));
+			el.appendChild(this.renderer.domElement);
+			new ResizeObserver(this.resize.bind(this)).observe(el);
 		} else {
-			throw new Error(`${container} not found!`);
+			throw `${container} not found!}`;
 		}
+		return this;
 	}
 
+	/**
+	 * Create scene
+	 * @returns scene
+	 */
 	private _createScene() {
 		const scene = new Scene();
 		const backColor = 0xdbf0ff;
@@ -102,6 +132,13 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		return scene;
 	}
 
+	/**
+	 * Create WebGL renderer
+	 * @param antialias
+	 * @param stencil
+	 * @param logarithmicDepthBuffer
+	 * @returns renderer
+	 */
 	private _createRenderer(antialias: boolean, stencil: boolean, logarithmicDepthBuffer: boolean) {
 		const renderer = new WebGLRenderer({
 			antialias,
@@ -115,63 +152,85 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		// renderer.toneMappingExposure = 1;
 		// renderer.sortObjects = false;
 		renderer.setPixelRatio(window.devicePixelRatio);
-
+		renderer.domElement.tabIndex = 0;
 		return renderer;
 	}
 
+	/**
+	 * Create camera
+	 * @returns camera
+	 */
 	private _createCamera() {
-		const camera = new PerspectiveCamera(70, 1, 0.1, 50000);
-		camera.position.set(0, 30000, 0);
+		const camera = new PerspectiveCamera(70, 1, 100, 5e4);
+		camera.position.set(0, 3e4, 0);
 		return camera;
 	}
+
+	/**
+	 * Create map controls
+	 * @returns MapControls
+	 */
 	private _createControls() {
-		const DIST_THRESHOLD = 8000;
-		const POLAR_BASE = 10000;
-		const POLAR_EXPONENT = 4;
+		const controls = new MapControls(this.camera, this.renderer.domElement);
 		const MAX_POLAR_ANGLE = 1.2;
 
-		const controls = new MapControls(this.camera, this.container);
-		controls.target.set(0, 0, -3000);
+		controls.target.set(0, 0, -3e3);
 		controls.screenSpacePanning = false;
-		controls.minDistance = 0.1;
-		controls.maxDistance = 30000;
+		controls.minDistance = 0.1e3;
+		controls.maxDistance = 3e7;
 		controls.maxPolarAngle = MAX_POLAR_ANGLE;
 		controls.enableDamping = true;
 		controls.dampingFactor = 0.05;
 		controls.keyPanSpeed = 5;
 
-		this.container.tabIndex = 0;
-		controls.listenToKeyEvents(this.container);
+		controls.listenToKeyEvents(this.renderer.domElement);
 
 		// Adjust zinear/far and azimuth/polar when controls changed
 		controls.addEventListener("change", () => {
+			// Get the current polar angle and distance
 			const polar = Math.max(controls.getPolarAngle(), 0.1);
-			const dist = Math.max(controls.getDistance(), 0.1);
+			const dist = Math.max(controls.getDistance(), 100);
 
-			controls.zoomSpeed = Math.max(Math.log(dist), 0) + 0.5;
+			// Set ther zoom speed based on distance
+			controls.zoomSpeed = Math.max(Math.log(dist / 1e3), 0) + 0.5;
 
-			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 50000);
-			this.camera.near = this.camera.far / 1000;
+			// Set the camera near/far based on distance and polayr angle
+			this.camera.far = MathUtils.clamp((dist / polar) * 8, 1e5, 5e7);
+			this.camera.near = this.camera.far / 1e4;
 			this.camera.updateProjectionMatrix();
 
+			// Set fog based on distance and polar angle
 			if (this.scene.fog instanceof FogExp2) {
 				this.scene.fog.density = (polar / (dist + 5)) * this.fogFactor * 0.25;
 			}
 
+			// Set the azimuth/polar angles based on distance
+			const DIST_THRESHOLD = 8e6;
 			const isDistAboveThreshold = dist > DIST_THRESHOLD;
 			controls.minAzimuthAngle = isDistAboveThreshold ? 0 : -Infinity;
 			controls.maxAzimuthAngle = isDistAboveThreshold ? 0 : Infinity;
 
+			// Set the polar angle based on distance
+			const POLAR_BASE = 1e7;
+			const POLAR_EXPONENT = 4;
 			controls.maxPolarAngle = Math.min(Math.pow(POLAR_BASE / dist, POLAR_EXPONENT), MAX_POLAR_ANGLE);
 		});
 		return controls;
 	}
 
+	/**
+	 * Create ambient light
+	 * @returns AmbientLight
+	 */
 	private _createAmbLight() {
 		const ambLight = new AmbientLight(0xffffff, 1);
 		return ambLight;
 	}
 
+	/**
+	 * Create directional light
+	 * @returns DirectionalLight
+	 */
 	private _createDirLight() {
 		const dirLight = new DirectionalLight(0xffffff, 1);
 		dirLight.position.set(0, 2e3, 1e3);
@@ -179,16 +238,24 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		return dirLight;
 	}
 
+	/**
+	 * Container resize
+	 * @returns this
+	 */
 	public resize() {
 		const width = this.width;
 		const height = this.height;
-		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize(width, height);
 		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
+		// 防止resize过程中黑屏
+		this.renderer.render(this.scene, this.camera);
 		return this;
 	}
 
+	/**
+	 * Threejs animation loop
+	 */
 	private animate() {
 		this.controls.update();
 		this.renderer.render(this.scene, this.camera);
@@ -198,8 +265,8 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 
 	/**
 	 * Fly to a position
-	 * @param centerPostion Map center target position
-	 * @param cameraPostion Camera target position
+	 * @param centerPostion Map center target position (world coordinate)
+	 * @param cameraPostion Camera target position (world coordinate)
 	 * @param animate animate or not
 	 */
 	public flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate = true, onComplete?: (obj: Vector3) => void) {
@@ -208,7 +275,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			const start = this.camera.position;
 			new Tween(start)
 				// fly to 10000km
-				.to({ y: 10000, z: 0 }, 500)
+				.to({ y: 2e7, z: 0 }, 500)
 				// to taget
 				.chain(
 					new Tween(start)

@@ -411,8 +411,7 @@ class Vt {
 			(s = mt(s, e)),
 			s.length && this.splitTile(s, 0, 0, 0),
 			n &&
-				(s.length &&
-					console.log("features: %d, points: %d", this.tiles[0].numFeatures, this.tiles[0].numPoints),
+				(s.length && console.log("features: %d, points: %d", this.tiles[0].numFeatures, this.tiles[0].numPoints),
 				console.timeEnd("generate tiles"),
 				console.log("tiles generated:", this.total, JSON.stringify(this.stats)));
 	}
@@ -932,10 +931,7 @@ class ut {
 				(r = h & 7), (o = h >> 3);
 			}
 			if ((o--, r === 1 || r === 2))
-				(l += t.readSVarint()),
-					(a += t.readSVarint()),
-					r === 1 && (s && n.push(s), (s = [])),
-					s && s.push(new L(l, a));
+				(l += t.readSVarint()), (a += t.readSVarint()), r === 1 && (s && n.push(s), (s = [])), s && s.push(new L(l, a));
 			else if (r === 7) s && s.push(s[0].clone());
 			else throw new Error(`unknown command ${r}`);
 		}
@@ -997,10 +993,7 @@ class ut {
 			c = d.length === 1 ? { type: "Point", coordinates: f[0] } : { type: "MultiPoint", coordinates: f };
 		} else if (this.type === 2) {
 			const d = l.map(h);
-			c =
-				d.length === 1
-					? { type: "LineString", coordinates: d[0] }
-					: { type: "MultiLineString", coordinates: d };
+			c = d.length === 1 ? { type: "LineString", coordinates: d[0] } : { type: "MultiLineString", coordinates: d };
 		} else if (this.type === 3) {
 			const d = Bt(l),
 				f = [];
@@ -1693,9 +1686,7 @@ function Qt(i, t, e) {
 			? (i[e++] = s)
 			: (s < 2048
 					? (i[e++] = (s >> 6) | 192)
-					: (s < 65536
-							? (i[e++] = (s >> 12) | 224)
-							: ((i[e++] = (s >> 18) | 240), (i[e++] = ((s >> 12) & 63) | 128)),
+					: (s < 65536 ? (i[e++] = (s >> 12) | 224) : ((i[e++] = (s >> 18) | 240), (i[e++] = ((s >> 12) & 63) | 128)),
 						(i[e++] = ((s >> 6) & 63) | 128)),
 				(i[e++] = (s & 63) | 128));
 	}

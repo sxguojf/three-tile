@@ -30,8 +30,7 @@ Contributors:  Thomas Maurer, Wenxue Ju
 				? new (require("u" + "rl").URL)("file:" + __filename).href
 				: typeof document === "undefined"
 					? location.href
-					: (document.currentScript && document.currentScript.src) ||
-						new URL("LercDecode.js", document.baseURI).href;
+					: (document.currentScript && document.currentScript.src) || new URL("LercDecode.js", document.baseURI).href;
 
 		return function (Module) {
 			Module = Module || {};
@@ -46,9 +45,7 @@ Contributors:  Thomas Maurer, Wenxue Ju
 			var ENVIRONMENT_IS_WEB = typeof window == "object";
 			var ENVIRONMENT_IS_WORKER = typeof importScripts == "function";
 			var ENVIRONMENT_IS_NODE =
-				typeof process == "object" &&
-				typeof process.versions == "object" &&
-				typeof process.versions.node == "string";
+				typeof process == "object" && typeof process.versions == "object" && typeof process.versions.node == "string";
 			var scriptDirectory = "";
 			function locateFile(path) {
 				if (Module["locateFile"]) {
@@ -117,10 +114,7 @@ Contributors:  Thomas Maurer, Wenxue Ju
 					scriptDirectory = _scriptDir;
 				}
 				if (scriptDirectory.indexOf("blob:") !== 0) {
-					scriptDirectory = scriptDirectory.substr(
-						0,
-						scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1
-					);
+					scriptDirectory = scriptDirectory.substr(0, scriptDirectory.replace(/[?#].*/, "").lastIndexOf("/") + 1);
 				} else {
 					scriptDirectory = "";
 				}
@@ -601,10 +595,7 @@ Contributors:  Thomas Maurer, Wenxue Ju
 				return (Module["_free"] = Module["asm"]["o"]).apply(null, arguments);
 			};
 			var ___cxa_is_pointer_type = (Module["___cxa_is_pointer_type"] = function () {
-				return (___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = Module["asm"]["p"]).apply(
-					null,
-					arguments
-				);
+				return (___cxa_is_pointer_type = Module["___cxa_is_pointer_type"] = Module["asm"]["p"]).apply(null, arguments);
 			});
 			var calledRun;
 			function ExitStatus(status) {
@@ -743,9 +734,7 @@ Contributors:  Thomas Maurer, Wenxue Ju
 		// do not use HeapU8 as memory dynamically grows from the initial 16MB
 		// test case: landsat_6band_8bit.24
 		let heapU8;
-		const memory = Object.values(asm).find(
-			val => val && "buffer" in val && val.buffer === lercFactory.HEAPU8.buffer
-		);
+		const memory = Object.values(asm).find(val => val && "buffer" in val && val.buffer === lercFactory.HEAPU8.buffer);
 		// avoid pointer for detached memory, malloc once:
 		const mallocMultiple = byteLengths => {
 			const lens = byteLengths.map(len => normalizeByteLength(len));
@@ -1004,8 +993,7 @@ Contributors:  Thomas Maurer, Wenxue Ju
 		const numPixels = width * height;
 		const numElementsPerBand = numPixels * depthCount;
 		// options.returnPixelInterleavedDims will be removed in next release
-		const swap =
-			(_b = options.returnInterleaved) !== null && _b !== void 0 ? _b : options.returnPixelInterleavedDims;
+		const swap = (_b = options.returnInterleaved) !== null && _b !== void 0 ? _b : options.returnPixelInterleavedDims;
 		for (let i = 0; i < bandCount; i++) {
 			const band = data1.subarray(i * numElementsPerBand, (i + 1) * numElementsPerBand);
 			if (swap) {

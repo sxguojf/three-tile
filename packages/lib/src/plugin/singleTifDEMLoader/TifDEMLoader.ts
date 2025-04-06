@@ -9,7 +9,7 @@ import { BufferGeometry, FileLoader, MathUtils } from "three";
 import { fromArrayBuffer } from "geotiff";
 import { ITileGeometryLoader, LoaderFactory, TileGeometry, TileSourceLoadParamsType } from "../..";
 import { TifDemSource } from "./TifDEMSource";
-import { DEMType, parse } from "./parse";
+import { parse } from "./parse";
 
 /**
  * TIF DEM terrain loader
@@ -64,7 +64,7 @@ export class TifDEMLoder implements ITileGeometryLoader {
 			source.data = await this.getTIFFRaster(buffer);
 		}
 		// 调用 getTileDEM 方法获取指定瓦片的 DEM 数据
-		const dem = await this.getTileDEM(source.data, source._projectionBounds, bounds, targetSize);
+		const dem = parse(source.data, source._projectionBounds, bounds, targetSize, targetSize);
 		// 将获取到的 DEM 数据设置到 geometry 中，并返回 geometry
 		return geometry.setData(dem);
 	}
@@ -88,29 +88,5 @@ export class TifDEMLoder implements ITileGeometryLoader {
 			// 栅格数据的高度
 			height: rasters.height,
 		};
-	}
-
-	/**
-	 * 获取指定瓦片的数字高程模型（DEM）数据
-	 * @param raster 包含DEM数据的对象，具有buffer、width和height属性
-	 * @param sourceProjBbox 原始数据的投影边界框，格式为 [xMin, yMin, xMax, yMax]
-	 * @param tileBounds 瓦片的边界框，格式为 [xMin, yMin, xMax, yMax]
-	 * @param targetSize 目标数据的大小，用于指定输出数据的宽度和高度
-	 * @returns 经过处理后的DEM数据数组，除以1000得到km单位高程
-	 */
-	private async getTileDEM(
-		// 包含DEM数据的对象，具有buffer、width和height属性
-		raster: DEMType,
-		// 原始数据的投影边界框，格式为 [xMin, yMin, xMax, yMax]
-		sourceProjBbox: [number, number, number, number],
-		// 瓦片的边界框，格式为 [xMin, yMin, xMax, yMax]
-		tileBounds: [number, number, number, number],
-		// 目标数据的大小，用于指定输出数据的宽度和高度
-		targetSize: number
-	) {
-		// 调用 parse 函数从原始数据中提取指定瓦片的DEM数据
-		const dem = parse(raster, sourceProjBbox, tileBounds, targetSize, targetSize);
-		// 对提取的DEM数据中的每个高程值进行缩放，除以1000
-		return dem.map(h => h / 1000);
 	}
 }

@@ -23,8 +23,8 @@ function getDEMFromImage(imgData: Uint8ClampedArray) {
 		if (a === 0) {
 			return 0;
 		}
-		const h = (r << 16) | (g << 8) | b;
-		return h / 10000 - 10;
+		const h = -10000 + ((r << 16) | (g << 8) | b) * 0.1;
+		return h;
 	}
 
 	const count = imgData.length >>> 2;

@@ -33,9 +33,10 @@ export type LimitCameraHeightParams = {
 	limitHeight?: number; //限制高度
 };
 
-export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limitHeight = 0.1) {
+export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limitHeight = 100) {
 	// 摄像机方向与近截面交点的世界坐标
-	const checkPoint = camera.localToWorld(new Vector3(0, 0, -camera.near - 0.1));
+	const checkPoint = camera.localToWorld(new Vector3(0, 0, -camera.near - 100));
+
 	// 取该点下方的地面高度
 	const info = map.getLocalInfoFromWorld(checkPoint);
 	if (info) {

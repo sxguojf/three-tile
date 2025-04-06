@@ -45,7 +45,7 @@ hz_gjf@163.com
 
 - three-tile 维护一个加载器列表，保存所有加载器实例，插件引入后，需要向系统注册加载器，如：LoaderFactory.registerGeometryLoader(new TerrainRGBLoader())是向系统注册了一个 TerrainRGBLoader 地形加载器。程序启动时可在控制台看到加载器列表，下图注册了 10 个加载器：
 
-    ![alt text](../../images/plugin-image-06.png)
+  ![alt text](../../images/plugin-image-06.png)
 
 - 每个数据源有一个 dataType 属性，每个加载器也有一个 dataType 属性，运行时会根据数据源的 datatype 属性，选取 dataType 值相等的加载器来加载瓦片。
 
@@ -119,8 +119,6 @@ https://github.com/sxguojf/three-tile/blob/master/src/loader/ITileLoaders.ts
 export interface ITileMaterialLoader {
 	// 瓦片格式标识
 	dataType: string;
-	// 是否使用worker加载
-	useWorker?: boolean;
 	//插件作者
 	author?: string;
 	// load函数
@@ -213,16 +211,8 @@ https://github.com/sxguojf/three-tile/blob/master/src/loader/ITileLoaders.ts
 /** geometry loader interface */
 export interface ITileGeometryLoader {
 	dataType: string;
-	useWorker?: boolean;
 	author?: string;
-	load(
-		source: ISource,
-		x: number,
-		y: number,
-		z: number,
-		onLoad: () => void,
-		abortSignal: AbortSignal
-	): BufferGeometry;
+	load(source: ISource, x: number, y: number, z: number, onLoad: () => void, abortSignal: AbortSignal): BufferGeometry;
 }
 ```
 
@@ -290,9 +280,9 @@ https://github.com/sxguojf/three-tile/blob/master/src/plugin/terrainRGBLoader/Te
 3. **数据解析**：实现doParse方法，将图片RGB数据转换为高程数组（DEM）。RGB转高程公式：
    $$height = -10000 + ((R * 256 * 256 + G * 256 + B) * 0.1)$$
 
-    > 需要注意的是，当瓦片的层级大于数据数据源的最大层级时，需要从数据源最大层级瓦片中取出当前瓦片对应区域的数据，比如 mapbox 地形的瓦片的最大层级只到 15 级，当地图缩放的 15 级以上时，就需要从 15 级的瓦片中裁剪出当前瓦片的区域数据，所以，doParse方法中有clipBounds的参数，表示需要从父瓦片中剪裁的范围。
+   > 需要注意的是，当瓦片的层级大于数据数据源的最大层级时，需要从数据源最大层级瓦片中取出当前瓦片对应区域的数据，比如 mapbox 地形的瓦片的最大层级只到 15 级，当地图缩放的 15 级以上时，就需要从 15 级的瓦片中裁剪出当前瓦片的区域数据，所以，doParse方法中有clipBounds的参数，表示需要从父瓦片中剪裁的范围。
 
-    > 另外，地形几何体并不需要也没必要每个像素都对应一个顶点，大量的顶点会极大影响渲染速度，而效果也不会因为顶点多好多少。需要对顶点重采样抽稀，本插件目前采用简单地图像缩小来实现重采样。
+   > 另外，地形几何体并不需要也没必要每个像素都对应一个顶点，大量的顶点会极大影响渲染速度，而效果也不会因为顶点多好多少。需要对顶点重采样抽稀，本插件目前采用简单地图像缩小来实现重采样。
 
 #### 5.3.3 ArcGIS 的 lerc 地形加载器
 

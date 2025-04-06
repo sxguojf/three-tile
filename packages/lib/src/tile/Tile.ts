@@ -20,7 +20,7 @@ import {
 	Vector3,
 } from "three";
 import { ITileLoader } from "../loader";
-import { getDistance, getTileSize, createChildren, LODAction, LODEvaluate } from "./util";
+import { createChildren, getDistance, getTileSize, LODAction, LODEvaluate } from "./util";
 
 const THREADSNUM = 10;
 
@@ -51,7 +51,7 @@ const defaultGeometry = new InstancedBufferGeometry();
 
 const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
-const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 9));
+const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 1));
 const frustum = new Frustum();
 
 /**
@@ -245,16 +245,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return { action, newTiles };
 	}
 
-	/**
-	 * Checks the visibility of the tile.
-	 */
-	// private _checkChildrenVisible() {
-	// 	const children = this.children.filter((child) => child.isTile);
-	// 	const allLoaded = children.every((child) => child.loaded);
-	// 	this.showing = !allLoaded;
-	// 	children.forEach((child) => (child.showing = allLoaded));
-	// 	return this;
-	// }
 	/**
 	 * Checks the visibility of the tile.
 	 */

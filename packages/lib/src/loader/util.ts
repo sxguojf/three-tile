@@ -76,12 +76,7 @@ function getMaxLevelTileAndBounds(x: number, y: number, z: number, maxLevel: num
 	const parentCenter = new Vector2(xx, yy);
 
 	const box = new Box2().setFromCenterAndSize(parentCenter, new Vector2(size, size));
-	const bounds: [number, number, number, number] = [
-		box.min.x + 0.5,
-		box.min.y + 0.5,
-		box.max.x + 0.5,
-		box.max.y + 0.5,
-	];
+	const bounds: [number, number, number, number] = [box.min.x + 0.5, box.min.y + 0.5, box.max.x + 0.5, box.max.y + 0.5];
 
 	return { parentNO, bounds };
 }
