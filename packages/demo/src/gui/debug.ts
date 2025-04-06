@@ -8,8 +8,8 @@ export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
 			const controls = JSON.stringify(
 				{
 					distance: viewer.controls.getDistance().toFixed(0),
-					azimuthal: viewer.controls.getAzimuthalAngle().toFixed(0),
-					polar: viewer.controls.getPolarAngle().toFixed(0),
+					azimuthal: viewer.controls.getAzimuthalAngle().toFixed(3),
+					polar: viewer.controls.getPolarAngle().toFixed(3),
 					targetX: viewer.controls.target.x.toFixed(0),
 					targetY: viewer.controls.target.y.toFixed(0),
 					targetZ: viewer.controls.target.z.toFixed(0),

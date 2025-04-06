@@ -63,17 +63,13 @@ function initViewer(id: string, map: tt.TileMap) {
 	map.add(frakeEarth);
 
 	// 添加罗盘
-
-	// const compass = tt.plugin.createCompass(viewer.controls);
-	// const compassContainer = document.querySelector<HTMLDivElement>("#compass-container");
-	// compassContainer && compassContainer.appendChild(compass.dom);
+	const compass = tt.plugin.createCompass(viewer.controls);
+	document.querySelector("#compass-container")?.appendChild(compass.dom);
 
 	// 防止摄像机进入地下
 	viewer.addEventListener("update", () => {
 		tt.plugin.limitCameraHeight(map, viewer.camera);
 	});
-
-	// tt.goHome(map, viewer);
 
 	// 测试
 	// const imageBounds = map.projection.getProjBounds([105, 33, 109, 37]);

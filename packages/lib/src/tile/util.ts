@@ -14,8 +14,6 @@ export enum LODAction {
 	remove,
 }
 
-const FACTOR = 1.02;
-
 // Get the distance of camera to tile
 export function getDistance(tile: Tile, cameraWorldPosition: Vector3) {
 	const tilePos = tile.position.clone().setZ(tile.maxZ).applyMatrix4(tile.matrixWorld);
@@ -49,16 +47,19 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 	if (tile.isLeaf) {
 		// Only leaf tiles can create child tiles
 		if (
-			tile.inFrustum &&
-			tile.z < maxLevel &&
-			(tile.z < minLevel || tile.showing) && // Create child tilee until parent tile has showed
-			(tile.z < minLevel || distRatio < threshold / FACTOR)
+			tile.inFrustum && // Tile is in frustum
+			tile.z < maxLevel && // Tile level < map maxlevel
+			(tile.z < minLevel || tile.showing) && // (Tile level < map minLevel ) || (Parent tile has showed)
+			(tile.z < minLevel || distRatio < threshold) // (Tile level < map minLevel ) || (Distratio < threshold)
 		) {
 			return LODAction.create;
 		}
 	} else {
 		// Only Non-leaf tile can remove child tiles
-		if (tile.z >= minLevel && (tile.z > maxLevel || distRatio > threshold * FACTOR)) {
+		if (
+			tile.z >= minLevel && // Tile level >= map minLevel
+			(tile.z > maxLevel || distRatio > threshold) // (Tile level > map maxLevel ) || (Distratio > threshold)
+		) {
 			return LODAction.remove;
 		}
 	}

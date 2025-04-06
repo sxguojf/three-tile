@@ -7,7 +7,7 @@ export const createMapOptionsGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: t
 	folder.add(map, "autoUpdate");
 	folder.add(map.scale, "z", 1, 50, 0.1).name("Hight scale").listen();
 	// folder.add(viewer.controls.target, "y", -1, 1, 0.01).name("Controls").listen();
-	folder.add(map.position, "y", -5, 5, 0.01).name("Map Y").listen();
+	folder.add(map.position, "y", -5000, 1000, 1).name("Map Y").listen();
 	// folder.add(map, "autoPosition");
 	folder.add(viewer.controls, "maxPolarAngle", 0, Math.PI / 2, 0.1).listen();
 	folder.add(viewer.controls, "autoRotate");

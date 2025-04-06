@@ -51,7 +51,7 @@ const defaultGeometry = new InstancedBufferGeometry();
 
 const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
-const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 1));
+const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 10000));
 const frustum = new Frustum();
 
 /**

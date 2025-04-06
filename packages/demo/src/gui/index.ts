@@ -88,7 +88,7 @@ export function showLocation(viewer: tt.plugin.GLViewer, map: tt.TileMap): void 
 			const dom = document.querySelector("#location")!;
 			if (dom) {
 				dom.innerHTML = `${lonlat.x.toFixed(6)}°E, 
-                    ${lonlat.y.toFixed(6)}°N, ${(lonlat.z * 1000).toFixed(0)}m`;
+                    ${lonlat.y.toFixed(6)}°N, ${lonlat.z.toFixed(0)} m`;
 			}
 		}
 	});

@@ -16,8 +16,10 @@ export default defineConfig({
 			name: "ThreeTile",
 		},
 		rollupOptions: {
+
 			external: ["three"],
 			output: {
+				inlineDynamicImports: true, // 将动态导入的内容内联
 				globals: {
 					three: "THREE",
 				},
