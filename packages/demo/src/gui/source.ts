@@ -25,7 +25,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		},
 		setArcGisHillShader: () => {
 			map.imgSource = [
-				new tt.plugin.mapSource.ArcGisSource({
+				new tt.plugin.ArcGisSource({
 					style: "Elevation/World_HillShade_Dark",
 				}),
 
@@ -35,11 +35,11 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		},
 		setGoogle: () => {
 			// map.imgSource = [new GoogleSource({ style: "y" })];
-			map.imgSource = [new tt.plugin.mapSource.GoogleSource()];
+			map.imgSource = [new tt.plugin.GoogleSource()];
 			map.reload();
 		},
 		setGoogleP: () => {
-			map.imgSource = [new tt.plugin.mapSource.GoogleSource({ style: "p", maxLevel: 15 })];
+			map.imgSource = [new tt.plugin.GoogleSource({ style: "p", maxLevel: 15 })];
 			map.reload();
 		},
 

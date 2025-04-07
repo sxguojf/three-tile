@@ -8,7 +8,7 @@ import { FileLoader } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
-import decoder from "./lercDecode/lerc-wasm.wasm?url";
+// import decoder from "./lercDecode/lerc-wasm.wasm?url";
 import * as Lerc from "./lercDecode/LercDecode.es";
 import ParseWorker from "./parse.Worker?worker&inline";
 
@@ -34,8 +34,8 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		super();
 		this.fileLoader.setResponseType("arraybuffer");
 		this._workerPool.setWorkerCreator(() => new ParseWorker());
-		Lerc.load({ locateFile: () => decoder });
-		// Lerc.load();
+		// Lerc.load({ locateFile: () => decoder });
+		Lerc.load();
 	}
 
 	/**
