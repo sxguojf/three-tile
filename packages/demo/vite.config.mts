@@ -16,12 +16,6 @@ export default defineConfig({
 		},
 	},
 	server: {
-		port: 8001,
-		watch: {
-			ignored: ['!**/node_modules/**', '!**/packages/lib/**']
-		}
-	},
-	optimizeDeps: {
-		exclude: ["three-tile"]
-	}
+		port: 8001,		
+	},	
 });

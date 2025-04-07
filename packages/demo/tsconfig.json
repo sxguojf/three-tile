@@ -9,7 +9,7 @@
 		// 编译过程中需要引入的库文件
 		"lib": ["ESNext", "DOM"],
 		// 模块解析策略
-		"moduleResolution": "Node",
+		"moduleResolution": "bundler",
 		// 启用所有严格的类型检查选项
 		"strict": true,
 		// 允许导入 JSON 文件

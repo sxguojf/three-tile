@@ -17,7 +17,6 @@
 		"@types/node": "^20.17.30",
 		"@types/offscreencanvas": "^2019.7.0",
 		"@types/three": "^0.165.0",
-		"lint-staged": "^15.2.2",
 		"prettier": "^3.5.3",
 		"typedoc": "^0.25.13",
 		"typescript": "^5.3.3",

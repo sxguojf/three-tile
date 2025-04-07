@@ -2,10 +2,7 @@
 	"name": "three-tile-demo",
 	"private": true,
 	"version": "0.10.2",
-	"type": "module",
-	"dependencies": {
-		"three": "^0.165.0"
-	},
+	"type": "module",	
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
