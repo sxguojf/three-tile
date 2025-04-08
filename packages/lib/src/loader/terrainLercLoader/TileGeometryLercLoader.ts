@@ -13,7 +13,8 @@ import * as Lerc from "./LercDecode.es";
 import ParseWorker from "./parse.Worker?worker&inline";
 
 const THREADSNUM = 10;
-// const decoder = new URL("lerc-wasm.wasm", import.meta.url).href;
+const decoder = new URL("lerc-wasm.wasm", import.meta.url).href;
+Lerc.load({ locateFile: () => decoder });
 
 /**
  * ArcGis-lerc格式瓦片几何体加载器
@@ -32,17 +33,13 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 
 	public constructor() {
 		super();
-
+		// Lerc.load({ locateFile: () => new URL(`./lerc-wasm.wasm`, import.meta.url).href });
 		// const url = new URL(`./lercDecode/lerc-wasm.wasm`, import.meta.url).href;
 		// console.log(url);
-
-		Lerc.load();
+		// Lerc.load();
 
 		this.fileLoader.setResponseType("arraybuffer");
 		this._workerPool.setWorkerCreator(() => new ParseWorker());
-		// Lerc.load({ locateFile: () => decoder });
-		// Lerc.load();
-		// Lerc.load({ locateFile: () => new URL(`./lerc-wasm.wasm`, import.meta.url).href });
 	}
 
 	/**
