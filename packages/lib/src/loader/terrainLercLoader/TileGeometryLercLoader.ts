@@ -9,7 +9,7 @@ import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
 // import decoder from "./lercDecode/lerc-wasm.wasm?url";
-import * as Lerc from "./lercDecode/LercDecode.es";
+import * as Lerc from "./LercDecode.es";
 import ParseWorker from "./parse.Worker?worker&inline";
 
 const THREADSNUM = 10;
@@ -32,10 +32,17 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 
 	public constructor() {
 		super();
+
+		// const url = new URL(`./lercDecode/lerc-wasm.wasm`, import.meta.url).href;
+		// console.log(url);
+
+		Lerc.load();
+
 		this.fileLoader.setResponseType("arraybuffer");
 		this._workerPool.setWorkerCreator(() => new ParseWorker());
 		// Lerc.load({ locateFile: () => decoder });
-		Lerc.load();
+		// Lerc.load();
+		// Lerc.load({ locateFile: () => new URL(`./lerc-wasm.wasm`, import.meta.url).href });
 	}
 
 	/**
