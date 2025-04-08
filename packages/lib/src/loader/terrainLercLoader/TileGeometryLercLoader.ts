@@ -8,12 +8,12 @@ import { FileLoader } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
-// import decoder from "./lercDecode/lerc-wasm.wasm?url";
+import decoder from "./lerc-wasm.wasm?url";
 import * as Lerc from "./LercDecode.es";
 import ParseWorker from "./parse.Worker?worker&inline";
 
 const THREADSNUM = 10;
-const decoder = new URL("lerc-wasm.wasm", import.meta.url).href;
+// const decoder = new URL("lerc-wasm.wasm", import.meta.url).href;
 Lerc.load({ locateFile: () => decoder });
 
 /**

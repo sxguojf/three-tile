@@ -16,7 +16,6 @@ export default defineConfig({
 			name: "ThreeTile",
 		},
 		rollupOptions: {
-
 			external: ["three"],
 			output: {
 				inlineDynamicImports: true, // 将动态导入的内容内联
@@ -26,5 +25,8 @@ export default defineConfig({
 			},
 		},
 		// sourcemap: true,
+	},
+	optimizeDeps: {
+		exclude: ["lerc-wasm.wasm"],
 	},
 });

@@ -61,6 +61,9 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 填加伪球体
 	const frakeEarth = tt.plugin.createFrakEarth(map);
 	map.add(frakeEarth);
+	map.addEventListener("update", () => {
+		frakeEarth.visible = viewer.controls.getDistance() > 5e5;
+	});
 
 	// 添加罗盘
 	const compass = tt.plugin.createCompass(viewer.controls);

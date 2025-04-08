@@ -195,7 +195,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			controls.zoomSpeed = Math.max(Math.log(dist / 1e3), 0) + 0.5;
 
 			// Set the camera near/far based on distance and polayr angle
-			this.camera.far = MathUtils.clamp((dist / polar) * 8, 1e5, 5e7);
+			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 50000 * 1000);
 			this.camera.near = this.camera.far / 1e4;
 			this.camera.updateProjectionMatrix();
 

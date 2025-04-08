@@ -8,8 +8,6 @@ import { Vector3 } from "three";
 import { Tile } from ".";
 import { ITileLoader } from "../loader";
 
-const FACTOR = 1.02;
-
 export enum LODAction {
 	none,
 	create,
@@ -52,7 +50,7 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 			tile.inFrustum && // Tile is in frustum
 			tile.z < maxLevel && // Tile level < map maxlevel
 			(tile.z < minLevel || tile.showing) && // (Tile level < map minLevel ) || (Parent tile has showed)
-			(tile.z < minLevel || distRatio < threshold / FACTOR) // (Tile level < map minLevel ) || (Distratio < threshold)
+			(tile.z < minLevel || distRatio < threshold) // (Tile level < map minLevel ) || (Distratio < threshold)
 		) {
 			return LODAction.create;
 		}
@@ -60,7 +58,7 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 		// Only Non-leaf tile can remove child tiles
 		if (
 			tile.z >= minLevel && // Tile level >= map minLevel
-			(tile.z > maxLevel || distRatio > threshold * FACTOR) // (Tile level > map maxLevel ) || (Distratio > threshold)
+			(tile.z > maxLevel || distRatio > threshold) // (Tile level > map maxLevel ) || (Distratio > threshold)
 		) {
 			return LODAction.remove;
 		}
