@@ -10,8 +10,6 @@ import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
 // import decoder from "./lerc-wasm.wasm?url";
 // import * as Lerc from "./LercDecode.es";
-//@ts-ignore
-import Lerc from "lerc";
 
 import ParseWorker from "./parse.Worker?worker&inline";
 
@@ -34,34 +32,8 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 
 	public constructor() {
 		super();
-
-		// const decoder = new URL("lerc-wasm.wasm", import.meta.url).href;
-		// Lerc.load({ locateFile: () => decoder });
-		// Lerc.load({ locateFile: () => new URL(`./lerc-wasm.wasm`, import.meta.url).href });
-		// const url = new URL(`./lercDecode/lerc-wasm.wasm`, import.meta.url).href;
-		// console.log(url);
-		// Lerc.load();
-
 		this.fileLoader.setResponseType("arraybuffer");
 		this._workerPool.setWorkerCreator(() => new ParseWorker());
-	}
-
-	/**
-	 * 解码给定缓冲区中的Lerc数据
-	 *
-	 * @param buffer Lerc编码数据的ArrayBuffer
-	 * @returns 解码后的高度图数据、宽度和高度的对象
-	 */
-	private async decode(buffer: ArrayBuffer) {
-		// await waitFor(Lerc.isLoaded());
-		// console.assert(Lerc.isLoaded());
-
-		const { height, width, pixels } = Lerc.decode(buffer);
-		const demArray = new Float32Array(height * width);
-		for (let i = 0; i < demArray.length; i++) {
-			demArray[i] = pixels[0][i];
-		}
-		return { array: demArray, width, height };
 	}
 
 	/**
@@ -72,39 +44,23 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	 * @returns 返回解析后的BufferGeometry对象
 	 */
 	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<TileGeometry> {
-		// 下载数据
-		const buffer: ArrayBuffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
-		// 解码数据
-		const decodedData = await this.decode(buffer);
-
-		// 取得瓦片层级和剪裁范围
-		const { z, bounds } = params;
-		let geoData;
-
 		if (this._workerPool.pool === 0) {
 			this._workerPool.setWorkerLimit(THREADSNUM);
 		}
+
+		// 取得瓦片层级和剪裁范围
+		const { z, bounds } = params;
+		const buffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
 		// 解析取得几何体数据
 		const message = {
-			demData: decodedData,
+			demData: buffer,
 			z,
 			clipBounds: bounds,
 		};
-		const transferList = [decodedData.array.buffer];
-		geoData = (await this._workerPool.postMessage(message, transferList)).data;
+		// const transferList = [buffer];
+		const geoData = (await this._workerPool.postMessage(message)).data;
 
 		// 创建瓦片几何体对象
 		return new TileGeometry().setData(geoData);
 	}
 }
-
-// function waitFor(condition: boolean, delay = 100) {
-// 	return new Promise<void>(resolve => {
-// 		const interval = setInterval(() => {
-// 			if (condition) {
-// 				clearInterval(interval);
-// 				resolve();
-// 			}
-// 		}, delay);
-// 	});
-// }

@@ -6,6 +6,8 @@
 
 import { Martini } from "../../geometry/Martini";
 import { GeometryDataType } from "../../geometry/GeometryDataTypes";
+//@ts-ignore
+import Lerc from "lerc";
 
 export type DEMType = {
 	array: Float32Array;
@@ -37,12 +39,30 @@ const maxErrors: { [key: number]: number } = {
 	20: 0.01,
 };
 
-export function parse(data: DEMType, z: number, clipBounds: [number, number, number, number]): GeometryDataType {
-	let demData = data;
+/**
+ * 解码给定缓冲区中的Lerc数据
+ *
+ * @param buffer Lerc编码数据的ArrayBuffer
+ * @returns 解码后的高度图数据、宽度和高度的对象
+ */
+function decode(buffer: ArrayBuffer): DEMType {
+	// await waitFor(Lerc.isLoaded());
+	// console.assert(Lerc.isLoaded());
+
+	const { height, width, pixels } = Lerc.decode(buffer);
+	const demArray = new Float32Array(height * width);
+	for (let i = 0; i < demArray.length; i++) {
+		demArray[i] = pixels[0][i];
+	}
+	return { array: demArray, width, height };
+}
+
+export function parse(buffer: ArrayBuffer, z: number, clipBounds: [number, number, number, number]): GeometryDataType {
+	let demData = decode(buffer);
 	// 地形从父瓦片取需要剪裁
 	if (clipBounds[2] - clipBounds[0] < 1) {
 		// 从父瓦片取地形数据
-		demData = getSubDEM(data, clipBounds);
+		demData = getSubDEM(demData, clipBounds);
 	}
 
 	const { array: terrain, width: gridSize } = demData;
