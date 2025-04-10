@@ -5,9 +5,8 @@
  */
 
 import { ImageLoader, Material, SRGBColorSpace, Texture } from "three";
-
 import { SingleImageSource } from "./SingleImageSource";
-import { ISource, ITileMaterialLoader, LoaderFactory, TileMaterial, TileSourceLoadParamsType } from "../..";
+import { ISource, ITileMaterialLoader, LoaderFactory, TileMaterial, TileSourceLoadParamsType } from "three-tile";
 
 /**
  * Single image Material loader

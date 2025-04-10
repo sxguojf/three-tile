@@ -7,7 +7,7 @@
 import { BufferGeometry, FileLoader, MathUtils } from "three";
 
 import { fromArrayBuffer } from "geotiff";
-import { ITileGeometryLoader, LoaderFactory, TileGeometry, TileSourceLoadParamsType } from "../..";
+import { ITileGeometryLoader, LoaderFactory, TileGeometry, TileSourceLoadParamsType } from "three-tile";
 import { TifDemSource } from "./TifDEMSource";
 import { parse } from "./parse";
 

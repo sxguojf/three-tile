@@ -9,13 +9,14 @@ import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
 // import decoder from "./lerc-wasm.wasm?url";
-import * as Lerc from "./LercDecode.es";
+// import * as Lerc from "./LercDecode.es";
+//@ts-ignore
+import Lerc from "lerc";
+
 import ParseWorker from "./parse.Worker?worker&inline";
 
 const THREADSNUM = 10;
-// const decoder = new URL("lerc-wasm.wasm", import.meta.url).href;
-// Lerc.load({ locateFile: () => decoder });
-Lerc.load();
+
 /**
  * ArcGis-lerc格式瓦片几何体加载器
  * @link https://github.com/Esri/lerc
@@ -33,6 +34,9 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 
 	public constructor() {
 		super();
+
+		// const decoder = new URL("lerc-wasm.wasm", import.meta.url).href;
+		// Lerc.load({ locateFile: () => decoder });
 		// Lerc.load({ locateFile: () => new URL(`./lerc-wasm.wasm`, import.meta.url).href });
 		// const url = new URL(`./lercDecode/lerc-wasm.wasm`, import.meta.url).href;
 		// console.log(url);
@@ -49,8 +53,8 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	 * @returns 解码后的高度图数据、宽度和高度的对象
 	 */
 	private async decode(buffer: ArrayBuffer) {
-		await waitFor(Lerc.isLoaded());
-		console.assert(Lerc.isLoaded());
+		// await waitFor(Lerc.isLoaded());
+		// console.assert(Lerc.isLoaded());
 
 		const { height, width, pixels } = Lerc.decode(buffer);
 		const demArray = new Float32Array(height * width);
@@ -94,13 +98,13 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	}
 }
 
-function waitFor(condition: boolean, delay = 100) {
-	return new Promise<void>(resolve => {
-		const interval = setInterval(() => {
-			if (condition) {
-				clearInterval(interval);
-				resolve();
-			}
-		}, delay);
-	});
-}
+// function waitFor(condition: boolean, delay = 100) {
+// 	return new Promise<void>(resolve => {
+// 		const interval = setInterval(() => {
+// 			if (condition) {
+// 				clearInterval(interval);
+// 				resolve();
+// 			}
+// 		}, delay);
+// 	});
+// }

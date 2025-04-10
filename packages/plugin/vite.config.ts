@@ -1,29 +1,35 @@
+import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
 export default defineConfig({
 	plugins: [
 		dts({
-			outDir: ["./dist"],
 			rollupTypes: true,
 		}),
 	],
 	build: {
-		target: "es2015",
+		target: "ESNext",
 		outDir: "./dist",
 		lib: {
 			entry: "./src/index.ts",
-			name: "ThreeTile",
+			name: "ThreeTilePlugin",
 		},
 		rollupOptions: {
-			external: ["three"],
+			external: ["three", "three-tile"],
 			output: {
-				// inlineDynamicImports: true, // 将动态导入的内容内联
+				inlineDynamicImports: true, // 将动态导入的内容内联
 				globals: {
 					three: "THREE",
+					"three-tile": "ThreeTile",
 				},
 			},
 		},
 		// sourcemap: true,
+	},
+	resolve: {
+		alias: {
+			"three-tile": resolve(__dirname, "../lib/src"),
+		},
 	},
 });

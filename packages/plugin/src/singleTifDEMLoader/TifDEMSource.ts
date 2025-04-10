@@ -1,4 +1,4 @@
-import { TileSource } from "../..";
+import { TileSource } from "three-tile";
 import { DEMType } from "./parse";
 
 export class TifDemSource extends TileSource {

@@ -1,4 +1,4 @@
-import { TileSource } from "../..";
+import { TileSource } from "three-tile";
 
 export class SingleImageSource extends TileSource {
 	public dataType = "image";

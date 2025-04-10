@@ -1,0 +1,10 @@
+{
+	"name": "three-tile-plugin",
+	"private": true,
+	"version": "0.10.2",
+	"type": "module",
+	"scripts": {
+		"dev": "vite build --watch",
+		"build": "tsc && vite build"
+	}
+}
