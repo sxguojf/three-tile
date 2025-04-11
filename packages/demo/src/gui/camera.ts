@@ -1,8 +1,9 @@
 import { CameraHelper, Vector3 } from "three";
 import * as tt from "three-tile";
+import * as plugin from "three-tile-plugin";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
-export const createCameraGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
+export const createCameraGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileMap) => {
 	/**
 	 * 飞行到某地理坐标
 	 * @param newCameraGeo 目标摄像机经纬度坐标

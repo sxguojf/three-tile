@@ -1,8 +1,9 @@
 import { Color, CubeTextureLoader } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import * as tt from "three-tile";
+import * as plugin from "three-tile-plugin";
 
-export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
+export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
 		skyColor: new Color(0xdbf0ff),
 		skyVisible: true,
@@ -52,7 +53,7 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: 
 			viewer.scene.background = value;
 			viewer.scene.fog!.color.set(value);
 			const fakeEarth = viewer.scene.getObjectByName("fakeearth");
-			if (fakeEarth instanceof tt.plugin.FakeEarth) {
+			if (fakeEarth instanceof plugin.FakeEarth) {
 				fakeEarth.bkColor.set(value);
 			}
 			vm.skyVisible = false;
@@ -65,9 +66,9 @@ export const createEnvironmentGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: 
 		folder.add(background, "visible").name("Background");
 	}
 
-	const fakeEarth = viewer.scene.getObjectByName("fakeearth") as tt.plugin.FakeEarth;
+	const fakeEarth = viewer.scene.getObjectByName("fakeearth") as plugin.FakeEarth;
 	if (fakeEarth) {
-		folder.add<tt.plugin.FakeEarth, "isMesh">(fakeEarth, "isMesh").name("Global mask");
+		folder.add<plugin.FakeEarth, "isMesh">(fakeEarth, "isMesh").name("Global mask");
 	}
 
 	// folder.add(viewer.renderer.shadowMap, "enabled").name("Shadows");

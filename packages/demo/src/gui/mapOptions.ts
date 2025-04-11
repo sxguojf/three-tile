@@ -1,8 +1,9 @@
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 import * as tt from "three-tile";
+import * as plugin from "three-tile-plugin";
 
-export const createMapOptionsGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
+export const createMapOptionsGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileMap) => {
 	const folder = gui.addFolder("Map Options").close();
 	folder.add(map, "autoUpdate");
 	folder.add(map.scale, "z", 1, 50, 0.1).name("Hight scale").listen();

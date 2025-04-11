@@ -77,18 +77,4 @@ export const LoaderFactory = {
 			throw `Source dataType "${source.dataType}" is not support!`;
 		}
 	},
-
-	// getLoadersInfo() {
-	// 	const imgLoaders = Array.from(this.imgLoaderMap.values()).map((loader) => ({
-	// 		category: "image",
-	// 		dataType: loader.dataType,
-	// 		info: loader.info,
-	// 	}));
-	// 	const demLoaders = Array.from(this.demLoaderMap.values()).map((loader) => ({
-	// 		category: "terrain",
-	// 		dataType: loader.dataType,
-	// 		info: loader.info,
-	// 	}));
-	// 	return [...imgLoaders, ...demLoaders];
-	// },
 };

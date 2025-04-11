@@ -4,12 +4,12 @@
  *@date: 2023-04-05
  */
 
-import { DEMType, parse } from "./parse";
+import { parse } from "./parse";
 
 type MessageType = {
-	demData: DEMType;
-	clipBounds: [number, number, number, number];
+	demData: ArrayBuffer;
 	z: number;
+	clipBounds: [number, number, number, number];
 };
 
 self.onmessage = (msg: MessageEvent<MessageType>) => {

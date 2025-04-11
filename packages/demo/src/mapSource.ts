@@ -1,5 +1,5 @@
 import * as tt from "three-tile";
-import { GeoJSONSource, MVTSource } from "three-tile-plugin";
+import * as plugin from "three-tile-plugin";
 
 const {
 	ArcGisDemSource,
@@ -15,7 +15,7 @@ const {
 	TXSource,
 	ZKXTQMSource,
 	ZKXTSource,
-} = tt.plugin;
+} = plugin;
 
 // MapBox
 const MAPBOXKEY = //"pk.eyJ1IjoidG9tYWNoIiwiYSI6ImNrbnR6d3psMzA4YWgydnBzeGhrNW1mdDgifQ.zq6mWEop1OTBrQ24R0SdlA";
@@ -187,7 +187,7 @@ export const tiffDEM = new tt.TileSource({
 	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
 });
 
-export const mvtTest = new MVTSource({
+export const mvtTest = new plugin.MVTSource({
 	// maxLevel: 14,
 	url: "https://api.maptiler.com/tiles/v3-openmaptiles/{z}/{x}/{y}.pbf?key=4SbPVVkPORGgXetw2vsf",
 	style: {
@@ -226,7 +226,7 @@ export const mvtTest = new MVTSource({
 	},
 });
 
-export const geojsonCountry = new GeoJSONSource({
+export const geojsonCountry = new plugin.GeoJSONSource({
 	url: "https://geo.datav.aliyun.com/areas_v3/bound/100000.json",
 	// url: "./省道_线.json",
 	style: {
@@ -239,7 +239,7 @@ export const geojsonCountry = new GeoJSONSource({
 	},
 });
 
-export const geojsonProvince = new GeoJSONSource({
+export const geojsonProvince = new plugin.GeoJSONSource({
 	url: "https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json",
 	style: {
 		stroke: true,
@@ -249,7 +249,7 @@ export const geojsonProvince = new GeoJSONSource({
 	},
 });
 
-export const geojsonCity = new GeoJSONSource({
+export const geojsonCity = new plugin.GeoJSONSource({
 	url: "https://geo.datav.aliyun.com/areas_v3/bound/100000_full_city.json",
 	style: {
 		stroke: true,
@@ -258,7 +258,7 @@ export const geojsonCity = new GeoJSONSource({
 	},
 });
 
-export const geojsonCityPoint = new GeoJSONSource({
+export const geojsonCityPoint = new plugin.GeoJSONSource({
 	url: "city.geojson",
 	minLevel: 4,
 	style: {

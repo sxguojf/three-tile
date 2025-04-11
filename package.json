@@ -1,7 +1,7 @@
 {
 	"name": "three-tile-packages",
 	"private": false,
-	"version": "0.10.2",
+	"version": "0.10.3",
 	"type": "module",
 	"author": {
 		"name": "GuoJF",
@@ -11,6 +11,7 @@
 		"dev": "npm run dev --workspace=packages/demo",
 		"build:lib": "npm run build --workspace=packages/lib",
 		"build:demo": "npm run build --workspace=packages/demo",
+		"build:plugin": "npm run build --workspace=packages/plugin",
 		"format": "prettier --write \"**/*.{ts,js,json,md}\""
 	},
 	"devDependencies": {

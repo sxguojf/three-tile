@@ -1,7 +1,8 @@
 import * as tt from "three-tile";
+import * as plugin from "three-tile-plugin";
 
 // 状态栏显示瓦片信息
-export function showDebug(map: tt.TileMap, viewer: tt.plugin.GLViewer) {
+export function showDebug(map: tt.TileMap, viewer: plugin.GLViewer) {
 	viewer.addEventListener("update", evt => {
 		const debug = document.querySelector("#debug");
 		if (debug) {

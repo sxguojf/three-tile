@@ -2,10 +2,11 @@ import { Vector3 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 import * as tt from "three-tile";
+import * as plugin from "three-tile-plugin";
 
 import * as ms from "../mapSource";
 
-export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.TileMap) => {
+export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
 		setMapBox: () => {
 			map.imgSource = [ms.mapBoxImgSource, ms.tdtCiaSource_w];
@@ -25,7 +26,7 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		},
 		setArcGisHillShader: () => {
 			map.imgSource = [
-				new tt.plugin.ArcGisSource({
+				new plugin.ArcGisSource({
 					style: "Elevation/World_HillShade_Dark",
 				}),
 
@@ -35,11 +36,11 @@ export const createSourceGui = (gui: GUI, viewer: tt.plugin.GLViewer, map: tt.Ti
 		},
 		setGoogle: () => {
 			// map.imgSource = [new GoogleSource({ style: "y" })];
-			map.imgSource = [new tt.plugin.GoogleSource()];
+			map.imgSource = [new plugin.GoogleSource()];
 			map.reload();
 		},
 		setGoogleP: () => {
-			map.imgSource = [new tt.plugin.GoogleSource({ style: "p", maxLevel: 15 })];
+			map.imgSource = [new plugin.GoogleSource({ style: "p", maxLevel: 15 })];
 			map.reload();
 		},
 

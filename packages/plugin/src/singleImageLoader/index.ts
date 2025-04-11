@@ -4,10 +4,5 @@
  *@date: 2023-04-05
  */
 
-// import { registerImgLoader } from "three-tile";
-// import { SingleImageLoader } from "./SingleImageLoader";
-// export { SingleImageSource } from "./SingleImageSource";
 export * from "./SingleImageLoader";
 export * from "./SingleImageSource";
-
-// registerImgLoader(new SingleImageLoader());

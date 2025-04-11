@@ -4,19 +4,29 @@ import * as tt from "three-tile";
 import * as gui from "./gui";
 import * as source from "./mapSource";
 
-//===============================================================================
-import { GeoJSONLoader, MVTLoader, SingleImageLoader, SingleTifDEMLoader, IndexDBCacheEable } from "three-tile-plugin";
+import * as plugin from "three-tile-plugin";
+
+//================================注册加载器====================================
+// 注册wrieframe加载器
+tt.registerImgLoader(new plugin.TileMaterialWrieLoader());
+// 注册瓦片调试加载器
+tt.registerImgLoader(new plugin.TileMaterialDebugeLoader());
+// 注册logo加载器
+tt.registerImgLoader(new plugin.TileMaterialLogoLoader());
+// 注册法向量图像加载器
+tt.registerImgLoader(new plugin.TileMateriaNormalLoader());
 // 注册GeoJSON加载器
-tt.registerImgLoader(new GeoJSONLoader());
-// // 注册MVT加载器
-tt.registerImgLoader(new MVTLoader());
+tt.registerImgLoader(new plugin.GeoJSONLoader());
+// 注册矢量瓦片MVT加载器
+tt.registerImgLoader(new plugin.MVTLoader());
 // 注册单影像加载器
-tt.registerImgLoader(new SingleImageLoader());
+tt.registerImgLoader(new plugin.SingleImageLoader());
 // 注册单影像TIF-DEM加载器
-tt.registerDEMLoader(new SingleTifDEMLoader());
+tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
 //===============================================================================
 
-IndexDBCacheEable();
+// 启用indexDB缓存
+// plugin.IndexDBCacheEable();
 
 console.log("===================================================================");
 console.log(`threejs V${REVISION}`);
@@ -26,10 +36,8 @@ document.querySelector<HTMLSpanElement>("#version")!.innerText = tt.version;
 // 创建地图
 function createMap() {
 	// 影像数据源
-	// const imgSource = [source.arcGisSource, source.testSource];
 	const imgSource = [source.arcGisSource, source.arcGisCiaSource];
 	// 地形数据源
-	// const demSource = source.mapBoxDemSource;
 	const demSource = source.arcGisDemSource;
 
 	// 创建地图对象
@@ -62,24 +70,24 @@ function createMap() {
 // 初始化三维场景
 function initViewer(id: string, map: tt.TileMap) {
 	// 初始化场景
-	const viewer = new tt.plugin.GLViewer(id);
+	const viewer = new plugin.GLViewer(id);
 	// 地图添加到场景
 	viewer.scene.add(map);
 
 	// 填加伪球体
-	const frakeEarth = tt.plugin.createFrakEarth(map);
+	const frakeEarth = plugin.createFrakEarth(map);
 	map.add(frakeEarth);
 	map.addEventListener("update", () => {
 		frakeEarth.visible = viewer.controls.getDistance() > 5e5;
 	});
 
 	// 添加罗盘
-	const compass = tt.plugin.createCompass(viewer.controls);
+	const compass = plugin.createCompass(viewer.controls);
 	document.querySelector("#compass-container")?.appendChild(compass.dom);
 
 	// 防止摄像机进入地下
 	viewer.addEventListener("update", () => {
-		tt.plugin.limitCameraHeight(map, viewer.camera);
+		plugin.limitCameraHeight(map, viewer.camera);
 	});
 
 	// 测试
@@ -147,7 +155,7 @@ function initViewer(id: string, map: tt.TileMap) {
 // }
 
 // 初始化GUI
-function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
 	// 初始化配置项
 	gui.initGui(viewer, map);
 	// 添加地图背景
@@ -167,7 +175,7 @@ function initGui(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
 }
 
 // 动画漫游指定位置
-function fly(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
+function fly(viewer: plugin.GLViewer, map: tt.TileMap) {
 	// 地图中心坐标(经度，纬度，高度)
 	const centerGeo = new Vector3(110, 35, 0);
 	// 摄像坐标(经度，纬度，高度)

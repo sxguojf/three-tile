@@ -1,14 +1,59 @@
 {
 	"name": "three-tile-plugin",
-	"private": true,
-	"version": "0.10.2",
+	"version": "0.10.3",
 	"type": "module",
+	"files": [
+		"dist"
+	],
+	"main": "./dist/three-tile-plugin.umd.cjs",
+	"module": "./dist/three-tile-plugin.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/three-tile-plugin.js",
+			"require": "./dist/three-tile.umd-plugin.cjs",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"description": "A lightweight tile map using threejs - plugins",
+	"license": "GPL",
+	"author": {
+		"name": "GuoJF",
+		"email": "hz_gjf@163.com"
+	},
+	"keywords": [
+		"three",
+		"gis",
+		"tile",
+		"map",
+		"3D",
+		"cesium",
+		"mapbox"
+	],
 	"scripts": {
 		"dev": "vite build --watch",
 		"build": "tsc && vite build"
 	},
 	"dependencies": {
-		"geotiff": "^2.1.3",
-		"idb": "^8.0.2"
-	}
+		"@mapbox/vector-tile": "^2.0.3",
+		"geojson-vt": "^4.0.2",
+		"mvt-basic-render": "^0.3.5",
+		"pbf": "^4.0.1",
+		"geotiff": "^2.1.3"
+	},
+	"peerDependencies": {
+		"three": "^0.165.0"
+	},
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/",
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sxguojf/three-tile.git"
+	},
+	"bugs": {
+		"url": "https://github.com/sxguojf/three-tile/issues"
+	},
+	"homepage": "https://github.com/sxguojf/three-tile#readme"
 }

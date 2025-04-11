@@ -22,8 +22,6 @@ export * from "./source";
 // map
 export * from "./map";
 
-export * as plugin from "./plugin";
-
 export function waitFor(condition: boolean, delay = 100) {
 	return new Promise<void>(resolve => {
 		const interval = setInterval(() => {
