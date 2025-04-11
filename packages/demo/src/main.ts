@@ -5,7 +5,7 @@ import * as gui from "./gui";
 import * as source from "./mapSource";
 
 //===============================================================================
-import { GeoJSONLoader, MVTLoader, SingleImageLoader, SingleTifDEMLoader } from "three-tile-plugin";
+import { GeoJSONLoader, MVTLoader, SingleImageLoader, SingleTifDEMLoader, IndexDBCacheEable } from "three-tile-plugin";
 // 注册GeoJSON加载器
 tt.registerImgLoader(new GeoJSONLoader());
 // // 注册MVT加载器
@@ -15,6 +15,8 @@ tt.registerImgLoader(new SingleImageLoader());
 // 注册单影像TIF-DEM加载器
 tt.registerDEMLoader(new SingleTifDEMLoader());
 //===============================================================================
+
+IndexDBCacheEable();
 
 console.log("===================================================================");
 console.log(`threejs V${REVISION}`);

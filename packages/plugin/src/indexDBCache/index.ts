@@ -1,8 +1,23 @@
+/**
+ * IndexDB 缓存
+ */
+
 import { Cache } from "three";
-import { waitFor } from "three-tile";
 
 const DB_NAME = "three_cache";
 const STORE_NAME = "files";
+
+let db: IDBDatabase | null = null;
+
+/**
+ * 开启 IndexDB 缓存
+ * @returns db实例
+ */
+export async function IndexDBCacheEable() {
+	db = await initDB();
+	Cache.enabled = true;
+	return db;
+}
 
 const initDB = (): Promise<IDBDatabase> => {
 	return new Promise((resolve, reject) => {
@@ -20,15 +35,8 @@ const initDB = (): Promise<IDBDatabase> => {
 	});
 };
 
-let db: IDBDatabase | null = null;
-initDB().then(database => {
-	db = database;
-	Cache.clear();
-});
-
 Cache.add = async function (key: string, file: any): Promise<void> {
-	if (db === null) return;
-	waitFor(!!db);
+	if (!Cache.enabled || db === null) return;
 
 	// Convert HTMLImageElement to dataURL
 	let data = file;
@@ -55,17 +63,27 @@ Cache.add = async function (key: string, file: any): Promise<void> {
 };
 
 Cache.get = function (key: string): any {
-	if (db === null) return;
-	waitFor(!!db);
+	if (!Cache.enabled || db === null) return;
 
 	const tx = db.transaction(STORE_NAME, "readonly");
 	const store = tx.objectStore(STORE_NAME);
 	const request = store.get(key);
-	const req = request as IDBRequest & { readyState: string };
 
-	// waitFor(req.readyState !== "pending");
+	// todo：IndexDB 是异步操作，读取完成前可能返回undefined
 
-	const result = req.result()?.file;
+	// let done = false;
+	let result: any;
+	request.onsuccess = () => {
+		result = request.result;
+		// done = true;
+		// console.log("IndexDB data:", result);
+	};
+	request.onerror = event => {
+		result = undefined;
+		// done = true;
+		console.error("Error retrieving data:", event);
+	};
+
 	if (result?.__type === "HTMLImageElement") {
 		const img = new Image();
 		img.src = result.dataURL;
@@ -75,7 +93,7 @@ Cache.get = function (key: string): any {
 };
 
 Cache.remove = async function (key: string): Promise<void> {
-	const db = await initDB();
+	if (!Cache.enabled || db === null) return;
 	const tx = db.transaction(STORE_NAME, "readwrite");
 	const store = tx.objectStore(STORE_NAME);
 
@@ -87,7 +105,8 @@ Cache.remove = async function (key: string): Promise<void> {
 };
 
 Cache.clear = async function (): Promise<void> {
-	const db = await initDB();
+	if (!Cache.enabled || db === null) return;
+
 	const tx = db.transaction(STORE_NAME, "readwrite");
 	const store = tx.objectStore(STORE_NAME);
 

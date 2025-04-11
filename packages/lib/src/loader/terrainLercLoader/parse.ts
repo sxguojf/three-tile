@@ -46,9 +46,6 @@ const maxErrors: { [key: number]: number } = {
  * @returns 解码后的高度图数据、宽度和高度的对象
  */
 function decode(buffer: ArrayBuffer): DEMType {
-	// await waitFor(Lerc.isLoaded());
-	// console.assert(Lerc.isLoaded());
-
 	const { height, width, pixels } = Lerc.decode(buffer);
 	const demArray = new Float32Array(height * width);
 	for (let i = 0; i < demArray.length; i++) {
