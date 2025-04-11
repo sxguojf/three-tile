@@ -1,5 +1,5 @@
 import * as tt from "three-tile";
-import { GeoJSONSource, MVTSource } from "./vectorTile";
+import { GeoJSONSource, MVTSource } from "three-tile-plugin";
 
 const {
 	ArcGisDemSource,
@@ -182,7 +182,7 @@ export const singleImage = new tt.TileSource({
 });
 
 export const tiffDEM = new tt.TileSource({
-	dataType: "tif-dem",
+	dataType: "single-tif",
 	url: "./evl.tif",
 	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
 });

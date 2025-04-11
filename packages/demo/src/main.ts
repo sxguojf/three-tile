@@ -4,11 +4,17 @@ import * as tt from "three-tile";
 import * as gui from "./gui";
 import * as source from "./mapSource";
 
-import { GeoJSONLoader, MVTLoader } from "./vectorTile/index";
+//===============================================================================
+import { GeoJSONLoader, MVTLoader, SingleImageLoader, SingleTifDEMLoader } from "three-tile-plugin";
 // 注册GeoJSON加载器
 tt.registerImgLoader(new GeoJSONLoader());
 // // 注册MVT加载器
 tt.registerImgLoader(new MVTLoader());
+// 注册单影像加载器
+tt.registerImgLoader(new SingleImageLoader());
+// 注册单影像TIF-DEM加载器
+tt.registerDEMLoader(new SingleTifDEMLoader());
+//===============================================================================
 
 console.log("===================================================================");
 console.log(`threejs V${REVISION}`);

@@ -8,20 +8,20 @@ import { BufferGeometry, FileLoader, MathUtils } from "three";
 
 import { fromArrayBuffer } from "geotiff";
 import { ITileGeometryLoader, LoaderFactory, TileGeometry, TileSourceLoadParamsType } from "three-tile";
-import { TifDemSource } from "./TifDEMSource";
+import { SingleTifDEMSource } from "./SingleTifDEMSource";
 import { parse } from "./parse";
 
 /**
  * TIF DEM terrain loader
  */
-export class TifDEMLoder implements ITileGeometryLoader {
+export class SingleTifDEMLoader implements ITileGeometryLoader {
 	public readonly info = {
 		version: "0.10.0",
 		description: "TIF DEM terrain loader. It can load single tif dem.",
 	};
 
 	// 数据标识
-	public readonly dataType: string = "tif-dem";
+	public readonly dataType: string = "single-tif";
 
 	// 数据加载器
 	private _loader = new FileLoader(LoaderFactory.manager);
@@ -39,7 +39,7 @@ export class TifDEMLoder implements ITileGeometryLoader {
 	 * @param params 包含加载瓦片所需的参数，类型为 TileSourceLoadParamsType<TifDemSource>
 	 * @returns 加载完成后返回一个 BufferGeometry 对象
 	 */
-	public async load(params: TileSourceLoadParamsType<TifDemSource>): Promise<BufferGeometry> {
+	public async load(params: TileSourceLoadParamsType<SingleTifDEMSource>): Promise<BufferGeometry> {
 		// 从 params 中解构出数据源、瓦片层级、经纬度边界和投影边界
 		const { source, z, bounds } = params;
 		// 创建一个新的 TileGeometry 实例，用于存储瓦片的几何体数据
@@ -55,16 +55,16 @@ export class TifDEMLoder implements ITileGeometryLoader {
 		const targetSize = MathUtils.clamp((params.z + 2) * 3, 2, 128);
 
 		// 如果数据未加载，加载数据
-		if (!source.data) {
+		if (!source._data) {
 			// 打印加载信息
 			console.log("load image...", url);
 			// 加载tif文件，使用 _loader.loadAsync 方法异步加载 TIF 文件，并将结果转换为 ArrayBuffer 类型
 			const buffer = (await this._loader.loadAsync(url)) as ArrayBuffer;
 			// 调用 getTIFFRaster 方法将 ArrayBuffer 解析为包含栅格数据的对象，并将其存储在 source.data 中
-			source.data = await this.getTIFFRaster(buffer);
+			source._data = await this.getTIFFRaster(buffer);
 		}
 		// 调用 getTileDEM 方法获取指定瓦片的 DEM 数据
-		const dem = parse(source.data, source._projectionBounds, bounds, targetSize, targetSize);
+		const dem = parse(source._data, source._projectionBounds, bounds, targetSize, targetSize);
 		// 将获取到的 DEM 数据设置到 geometry 中，并返回 geometry
 		return geometry.setData(dem);
 	}

@@ -47,16 +47,16 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		// const image = source.image; // .userData.image;
 
 		// 如果图片已加载，则设置纹理后返回材质
-		if (source.image?.complete) {
-			this._setTexture(material, source.image, source, bounds);
+		if (source._image?.complete) {
+			this._setTexture(material, source._image, source, bounds);
 			return material;
 		}
 
 		console.log("loadi image...", url);
 
 		// 加载纹理
-		source.image = await this._imageLoader.loadAsync(url);
-		this._setTexture(material, source.image, source, bounds);
+		source._image = await this._imageLoader.loadAsync(url);
+		this._setTexture(material, source._image, source, bounds);
 		return material;
 	}
 

@@ -27,7 +27,9 @@
 		"three": "^0.165.0"
 	},
 	"workspaces": [
-		"packages/*"
+		"packages/plugin",
+		"packages/lib",
+		"packages/demo"
 	],
 	"description": "A lightweight tile map using threejs",
 	"license": "GPL-3.0",

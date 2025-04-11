@@ -13,6 +13,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"three-tile": resolve(__dirname, "../lib/src"),
+			"three-tile-plugin": resolve(__dirname, "../plugin/src"),
 		},
 	},
 	server: {
