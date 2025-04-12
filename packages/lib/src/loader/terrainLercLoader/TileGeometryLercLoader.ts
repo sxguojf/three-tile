@@ -50,7 +50,10 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 
 		// 取得瓦片层级和剪裁范围
 		const { z, bounds } = params;
-		const buffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
+		const buffer = (await this.fileLoader.loadAsync(url).catch(() => {
+			return new Float32Array(256 * 256);
+		})) as ArrayBuffer;
+
 		// 解析取得几何体数据
 		const message = {
 			demData: buffer,

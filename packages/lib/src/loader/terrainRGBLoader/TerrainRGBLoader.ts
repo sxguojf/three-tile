@@ -42,7 +42,9 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 	 * @returns 返回解析后的BufferGeometry对象
 	 */
 	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<TileGeometry> {
-		const img = await this.imageLoader.loadAsync(url);
+		const img = await this.imageLoader.loadAsync(url).catch(_err => {
+			return new Image();
+		});
 		// 抽稀像素点
 		const targetSize = MathUtils.clamp((params.z + 2) * 3, 2, 64);
 		// 图像剪裁缩放

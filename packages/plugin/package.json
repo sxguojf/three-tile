@@ -39,7 +39,8 @@
 		"geojson-vt": "^4.0.2",
 		"mvt-basic-render": "^0.3.5",
 		"pbf": "^4.0.1",
-		"geotiff": "^2.1.3"
+		"geotiff": "^2.1.3",
+		"three-tile": "workspace:*"
 	},
 	"peerDependencies": {
 		"three": "^0.165.0"

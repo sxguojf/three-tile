@@ -1,4 +1,4 @@
-import { resolve } from "path";
+// import { resolve } from "path";
 import { defineConfig } from "vite";
 import dts from "vite-plugin-dts";
 
@@ -27,9 +27,9 @@ export default defineConfig({
 		},
 		// sourcemap: true,
 	},
-	resolve: {
-		alias: {
-			"three-tile": resolve(__dirname, "../lib/src"),
-		},
-	},
+	// resolve: {
+	// 	alias: {
+	// 		"three-tile": resolve(__dirname, "../lib/src"),
+	// 	},
+	// },
 });

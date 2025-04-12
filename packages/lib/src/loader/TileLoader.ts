@@ -82,7 +82,7 @@ export class TileLoader implements ITileLoader {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			const source = this.demSource;
 			geometry = await loader.load({ source, ...params }).catch(_err => {
-				console.error("Load material error", source.dataType, params);
+				console.error("Load material error", source.dataType, params.x, params.y, params.z);
 				return new PlaneGeometry();
 			});
 			geometry.addEventListener("dispose", () => {
@@ -110,7 +110,7 @@ export class TileLoader implements ITileLoader {
 		const materialsPromise = sources.map(async source => {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			const material = await loader.load({ source, ...params }).catch(_err => {
-				console.error("Load material error", source.dataType, params);
+				console.error("Load material error", source.dataType, params.x, params.y, params.z);
 				return new MeshBasicMaterial();
 			});
 			const dispose = (evt: Event<"dispose", Material>) => {

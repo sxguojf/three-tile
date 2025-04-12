@@ -28,7 +28,9 @@ export class TileImageLoader extends TileMaterialLoader {
 	 * @returns 返回一个Promise对象，解析为HTMLImageElement类型。
 	 */
 	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture> {
-		const img = await this.loader.loadAsync(url);
+		const img = await this.loader.loadAsync(url).catch(_err => {
+			return new Image(1, 1);
+		});
 		const texture = new Texture();
 		texture.colorSpace = SRGBColorSpace;
 		const { bounds: clipBounds } = params;

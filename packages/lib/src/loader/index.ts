@@ -19,7 +19,7 @@ export * from "./util";
 export * from "./TileLoader";
 
 // texture loader
-export * from "./TileTextureLoader";
+// export * from "./TileTextureLoader";
 
 // tile geometry loader base class
 export * from "./TileGeometryLoader";
