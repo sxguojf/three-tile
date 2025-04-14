@@ -1,6 +1,6 @@
 {
 	"name": "three-tile-demo",
-	"private": true,
+	"private": "false",
 	"version": "0.10.3",
 	"type": "module",
 	"scripts": {
@@ -9,7 +9,7 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"three-tile": "workspace:*",
-		"three-tile-plugin": "workspace:*"
+		"three-tile": "../lib",
+		"three-tile-plugin": "../plugin"
 	}
 }
