@@ -51,7 +51,7 @@ const defaultGeometry = new InstancedBufferGeometry();
 
 const tempVec3 = new Vector3();
 const tempMat4 = new Matrix4();
-const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 10000));
+const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 1));
 const frustum = new Frustum();
 
 /**
@@ -313,7 +313,9 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			tile.castShadow = this.castShadow;
 
 			// Tile is in frustum?
-			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
+			const bounds = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, this.z * 1000)).applyMatrix4(
+				tile.matrixWorld
+			);
 			tile.inFrustum = frustum.intersectsBox(bounds);
 
 			// Get distance to camera

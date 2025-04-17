@@ -30,8 +30,8 @@ export interface SourceOptions {
 	subdomains?: string[] | string;
 	/** Is TMS scheme */
 	isTMS?: boolean;
-	/** User data */
-	userData?: { [key: string]: unknown };
+	/** Any data */
+	[key: string]: unknown;
 }
 
 /**
@@ -62,11 +62,8 @@ export class TileSource implements ISource {
 	public bounds: [number, number, number, number] = [-180, -85, 180, 85];
 	/** Projected data bounds */
 	public _projectionBounds: [number, number, number, number] = [-Infinity, -Infinity, Infinity, Infinity];
-	/** User-defined data. Can store any key-value pairs */
-	public userData: { [key: string]: unknown } = {
-		name: "TileSource",
-	};
-
+	/** Any data */
+	[key: string]: unknown;
 	/**
 	 * constructor
 	 * @param options SourceOptions

@@ -51,32 +51,31 @@ export class GeoJSONLoader extends TileMaterialLoader {
 	 */
 	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture> {
 		const { x, y, z, source } = params;
-		const userData = source.userData;
-		const style = ("style" in source ? source.style : userData.style) as VectorStyle;
+
+		const style = ("style" in source ? source.style : source.style) as VectorStyle;
 		// 判断数据是否加载完成，如果已完成则直接绘制瓦片纹理
-		if (userData.gv) {
-			return this._getTileTexture(userData.gv, x, y, z, style);
+		if (source.gv) {
+			return this._getTileTexture(source.gv, x, y, z, style);
 		}
 
 		// 判断是否正在加载数据，如果不是则加载数据并绘制瓦片纹理
-		if (!userData.loading) {
-			userData.loading = true;
-			userData.gv = await this.loadJSON(url);
-			userData.loading = false;
-			// return this._getTileTexture(userData.gv, x, y, z, style);
+		if (!source.loading) {
+			source.loading = true;
+			source.gv = await this.loadJSON(url);
+			source.loading = false;
 		}
 
 		// 等待数据加载完成
 		await (async (): Promise<void> => {
-			while (!userData.gv) {
+			while (!source.gv) {
 				await new Promise(resolve => setTimeout(resolve, 100)); // 每100毫秒检查一次
 			}
 		})();
 
-		console.assert(userData.gv);
+		console.assert(source.gv);
 
 		// 加载完成后绘制瓦片纹理
-		return this._getTileTexture(userData.gv, x, y, z, style);
+		return this._getTileTexture(source.gv, x, y, z, style);
 	}
 
 	/**

@@ -44,8 +44,6 @@ export class SingleImageLoader implements ITileMaterialLoader {
 			return material;
 		}
 
-		// const image = source.image; // .userData.image;
-
 		// 如果图片已加载，则设置纹理后返回材质
 		if (source._image?.complete) {
 			this._setTexture(material, source._image, source, bounds);

@@ -118,7 +118,7 @@ function extractAndScaleFloat32Data(
 			// 瓦片边缘点不插值，直接取值
 			const onEdge = x1 > startX && x1 < endX && y1 > startY && y1 < endY;
 			if (!onEdge) {
-				result[index] = buffer[y1 * srcWidth + x1] + 1000; // fillValue;
+				result[index] = buffer[y1 * srcWidth + x1]; // fillValue;
 				continue;
 			}
 
@@ -136,7 +136,7 @@ function extractAndScaleFloat32Data(
 
 			console.assert(!isNaN(value));
 
-			result[index] = value + 1000;
+			result[index] = value;
 		}
 	}
 

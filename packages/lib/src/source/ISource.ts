@@ -32,6 +32,6 @@ export interface ISource {
 	_projectionBounds: [number, number, number, number];
 	/** Get url from xyz, internal use */
 	_getUrl(x: number, y: number, z: number): string | undefined;
-	/** User data */
-	userData: { [key: string]: unknown };
+	/** Any data */
+	[key: string]: unknown;
 }

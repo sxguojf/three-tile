@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { fromUrl } from "geotiff";
+import GeoTIFF, { fromUrl } from "geotiff";
 import { BufferGeometry, FileLoader, MathUtils } from "three";
 //@ts-ignore
 import createTile from "geotiff-tile";

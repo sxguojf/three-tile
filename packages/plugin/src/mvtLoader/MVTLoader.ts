@@ -32,7 +32,7 @@ export class MVTLoader extends TileMaterialLoader {
 
 	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture> {
 		const source = params.source;
-		const style = ("style" in source ? source.style : source.userData.style) as StyleType;
+		const style = ("style" in source ? source.style : source.style) as StyleType;
 		// 加载矢量瓦片数据
 		const data = (await this._loader.loadAsync(url).catch(() => {
 			return new Texture();
