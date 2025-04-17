@@ -184,6 +184,7 @@ export const singleImage = new tt.TileSource({
 export const tiffDEM = new tt.TileSource({
 	dataType: "single-tif",
 	url: "./evl.tif",
+	// skirtHeight: 3000,
 	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
 });
 

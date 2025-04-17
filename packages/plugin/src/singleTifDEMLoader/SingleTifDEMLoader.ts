@@ -62,21 +62,23 @@ export class SingleTifDEMLoader implements ITileGeometryLoader {
 		}
 
 		// 获取 TIF 文件的无数据值
-		const no_data = (await source._data.getImage()).getGDALNoData();
+		// const no_data = (await source._data.getImage()).fileDirectory;
+		// debugger;
 		// 瓦片截取参数
-		const tileOpts: any = {
+		const tileOpts = {
 			geotiff: source._data,
 			bbox: lonLatBounds,
 			method: "bilinear",
 			tile_height: targetSize,
 			tile_width: targetSize,
-			tile_no_data: no_data,
+			// tile_no_data: no_data,
 		};
 		// 截取瓦片
 		const { tile } = await createTile(tileOpts);
 		// 设置数据
-		//geometry.setData(new Float32Array(tile[0].map((i: number) => (isNaN(i) ? null : i))));
-		geometry.setData(tile[0]);
+		const dem = tile[0].map((i: number) => (isNaN(i) ? null : i));
+		geometry.setData(dem, source.skirtHeight);
+		// geometry.setData(tile[0]);
 		return geometry;
 	}
 }

@@ -20,11 +20,11 @@ export class TileGeometry extends PlaneGeometry {
 	 * @param data geometry or DEM data
 	 * @returns this
 	 */
-	public setData(data: GeometryDataType | Float32Array) {
+	public setData(data: GeometryDataType | Float32Array, skirtHeight: number = 1000) {
 		let geoData = data instanceof Float32Array ? getGeometryDataFromDem(data) : data;
 
 		// Add a skirt(1000m) to the geometry
-		geoData = addSkirt(geoData.attributes, geoData.indices, 1000);
+		geoData = addSkirt(geoData.attributes, geoData.indices, skirtHeight);
 
 		const { attributes, indices } = geoData;
 		this.setIndex(new BufferAttribute(indices, 1));
