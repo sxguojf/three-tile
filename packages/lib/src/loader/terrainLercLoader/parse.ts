@@ -7,7 +7,7 @@
 import { Martini } from "../../geometry/Martini";
 import { GeometryDataType } from "../../geometry/GeometryDataTypes";
 //@ts-ignore
-import Lerc from "lerc";
+import Lerc from "./lercDecode.js";
 
 export type DEMType = {
 	array: Float32Array;
