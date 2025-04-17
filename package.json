@@ -5,14 +5,14 @@
 	"files": [
 		"dist"
 	],
-	"main": "./dist/three-tile.umd.cjs",
-	"module": "./dist/three-tile.js",
-	"types": "./dist/three-tile.d.ts",
+	"main": "./dist/index.umd.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/three-tile.js",
-			"require": "./dist/three-tile.umd.cjs",
-			"types": "./dist/three-tile.d.ts"
+			"import": "./dist/index.js",
+			"require": "./dist/index.umd.cjs",
+			"types": "./dist/index.d.ts"
 		}
 	},
 	"license": "GPL",
