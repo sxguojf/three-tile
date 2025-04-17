@@ -1,2 +1,2 @@
-export * from "./SingleTifDEMLoader1";
+export * from "./SingleTifDEMLoader2";
 export * from "./SingleTifDEMSource1";
