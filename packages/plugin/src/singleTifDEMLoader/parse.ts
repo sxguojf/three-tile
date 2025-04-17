@@ -116,11 +116,11 @@ function extractAndScaleFloat32Data(
 			const y2 = Math.min(y1 + 1, srcHeight - 1);
 
 			// 瓦片边缘点不插值，直接取值
-			const onEdge = x1 > startX && x1 < endX && y1 > startY && y1 < endY;
-			if (!onEdge) {
-				result[index] = buffer[y1 * srcWidth + x1]; // fillValue;
-				continue;
-			}
+			// const onEdge = x1 > startX && x1 < endX && y1 > startY && y1 < endY;
+			// if (!onEdge) {
+			// 	result[index] = buffer[y1 * srcWidth + x1];
+			// 	continue;
+			// }
 
 			// 计算当前点相对于四个邻近点的偏移量
 			const dx = srcX - x1;

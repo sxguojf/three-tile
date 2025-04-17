@@ -5,18 +5,18 @@
 	"files": [
 		"dist"
 	],
-	"main": "./dist/three-tile-plugin.umd.cjs",
-	"module": "./dist/three-tile-plugin.js",
-	"types": "./dist/three-tile-plugin.d.ts",
+	"main": "./dist/index.umd.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/three-tile-plugin.js",
-			"require": "./dist/three-tile.umd-plugin.cjs",
-			"types": "./dist/three-tile-plugin.d.ts"
+			"import": "./dist/index.js",
+			"require": "./dist/index.umd.cjs",
+			"types": "./dist/index.d.ts"
 		}
 	},
 	"description": "A lightweight tile map using threejs - plugins",
-	"license": "GPL",
+	"license": "MIT",
 	"author": {
 		"name": "GuoJF",
 		"email": "hz_gjf@163.com"

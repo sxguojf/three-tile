@@ -13,9 +13,14 @@
 			"import": "./dist/index.js",
 			"require": "./dist/index.umd.cjs",
 			"types": "./dist/index.d.ts"
+		},
+		"./plugin": {
+			"import": "./dist/plugin/index.js",
+			"require": "./dist/plugin/index.js",
+			"types": "./dist/plugin/index.d.ts"
 		}
 	},
-	"license": "GPL",
+	"license": "MIT",
 	"author": {
 		"name": "GuoJF",
 		"email": "hz_gjf@163.com"

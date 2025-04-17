@@ -16,7 +16,7 @@
 		}
 	},
 	"description": "A lightweight tile map using threejs",
-	"license": "GPL",
+	"license": "MIT",
 	"author": {
 		"name": "GuoJF",
 		"email": "hz_gjf@163.com"

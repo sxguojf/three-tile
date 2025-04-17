@@ -14,7 +14,7 @@ export default defineConfig({
 		lib: {
 			entry: "./src/index.ts",
 			name: "ThreeTilePlugin",
-			fileName: "three-tile-plugin",
+			fileName: "index",
 		},
 		rollupOptions: {
 			external: ["three", "three-tile"],

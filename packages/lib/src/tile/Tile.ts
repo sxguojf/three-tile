@@ -313,9 +313,11 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			tile.castShadow = this.castShadow;
 
 			// Tile is in frustum?
-			const bounds = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, this.z * 1000)).applyMatrix4(
-				tile.matrixWorld
-			);
+			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
+			bounds.max.setY(9000);
+			// const bounds = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, (this.z + 2) * 500)).applyMatrix4(
+			// 	tile.matrixWorld
+			// );
 			tile.inFrustum = frustum.intersectsBox(bounds);
 
 			// Get distance to camera
