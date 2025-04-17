@@ -9,11 +9,12 @@ export default defineConfig({
 		}),
 	],
 	build: {
-		target: "es2015",
+		target: "es2020",
 		outDir: "./dist",
 		lib: {
 			entry: "./src/index.ts",
 			name: "ThreeTile",
+			fileName: "index",
 		},
 		rollupOptions: {
 			external: ["three"],

@@ -1,5 +1,5 @@
 {
-	"name": "three-tile-plugin",
+	"name": "@three-tile/plugin",
 	"version": "0.10.3",
 	"type": "module",
 	"files": [
@@ -7,12 +7,12 @@
 	],
 	"main": "./dist/three-tile-plugin.umd.cjs",
 	"module": "./dist/three-tile-plugin.js",
-	"types": "./dist/index.d.ts",
+	"types": "./dist/three-tile-plugin.d.ts",
 	"exports": {
 		".": {
 			"import": "./dist/three-tile-plugin.js",
 			"require": "./dist/three-tile.umd-plugin.cjs",
-			"types": "./dist/index.d.ts"
+			"types": "./dist/three-tile-plugin.d.ts"
 		}
 	},
 	"description": "A lightweight tile map using threejs - plugins",

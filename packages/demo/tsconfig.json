@@ -1,13 +1,13 @@
 {
 	"compilerOptions": {
 		// 编译后的 JavaScript 目标版本
-		"target": "ESNext",
+		"target": "ES2020",
 		// 使用 define 而不是赋值来定义类字段
 		"useDefineForClassFields": true,
 		// 指定生成哪个模块系统代码
-		"module": "ESNext",
+		"module": "ES2020",
 		// 编译过程中需要引入的库文件
-		"lib": ["ESNext", "DOM"],
+		"lib": ["ES2020", "DOM"],
 		// 模块解析策略
 		"moduleResolution": "bundler",
 		// 启用所有严格的类型检查选项

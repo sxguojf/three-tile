@@ -9,11 +9,12 @@ export default defineConfig({
 		}),
 	],
 	build: {
-		target: "ESNext",
+		target: "ES2020",
 		outDir: "./dist",
 		lib: {
 			entry: "./src/index.ts",
 			name: "ThreeTilePlugin",
+			fileName: "three-tile-plugin",
 		},
 		rollupOptions: {
 			external: ["three", "three-tile"],

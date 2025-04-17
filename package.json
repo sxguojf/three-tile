@@ -1,14 +1,29 @@
 {
-	"name": "three-tile-packages",
-	"private": false,
+	"name": "three-tile",
 	"version": "0.10.3",
 	"type": "module",
+	"files": [
+		"dist"
+	],
+	"main": "./dist/three-tile.umd.cjs",
+	"module": "./dist/three-tile.js",
+	"types": "./dist/three-tile.d.ts",
+	"exports": {
+		".": {
+			"import": "./dist/three-tile.js",
+			"require": "./dist/three-tile.umd.cjs",
+			"types": "./dist/three-tile.d.ts"
+		}
+	},
+	"license": "GPL",
 	"author": {
 		"name": "GuoJF",
 		"email": "hz_gjf@163.com"
 	},
+	"description": "A lightweight tile map using threejs",
 	"scripts": {
 		"dev": "npm run dev --workspace=packages/demo",
+		"build": "npm run build:lib && npm run build:plugin && node copy-dist.cjs",
 		"build:lib": "npm run build --workspace=packages/lib",
 		"build:demo": "npm run build --workspace=packages/demo",
 		"build:plugin": "npm run build --workspace=packages/plugin",
@@ -18,6 +33,7 @@
 		"@types/node": "^20.17.30",
 		"@types/offscreencanvas": "^2019.7.0",
 		"@types/three": "^0.165.0",
+		"fs-extra": "^11.3.0",
 		"prettier": "^3.5.3",
 		"typedoc": "^0.25.13",
 		"typescript": "^5.3.3",
@@ -28,10 +44,8 @@
 		"three": "^0.165.0"
 	},
 	"workspaces": [
-		"packages/*"	
+		"packages/*"
 	],
-	"description": "A lightweight tile map using threejs",
-	"license": "GPL-3.0",
 	"keywords": [
 		"three",
 		"gis",
@@ -39,5 +53,17 @@
 		"map",
 		"3D",
 		"cesium"
-	]
+	],
+	"publishConfig": {
+		"registry": "https://registry.npmjs.org/",
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sxguojf/three-tile.git"
+	},
+	"bugs": {
+		"url": "https://github.com/sxguojf/three-tile/issues"
+	},
+	"homepage": "https://github.com/sxguojf/three-tile#readme"
 }
