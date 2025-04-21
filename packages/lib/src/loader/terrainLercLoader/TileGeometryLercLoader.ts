@@ -11,7 +11,7 @@ import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../
 // import decoder from "./lerc-wasm.wasm?url";
 // import * as Lerc from "./LercDecode.es";
 
-import ParseWorker from "./parse.Worker?worker&inline";
+import ParseWorker from "./parse.worker?worker&inline";
 import { parse } from "./parse";
 
 const THREADSNUM = 10;
