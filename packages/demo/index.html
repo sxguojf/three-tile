@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, user-scalable=no"
+		/>
+		<title>three-tile demo</title>
+		<link
+			rel="stylesheet"
+			type="text/css"
+			href="style.css"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			href="./favicon.svg"
+		/>
+	</head>
+
+	<body>
+		<div id="app">
+			<div class="app-title">three-tile v<span id="version"></span> demo</div>
+			<pre id="debug">Debug</pre>
+
+			<div id="map"></div>
+			<div id="compass-container"></div>
+			<div class="statusbar">
+				<div id="attribution"></div>
+				<div id="loading">loading</div>
+				<div id="location">local</div>
+			</div>
+		</div>
+		<script
+			type="module"
+			src="./src/main.ts"
+		></script>
+	</body>
+</html>

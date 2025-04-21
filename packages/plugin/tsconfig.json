@@ -1,0 +1,43 @@
+{
+	"compilerOptions": {
+		// 编译后的 JavaScript 目标版本
+		"target": "ES2020",
+		// 使用 define 而不是赋值来定义类字段
+		"useDefineForClassFields": true,
+		// 指定生成哪个模块系统代码
+		"module": "ES2020",
+		// 编译过程中需要引入的库文件
+		"lib": ["ES2020", "DOM"],
+		// 模块解析策略
+		"moduleResolution": "bundler",
+		// 启用所有严格的类型检查选项
+		"strict": true,
+		// 允许导入 JSON 文件
+		"resolveJsonModule": true,
+		// 兼容 CommonJS 和 AMD 模块
+		"esModuleInterop": true,
+		// 不生成输出文件
+		"noEmit": true,
+		// 检查未使用的局部变量
+		"noUnusedLocals": true,
+		// 检查未使用的参数
+		"noUnusedParameters": true,
+		// 检查函数是否有返回值
+		"noImplicitReturns": true,
+		// 跳过声明文件的类型检查
+		"skipLibCheck": true,
+		// 强制区分大小写
+		"forceConsistentCasingInFileNames": true,
+		// 要包含的类型声明文件
+		"types": ["vite/client"],
+		// 不生成声明文件
+		"declaration": false
+		// "paths": {
+		// 	"three-tile": ["../lib/src"]
+		// }
+	},
+	// 需要编译的文件
+	"include": ["src/**/*.ts", "vite.config.ts"],
+	// 排除的文件
+	"exclude": ["src/**/back/**"]
+}

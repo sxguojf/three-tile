@@ -1,29 +1,56 @@
 {
 	"name": "three-tile",
-	"private": false,
-	"version": "0.6.4",
+	"version": "0.10.3",
 	"type": "module",
 	"files": [
-		"dist",
-		"images",
-		"docs"
+		"dist"
 	],
-	"main": "dist/three-tile.umd.cjs",
-	"module": "dist/three-tile.js",
-	"types": "./dist/three-tile.es.d.ts",
+	"main": "./dist/index.umd.cjs",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
-			"import": "./dist/three-tile.js",
-			"require": "./dist/three-tile.umd.cjs",
-			"types": "./dist/three-tile.es.d.ts"
+			"import": "./dist/index.js",
+			"require": "./dist/index.umd.cjs",
+			"types": "./dist/index.d.ts"
+		},
+		"./plugin": {
+			"import": "./dist/plugin/index.js",
+			"require": "./dist/plugin/index.js",
+			"types": "./dist/plugin/index.d.ts"
 		}
 	},
-	"description": "A lightweight tile map using threejs",
-	"license": "GPL-3.0",
+	"license": "MIT",
 	"author": {
-		"name": "GuoJiangfeng",
+		"name": "GuoJF",
 		"email": "hz_gjf@163.com"
 	},
+	"description": "A lightweight tile map using threejs",
+	"scripts": {
+		"dev": "npm run dev --workspace=packages/demo",
+		"build": "npm run build:lib && npm run build:plugin && node copy-dist.cjs",
+		"build:lib": "npm run build --workspace=packages/lib",
+		"build:demo": "npm run build --workspace=packages/demo",
+		"build:plugin": "npm run build --workspace=packages/plugin",
+		"format": "prettier --write \"**/*.{ts,js,json,md}\""
+	},
+	"devDependencies": {
+		"@types/node": "^20.17.30",
+		"@types/offscreencanvas": "^2019.7.0",
+		"@types/three": "^0.165.0",
+		"fs-extra": "^11.3.0",
+		"prettier": "^3.5.3",
+		"typedoc": "^0.25.13",
+		"typescript": "^5.3.3",
+		"vite": "^5.4.16",
+		"vite-plugin-dts": "^4.0.3"
+	},
+	"peerDependencies": {
+		"three": "^0.165.0"
+	},
+	"workspaces": [
+		"packages/*"
+	],
 	"keywords": [
 		"three",
 		"gis",
@@ -32,28 +59,16 @@
 		"3D",
 		"cesium"
 	],
-	"scripts": {
-		"dev": "vite --config vite.config.dev.ts",
-		"lib": "tsc && vite build  --config vite.config.lib.ts",
-		"demo": "tsc && vite build  --config vite.config.demo.ts",
-		"docs": "typedoc src --out ./docs",
-		"test": "vitest"
-	},
-	"devDependencies": {
-		"@types/node": "^20.2.3",
-		"@types/offscreencanvas": "^2019.7.0",
-		"@types/three": "^0.165.0",
-		"jsdom": "^24.1.0",
-		"typedoc": "^0.25.13",
-		"typescript": "^5.4.5",
-		"vite": "^5.4.0",
-		"vite-plugin-dts": "^4.0.3",
-		"vitest": "^2.0.5"
-	},
-	"dependencies": {
-		"three": "^0.165.0"
-	},
 	"publishConfig": {
-		"registry": "https://registry.npmjs.org/"
-	}
+		"registry": "https://registry.npmjs.org/",
+		"access": "public"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sxguojf/three-tile.git"
+	},
+	"bugs": {
+		"url": "https://github.com/sxguojf/three-tile/issues"
+	},
+	"homepage": "https://github.com/sxguojf/three-tile#readme"
 }
