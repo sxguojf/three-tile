@@ -56,14 +56,14 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 		})) as ArrayBuffer;
 
 		// 解析取得几何体数据
-		// const message = {
-		// 	demData: buffer,
-		// 	z,
-		// 	clipBounds: bounds,
-		// };
-		// // const transferList = [buffer];
-		// const geoData = (await this._workerPool.postMessage(message)).data;
-		const geoData = parse(buffer, z, bounds);
+		const message = {
+			demData: buffer,
+			z,
+			clipBounds: bounds,
+		};
+		// const transferList = [buffer];
+		const geoData = (await this._workerPool.postMessage(message)).data;
+		// const geoData = parse(buffer, z, bounds);
 
 		// 创建瓦片几何体对象
 		return new TileGeometry().setData(geoData);
