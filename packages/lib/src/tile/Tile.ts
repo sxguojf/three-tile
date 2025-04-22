@@ -88,7 +88,7 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	private _ready = false;
 
 	/** return this.minLevel < map.minLevel, True mean do not needs load tile data */
-	private _isDummy = false;
+	private _isDummy = true;
 	public get isDummy() {
 		return this._isDummy;
 	}
@@ -224,9 +224,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 
 	/**
 	 * LOD (Level of Detail).
-	 * @param loader - The tile loader.
-	 * @param minLevel - The minimum level.
-	 * @param maxLevel - The maximum level.
 	 * @param threshold - The threshold.
 	 * @returns this
 	 */
@@ -313,19 +310,22 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 			tile.castShadow = this.castShadow;
 
 			// Tile is in frustum?
+			// if (tile.loaded) {
+			// 	console.assert(tile.geometry instanceof BufferGeometry);
+			// 	tile.inFrustum = frustum.intersectsObject(tile);
+			// } else {
+			// }
 			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
+			bounds.min.setY(-300);
 			bounds.max.setY(9000);
-			// const bounds = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, (this.z + 2) * 500)).applyMatrix4(
-			// 	tile.matrixWorld
-			// );
 			tile.inFrustum = frustum.intersectsBox(bounds);
 
 			// Get distance to camera
 			tile.distToCamera = getDistance(tile, cameraWorldPosition);
 
-			// LOD
+			// Get LOD action
 			const { action, newTiles } = tile.LOD(params);
-
+			// Create or remove tiles form action
 			this._doAction(tile, action, newTiles, params);
 		});
 
