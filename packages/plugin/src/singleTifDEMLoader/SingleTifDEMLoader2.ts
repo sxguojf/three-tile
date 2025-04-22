@@ -1,6 +1,6 @@
 /**
  *@description: TIF DEM terrain loader
- *@author: 郭江峰
+ *@author: chaoxl
  *@date: 2023-04-05
  */
 
@@ -12,7 +12,7 @@ import { SingleTifDEMSource } from "./SingleTifDEMSource1";
 import { DEMType, parse } from "./parse";
 
 /**
- * TIF DEM terrain loader
+ * TIF DEM terrain loader 单张TIF图地形加载器
  */
 export class SingleTifDEMLoader implements ITileGeometryLoader {
 	public readonly info = {
