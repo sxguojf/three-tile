@@ -279,12 +279,6 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 		return this;
 	}
 
-	/** New tile init */
-	private _init() {
-		this.updateMatrix();
-		this.updateMatrixWorld();
-		this.sizeInWorld = getTileSize(this);
-	}
 	/**
 	 * Updates the tile.
 	 * @param params - The update parameters.
@@ -334,10 +328,13 @@ export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
 	}
 
 	private _doAction(currentTile: Tile, action: LODAction, newTiles: Tile[] | undefined, params: TileUpdateParames) {
+		console.assert(this.z === 0);
 		if (action === LODAction.create) {
 			// Load new tiles data
 			newTiles?.forEach(newTile => {
-				newTile._init();
+				newTile.updateMatrix();
+				newTile.updateMatrixWorld();
+				newTile.sizeInWorld = getTileSize(newTile);
 				newTile._isDummy = newTile.z < params.minLevel;
 				this.dispatchEvent({ type: "tile-created", tile: newTile });
 				if (!newTile.isDummy) {

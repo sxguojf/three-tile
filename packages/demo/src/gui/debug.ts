@@ -45,7 +45,7 @@ export function showDebug(map: tt.TileMap, viewer: plugin.GLViewer) {
 <b>Controls:</b> ${controls}
 <b>Memory:</b> ${memory}
 <b>Render:</b> ${renderInfo}`;
-			debug.innerHTML = info.replaceAll('"', "").replaceAll("{", "").replaceAll("}", "");
+			debug.innerHTML = info.replace(/"/g, "").replace(/{/g, "").replace(/}/g, "");
 		}
 	});
 }
