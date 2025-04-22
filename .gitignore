@@ -13,7 +13,6 @@ cache
 node_modules
 *.local
 mydocs
-.roo
 
 # Editor directories and files
 .vscode/*
