@@ -7,7 +7,7 @@
 import { FileLoader } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { TileGeometry } from "../../geometry/TileGeometry";
-import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "../../loader";
+import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "..";
 
 import ParseWorker from "./parse.worker?worker&inline";
 

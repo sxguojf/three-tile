@@ -5,7 +5,7 @@
  */
 
 import { ImageLoader, SRGBColorSpace, Texture } from "three";
-import { TileMaterialLoader, getBoundsCoord, LoaderFactory, TileSourceLoadParamsType } from "../../loader";
+import { LoaderFactory, TileMaterialLoader, TileSourceLoadParamsType, getSubImage } from "..";
 
 /**
  * Tile image loader
@@ -43,19 +43,4 @@ export class TileImageLoader extends TileMaterialLoader {
 		texture.needsUpdate = true;
 		return texture;
 	}
-}
-
-/**
- * get sub image in rect from source image
- * @param image source image
- * @bounds  rect (orgin is (0,0), range is (-1,1))
- * @returns sub image
- */
-function getSubImage(image: HTMLImageElement, bounds: [number, number, number, number]) {
-	const size = image.width;
-	const canvas = new OffscreenCanvas(size, size);
-	const ctx = canvas.getContext("2d")!;
-	const { sx, sy, sw, sh } = getBoundsCoord(bounds, image.width);
-	ctx.drawImage(image, sx, sy, sw, sh, 0, 0, size, size);
-	return canvas;
 }

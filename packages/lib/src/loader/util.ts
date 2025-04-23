@@ -66,6 +66,21 @@ export function getSafeTileUrlAndBounds(
 	return { url, clipBounds: maxLevelTileAndBox.bounds };
 }
 
+/**
+ * get sub image in rect from source image
+ * @param image source image
+ * @bounds  rect (orgin is (0,0), range is (-1,1))
+ * @returns sub image
+ */
+export function getSubImage(image: HTMLImageElement, bounds: [number, number, number, number]) {
+	const size = image.width;
+	const canvas = new OffscreenCanvas(size, size);
+	const ctx = canvas.getContext("2d")!;
+	const { sx, sy, sw, sh } = getBoundsCoord(bounds, image.width);
+	ctx.drawImage(image, sx, sy, sw, sh, 0, 0, size, size);
+	return canvas;
+}
+
 function getMaxLevelTileAndBounds(x: number, y: number, z: number, maxLevel: number) {
 	const dl = z - maxLevel;
 	const parentNO = { x: x >> dl, y: y >> dl, z: z - dl };
