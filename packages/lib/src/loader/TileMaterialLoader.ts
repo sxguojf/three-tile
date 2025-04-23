@@ -24,6 +24,11 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	};
 
 	public dataType = "";
+	public _materialCreator?: () => Material;
+
+	public constructor(options?: { materialCreator?: () => Material }) {
+		this._materialCreator = options?.materialCreator;
+	}
 
 	/**
 	 * Load tile data from source
@@ -31,17 +36,29 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 * @param tile
 	 * @returns
 	 */
-	public async load(params: TileSourceLoadParamsType): Promise<ITileMaterial> {
+	public async load(params: TileSourceLoadParamsType): Promise<Material> {
 		const { source, x, y, z } = params;
-		const material = new TileMaterial();
+		const material = (this._materialCreator && this._materialCreator()) || this.createMaterial();
 		// get max level tile and bounds
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
 			const texture = await this.doLoad(url, { source, x, y, z, bounds: clipBounds });
-			material.map = texture;
-			LoaderFactory.manager.parseEnd(url);
+			if ("map" in material) {
+				material.map = texture;
+				LoaderFactory.manager.parseEnd(url);
+			} else {
+				throw new Error("Material must have map property");
+			}
 		}
 		return material;
+	}
+
+	/**
+	 * Create material, override this method to create custom material
+	 * @returns {ITileMaterial} the material of tile data
+	 */
+	protected createMaterial(): ITileMaterial {
+		return new TileMaterial();
 	}
 
 	/**
