@@ -20,8 +20,8 @@
  */
 
 import { Color, ShaderLib, ShaderMaterial, Texture, UniformsUtils } from "three";
-import frag from "./shader/tile.frag1.glsl?raw";
-import vert from "./shader/tile.vert.glsl?raw";
+import frag from "./tile.frag1.glsl?raw";
+import vert from "./tile.vert.glsl?raw";
 
 export interface TileMaterialParameters {
 	map?: Texture | null | undefined;

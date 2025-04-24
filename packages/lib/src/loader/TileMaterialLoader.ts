@@ -9,6 +9,7 @@ import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
 import { TileMaterial } from "../material";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndBounds } from "./util";
+import { TileFilterMaterial } from "../material/shader/filter/TileFilterMaterial";
 
 interface ITileMaterial extends Material {
 	map?: Texture | null;
@@ -44,7 +45,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		if (url) {
 			const texture = await this.doLoad(url, { source, x, y, z, bounds: clipBounds });
 			material.map = texture;
-			LoaderFactory.manager.parseEnd(url);
+			// material.uniforms.u_texture = { value: texture };
 		}
 		return material;
 	}
@@ -54,7 +55,8 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 * @returns {ITileMaterial} the material of tile
 	 */
 	protected createMaterial(_params: TileSourceLoadParamsType): ITileMaterial {
-		return new TileMaterial();
+		// return new TileMaterial();
+		return new TileFilterMaterial();
 	}
 
 	/**
