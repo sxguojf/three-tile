@@ -6,5 +6,6 @@
 
 import { TileImageLoader } from "./TileImageLoader";
 import { registerImgLoader } from "../..";
+export * from "./TileImageLoader";
 
 registerImgLoader(new TileImageLoader());

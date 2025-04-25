@@ -7,13 +7,13 @@
 import { Material, Texture } from "three";
 import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
 import { TileMaterial } from "../material";
-import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndBounds } from "./util";
-import { TileFilterMaterial } from "../material/shader/filter/TileFilterMaterial";
 
 interface ITileMaterial extends Material {
 	map?: Texture | null;
 }
+
+type MaterialCreatorFunc = (loaderParams: TileSourceLoadParamsType) => ITileMaterial;
 
 /**
  * Image loader base calss
@@ -25,11 +25,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	};
 
 	public dataType = "";
-	public _materialCreator?: () => ITileMaterial;
-
-	public constructor(options?: { materialCreator?: () => ITileMaterial }) {
-		this._materialCreator = options?.materialCreator;
-	}
+	private _materialCreator: MaterialCreatorFunc = (_params: TileSourceLoadParamsType) => new TileMaterial();
 
 	/**
 	 * Load tile data from source
@@ -39,24 +35,18 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 */
 	public async load(params: TileSourceLoadParamsType): Promise<ITileMaterial> {
 		const { source, x, y, z } = params;
-		const material = (this._materialCreator && this._materialCreator()) || this.createMaterial(params);
+		const material = this._materialCreator(params);
 		// get max level tile and bounds
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
 			const texture = await this.doLoad(url, { source, x, y, z, bounds: clipBounds });
 			material.map = texture;
-			// material.uniforms.u_texture = { value: texture };
 		}
 		return material;
 	}
 
-	/**
-	 * Create material, override this method to create custom material
-	 * @returns {ITileMaterial} the material of tile
-	 */
-	protected createMaterial(_params: TileSourceLoadParamsType): ITileMaterial {
-		// return new TileMaterial();
-		return new TileFilterMaterial();
+	public setMaterialCreator(creator: MaterialCreatorFunc) {
+		this._materialCreator = creator;
 	}
 
 	/**

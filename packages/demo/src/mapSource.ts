@@ -272,3 +272,8 @@ export const geojsonCityPoint = new plugin.GeoJSONSource({
 		shadowColor: "black",
 	},
 });
+
+export const filterImgSource = new tt.TileSource({
+	dataType: "image-filter",
+	url: "https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+});

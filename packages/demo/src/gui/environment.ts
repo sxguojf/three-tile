@@ -11,6 +11,10 @@ export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.
 			.setPath("./image/skybox/")
 			.load(["px.png", "nx.png", "py.png", "ny.png", "pz.png", "nz.png"]),
 		shadow: false,
+		hue: 0,
+		saturate: 1,
+		brightness: 1,
+		contrast: 1,
 	};
 
 	viewer.scene.background = vm.skybox;
@@ -80,6 +84,18 @@ export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.
 		// map.castShadow = value;
 		map.receiveShadow = value;
 	});
+
+	const onFilterChange = () => {
+		if (viewer.container) {
+			viewer.container.style.filter = `hue-rotate(${vm.hue}deg) saturate(${vm.saturate}) brightness(${vm.brightness}) contrast(${vm.contrast})`;
+		}
+	};
+
+	// hue: "hue-rotate(135deg)";
+	folder.add(vm, "hue", 0, 360).onChange(onFilterChange);
+	folder.add(vm, "saturate", 0, 5).onChange(onFilterChange);
+	folder.add(vm, "brightness", 0, 5, 0.1).onChange(onFilterChange);
+	folder.add(vm, "contrast", 0, 5, 0.1).onChange(onFilterChange);
 
 	return gui;
 };

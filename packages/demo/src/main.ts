@@ -1,9 +1,9 @@
-import { REVISION, Vector3 } from "three";
-import * as tt from "three-tile";
+import { MeshLambertMaterial, MeshStandardMaterial, REVISION, Vector3 } from "three";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
 
+import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
 
 //================================注册加载器====================================
@@ -23,7 +23,21 @@ tt.registerImgLoader(new plugin.MVTLoader());
 tt.registerImgLoader(new plugin.SingleImageLoader());
 // 注册单影像TIF-DEM加载器
 tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
+// 注册带滤镜的瓦片影像加载器
+// tt.registerImgLoader(new plugin.TileFilterLoader());
 //===============================================================================
+
+// 取得影像加载器
+const imgLoader = tt.getImgLoader<tt.TileImageLoader>("image");
+// 设置影像加载器的材质工厂函数
+imgLoader.setMaterialCreator(
+	_params =>
+		new MeshStandardMaterial({
+			transparent: true,
+			roughness: 0.3,
+			metalness: 0.8,
+		})
+);
 
 // 启用indexDB缓存
 // plugin.IndexDBCacheEable();
@@ -85,9 +99,11 @@ function initViewer(id: string, map: tt.TileMap) {
 	const compass = plugin.createCompass(viewer.controls);
 	document.querySelector("#compass-container")?.appendChild(compass.dom);
 
+	const filter = new plugin.Fillter(viewer.scene, viewer.camera, viewer.renderer);
 	// 防止摄像机进入地下
 	viewer.addEventListener("update", () => {
 		plugin.limitCameraHeight(map, viewer.camera);
+		// filter.update();
 	});
 
 	// 测试

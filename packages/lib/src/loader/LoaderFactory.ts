@@ -55,12 +55,13 @@ export const LoaderFactory = {
 	 * @param source datasource
 	 * @returns material loader
 	 */
-	getMaterialLoader(source: ISource) {
-		const loader = LoaderFactory.imgLoaderMap.get(source.dataType);
+	getMaterialLoader(source: ISource | string) {
+		const dataType = typeof source === "string" ? source : source.dataType;
+		const loader = LoaderFactory.imgLoaderMap.get(dataType);
 		if (loader) {
 			return loader;
 		} else {
-			throw `Source dataType "${source.dataType}" is not support!`;
+			throw `Source dataType "${dataType}" is not support!`;
 		}
 	},
 
@@ -69,12 +70,13 @@ export const LoaderFactory = {
 	 * @param source datasouce
 	 * @returns geometry loader
 	 */
-	getGeometryLoader(source: ISource) {
-		const loader = LoaderFactory.demLoaderMap.get(source.dataType);
+	getGeometryLoader(source: ISource | string) {
+		const dataType = typeof source === "string" ? source : source.dataType;
+		const loader = LoaderFactory.demLoaderMap.get(dataType);
 		if (loader) {
 			return loader;
 		} else {
-			throw `Source dataType "${source.dataType}" is not support!`;
+			throw `Source dataType "${dataType}" is not support!`;
 		}
 	},
 };

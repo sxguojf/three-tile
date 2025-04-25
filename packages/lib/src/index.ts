@@ -42,3 +42,11 @@ export function registerDEMLoader(loader: ITileGeometryLoader) {
 	LoaderFactory.registerGeometryLoader(loader);
 	return loader;
 }
+
+export function getImgLoader<T>(dateType: string) {
+	return LoaderFactory.getMaterialLoader(dateType) as T;
+}
+
+export function getDEMLoader<T>(dateType: string) {
+	return LoaderFactory.getGeometryLoader(dateType) as T;
+}
