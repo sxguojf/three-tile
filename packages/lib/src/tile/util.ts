@@ -87,7 +87,7 @@ export function createChildren(loader: ITileLoader, px: number, py: number, pz: 
 		const y = py;
 		const scale = new Vector3(0.5, 1.0, 1.0);
 		const t1 = new Tile(x, y, level);
-		const t2 = new Tile(x, y, level);
+		const t2 = new Tile(x + 1, y, level);
 		t1.position.set(-pos, 0, z);
 		t1.scale.copy(scale);
 		t2.position.set(pos, 0, z);
