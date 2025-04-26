@@ -24,7 +24,6 @@ export * from "./TileLoader";
 // tile geometry loader base class
 export * from "./TileGeometryLoader";
 
-// tile material loader base class
 export * from "./TileMaterialLoader";
 
 // Canvas loader. 画布加载器

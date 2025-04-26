@@ -4,16 +4,12 @@
  *@date: 2023-04-06
  */
 
-import { Material, Texture } from "three";
-import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
+import { Texture } from "three";
+import { ITileMaterial, ITileMaterialLoader, TileSourceLoadParamsType } from ".";
 import { TileMaterial } from "../material";
 import { getSafeTileUrlAndBounds } from "./util";
 
-interface ITileMaterial extends Material {
-	map?: Texture | null;
-}
-
-type MaterialCreatorFunc = (loaderParams: TileSourceLoadParamsType) => ITileMaterial;
+export type MaterialCreator = (loaderParams: TileSourceLoadParamsType) => ITileMaterial;
 
 /**
  * Image loader base calss
@@ -25,7 +21,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	};
 
 	public dataType = "";
-	private _materialCreator: MaterialCreatorFunc = (_params: TileSourceLoadParamsType) => new TileMaterial();
+	private _materialCreator: MaterialCreator = (_params: TileSourceLoadParamsType) => new TileMaterial();
 
 	/**
 	 * Load tile data from source
@@ -45,7 +41,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		return material;
 	}
 
-	public setMaterialCreator(creator: MaterialCreatorFunc) {
+	public setMaterialCreator(creator: MaterialCreator) {
 		this._materialCreator = creator;
 	}
 

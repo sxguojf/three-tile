@@ -28,6 +28,7 @@ import { Easing, Tween, update as teweenUpdate } from "three/examples/jsm/libs/t
  */
 export interface GLViewerEventMap extends Object3DEventMap {
 	update: BaseEvent & { delta: number };
+	resize: BaseEvent & { size: { width: number; height: number } };
 }
 
 /**
@@ -250,6 +251,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		this.camera.updateProjectionMatrix();
 		// 防止resize过程中黑屏
 		this.renderer.render(this.scene, this.camera);
+		this.dispatchEvent({ type: "resize", size: { width, height } });
 		return this;
 	}
 
@@ -257,10 +259,10 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	 * Threejs animation loop
 	 */
 	private animate() {
-		this.controls.update();
 		this.renderer.render(this.scene, this.camera);
-		teweenUpdate();
+		this.controls.update();
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
+		teweenUpdate();
 	}
 
 	/**
@@ -275,7 +277,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			const start = this.camera.position;
 			new Tween(start)
 				// fly to 10000km
-				.to({ y: 2e7, z: 0 }, 500)
+				.to({ y: 1e7, z: 0 }, 500)
 				// to taget
 				.chain(
 					new Tween(start)

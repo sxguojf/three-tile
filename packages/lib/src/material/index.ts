@@ -8,4 +8,4 @@
 
 export * from "./TileMaterial";
 export * from "./vectorTileRenderer";
-export * from "./shader/TileShaderMaterial";
+// export * from "./shader/TileShaderMaterial";

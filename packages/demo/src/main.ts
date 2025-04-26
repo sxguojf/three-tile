@@ -1,4 +1,4 @@
-import { MeshLambertMaterial, MeshStandardMaterial, REVISION, Vector3 } from "three";
+import { MeshLambertMaterial, REVISION, Vector3 } from "three";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
@@ -28,16 +28,9 @@ tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
 //===============================================================================
 
 // 取得影像加载器
-const imgLoader = tt.getImgLoader<tt.TileImageLoader>("image");
-// 设置影像加载器的材质工厂函数
-imgLoader.setMaterialCreator(
-	_params =>
-		new MeshStandardMaterial({
-			transparent: true,
-			roughness: 0.3,
-			metalness: 0.8,
-		})
-);
+// const imgLoader = tt.getImgLoader<tt.TileImageLoader>("image");
+// // 设置影像加载器的材质工厂函数
+// imgLoader.setMaterialCreator(_params => new MeshLambertMaterial({ color: 0x5555ff, transparent: false }));
 
 // 启用indexDB缓存
 // plugin.IndexDBCacheEable();
@@ -99,7 +92,7 @@ function initViewer(id: string, map: tt.TileMap) {
 	const compass = plugin.createCompass(viewer.controls);
 	document.querySelector("#compass-container")?.appendChild(compass.dom);
 
-	const filter = new plugin.Fillter(viewer.scene, viewer.camera, viewer.renderer);
+	// const filter = new plugin.Fillter(viewer);
 	// 防止摄像机进入地下
 	viewer.addEventListener("update", () => {
 		plugin.limitCameraHeight(map, viewer.camera);
@@ -175,7 +168,7 @@ function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
 	// 初始化配置项
 	gui.initGui(viewer, map);
 	// 添加地图背景
-	gui.addMapBackground(map);
+	// gui.addMapBackground(map);
 	// 添加状态指示器
 	gui.addStats(viewer);
 	// 状态栏显示瓦片加载状态
