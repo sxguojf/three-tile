@@ -9,6 +9,7 @@ import {
 	VectorFeatureTypes,
 	VectorStyle,
 	VectorTileRender,
+	throwError,
 } from "three-tile";
 
 export type StyleType = { layer: VectorStyle[] };
@@ -34,7 +35,8 @@ export class MVTLoader extends TileMaterialLoader {
 		const source = params.source;
 		const style = ("style" in source ? source.style : source.style) as StyleType;
 		// 加载矢量瓦片数据
-		const data = (await this._loader.loadAsync(url).catch(() => {
+		const data = (await this._loader.loadAsync(url).catch(err => {
+			throwError(err);
 			return new Texture();
 		})) as ArrayBuffer;
 		// 解析矢量瓦片

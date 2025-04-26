@@ -13,6 +13,8 @@ import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { TileMapLoader } from "./TileMapLoader";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
 
+export let _debug = false;
+
 /**
  * TileMap Event Map
  * 地图事件
@@ -76,6 +78,7 @@ type ProjectCenterLongitude = 0 | 90 | -90;
  * 地图创建参数
  */
 export type MapParams = {
+	debug?: boolean; //是否开启调试模式, debug mode
 	loader?: ITileLoader; //地图加载器, map data loader
 	rootTile?: Tile; //根瓦片, root Tile
 	imgSource: ISource[] | ISource; //影像数据源, image source
@@ -89,8 +92,8 @@ export type MapParams = {
  * Map Mesh
  * 地图模型
  */
-
 export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
+	public debug = false;
 	// 名称
 	public readonly name = "map";
 	// 瓦片树更新时钟
@@ -319,6 +322,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public constructor(params: MapParams) {
 		super();
+		_debug = params.debug || false;
 		this.up.set(0, 0, 1);
 		const {
 			loader = new TileLoader(),
@@ -375,8 +379,8 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 				// shadow
 				this.rootTile.castShadow = this.castShadow;
 				this.rootTile.receiveShadow = this.receiveShadow;
-			} catch (e) {
-				console.error("Error on loading tile data.", e);
+			} catch (err) {
+				console.error("Error on loading tile data.", err);
 			}
 			this._clock.start();
 			this.dispatchEvent({ type: "update", delta: elapseTime });

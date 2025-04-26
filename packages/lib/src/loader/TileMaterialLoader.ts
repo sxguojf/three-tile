@@ -43,6 +43,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 
 	public setMaterialCreator(creator: MaterialCreator) {
 		this._materialCreator = creator;
+		return this;
 	}
 
 	/**

@@ -8,6 +8,8 @@ import { BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, PlaneGeometry
 import { ISource } from "../source";
 import { ITileLoader, MeshDateType, TileLoadParamsType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
+import { TileGeometry } from "../geometry";
+import { _debug, throwError } from "..";
 
 /**
  * Tile loader
@@ -81,15 +83,15 @@ export class TileLoader implements ITileLoader {
 		) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			const source = this.demSource;
-			geometry = await loader.load({ source, ...params }).catch(_err => {
-				console.error("Load material error", source.dataType, params.x, params.y, params.z);
+			geometry = await loader.load({ source, ...params }).catch(err => {
+				throwError(err);
 				return new PlaneGeometry();
 			});
 			geometry.addEventListener("dispose", () => {
 				loader.unload && loader.unload(geometry);
 			});
 		} else {
-			geometry = new PlaneGeometry();
+			geometry = new TileGeometry();
 		}
 
 		return geometry;
@@ -109,8 +111,8 @@ export class TileLoader implements ITileLoader {
 
 		const materialsPromise = sources.map(async source => {
 			const loader = LoaderFactory.getMaterialLoader(source);
-			const material = await loader.load({ source, ...params }).catch(_err => {
-				console.error("Load material error", source.dataType, params.x, params.y, params.z);
+			const material = await loader.load({ source, ...params }).catch(err => {
+				throwError(err);
 				return new MeshBasicMaterial();
 			});
 			const dispose = (evt: Event<"dispose", Material>) => {

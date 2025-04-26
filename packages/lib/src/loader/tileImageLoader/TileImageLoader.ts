@@ -6,6 +6,7 @@
 
 import { ImageLoader, SRGBColorSpace, Texture } from "three";
 import { LoaderFactory, TileMaterialLoader, TileSourceLoadParamsType, getSubImage } from "..";
+import { throwError } from "../..";
 
 /**
  * Tile image loader
@@ -28,7 +29,8 @@ export class TileImageLoader extends TileMaterialLoader {
 	 * @returns 返回一个Promise对象，解析为HTMLImageElement类型。
 	 */
 	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture> {
-		const img = await this.loader.loadAsync(url).catch(_err => {
+		const img = await this.loader.loadAsync(url).catch(err => {
+			throwError(err);
 			return new Image(1, 1);
 		});
 		const texture = new Texture();

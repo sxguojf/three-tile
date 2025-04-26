@@ -86,9 +86,7 @@ export class GeoJSONLoader extends TileMaterialLoader {
 	 */
 	protected async loadJSON(url: string) {
 		console.log("load geoJSON", url);
-		const json = (await this._loader.loadAsync(url).catch(err => {
-			console.error("GeoJSON load error: ", url, err.message);
-		})) as any;
+		const json = (await this._loader.loadAsync(url)) as any;
 		const gv = geojsonvt(json, {
 			tolerance: 2,
 			// buffer: 10,

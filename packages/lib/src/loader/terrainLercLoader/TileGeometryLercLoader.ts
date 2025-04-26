@@ -10,6 +10,7 @@ import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "..";
 
 import ParseWorker from "./parse.worker?worker&inline";
+import { _debug, throwError } from "../..";
 
 const THREADSNUM = 10;
 
@@ -48,7 +49,8 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 
 		// 取得瓦片层级和剪裁范围
 		const { z, bounds } = params;
-		const buffer = (await this.fileLoader.loadAsync(url).catch(() => {
+		const buffer = (await this.fileLoader.loadAsync(url).catch(err => {
+			throwError(err);
 			return new Float32Array(256 * 256);
 		})) as ArrayBuffer;
 

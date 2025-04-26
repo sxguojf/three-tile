@@ -1,4 +1,4 @@
-import { MeshLambertMaterial, REVISION, Vector3 } from "three";
+import { REVISION, Vector3 } from "three";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
@@ -59,6 +59,8 @@ function createMap() {
 		minLevel: 2,
 		// 最大缩放级别
 		maxLevel: 20,
+		// 调试模式
+		debug: true,
 	});
 
 	// map.scale.setScalar(1000);
