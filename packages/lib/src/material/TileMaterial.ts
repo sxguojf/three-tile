@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { FrontSide, MeshLambertMaterial, MeshLambertMaterialParameters } from "three";
+import { FrontSide, MeshLambertMaterial, MeshLambertMaterialParameters, Texture } from "three";
 
 /**
  * Tile material
@@ -12,6 +12,11 @@ import { FrontSide, MeshLambertMaterial, MeshLambertMaterialParameters } from "t
 export class TileMaterial extends MeshLambertMaterial {
 	constructor(params: MeshLambertMaterialParameters = {}) {
 		super({ ...{ transparent: true, side: FrontSide }, ...params });
+	}
+
+	public setTexture(texture: Texture) {
+		this.map = texture;
+		return this;
 	}
 
 	public dispose(): void {

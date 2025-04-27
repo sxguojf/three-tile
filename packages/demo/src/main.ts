@@ -1,10 +1,11 @@
-import { REVISION, Vector3 } from "three";
+import { AnimationMixer, Box3, CameraHelper, Group, REVISION, SpotLight, SpotLightHelper, Vector3 } from "three";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
+import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
 
 //================================注册加载器====================================
 // 注册wrieframe加载器
@@ -114,42 +115,74 @@ function initViewer(id: string, map: tt.TileMap) {
 	// const mapMesh = createBoundsMesh(mapBounds, 0x00ff00);
 	// map.add(mapMesh);
 
+	// shadowTest(viewer, map);
 	return viewer;
 }
 
-// function shadowTest(viewer: tt.plugin.GLViewer, map: tt.TileMap) {
-// 	const sphereGeometry = new SphereGeometry(5, 32, 32);
-// 	const sphereMaterial = new MeshStandardMaterial({
-// 		color: 0x049ef4,
-// 		roughness: 0.2,
-// 		metalness: 0.8,
-// 		flatShading: true,
-// 	});
-// 	const sphere = new Mesh(sphereGeometry, sphereMaterial);
-// 	const centerGeo = new Vector3(110, 35, 0);
-// 	const centerPosition = map.geo2world(centerGeo);
-// 	sphere.position.set(centerPosition.x, 5, centerPosition.z);
-// 	sphere.castShadow = true;
-// 	sphere.receiveShadow = true;
-// 	viewer.scene.add(sphere);
+function shadowTest(viewer: plugin.GLViewer, map: tt.TileMap) {
+	// 开启阴影
+	viewer.renderer.shadowMap.enabled = true;
+	// 地面接受阴影
+	map.receiveShadow = true;
 
-// 	const shadowLight = new SpotLight(0xffffff, 10, 4e3, Math.PI / 6, 0.2, 0);
-// 	shadowLight.position.set(centerPosition.x, 100, centerPosition.z + 100);
-// 	shadowLight.target = sphere;
-// 	shadowLight.castShadow = true;
-// 	viewer.scene.add(shadowLight);
+	const centerGeo = new Vector3(110, 35, 0);
+	const centerPosition = map.geo2world(centerGeo);
 
-// 	const lightHelper = new SpotLightHelper(shadowLight);
-// 	viewer.scene.add(lightHelper);
-// 	lightHelper.updateMatrixWorld();
+	// // 添加一个球，半径5000米
+	// const sphereGeometry = new SphereGeometry(500, 32, 32);
+	// const sphereMaterial = new MeshStandardMaterial({
+	// 	color: 0x049ef4,
+	// 	roughness: 0.2,
+	// 	metalness: 0.8,
+	// 	flatShading: true,
+	// });
+	// const sphere = new Mesh(sphereGeometry, sphereMaterial);
+	// sphere.position.set(centerPosition.x, 800, centerPosition.z);
+	// sphere.castShadow = true;
+	// sphere.receiveShadow = true;
+	// viewer.scene.add(sphere);
 
-// 	const shadowCamera = shadowLight.shadow.camera;
-// 	shadowCamera.far = 1e3;
-// 	shadowCamera.near = 0.1;
+	const dracoLoader = new DRACOLoader();
+	dracoLoader.setDecoderPath("./lib/draco/gltf/");
+	const loader = new GLTFLoader();
+	loader.setDRACOLoader(dracoLoader);
+	let model: Group;
 
-// 	// const cameraHelper = new CameraHelper(shadowCamera);
-// 	// viewer.scene.add(cameraHelper);
-// }
+	// 加载模型
+	loader.load("./model/LittlestTokyo.glb", function (gltf) {
+		model = gltf.scene;
+		model.traverse(child => {
+			child.castShadow = true;
+			child.receiveShadow = true;
+		});
+		// 计算模型位置
+		const bbox = new Box3().setFromObject(model);
+		model.position.set(centerPosition.x, 510 - bbox.min.y, centerPosition.z);
+		// 模型动画
+		const mixer = new AnimationMixer(model);
+		mixer.clipAction(gltf.animations[0]).play();
+		map.addEventListener("update", evt => mixer.update(evt.delta));
+		viewer.scene.add(model);
+
+		// 添加一个聚光灯
+		const shadowLight = new SpotLight(0xffffff, 3, 4e3, Math.PI / 6, 0.2, 0);
+		shadowLight.position.set(centerPosition.x, 2e3, centerPosition.z + 1000);
+		shadowLight.target = model;
+		shadowLight.castShadow = true;
+		shadowLight.shadow.camera.near = 1e3;
+		shadowLight.shadow.camera.far = 6e3;
+		viewer.scene.add(shadowLight);
+
+		// 添加一个聚光灯相机辅助模型
+		const cameraHelper = new CameraHelper(shadowLight.shadow.camera);
+		viewer.scene.add(cameraHelper);
+
+		// // 添加一个聚光灯辅助模型
+		const lightHelper = new SpotLightHelper(shadowLight);
+		viewer.scene.add(lightHelper);
+		lightHelper.updateMatrixWorld();
+	});
+}
 
 // function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {
 // 	const points = [];

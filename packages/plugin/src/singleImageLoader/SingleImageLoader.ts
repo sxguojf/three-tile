@@ -65,7 +65,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		tileBounds: [number, number, number, number]
 	) {
 		const texture = this._getTileTexture(image, source, tileBounds);
-		material.setTexture(texture);
+		material.map = texture;
 		texture.needsUpdate = true;
 	}
 
