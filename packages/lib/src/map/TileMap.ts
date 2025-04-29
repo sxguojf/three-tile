@@ -322,7 +322,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 	 */
 	public constructor(params: MapParams) {
 		super();
-		_debug = params.debug || false;
 		this.up.set(0, 0, 1);
 		const {
 			loader = new TileLoader(),
@@ -332,7 +331,10 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 			imgSource,
 			demSource,
 			lon0 = 0,
+			debug = false,
 		} = params;
+
+		_debug = debug;
 
 		this.loader = loader;
 
@@ -350,9 +352,6 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 
 		// 模型加入地图
 		this.add(rootTile);
-
-		// 更新地图模型矩阵
-		rootTile.updateMatrix();
 
 		// 绑定事件
 		attachEvent(this);
