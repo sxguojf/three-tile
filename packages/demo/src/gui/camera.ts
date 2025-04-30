@@ -16,8 +16,8 @@ export const createCameraGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	};
 
 	const vm = {
-		restCamera: () => {
-			flyToGeo(new Vector3(110, -10, 4000), new Vector3(110, 30, 0));
+		resetCamera: () => {
+			flyToGeo(new Vector3(110, -10, 4000 * 1000), new Vector3(110, 30, 0));
 		},
 		toBeiJing: () => {
 			const g1 = new Vector3(116.39199596764485, 39.91047669278009, 1000);
@@ -115,7 +115,7 @@ export const createCameraGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 
 	const folder = gui.addFolder("Camera position");
 
-	folder.add(vm, "restCamera").name("Reset");
+	folder.add(vm, "resetCamera").name("Reset");
 	folder.add(vm, "cameraHelper");
 	folder.add(vm, "cameraInfoToConsole");
 	folder.add(vm, "toHome");
