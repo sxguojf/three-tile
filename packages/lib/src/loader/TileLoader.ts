@@ -5,11 +5,11 @@
  */
 
 import { BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
-import { ISource } from "../source";
-import { ITileLoader, MeshDateType, TileLoadParamsType } from "./ITileLoaders";
-import { LoaderFactory } from "./LoaderFactory";
+import { throwError } from "..";
 import { TileGeometry } from "../geometry";
-import { _debug, throwError } from "..";
+import { ISource } from "../source";
+import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
+import { LoaderFactory } from "./LoaderFactory";
 
 /**
  * Tile loader
@@ -43,7 +43,7 @@ export class TileLoader implements ITileLoader {
 	 *
 	 * @returns Promise<MeshDateType> tile data
 	 */
-	public async load(params: TileLoadParamsType): Promise<MeshDateType> {
+	public async load(params: TileLoadParamsType): Promise<Mesh> {
 		const geometry = await this.loadGeometry(params);
 		const materials = await this.loadMaterial(params);
 
@@ -53,7 +53,9 @@ export class TileLoader implements ITileLoader {
 			geometry.addGroup(0, Infinity, i);
 		}
 
-		return { materials, geometry };
+		const model = new Mesh(geometry, materials);
+
+		return model;
 	}
 
 	/**

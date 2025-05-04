@@ -4,11 +4,10 @@
  *@date: 2023-04-06
  */
 
-import { BaseEvent, BufferGeometry, Camera, Clock, Material, Mesh, Object3DEventMap, Vector2, Vector3 } from "three";
+import { BaseEvent, Camera, Clock, Object3D, Object3DEventMap, Vector2, Vector3 } from "three";
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
-// import { SourceWithProjection } from "./SourceWithProjection";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { TileMapLoader } from "./TileMapLoader";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
@@ -25,7 +24,6 @@ export let _debug = false;
  *
  * @interface TileMapEventMap
  *
- * @property {BaseEvent} ready - Event triggered when the TileMap is ready.
  * @property {BaseEvent & { delta: number }} update - Event triggered when the TileMap is updated.
  *
  * @property {BaseEvent & { tile: Tile }} "tile-created" - Event triggered when a tile is created.
@@ -49,7 +47,6 @@ export let _debug = false;
  *   Event triggered when parsing ends, with the URL of the parsed resource.
  */
 export interface TileMapEventMap extends Object3DEventMap {
-	ready: BaseEvent;
 	update: BaseEvent & { delta: number };
 
 	"tile-created": BaseEvent & { tile: Tile };
@@ -92,7 +89,7 @@ export type MapParams = {
  * Map Mesh
  * 地图模型
  */
-export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
+export class TileMap extends Object3D<TileMapEventMap> {
 	public debug = false;
 	// 名称
 	public readonly name = "map";
@@ -339,6 +336,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 		this.loader = loader;
 
 		rootTile.matrixAutoUpdate = true;
+		rootTile.matrixWorldAutoUpdate = true;
 		rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
 		this.rootTile = rootTile;
 
@@ -526,7 +524,7 @@ export class TileMap extends Mesh<BufferGeometry, Material, TileMapEventMap> {
 			downloading = 0;
 
 		this.rootTile.traverse(tile => {
-			if (!tile.isTile) return;
+			if (!(tile instanceof Tile)) return;
 
 			total++;
 			if (tile.isLeaf) {

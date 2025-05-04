@@ -4,8 +4,7 @@
  *@date: 2024-04-08
  */
 
-import { Camera, CanvasTexture, Intersection, Raycaster, Sprite, SpriteMaterial, Vector2, Vector3 } from "three";
-import { Tile } from "../tile";
+import { Camera, CanvasTexture, Intersection, Mesh, Raycaster, Sprite, SpriteMaterial, Vector2, Vector3 } from "three";
 import { TileMap } from "./TileMap";
 // import { GLViewer } from "../../tt";
 
@@ -23,16 +22,15 @@ export interface LocationInfo extends Intersection {
  * @returns intersect info or undefined(not intersect)
  */
 export function getLocalInfoFromRay(map: TileMap, ray: Raycaster) {
-	const intersects = ray.intersectObjects<Tile>([map.rootTile]);
+	// threejs R114 射线法会检测不可视对象相交： https://github.com/mrdoob/three.js/issues/14700
+	const intersects = ray.intersectObjects<Mesh>([map.rootTile]);
 	for (const intersect of intersects) {
-		if (intersect.object instanceof Tile) {
-			// intersect point to local point
-			const point = map.worldToLocal(intersect.point.clone());
-			const lonlat = map.map2geo(point);
-			return Object.assign(intersect, {
-				location: lonlat,
-			}) as LocationInfo;
-		}
+		// intersect point to local point
+		const point = map.worldToLocal(intersect.point.clone());
+		const lonlat = map.map2geo(point);
+		return Object.assign(intersect, {
+			location: lonlat,
+		}) as LocationInfo;
 	}
 	return undefined;
 }

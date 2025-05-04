@@ -65,6 +65,8 @@ export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.
 
 	folder.add(viewer, "fogFactor", 0, 10, 0.001).listen();
 
+	folder.add(map, "visible");
+
 	const background = viewer.scene.getObjectByName("background");
 	if (background) {
 		folder.add(background, "visible").name("Background");

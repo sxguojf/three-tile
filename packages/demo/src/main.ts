@@ -44,7 +44,7 @@ document.querySelector<HTMLSpanElement>("#version")!.innerText = tt.version;
 // 创建地图
 function createMap() {
 	// 影像数据源
-	const imgSource = [source.arcGisSource, source.arcGisCiaSource];
+	const imgSource = [source.arcGisSource, source.testSource];
 	// 地形数据源
 	const demSource = source.arcGisDemSource;
 
@@ -119,70 +119,70 @@ function initViewer(id: string, map: tt.TileMap) {
 	return viewer;
 }
 
-function shadowTest(viewer: plugin.GLViewer, map: tt.TileMap) {
-	// 开启阴影
-	viewer.renderer.shadowMap.enabled = true;
-	// 地面接受阴影
-	map.receiveShadow = true;
+// function shadowTest(viewer: plugin.GLViewer, map: tt.TileMap) {
+// 	// 开启阴影
+// 	viewer.renderer.shadowMap.enabled = true;
+// 	// 地面接受阴影
+// 	map.receiveShadow = true;
 
-	const centerGeo = new Vector3(110, 35, 0);
-	const centerPosition = map.geo2world(centerGeo);
+// 	const centerGeo = new Vector3(110, 35, 0);
+// 	const centerPosition = map.geo2world(centerGeo);
 
-	// // 添加一个球，半径5000米
-	// const sphereGeometry = new SphereGeometry(500, 32, 32);
-	// const sphereMaterial = new MeshStandardMaterial({
-	// 	color: 0x049ef4,
-	// 	roughness: 0.2,
-	// 	metalness: 0.8,
-	// 	flatShading: true,
-	// });
-	// const sphere = new Mesh(sphereGeometry, sphereMaterial);
-	// sphere.position.set(centerPosition.x, 800, centerPosition.z);
-	// sphere.castShadow = true;
-	// sphere.receiveShadow = true;
-	// viewer.scene.add(sphere);
+// 	// // 添加一个球，半径5000米
+// 	// const sphereGeometry = new SphereGeometry(500, 32, 32);
+// 	// const sphereMaterial = new MeshStandardMaterial({
+// 	// 	color: 0x049ef4,
+// 	// 	roughness: 0.2,
+// 	// 	metalness: 0.8,
+// 	// 	flatShading: true,
+// 	// });
+// 	// const sphere = new Mesh(sphereGeometry, sphereMaterial);
+// 	// sphere.position.set(centerPosition.x, 800, centerPosition.z);
+// 	// sphere.castShadow = true;
+// 	// sphere.receiveShadow = true;
+// 	// viewer.scene.add(sphere);
 
-	const dracoLoader = new DRACOLoader();
-	dracoLoader.setDecoderPath("./lib/draco/gltf/");
-	const loader = new GLTFLoader();
-	loader.setDRACOLoader(dracoLoader);
-	let model: Group;
+// 	const dracoLoader = new DRACOLoader();
+// 	dracoLoader.setDecoderPath("./lib/draco/gltf/");
+// 	const loader = new GLTFLoader();
+// 	loader.setDRACOLoader(dracoLoader);
+// 	let model: Group;
 
-	// 加载模型
-	loader.load("./model/LittlestTokyo.glb", function (gltf) {
-		model = gltf.scene;
-		model.traverse(child => {
-			child.castShadow = true;
-			child.receiveShadow = true;
-		});
-		// 计算模型位置
-		const bbox = new Box3().setFromObject(model);
-		model.position.set(centerPosition.x, 510 - bbox.min.y, centerPosition.z);
-		// 模型动画
-		const mixer = new AnimationMixer(model);
-		mixer.clipAction(gltf.animations[0]).play();
-		map.addEventListener("update", evt => mixer.update(evt.delta));
-		viewer.scene.add(model);
+// 	// 加载模型
+// 	loader.load("./model/LittlestTokyo.glb", function (gltf) {
+// 		model = gltf.scene;
+// 		model.traverse(child => {
+// 			child.castShadow = true;
+// 			child.receiveShadow = true;
+// 		});
+// 		// 计算模型位置
+// 		const bbox = new Box3().setFromObject(model);
+// 		model.position.set(centerPosition.x, 510 - bbox.min.y, centerPosition.z);
+// 		// 模型动画
+// 		const mixer = new AnimationMixer(model);
+// 		mixer.clipAction(gltf.animations[0]).play();
+// 		map.addEventListener("update", evt => mixer.update(evt.delta));
+// 		viewer.scene.add(model);
 
-		// 添加一个聚光灯
-		const shadowLight = new SpotLight(0xffffff, 3, 4e3, Math.PI / 6, 0.2, 0);
-		shadowLight.position.set(centerPosition.x, 2e3, centerPosition.z + 1000);
-		shadowLight.target = model;
-		shadowLight.castShadow = true;
-		shadowLight.shadow.camera.near = 1e3;
-		shadowLight.shadow.camera.far = 6e3;
-		viewer.scene.add(shadowLight);
+// 		// 添加一个聚光灯
+// 		const shadowLight = new SpotLight(0xffffff, 3, 4e3, Math.PI / 6, 0.2, 0);
+// 		shadowLight.position.set(centerPosition.x, 2e3, centerPosition.z + 1000);
+// 		shadowLight.target = model;
+// 		shadowLight.castShadow = true;
+// 		shadowLight.shadow.camera.near = 1e3;
+// 		shadowLight.shadow.camera.far = 6e3;
+// 		viewer.scene.add(shadowLight);
 
-		// 添加一个聚光灯相机辅助模型
-		const cameraHelper = new CameraHelper(shadowLight.shadow.camera);
-		viewer.scene.add(cameraHelper);
+// 		// 添加一个聚光灯相机辅助模型
+// 		const cameraHelper = new CameraHelper(shadowLight.shadow.camera);
+// 		viewer.scene.add(cameraHelper);
 
-		// // 添加一个聚光灯辅助模型
-		const lightHelper = new SpotLightHelper(shadowLight);
-		viewer.scene.add(lightHelper);
-		lightHelper.updateMatrixWorld();
-	});
-}
+// 		// // 添加一个聚光灯辅助模型
+// 		const lightHelper = new SpotLightHelper(shadowLight);
+// 		viewer.scene.add(lightHelper);
+// 		lightHelper.updateMatrixWorld();
+// 	});
+// }
 
 // function createBoundsMesh(bounds: [number, number, number, number], color: ColorRepresentation) {
 // 	const points = [];
@@ -203,7 +203,7 @@ function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
 	// 初始化配置项
 	gui.initGui(viewer, map);
 	// 添加地图背景
-	// gui.addMapBackground(map);
+	gui.addMapBackground(map);
 	// 添加状态指示器
 	gui.addStats(viewer);
 	// 状态栏显示瓦片加载状态

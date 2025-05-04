@@ -9,12 +9,13 @@ import { ISource } from "../source";
 import { TileLoadingManager } from "./LoaderFactory";
 
 /** Tile Mesh Data Type */
-export type MeshDateType = {
-	/** Tile materials */
-	materials: Material[];
-	/** Tile geometry */
-	geometry: BufferGeometry;
-};
+// export type MeshDateType = {
+// 	/** Tile materials */
+// 	materials: Material[];
+// 	/** Tile geometry */
+// 	geometry: BufferGeometry;
+// };
+
 export interface ITileMaterial extends Material {
 	map?: Texture | null;
 }
@@ -43,7 +44,7 @@ export type TileSourceLoadParamsType<TSource extends ISource = ISource> = TileLo
 };
 
 /** Tile Loader Interface */
-export interface ITileLoader<TMeshData extends MeshDateType = MeshDateType> {
+export interface ITileLoader {
 	/** Load Tile Data */
 	manager: TileLoadingManager;
 	/** Image Loader */
@@ -51,9 +52,9 @@ export interface ITileLoader<TMeshData extends MeshDateType = MeshDateType> {
 	/** Terrain Loader */
 	demSource: ISource | undefined;
 	/** Load Tile Data */
-	load(params: TileLoadParamsType): Promise<TMeshData>;
+	load(params: TileLoadParamsType): Promise<Mesh>;
 	/** Unload Tile Data */
-	unload?(tileMesh: Mesh): void;
+	unload(tileMesh: Mesh): void;
 }
 
 /** Tile Loader Info Interface */

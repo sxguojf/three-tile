@@ -4,7 +4,8 @@
  *@date: 2023-04-06
  */
 
-import { ITileLoader, MeshDateType, TileLoader, TileLoadParamsType } from "../loader";
+import { Mesh } from "three";
+import { ITileLoader, TileLoader, TileLoadParamsType } from "../loader";
 import { IProjection } from "./projection";
 
 /** 地图瓦片加载器 */
@@ -25,7 +26,7 @@ export class TileMapLoader extends TileLoader {
 		}
 	}
 
-	public async load(params: TileLoadParamsType): Promise<MeshDateType> {
+	public async load(params: TileLoadParamsType): Promise<Mesh> {
 		if (!this._projection) {
 			throw new Error("projection is undefined");
 		}
