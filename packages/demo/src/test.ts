@@ -32,7 +32,7 @@ import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
 // shadowTest(viewer, map);
 
 export function test(viewer: plugin.GLViewer, map: tt.TileMap) {
-	// 增加渲染器
+	// 增加顶层场景，用于显示模型
 	const topScene = new Scene();
 	viewer.topScenes = [topScene];
 	// 开启阴影
