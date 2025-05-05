@@ -40,11 +40,11 @@ export function showDebug(map: tt.TileMap, viewer: plugin.GLViewer) {
 
 			const tileTree = JSON.stringify(map.getTileCount(), null, 2);
 			const memory = JSON.stringify(viewer.renderer.info.memory, null, 2);
-			const info = `<b>Tiles:</b> ${tileTree}
-<b>Camera:</b> ${cameraInfo}
-<b>Controls:</b> ${controls}
-<b>Memory:</b> ${memory}
-<b>Render:</b> ${renderInfo}`;
+			const info = `<b>瓦片:</b> ${tileTree}
+<b>摄像机:</b> ${cameraInfo}
+<b>控制器:</b> ${controls}
+<b>模型:</b> ${memory}
+<b>渲染:</b> ${renderInfo}`;
 			debug.innerHTML = info.replace(/"/g, "").replace(/{/g, "").replace(/}/g, "");
 		}
 	});

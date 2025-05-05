@@ -34,7 +34,7 @@ export interface GLViewerEventMap extends Object3DEventMap {
 /**
  * GlViewer options
  */
-type GLViewerOptions = {
+export type GLViewerOptions = {
 	/** Whether to use antialiasing. Default is false. */
 	antialias?: boolean;
 	/** Whether to use stencil buffer. Default is true. */
@@ -255,11 +255,15 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		return this;
 	}
 
+	protected render() {
+		this.renderer.render(this.scene, this.camera);
+	}
+
 	/**
 	 * Threejs animation loop
 	 */
-	private animate() {
-		this.renderer.render(this.scene, this.camera);
+	public animate() {
+		this.render();
 		this.controls.update();
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 		teweenUpdate();

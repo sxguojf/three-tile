@@ -66,9 +66,8 @@ export class SingleTifDEMLoader implements ITileGeometryLoader {
 		}
 		// 调用 getTileDEM 方法获取指定瓦片的 DEM 数据
 		const dem = parse(source._data, source._projectionBounds, bounds, targetSize, targetSize);
-		// 将获取到的 DEM 数据设置到 geometry 中，并返回 geometry\
-		console.log(source.skirtHeight);
 
+		// 将获取到的 DEM 数据设置到 geometry 中，并返回 geometry\
 		return geometry.setData(dem, source.skirtHeight);
 	}
 

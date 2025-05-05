@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { LoadingManager } from "three";
+import { LoadingManager, BufferGeometry } from "three";
 import { ISource } from "../source";
 import { ITileGeometryLoader, ITileMaterialLoader } from "./ITileLoaders";
 import { author, version } from "../../package.json";
@@ -12,11 +12,10 @@ import { author, version } from "../../package.json";
 console.log(`====================three-tile V${version}==============================`);
 
 export class TileLoadingManager extends LoadingManager {
-	public onParseEnd?: (url: string) => void = undefined;
+	public onParseEnd?: (geometry: BufferGeometry) => void = undefined;
 
-	public parseEnd(url: string) {
-		// setTimeout(() => this.onParseEnd && this.onParseEnd!(url));
-		this.onParseEnd && this.onParseEnd(url);
+	public parseEnd(geometry: BufferGeometry) {
+		this.onParseEnd && this.onParseEnd(geometry);
 	}
 }
 

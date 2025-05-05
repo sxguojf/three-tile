@@ -64,61 +64,49 @@ export function getLocalInfoFromScreen(camera: Camera, map: TileMap, pointer: Ve
 export function attachEvent(map: TileMap) {
 	const loadingManager = map.loader.manager;
 
-	const dispatchLoadingEvent = (type: string, payload?: any) => {
+	const dispatchEvent = (type: string, payload?: any) => {
 		map.dispatchEvent({ type, ...payload });
 	};
 
 	// 添加瓦片加载事件
 	loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
-		dispatchLoadingEvent("loading-start", { url, itemsLoaded, itemsTotal });
+		dispatchEvent("loading-start", { url, itemsLoaded, itemsTotal });
 	};
 	loadingManager.onError = url => {
-		dispatchLoadingEvent("loading-error", { url });
+		dispatchEvent("loading-error", { url });
 	};
 	loadingManager.onLoad = () => {
-		dispatchLoadingEvent("loading-complete");
+		dispatchEvent("loading-complete");
 	};
 	loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-		dispatchLoadingEvent("loading-progress", { url, itemsLoaded, itemsTotal });
+		dispatchEvent("loading-progress", { url, itemsLoaded, itemsTotal });
 	};
 
 	// 添加瓦片解析完成事件
-	loadingManager.onParseEnd = url => {
-		dispatchLoadingEvent("parsing-end", { url });
+	loadingManager.onParseEnd = geometry => {
+		dispatchEvent("parsing-end", { geometry });
 	};
-
-	// 地图准备就绪事件
-	map.rootTile.addEventListener("ready", () => dispatchLoadingEvent("ready"));
 
 	// 瓦片创建完成事件
 	map.rootTile.addEventListener("tile-created", evt => {
-		dispatchLoadingEvent("tile-created", { tile: evt.tile });
+		dispatchEvent("tile-created", { tile: evt.tile });
 	});
 
 	// 瓦片加载完成事件
 	map.rootTile.addEventListener("tile-loaded", evt => {
-		dispatchLoadingEvent("tile-loaded", { tile: evt.tile });
+		dispatchEvent("tile-loaded", { tile: evt.tile });
 	});
 
 	// 瓦片释放事件
 	map.rootTile.addEventListener("tile-unload", evt => {
-		dispatchLoadingEvent("tile-unload", { tile: evt.tile });
+		dispatchEvent("tile-unload", { tile: evt.tile });
+	});
+
+	// 瓦片显示状态改变
+	map.rootTile.addEventListener("tile-visible-changed", evt => {
+		dispatchEvent("tile-visible-changed", { tile: evt.tile });
 	});
 }
-
-// export function getAttributions(tileMap: TileMap) {
-// 	const attributions: string[] = [];
-// 	const imgSources = Array.isArray(tileMap.imgSource) ? tileMap.imgSource : [tileMap.imgSource];
-// 	imgSources.forEach((source) => {
-// 		const attr = source.attribution;
-// 		attr && attributions.push(attr);
-// 	});
-// 	if (tileMap.demSource) {
-// 		const attr = tileMap.demSource.attribution;
-// 		attr && attributions.push(attr);
-// 	}
-// 	return [...new Set(attributions)];
-// }
 
 // export function goHome(map: TileMap, viewer: GLViewer) {
 // 	// 按下 F1 键事件

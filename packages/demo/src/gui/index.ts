@@ -1,4 +1,4 @@
-import { Mesh, MeshLambertMaterial, PlaneGeometry, SRGBColorSpace, TextureLoader, Vector2 } from "three";
+import { Vector2 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 
@@ -6,9 +6,9 @@ import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
 
 import { createCameraGui } from "./camera";
-import { createMapOptionsGui } from "./mapOptions";
 import { createEnvironmentGui } from "./environment";
 import { createLoaderGui } from "./loader";
+import { createMapOptionsGui } from "./mapOptions";
 import { createSourceGui } from "./source";
 export { showDebug } from "./debug";
 
@@ -107,28 +107,4 @@ export function showClickedTile(viewer: plugin.GLViewer, map: tt.TileMap) {
 			console.log(info);
 		}
 	});
-}
-
-/**
- * 创建地图背景图
- * 为了降低资源占用，地图瓦片在不使用立即释放，需要显示再加载，加载过程会出现空白块，
- * 通过给地图下面增加一张静态图片补救。
- *
- * @param map 地图
- * @returns 背景图模型
- */
-export function addMapBackground(map: tt.TileMap) {
-	const backGround = new Mesh(
-		new PlaneGeometry(),
-		new MeshLambertMaterial({
-			map: new TextureLoader().load("./image/tile0.png", texture => (texture.colorSpace = SRGBColorSpace)),
-		})
-	);
-	backGround.renderOrder = -1;
-	backGround.name = "background";
-	backGround.applyMatrix4(map.rootTile.matrix);
-	backGround.translateZ(-2000);
-	map.add(backGround);
-
-	return backGround;
 }

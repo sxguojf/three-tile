@@ -16,7 +16,7 @@ export enum LODAction {
 }
 
 /**
- * 取得瓦片到摄像机的距离与瓦片对角线长度之比(距宽比)： ≈tan(瓦片视宽角）
+ * 取得瓦片到摄像机的距离与瓦片对角线长度之比(距宽比)：≈tan(瓦片视宽角）
  * @param tile
  * @returns
  */
@@ -28,7 +28,6 @@ function getDistRatio(tile: Tile): number {
 
 /**
  * 根据摄像机到瓦片的距离，评估瓦片是否需要细化或合并
- *
  * @param tile 瓦片实例
  * @param minLevel 地图最小层级
  * @param maxLevel 地图最大层级
@@ -59,7 +58,6 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 			return LODAction.remove;
 		}
 	}
-
 	return LODAction.none;
 }
 

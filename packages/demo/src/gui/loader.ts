@@ -40,15 +40,15 @@ export const createLoaderGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 	};
 
-	const folder = gui.addFolder("Data loader").close();
+	const folder = gui.addFolder("地图加载").close();
 	// folder.add(map, "loadCacheSize", 0, 3000);
-	folder.add(map, "LODThreshold", 0.5, 4, 0.01);
-	folder.add(map, "reload");
+	folder.add(map, "LODThreshold", 0.5, 4, 0.01).name("LOD阈值");
+	folder.add(map, "reload").name("重新加载地图");
 
-	folder.add(vm, "lon90").name("Asia(MapCenterLon: 90°)");
-	folder.add(vm, "lon0").name("Europe(MapCenterLon: 0°)");
-	folder.add(vm, "lon_90").name("America(MapCenterLon: -90°)");
-	folder.add(vm, "export").name("Export").name("Export map model");
+	folder.add(vm, "lon90").name("亚洲(中央子午线: 90°)");
+	folder.add(vm, "lon0").name("欧洲(中央子午线: 0°)");
+	folder.add(vm, "lon_90").name("美洲(中央子午线: -90°)");
+	folder.add(vm, "export").name("Export").name("导出地图模型");
 
 	return gui;
 };
