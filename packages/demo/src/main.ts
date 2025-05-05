@@ -76,7 +76,7 @@ function createMap() {
 // 初始化三维场景
 function initViewer(id: string, map: tt.TileMap) {
 	// 初始化场景
-	const viewer = new plugin.GLViewerMultScene(id);
+	const viewer = new plugin.GLViewer(id);
 	// 地图添加到场景
 	viewer.scene.add(map);
 
@@ -142,7 +142,8 @@ function main() {
 	initGui(viewer, map);
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);
-	// test(viewer, map);
+	// 测试
+	test(viewer, map);
 }
 
 main();

@@ -49,11 +49,13 @@ export type GLViewerOptions = {
 export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	public readonly scene: Scene;
 	public readonly renderer: WebGLRenderer;
+
 	public readonly camera: PerspectiveCamera;
 	public readonly controls: MapControls;
 	public readonly ambLight: AmbientLight;
 	public readonly dirLight: DirectionalLight;
 	public container?: HTMLElement;
+	public topScenes: Scene[] = [];
 	private readonly _clock: Clock = new Clock();
 
 	private _fogFactor = 1.0;
@@ -148,10 +150,6 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			alpha: true,
 			precision: "highp",
 		});
-		// renderer.debug.checkShaderErrors = true;
-		// renderer.toneMapping = 3;
-		// renderer.toneMappingExposure = 1;
-		// renderer.sortObjects = false;
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.domElement.tabIndex = 0;
 		return renderer;
@@ -250,20 +248,26 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
 		// 防止resize过程中黑屏
-		this.renderer.render(this.scene, this.camera);
+		this.update();
 		this.dispatchEvent({ type: "resize", size: { width, height } });
 		return this;
 	}
 
-	protected render() {
+	protected update() {
+		this.renderer.autoClear = false;
 		this.renderer.render(this.scene, this.camera);
+		this.topScenes.forEach(scene => {
+			this.renderer.clearDepth();
+			this.renderer.render(scene, this.camera);
+		});
+		this.renderer.autoClear = true;
 	}
 
 	/**
 	 * Threejs animation loop
 	 */
 	public animate() {
-		this.render();
+		this.update();
 		this.controls.update();
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 		teweenUpdate();

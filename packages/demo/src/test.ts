@@ -24,14 +24,17 @@
 // 	return line;
 // }
 
-import { Vector3, Group, Box3, AnimationMixer, SpotLight, CameraHelper, SpotLightHelper } from "three";
-import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
+import { AnimationMixer, Box3, CameraHelper, Group, Scene, SpotLight, SpotLightHelper, Vector3 } from "three";
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
+import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
 
 // shadowTest(viewer, map);
 
 export function test(viewer: plugin.GLViewer, map: tt.TileMap) {
+	// 增加渲染器
+	const topScene = new Scene();
+	viewer.topScenes = [topScene];
 	// 开启阴影
 	viewer.renderer.shadowMap.enabled = true;
 	map.receiveShadow = true;
@@ -62,34 +65,30 @@ export function test(viewer: plugin.GLViewer, map: tt.TileMap) {
 		mixer.clipAction(gltf.animations[0]).play();
 		map.addEventListener("update", evt => mixer.update(evt.delta));
 
-		if (viewer instanceof plugin.GLViewerMultScene) {
-			const scene = viewer.topScene;
-			// 添加模型
-			scene.add(model);
-			// 添加环境光
-			scene.add(viewer.ambLight.clone());
-			// 添加直射光
-			scene.add(viewer.dirLight.clone());
+		// const scene = viewer.scene;
+		const scene = topScene;
+		// 添加模型
+		scene.add(model);
+		// 添加环境光
+		scene.add(viewer.ambLight.clone());
+		// 添加直射光
+		scene.add(viewer.dirLight.clone());
 
-			// 添加一个聚光灯
-			const shadowLight = new SpotLight(0xffffff, 3, 4e3, Math.PI / 6, 0.2, 0);
-			shadowLight.position.set(centerPosition.x, 2e3, centerPosition.z - 1000);
-			shadowLight.target = model;
-			shadowLight.castShadow = true;
-			shadowLight.shadow.camera.near = 1e3;
-			shadowLight.shadow.camera.far = 6e3;
-			scene.add(shadowLight);
+		// 添加一个聚光灯
+		const shadowLight = new SpotLight(0xffffff, 3, 4e3, Math.PI / 6, 0.2, 0);
+		shadowLight.position.set(centerPosition.x, 2e3, centerPosition.z + 1000);
+		shadowLight.target = model;
+		shadowLight.castShadow = true;
+		shadowLight.shadow.camera.near = 1e3;
+		shadowLight.shadow.camera.far = 6e3;
+		// scene.add(shadowLight);
 
-			// 添加一个聚光灯相机辅助模型
-			const cameraHelper = new CameraHelper(shadowLight.shadow.camera);
-			scene.add(cameraHelper);
+		// 添加一个聚光灯相机辅助模型
+		const cameraHelper = new CameraHelper(shadowLight.shadow.camera);
+		// scene.add(cameraHelper);
 
-			// // 添加一个聚光灯辅助模型
-			const lightHelper = new SpotLightHelper(shadowLight);
-			scene.add(lightHelper);
-			lightHelper.updateMatrixWorld();
-		} else {
-			viewer.scene.add(model);
-		}
+		// // 添加一个聚光灯辅助模型
+		const lightHelper = new SpotLightHelper(shadowLight);
+		// scene.add(lightHelper);
 	});
 }
