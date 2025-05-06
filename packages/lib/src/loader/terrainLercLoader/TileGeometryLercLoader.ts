@@ -10,7 +10,7 @@ import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "..";
 
 import ParseWorker from "./parse.worker?worker&inline";
-import { _debug, throwError } from "../..";
+import { throwError } from "../..";
 
 const THREADSNUM = 10;
 
