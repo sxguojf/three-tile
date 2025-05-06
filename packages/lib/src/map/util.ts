@@ -8,6 +8,9 @@ import { Camera, CanvasTexture, Intersection, Mesh, Raycaster, Sprite, SpriteMat
 import { TileMap } from "./TileMap";
 // import { GLViewer } from "../../tt";
 
+const tempRay = new Raycaster();
+const downVec3 = new Vector3(0, -1, 0);
+const orginVec3 = new Vector3();
 /**
  * ground location inifo type
  */
@@ -21,7 +24,7 @@ export interface LocationInfo extends Intersection {
  * @param ray
  * @returns intersect info or undefined(not intersect)
  */
-export function getLocalInfoFromRay(map: TileMap, ray: Raycaster) {
+export function getLocalInfoFromRay(map: TileMap, ray: Raycaster): LocationInfo | undefined {
 	// threejs R114 射线法会检测不可视对象相交： https://github.com/mrdoob/three.js/issues/14700
 	const intersects = ray.intersectObjects<Mesh>([map.rootTile]);
 	for (const intersect of intersects) {
@@ -41,12 +44,11 @@ export function getLocalInfoFromRay(map: TileMap, ray: Raycaster) {
  * @returns ground info
  */
 export function getLocalInfoFromWorld(map: TileMap, worldPosition: Vector3) {
-	const downVec3 = new Vector3(0, -1, 0);
-	// // 原点（高空10km）
-	const origin = new Vector3(worldPosition.x, 10 * 1000, worldPosition.z);
+	// // 原点（高空10000m）
+	orginVec3.set(worldPosition.x, 10000, worldPosition.z);
 	// 从原点垂直地面向下做一条射线
-	const ray = new Raycaster(origin, downVec3);
-	return getLocalInfoFromRay(map, ray);
+	tempRay.set(orginVec3, downVec3);
+	return getLocalInfoFromRay(map, tempRay);
 }
 
 /**
@@ -56,9 +58,8 @@ export function getLocalInfoFromWorld(map: TileMap, worldPosition: Vector3) {
  * @returns ground info
  */
 export function getLocalInfoFromScreen(camera: Camera, map: TileMap, pointer: Vector2) {
-	const ray = new Raycaster();
-	ray.setFromCamera(pointer, camera);
-	return getLocalInfoFromRay(map, ray);
+	tempRay.setFromCamera(pointer, camera);
+	return getLocalInfoFromRay(map, tempRay);
 }
 
 export function attachEvent(map: TileMap) {

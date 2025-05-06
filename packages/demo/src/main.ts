@@ -5,7 +5,7 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
-import { test } from "./test";
+// import { test } from "./test";
 
 //================================注册加载器====================================
 // 注册wrieframe加载器
@@ -83,7 +83,7 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 填加伪球体
 	const frakeEarth = plugin.createFrakEarth(map);
 	map.add(frakeEarth);
-	map.addEventListener("update", () => {
+	viewer.controls.addEventListener("update", () => {
 		frakeEarth.visible = viewer.controls.getDistance() > 5e5;
 	});
 
@@ -92,7 +92,7 @@ function initViewer(id: string, map: tt.TileMap) {
 	document.querySelector("#compass-container")?.appendChild(compass.dom);
 
 	// 防止摄像机进入地下
-	viewer.addEventListener("update", () => {
+	viewer.controls.addEventListener("update", () => {
 		plugin.limitCameraHeight(map, viewer.camera);
 	});
 	return viewer;
@@ -143,7 +143,7 @@ function main() {
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);
 	// 测试
-	test(viewer, map);
+	// test(viewer, map);
 }
 
 main();

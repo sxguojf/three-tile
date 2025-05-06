@@ -11,13 +11,19 @@ import { TileLoadingManager } from "./LoaderFactory";
 /**
  * 瓦片加载参数类型
  */
-export type TileLoadParamsType = {
+export type LoadParamsType = {
 	/** Tile X Coordinate */
 	x: number;
 	/** Tile Y Coordinate */
 	y: number;
 	/** Tile Z Coordinate */
 	z: number;
+};
+
+/**
+ * 瓦片加载参数类型
+ */
+export type TileLoadParamsType = LoadParamsType & {
 	/** Tile projection Bounds */
 	bounds: [number, number, number, number];
 	/** Tile lonlat Bounds */
@@ -43,7 +49,7 @@ export interface ITileLoader {
 	/** Terrain Loader */
 	demSource: ISource | undefined;
 	/** Load Tile Data */
-	load(params: TileLoadParamsType): Promise<Mesh>;
+	load(params: LoadParamsType): Promise<Mesh>;
 	/** Unload Tile Data */
 	unload(tileMesh: Mesh): void;
 }

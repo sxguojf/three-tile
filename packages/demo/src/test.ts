@@ -34,12 +34,8 @@ import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
 export function test(viewer: plugin.GLViewer, map: tt.TileMap) {
 	// 增加顶层场景，用于显示模型
 	const topScene = new Scene();
-	viewer.topScenes = [topScene];
-	// 开启阴影
-	viewer.renderer.shadowMap.enabled = true;
-	map.receiveShadow = true;
-	// 地面接受阴影
-	map.receiveShadow = true;
+
+	viewer.topScenes.push(topScene);
 
 	const centerGeo = new Vector3(110, 35, 0);
 	const centerPosition = map.geo2world(centerGeo);
@@ -67,6 +63,9 @@ export function test(viewer: plugin.GLViewer, map: tt.TileMap) {
 
 		// const scene = viewer.scene;
 		const scene = topScene;
+
+		scene.receiveShadow = true;
+		scene.castShadow = true;
 		// 添加模型
 		scene.add(model);
 		// 添加环境光
@@ -81,14 +80,14 @@ export function test(viewer: plugin.GLViewer, map: tt.TileMap) {
 		shadowLight.castShadow = true;
 		shadowLight.shadow.camera.near = 1e3;
 		shadowLight.shadow.camera.far = 6e3;
-		// scene.add(shadowLight);
+		scene.add(shadowLight);
 
 		// 添加一个聚光灯相机辅助模型
 		const cameraHelper = new CameraHelper(shadowLight.shadow.camera);
-		// scene.add(cameraHelper);
+		scene.add(cameraHelper);
 
 		// // 添加一个聚光灯辅助模型
 		const lightHelper = new SpotLightHelper(shadowLight);
-		// scene.add(lightHelper);
+		scene.add(lightHelper);
 	});
 }

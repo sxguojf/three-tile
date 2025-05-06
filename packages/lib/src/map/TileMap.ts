@@ -458,7 +458,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 * 取得当前正在下载的瓦片数量
 	 */
 	public get downloading() {
-		return Tile.downloadThreads;
+		return Tile.downloadingThreads;
 	}
 
 	/**
@@ -480,7 +480,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 				if (tile.inFrustum) visible++;
 			}
 			maxLevel = Math.max(maxLevel, tile.z);
-			downloading = Tile.downloadThreads;
+			downloading = Tile.downloadingThreads;
 		});
 		return { total, visible, leaf, maxLevel: maxLevel, downloading: downloading };
 	}

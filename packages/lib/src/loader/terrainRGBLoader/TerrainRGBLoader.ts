@@ -47,10 +47,11 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 			throwError(err);
 			return new Image();
 		});
+		const { bounds, z } = params;
 		// 抽稀像素点
-		const targetSize = MathUtils.clamp((params.z + 2) * 3, 2, 64);
+		const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);
 		// 图像剪裁缩放
-		const imgData = getSubImageData(img, params.bounds, targetSize);
+		const imgData = getSubImageData(img, bounds, targetSize);
 
 		let dem;
 

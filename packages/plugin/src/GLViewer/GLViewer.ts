@@ -291,9 +291,9 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 					new Tween(start)
 						.to(cameraPostion, 2000)
 						.easing(Easing.Quintic.Out)
+						.onUpdate(() => [this.controls.dispatchEvent({ type: "change" })])
 						.onComplete(obj => onComplete && onComplete(obj))
 				)
-
 				.start();
 		} else {
 			this.camera.position.copy(cameraPostion);

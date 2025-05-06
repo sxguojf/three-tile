@@ -53,9 +53,9 @@ export class TileLoader implements ITileLoader {
 			geometry.addGroup(0, Infinity, i);
 		}
 
-		const model = new Mesh(geometry, materials);
-
-		return model;
+		const mesh = new Mesh(geometry, materials);
+		// mesh.add(new BoxHelper(mesh, 0xff0000));
+		return mesh;
 	}
 
 	/**
@@ -69,6 +69,12 @@ export class TileLoader implements ITileLoader {
 		for (let i = 0; i < materials.length; i++) {
 			materials[i].dispose();
 		}
+		// tileMesh.traverse(child => {
+		// 	if (child instanceof BoxHelper) {
+		// 		child.geometry.dispose();
+		// 		// child.material.dispose();
+		// 	}
+		// });
 		geometry.dispose();
 	}
 
@@ -78,11 +84,8 @@ export class TileLoader implements ITileLoader {
 	 */
 	protected async loadGeometry(params: TileLoadParamsType): Promise<BufferGeometry> {
 		let geometry: BufferGeometry;
-		if (
-			this.demSource &&
-			params.z >= this.demSource.minLevel &&
-			this._isBoundsInSourceBounds(this.demSource, params.bounds)
-		) {
+		const { bounds, z } = params;
+		if (this.demSource && z >= this.demSource.minLevel && this._isBoundsInSourceBounds(this.demSource, bounds)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			const source = this.demSource;
 			geometry = await loader.load({ source, ...params }).catch(err => {
@@ -107,8 +110,9 @@ export class TileLoader implements ITileLoader {
 	 * @returns Material[]
 	 */
 	protected async loadMaterial(params: TileLoadParamsType): Promise<Material[]> {
+		const { bounds, z } = params;
 		const sources = this.imgSource.filter(
-			source => params.z >= source.minLevel && this._isBoundsInSourceBounds(source, params.bounds)
+			source => z >= source.minLevel && this._isBoundsInSourceBounds(source, bounds)
 		);
 
 		const materialsPromise = sources.map(async source => {

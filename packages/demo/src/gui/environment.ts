@@ -72,17 +72,17 @@ export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.
 		folder.add<plugin.FakeEarth, "isMesh">(fakeEarth, "isMesh").name("地球遮罩");
 	}
 
-	// folder.add(viewer.renderer.shadowMap, "enabled").name("Shadows");
 	folder
 		.add(vm, "shadow")
 		.onChange(value => {
 			viewer.renderer.shadowMap.enabled = value;
 			viewer.dirLight.castShadow = value;
-			// viewer.scene.castShadow = value;
-			// viewer.scene.receiveShadow = value;
+			viewer.scene.castShadow = value;
+			viewer.scene.receiveShadow = value;
 			// map.castShadow = value;
 			map.receiveShadow = value;
 		})
+		.listen()
 		.name("开启/关闭阴影");
 
 	const onFilterChange = () => {

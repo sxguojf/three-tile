@@ -18,7 +18,7 @@ export enum LODAction {
 /**
  * 取得瓦片到摄像机的距离与瓦片对角线长度之比(距宽比)：≈tan(瓦片视宽角）
  * @param tile
- * @returns
+ * @returns 距宽比
  */
 function getDistRatio(tile: Tile): number {
 	// 增大不在视锥体内瓦片的距离，以使它更快合并
