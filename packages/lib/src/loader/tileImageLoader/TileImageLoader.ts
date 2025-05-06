@@ -30,7 +30,7 @@ export class TileImageLoader extends TileMaterialLoader {
 	 */
 	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture> {
 		const img = await this.loader.loadAsync(url).catch(err => {
-			throwError(err);
+			throwError(`Download error: ${url} ${err}`);
 			return new Image(1, 1);
 		});
 		const texture = new Texture();
