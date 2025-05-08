@@ -5,7 +5,7 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
-// import { test } from "./test";
+import { testTileHelperBox } from "./test";
 
 //================================注册加载器====================================
 // 注册wrieframe加载器
@@ -143,7 +143,8 @@ function main() {
 	// 摄像机动画移动到3000高度
 	fly(viewer, map);
 	// 测试
-	// test(viewer, map);
+	// topMeshTest(viewer, map);
+	testTileHelperBox(map);
 }
 
 main();

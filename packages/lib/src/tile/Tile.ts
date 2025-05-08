@@ -68,7 +68,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 是否为瓦片 */
 	public readonly isTile = true;
 	/** 根瓦片 */
-	private _root = this.parent instanceof Tile ? this.parent : this;
+	private _root?: Tile; //   = this.parent instanceof Tile ? this.parent._root : this;
 	/** 瓦片模型 */
 	public model: Mesh | undefined;
 	/** 子瓦片 */
@@ -124,8 +124,8 @@ export class Tile extends Object3D<TTileEventMap> {
 		// 为加快速度，将模型移入其它layer以不参与射线交点计算
 		if (value != this.showing && this.model) {
 			this.model.visible = value;
-			this.model.layers.set(value ? 0 : 31);
-			this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
+			this.model.traverse(child => child.layers.set(value ? 0 : 31));
+			this._root?.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
 		}
 	}
 
@@ -156,6 +156,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * @param params 瓦片加载参数
 	 */
 	public update(params: TileUpdateParames) {
+		this._root = this.parent instanceof Tile ? this.parent._root : this;
 		console.assert(!!this._root);
 
 		// 没有父瓦片||模型正在加载 时不进行更新
@@ -178,8 +179,8 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		// 阴影
 		if (this.model) {
-			this.model.castShadow = this._root.castShadow;
-			this.model.receiveShadow = this._root.receiveShadow;
+			this.model.castShadow = this._root?.castShadow || false;
+			this.model.receiveShadow = this._root?.receiveShadow || false;
 		}
 
 		// LOD
@@ -190,7 +191,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			this.subTiles.forEach(child => {
 				child.updateMatrix();
 				child.updateMatrixWorld();
-				this._root.dispatchEvent({ type: "tile-created", tile: child });
+				this._root?.dispatchEvent({ type: "tile-created", tile: child });
 			});
 		}
 
@@ -243,12 +244,14 @@ export class Tile extends Object3D<TTileEventMap> {
 		Tile._downloadingThreads++;
 		const { x, y, z } = this;
 		this.model = await loader.load({ x, y, z });
-		this.add(this.model);
 		this._maxZ = this.model.geometry.boundingBox?.max.z || 0;
-		this.isLeaf && this._checkVisible();
+
 		Tile._downloadingThreads--;
 		this._isLoading = false;
-		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
+		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
+		this.isLeaf && this._checkVisible();
+		this.add(this.model);
+
 		return this.model;
 	}
 
@@ -279,8 +282,8 @@ export class Tile extends Object3D<TTileEventMap> {
 		// 卸载自己
 		if (unLoadSelf && this.model) {
 			loader.unload(this.model);
+			this._root?.dispatchEvent({ type: "tile-unload", tile: this });
 			this.model = undefined;
-			this._root.dispatchEvent({ type: "tile-unload", tile: this });
 		}
 		return this;
 	}

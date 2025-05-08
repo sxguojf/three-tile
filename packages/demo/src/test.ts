@@ -24,14 +24,24 @@
 // 	return line;
 // }
 
-import { AnimationMixer, Box3, CameraHelper, Group, Scene, SpotLight, SpotLightHelper, Vector3 } from "three";
+import {
+	AnimationMixer,
+	Box3,
+	BoxHelper,
+	CameraHelper,
+	Group,
+	Scene,
+	SpotLight,
+	SpotLightHelper,
+	Vector3,
+} from "three";
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
 import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
 
 // shadowTest(viewer, map);
 
-export function test(viewer: plugin.GLViewer, map: tt.TileMap) {
+export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 	// 增加顶层场景，用于显示模型
 	const topScene = new Scene();
 
@@ -89,5 +99,26 @@ export function test(viewer: plugin.GLViewer, map: tt.TileMap) {
 		// // 添加一个聚光灯辅助模型
 		const lightHelper = new SpotLightHelper(shadowLight);
 		scene.add(lightHelper);
+	});
+}
+
+export function testTileHelperBox(map: tt.TileMap) {
+	map.addEventListener("tile-loaded", evt => {
+		const mesh = evt.tile.model;
+		if (mesh) {
+			mesh.add(new BoxHelper(mesh, 0x00ff00));
+			// console.log(map.projection.getLonLatBoundsFromXYZ(evt.tile.x, evt.tile.y, evt.tile.z));
+		}
+	});
+	map.addEventListener("tile-unload", evt => {
+		const mesh = evt.tile.model;
+		if (mesh) {
+			mesh.traverse(child => {
+				if (child instanceof BoxHelper) {
+					child.dispose();
+				}
+			});
+			mesh.clear();
+		}
 	});
 }
