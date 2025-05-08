@@ -83,7 +83,7 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 填加伪球体
 	const frakeEarth = plugin.createFrakEarth(map);
 	map.add(frakeEarth);
-	viewer.controls.addEventListener("update", () => {
+	viewer.addEventListener("update", () => {
 		frakeEarth.visible = viewer.controls.getDistance() > 5e5;
 	});
 
@@ -92,7 +92,7 @@ function initViewer(id: string, map: tt.TileMap) {
 	document.querySelector("#compass-container")?.appendChild(compass.dom);
 
 	// 防止摄像机进入地下
-	viewer.controls.addEventListener("update", () => {
+	viewer.controls.addEventListener("change", () => {
 		plugin.limitCameraHeight(map, viewer.camera);
 	});
 	return viewer;
