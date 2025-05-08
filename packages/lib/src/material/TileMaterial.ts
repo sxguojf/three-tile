@@ -4,7 +4,14 @@
  *@date: 2023-04-05
  */
 
-import { FrontSide, MeshLambertMaterial, MeshLambertMaterialParameters, Texture } from "three";
+import { FrontSide, Material, MeshLambertMaterial, MeshLambertMaterialParameters, Texture } from "three";
+
+/**
+ * 瓦片纹理接口
+ */
+export interface ITileMaterial extends Material {
+	map?: Texture | null;
+}
 
 /**
  * Tile material

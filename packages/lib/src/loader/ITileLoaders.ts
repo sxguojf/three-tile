@@ -4,30 +4,26 @@
  * @date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh, Texture } from "three";
+import { BufferGeometry, Material, Mesh } from "three";
 import { ISource } from "../source";
 import { TileLoadingManager } from "./LoaderFactory";
 
-/** Tile Mesh Data Type */
-export type MeshDateType = {
-	/** Tile materials */
-	materials: Material[];
-	/** Tile geometry */
-	geometry: BufferGeometry;
-};
-export interface ITileMaterial extends Material {
-	map?: Texture | null;
-}
 /**
- * Tile Load Params Type
+ * 瓦片加载参数类型
  */
-export type TileLoadParamsType = {
+export type LoadParamsType = {
 	/** Tile X Coordinate */
 	x: number;
 	/** Tile Y Coordinate */
 	y: number;
 	/** Tile Z Coordinate */
 	z: number;
+};
+
+/**
+ * 瓦片加载参数类型
+ */
+export type TileLoadParamsType = LoadParamsType & {
 	/** Tile projection Bounds */
 	bounds: [number, number, number, number];
 	/** Tile lonlat Bounds */
@@ -35,15 +31,17 @@ export type TileLoadParamsType = {
 };
 
 /**
- * Tile Source Load Params Type
+ * 瓦片加载参数+数据源类型
  */
 export type TileSourceLoadParamsType<TSource extends ISource = ISource> = TileLoadParamsType & {
 	/** Tile Data Source */
 	source: TSource;
 };
 
-/** Tile Loader Interface */
-export interface ITileLoader<TMeshData extends MeshDateType = MeshDateType> {
+/**
+ * 瓦片加载器接口
+ */
+export interface ITileLoader {
 	/** Load Tile Data */
 	manager: TileLoadingManager;
 	/** Image Loader */
@@ -51,12 +49,14 @@ export interface ITileLoader<TMeshData extends MeshDateType = MeshDateType> {
 	/** Terrain Loader */
 	demSource: ISource | undefined;
 	/** Load Tile Data */
-	load(params: TileLoadParamsType): Promise<TMeshData>;
+	load(params: LoadParamsType): Promise<Mesh>;
 	/** Unload Tile Data */
-	unload?(tileMesh: Mesh): void;
+	unload(tileMesh: Mesh): void;
 }
 
-/** Tile Loader Info Interface */
+/**
+ * 加载器信息接口
+ */
 export interface ITileLoaderInfo {
 	/** Loader Version */
 	version: string;
@@ -66,7 +66,9 @@ export interface ITileLoaderInfo {
 	description?: string;
 }
 
-/** Material Loader Interface */
+/**
+ * 瓦片材质加载器接口,用于加载瓦片影像
+ */
 export interface ITileMaterialLoader<TMaterial extends Material = Material> {
 	isMaterialLoader?: true;
 	/** Loader Info */
@@ -79,7 +81,9 @@ export interface ITileMaterialLoader<TMaterial extends Material = Material> {
 	unload?(material: TMaterial): void;
 }
 
-/** Geometry Loader Interface */
+/**
+ * 瓦片几何体加载器接口,用于加载瓦片地形
+ */
 export interface ITileGeometryLoader<TGeometry extends BufferGeometry = BufferGeometry> {
 	isMaterialLoader?: false;
 	/** Loader Info */

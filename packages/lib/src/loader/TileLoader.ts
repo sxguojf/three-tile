@@ -4,12 +4,12 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
-import { ISource } from "../source";
-import { ITileLoader, MeshDateType, TileLoadParamsType } from "./ITileLoaders";
-import { LoaderFactory } from "./LoaderFactory";
+import { BoxHelper, BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
+import { throwError } from "..";
 import { TileGeometry } from "../geometry";
-import { _debug, throwError } from "..";
+import { ISource } from "../source";
+import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
+import { LoaderFactory } from "./LoaderFactory";
 
 /**
  * Tile loader
@@ -43,7 +43,7 @@ export class TileLoader implements ITileLoader {
 	 *
 	 * @returns Promise<MeshDateType> tile data
 	 */
-	public async load(params: TileLoadParamsType): Promise<MeshDateType> {
+	public async load(params: TileLoadParamsType): Promise<Mesh> {
 		const geometry = await this.loadGeometry(params);
 		const materials = await this.loadMaterial(params);
 
@@ -53,7 +53,9 @@ export class TileLoader implements ITileLoader {
 			geometry.addGroup(0, Infinity, i);
 		}
 
-		return { materials, geometry };
+		const mesh = new Mesh(geometry, materials);
+		mesh.add(new BoxHelper(mesh, 0xff0000));
+		return mesh;
 	}
 
 	/**
@@ -76,11 +78,8 @@ export class TileLoader implements ITileLoader {
 	 */
 	protected async loadGeometry(params: TileLoadParamsType): Promise<BufferGeometry> {
 		let geometry: BufferGeometry;
-		if (
-			this.demSource &&
-			params.z >= this.demSource.minLevel &&
-			this._isBoundsInSourceBounds(this.demSource, params.bounds)
-		) {
+		const { bounds, z } = params;
+		if (this.demSource && z >= this.demSource.minLevel && this._isBoundsInSourceBounds(this.demSource, bounds)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			const source = this.demSource;
 			geometry = await loader.load({ source, ...params }).catch(err => {
@@ -105,8 +104,9 @@ export class TileLoader implements ITileLoader {
 	 * @returns Material[]
 	 */
 	protected async loadMaterial(params: TileLoadParamsType): Promise<Material[]> {
+		const { bounds, z } = params;
 		const sources = this.imgSource.filter(
-			source => params.z >= source.minLevel && this._isBoundsInSourceBounds(source, params.bounds)
+			source => z >= source.minLevel && this._isBoundsInSourceBounds(source, bounds)
 		);
 
 		const materialsPromise = sources.map(async source => {

@@ -12,7 +12,7 @@ import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from ".."
 import ParseWorker from "./parse.worker?worker&inline";
 import { throwError } from "../..";
 
-const THREADSNUM = 10;
+const THREADSNUM = 5;
 
 /**
  * ArcGis-lerc格式瓦片几何体加载器

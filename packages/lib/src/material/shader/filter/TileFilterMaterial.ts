@@ -5,7 +5,7 @@
  */
 
 import { ShaderMaterial, Texture, UniformsLib, UniformsUtils } from "three";
-import { ITileMaterial } from "../../../loader";
+import { ITileMaterial } from "../../TileMaterial";
 
 const vert = `
 varying vec2 vUv;

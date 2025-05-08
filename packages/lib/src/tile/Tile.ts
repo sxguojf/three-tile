@@ -1,401 +1,290 @@
 /**
- *@description: LOD Tile mesh
+ *@description: LOD Tile
  *@author: 郭江峰
- *@date: 2023-04-05
+ *@date: 2025-05-01
  */
 
-import {
-	BaseEvent,
-	Box3,
-	BufferGeometry,
-	Camera,
-	Frustum,
-	InstancedBufferGeometry,
-	Intersection,
-	Material,
-	Matrix4,
-	Mesh,
-	Object3DEventMap,
-	Raycaster,
-	Vector3,
-} from "three";
+import { BaseEvent, Box3, Camera, Frustum, Matrix4, Mesh, Object3D, Object3DEventMap, Vector3 } from "three";
 import { ITileLoader } from "../loader";
-import { createChildren, getDistance, getTileSize, LODAction, LODEvaluate } from "./util";
+import { createChildren, LODAction, LODEvaluate } from "./util";
 
+/** 最大下载线程数 */
 const THREADSNUM = 10;
 
-/**
- * Tile update parameters
- */
+/** 瓦片更新参数类型 */
 export type TileUpdateParames = {
+	/** 相机 */
 	camera: Camera;
+	/** 瓦片加载器 */
 	loader: ITileLoader;
+	/** 最小层级 */
 	minLevel: number;
+	/** 最大层级 */
 	maxLevel: number;
+	/** 瓦片LOD阈值 */
 	LODThreshold: number;
 };
 
 /**
- * Tile event map
+ * 瓦片事件映射类型
+ * 为了便于使用，所有事件均由根瓦片发出
  */
 export interface TTileEventMap extends Object3DEventMap {
-	unload: BaseEvent;
-	ready: BaseEvent;
+	/** 瓦片创建事件 */
 	"tile-created": BaseEvent & { tile: Tile };
+	/** 瓦片加载完成事件 */
 	"tile-loaded": BaseEvent & { tile: Tile };
+	/** 瓦片卸载事件 */
 	"tile-unload": BaseEvent & { tile: Tile };
+	/** 瓦片可视状态改变事件 */
+	"tile-visible-changed": BaseEvent & { tile: Tile; visible: boolean };
 }
 
-// Default geometry of tile
-const defaultGeometry = new InstancedBufferGeometry();
-
-const tempVec3 = new Vector3();
+/** 临时变量 */
 const tempMat4 = new Matrix4();
-const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 1));
+/** 相机世界坐标 */
+const cameraWorldPosition = new Vector3();
+/** 场景视锥体 */
 const frustum = new Frustum();
+/** 瓦片包围盒 */
+const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 1));
 
 /**
- * Class Tile, inherit of Mesh
+ * 动态LOD（DLOD）地图瓦片类，用于表示地图中的一块瓦片，瓦片可以包含子瓦片，以四叉树方式管理。
  */
-/**
- * Represents a tile in a 3D scene.
- * Extends the Mesh class with BufferGeometry and Material.
- */
-export class Tile extends Mesh<BufferGeometry, Material[], TTileEventMap> {
-	private static _downloadThreads = 0;
-
-	/**
-	 * Number of download threads.
-	 */
-	public static get downloadThreads() {
-		return Tile._downloadThreads;
+export class Tile extends Object3D<TTileEventMap> {
+	private static _downloadingThreads = 0;
+	/** 取得下载中的线程数量 */
+	public static get downloadingThreads() {
+		return Tile._downloadingThreads;
 	}
 
-	/** Coordinate of tile */
+	/** 瓦片x坐标 */
 	public readonly x: number;
+	/** 瓦片y坐标 */
 	public readonly y: number;
+	/** 瓦片层级 */
 	public readonly z: number;
-
-	/** Is a tile? */
+	/** 是否为瓦片 */
 	public readonly isTile = true;
+	/** 根瓦片 */
+	private _root?: Tile; //   = this.parent instanceof Tile ? this.parent._root : this;
+	/** 瓦片模型 */
+	public model: Mesh | undefined;
+	/** 子瓦片 */
+	public subTiles: Tile[] | undefined;
+	/** 取得瓦片是否正在加载中 */
+	private _isLoading = false;
 
-	/** Tile parent */
-	public readonly parent: this | null = null;
-
-	/** Children of tile */
-	public readonly children: this[] = [];
-
-	private _ready = false;
-
-	/** return this.minLevel < map.minLevel, True mean do not needs load tile data */
-	private _isDummy = true;
-	public get isDummy() {
-		return this._isDummy;
-	}
-
-	private _showing = false;
-
-	/**
-	 * Gets the showing state of the tile.
-	 */
-	public get showing() {
-		return this._showing;
-	}
-
-	/**
-	 * Sets the showing state of the tile.
-	 * @param value - The new showing state.
-	 */
-	public set showing(value) {
-		this._showing = value;
-		this.material.forEach(mat => (mat.visible = value));
-	}
-
-	/** Max height of tile */
 	private _maxZ = 0;
-	/**
-	 * Gets the maximum height of the tile.
-	 */
+	/** 取得瓦片最高高度 */
 	public get maxZ() {
 		return this._maxZ;
 	}
 
-	/**
-	 * Sets the maximum height of the tile.
-	 * @param value - The new maximum height.
-	 */
-	protected set maxZ(value) {
-		this._maxZ = value;
+	/** 取得瓦片离摄像机距离（世界坐标系） */
+	public get distToCamera() {
+		const tilePos = this.position.clone().setZ(this.maxZ).applyMatrix4(this.matrixWorld);
+		return cameraWorldPosition.distanceTo(tilePos);
 	}
 
-	/** Distance to camera */
-	public distToCamera = 0;
-
-	/* Tile size in world */
-	public sizeInWorld = 0;
-
-	/**
-	 * Gets the index of the tile in its parent's children array.
-	 * @returns The index of the tile.
-	 */
-	public get index(): number {
-		return this.parent ? this.parent.children.indexOf(this) : -1;
+	private _sizeInWorld = -1;
+	/* 瓦片在世界坐标系中的大小（对角线长度） */
+	public get sizeInWorld() {
+		if (this._sizeInWorld < 0) {
+			const scale = this.scale;
+			const lt = new Vector3(-scale.x, -scale.y, 0).applyMatrix4(this.matrixWorld);
+			const rt = new Vector3(scale.x, scale.y, 0).applyMatrix4(this.matrixWorld);
+			this._sizeInWorld = lt.sub(rt).length();
+		}
+		return this._sizeInWorld;
 	}
 
-	private _loaded = false;
-
-	/**
-	 * Gets the load state of the tile.
-	 */
-	public get loaded() {
-		return this._loaded;
+	/** 取得瓦片是否在视锥体内 */
+	public get inFrustum(): boolean {
+		const bounds = tileBox.clone().applyMatrix4(this.matrixWorld);
+		bounds.min.setY(-300);
+		bounds.max.setY(9000);
+		return frustum.intersectsBox(bounds);
 	}
 
-	private _inFrustum = false;
-
-	/** Is tile in frustum ?*/
-	public get inFrustum() {
-		return this._inFrustum;
-	}
-
-	/**
-	 * Sets whether the tile is in the frustum.
-	 * @param value - The new frustum state.
-	 */
-	protected set inFrustum(value) {
-		this._inFrustum = value;
-	}
-
-	/** Tile is a leaf ?  */
+	/** 是否为叶子瓦片 */
 	public get isLeaf(): boolean {
-		return this.children.filter(child => child.isTile).length === 0;
+		return !this.subTiles;
+	}
+
+	/** 取得瓦片是否显示 */
+	public get showing() {
+		return !!this.model?.visible;
+	}
+
+	/** 设置瓦片是否显示 */
+	public set showing(value) {
+		// threejs R114 后，射线会计算与不可视对象的交点，增加了计算量： https://github.com/mrdoob/three.js/issues/14700
+		// 为加快速度，将模型移入其它layer以不参与射线交点计算
+		if (value != this.showing && this.model) {
+			this.model.visible = value;
+			this.model.traverse(child => child.layers.set(value ? 0 : 31));
+			this._root?.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
+		}
 	}
 
 	/**
-	 * Constructor for the Tile class.
-	 * @param x - Tile X-coordinate, default: 0.
-	 * @param y - Tile Y-coordinate, default: 0.
-	 * @param z - Tile level, default: 0.
+	 * 构造函数
+	 * @param x - 瓦片X坐标，默认：0
+	 * @param y - 瓦片Y坐标，默认：0
+	 * @param z - 瓦片层级，默认：0
 	 */
 	public constructor(x = 0, y = 0, z = 0) {
-		super(defaultGeometry, []);
+		super();
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
 		this.matrixAutoUpdate = false;
+		this.matrixWorldAutoUpdate = false;
 	}
 
 	/**
-	 * Override Object3D.traverse, change the callback param type to "this".
-	 * @param callback - The callback function.
+	 * 瓦片不进行射线检测（其中地图模型mode进行检测）
 	 */
-	public traverse(callback: (object: this) => void): void {
-		callback(this);
-		this.children.forEach(tile => {
-			tile.isTile && tile.traverse(callback);
-		});
-	}
+	public raycast(): void {}
 
 	/**
-	 * Override Object3D.traverseVisible, change the callback param type to "this".
-	 * @param callback - The callback function.
+	 * 瓦片更新，该函数在每帧渲染中被调用
+	 * @param params 瓦片加载参数
 	 */
-	public traverseVisible(callback: (object: this) => void): void {
-		if (this.visible) {
-			callback(this);
-			this.children.forEach(tile => {
-				tile.isTile && tile.traverseVisible(callback);
+	public update(params: TileUpdateParames) {
+		this._root = this.parent instanceof Tile ? this.parent._root : this;
+		console.assert(!!this._root);
+
+		// 没有父瓦片||模型正在加载 时不进行更新
+		if (!this.parent || this._isLoading) {
+			return;
+		}
+
+		// 如果模型则开始异步下载，并立即返回
+		if (!this.model && this.z >= params.minLevel && Tile._downloadingThreads < THREADSNUM) {
+			this._startLoad(params.loader);
+			return;
+		}
+
+		// 如果是根瓦片，则计算一次视锥体和摄像机坐标
+		if (this.z === 0) {
+			const camera = params.camera;
+			camera.getWorldPosition(cameraWorldPosition);
+			frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+		}
+
+		// 阴影
+		if (this.model) {
+			this.model.castShadow = this._root?.castShadow || false;
+			this.model.receiveShadow = this._root?.receiveShadow || false;
+		}
+
+		// LOD
+		const newTiles = this.LOD(params);
+		if (newTiles) {
+			this.add(...newTiles);
+			this.subTiles = newTiles;
+			this.subTiles.forEach(child => {
+				child.updateMatrix();
+				child.updateMatrixWorld();
+				this._root?.dispatchEvent({ type: "tile-created", tile: child });
 			});
 		}
-	}
 
-	/**
-	 * Override Object3D.raycast, only test the tile has loaded.
-	 * @param raycaster - The raycaster.
-	 * @param intersects - The array of intersections.
-	 */
-	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		if (this.showing && this.loaded && this.isTile) {
-			super.raycast(raycaster, intersects);
-		}
+		// 递归更新子瓦片
+		this.subTiles?.forEach(child => child.update(params));
 	}
 
 	/**
 	 * LOD (Level of Detail).
-	 * @param threshold - The threshold.
-	 * @returns this
+	 * @param threshold - LOD 阈值
+	 * @returns newTiles - 新创建的子瓦片数组
 	 */
 	protected LOD(params: TileUpdateParames) {
-		if (Tile.downloadThreads > THREADSNUM) {
-			return { action: LODAction.none };
-		}
-		let newTiles: Tile[] = [];
-		// LOD evaluate
 		const { loader, minLevel, maxLevel, LODThreshold } = params;
 		const action = LODEvaluate(this, minLevel, maxLevel, LODThreshold);
 		if (action === LODAction.create) {
-			newTiles = createChildren(loader, this.x, this.y, this.z);
-			this.add(...newTiles);
+			// console.log("create", this.name);
+			return createChildren(this, loader);
 		}
-		return { action, newTiles };
+		if (action === LODAction.remove) {
+			// console.log("remove", this.name);
+			this.showing = true;
+			this.unLoad(loader, false);
+		}
+		return undefined;
 	}
 
 	/**
-	 * Checks the visibility of the tile.
+	 * 检查4个兄弟瓦片全部下载完成时再显示
 	 */
 	private _checkVisible() {
 		const parent = this.parent;
-		if (parent && parent.isTile) {
-			const children = parent.children.filter(child => child.isTile);
-			const allLoaded = children.every(child => child.loaded);
+		if (parent instanceof Tile && parent.subTiles) {
+			const subTiles = parent.subTiles;
+			const allLoaded = subTiles.every(child => child.model);
+			// console.assert(subTiles.length === 4);
+			subTiles.forEach(child => (child.showing = allLoaded));
 			parent.showing = !allLoaded;
-			children.forEach(child => (child.showing = allLoaded));
 		}
 		return this;
 	}
 
 	/**
-	 * Asynchronously load tile data
-	 *
-	 * @param loader Tile loader
+	 * 下载瓦片数据
+	 * @param loader  - 瓦片加载器
 	 * @returns this
 	 */
-	private async _load(loader: ITileLoader): Promise<Tile> {
-		Tile._downloadThreads++;
+	private async _startLoad(loader: ITileLoader) {
+		this._isLoading = true;
+		Tile._downloadingThreads++;
 		const { x, y, z } = this;
-		const meshData = await loader.load({
-			x,
-			y,
-			z,
-			bounds: [-Infinity, -Infinity, Infinity, Infinity],
-		});
-		this.material = meshData.materials;
-		this.geometry = meshData.geometry;
-		this.maxZ = this.geometry.boundingBox?.max.z || 0;
-		this._loaded = true;
-		Tile._downloadThreads--;
-		return this;
+		this.model = await loader.load({ x, y, z });
+		this._maxZ = this.model.geometry.boundingBox?.max.z || 0;
+
+		Tile._downloadingThreads--;
+		this._isLoading = false;
+		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
+		this.isLeaf && this._checkVisible();
+		this.add(this.model);
+
+		return this.model;
 	}
 
 	/**
-	 * Updates the tile.
-	 * @param params - The update parameters.
-	 * @returns this
-	 */
-	public update(params: TileUpdateParames) {
-		console.assert(this.z === 0);
-		if (!this.parent) {
-			return this;
-		}
-
-		// Get camera frustum
-		frustum.setFromProjectionMatrix(
-			tempMat4.multiplyMatrices(params.camera.projectionMatrix, params.camera.matrixWorldInverse)
-		);
-		// Get camera position
-		const cameraWorldPosition = params.camera.getWorldPosition(tempVec3);
-
-		// LOD for tiles
-		this.traverse(tile => {
-			// shadow
-			tile.receiveShadow = this.receiveShadow;
-			tile.castShadow = this.castShadow;
-
-			// Tile is in frustum?
-			// if (tile.loaded) {
-			// 	console.assert(tile.geometry instanceof BufferGeometry);
-			// 	tile.inFrustum = frustum.intersectsObject(tile);
-			// } else {
-			// }
-			const bounds = tileBox.clone().applyMatrix4(tile.matrixWorld);
-			bounds.min.setY(-300);
-			bounds.max.setY(9000);
-			tile.inFrustum = frustum.intersectsBox(bounds);
-
-			// Get distance to camera
-			tile.distToCamera = getDistance(tile, cameraWorldPosition);
-
-			// Get LOD action
-			const { action, newTiles } = tile.LOD(params);
-			// Create or remove tiles form action
-			this._doAction(tile, action, newTiles, params);
-		});
-
-		this._checkReady();
-		return this;
-	}
-
-	private _doAction(currentTile: Tile, action: LODAction, newTiles: Tile[] | undefined, params: TileUpdateParames) {
-		console.assert(this.z === 0);
-		if (action === LODAction.create) {
-			// Load new tiles data
-			newTiles?.forEach(newTile => {
-				newTile.updateMatrix();
-				newTile.updateMatrixWorld();
-				newTile.sizeInWorld = getTileSize(newTile);
-				newTile._isDummy = newTile.z < params.minLevel;
-				this.dispatchEvent({ type: "tile-created", tile: newTile });
-				if (!newTile.isDummy) {
-					newTile._load(params.loader).then(() => {
-						// Show tile when all children has loaded
-						newTile._checkVisible();
-						this.dispatchEvent({ type: "tile-loaded", tile: newTile });
-					});
-				}
-			});
-		} else if (action === LODAction.remove) {
-			currentTile.showing = true;
-			// unload children tiles
-			currentTile._unLoad(false, params.loader);
-			this.dispatchEvent({ type: "tile-unload", tile: currentTile });
-		}
-		return this;
-	}
-
-	/**
-	 * Reloads the tile data.
+	 * 重新加载瓦片
 	 * @returns this
 	 */
 	public reload(loader: ITileLoader) {
-		this._unLoad(true, loader);
+		this.unLoad(loader, true);
 		return this;
 	}
 
 	/**
-	 * Checks if the tile is ready to render.
+	 * 卸载瓦片 (包括其子瓦片)，释放资源
+	 * @param loader - 瓦片加载器
+	 * @param unLoadSelf - 是否卸载自身
 	 * @returns this
 	 */
-	private _checkReady() {
-		if (!this._ready) {
-			this._ready = true;
-			this.traverse(child => {
-				if (child.isLeaf && child.loaded && !child.isDummy) {
-					this._ready = false;
-					return;
-				}
+	public unLoad(loader: ITileLoader, unLoadSelf = true) {
+		// 卸载子瓦片
+		if (this.subTiles) {
+			this.subTiles.forEach(child => {
+				child.unLoad(loader, true);
 			});
-			if (this._ready) {
-				this.dispatchEvent({ type: "ready" });
-			}
+			this.remove(...this.subTiles);
+			this.subTiles = undefined;
 		}
-		return this;
-	}
-
-	/**
-	 * UnLoads the tile data.
-	 * @param unLoadSelf - Whether to unload tile itself.
-	 * @returns this.
-	 */
-	private _unLoad(unLoadSelf: boolean, loader: ITileLoader) {
-		if (unLoadSelf && this.isTile && !this.isDummy) {
-			this.dispatchEvent({ type: "unload" });
-			loader?.unload?.(this);
+		// 卸载自己
+		if (unLoadSelf && this.model) {
+			loader.unload(this.model);
+			this._root?.dispatchEvent({ type: "tile-unload", tile: this });
+			this.model = undefined;
 		}
-		// remove all children recursively
-		this.children.forEach(child => child._unLoad(true, loader));
-		this.clear();
 		return this;
 	}
 }

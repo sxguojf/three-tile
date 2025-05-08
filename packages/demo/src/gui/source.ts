@@ -53,7 +53,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			map.reload();
 		},
 		setTdt_c: () => {
-			map.imgSource = [ms.tdtImgSource_c, ms.testSource];
+			map.imgSource = [ms.tdtImgSource_c, ms.debugSource];
 			// map.demSource = undefined;
 			map.reload();
 		},
@@ -105,19 +105,19 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 
 		// test
 		setMapBoxDemTest: () => {
-			map.imgSource = [ms.mapBoxDemTestSource, ms.testSource];
+			map.imgSource = [ms.mapBoxDemTestSource, ms.debugSource];
 			map.reload();
 		},
 		setMapTilerDemTest: () => {
-			map.imgSource = [ms.mapTilerDemTestSource, ms.testSource];
+			map.imgSource = [ms.mapTilerDemTestSource, ms.debugSource];
 			map.reload();
 		},
 		setZkxtDemTest: () => {
-			map.imgSource = [ms.xtDemTestSource, ms.testSource];
+			map.imgSource = [ms.xtDemTestSource, ms.debugSource];
 			map.reload();
 		},
 		setTileTest: () => {
-			map.imgSource = [ms.mapBoxImgSource, ms.testSource];
+			map.imgSource = [ms.mapBoxImgSource, ms.debugSource];
 			map.reload();
 		},
 		setLogoTest: () => {
@@ -137,7 +137,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			map.reload();
 		},
 		setTileNormal: () => {
-			map.imgSource = [tt.TileSource.create({ dataType: "normal" }), ms.tdtCiaSource_w, ms.testSource];
+			map.imgSource = [tt.TileSource.create({ dataType: "normal" }), ms.tdtCiaSource_w, ms.debugSource];
 			map.reload();
 		},
 
@@ -161,7 +161,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 				maxLevel: 15,
 			});
 
-			map.imgSource = [ms.arcGisSource, imgSource, ms.testSource];
+			map.imgSource = [ms.arcGisSource, imgSource, ms.debugSource];
 			// map.imgSource = imgSource;
 			map.demSource = demSource;
 
@@ -215,48 +215,48 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	};
 
 	// 数据源
-	const folder = gui.addFolder("Map Data Source").close();
+	const folder = gui.addFolder("地图数据源").close();
 	// 影像数据源
-	const imgFolder = folder.addFolder("Image data");
-	imgFolder.add(vm, "setMapBox").name("MapBox+TDT");
-	imgFolder.add(vm, "setZkxt").name("ZKXT");
-	imgFolder.add(vm, "setBing").name("Bing+TDT");
-	imgFolder.add(vm, "setGoogle").name("Google image");
-	imgFolder.add(vm, "setGoogleP").name("Google terrain image");
-	imgFolder.add(vm, "setArcGis").name("ArcGis+TDT");
-	imgFolder.add(vm, "setArcGisHillShader").name("ArcGisHillShader+TDT");
-	imgFolder.add(vm, "setMapTiler").name("MapTiler+TDT");
+	const imgFolder = folder.addFolder("影像数据");
+	imgFolder.add(vm, "setMapBox").name("MapBox+天地图");
+	imgFolder.add(vm, "setZkxt").name("中科星图");
+	imgFolder.add(vm, "setBing").name("Bing+天地图");
+	imgFolder.add(vm, "setGoogle").name("google影像");
+	imgFolder.add(vm, "setGoogleP").name("google地形渲染");
+	imgFolder.add(vm, "setArcGis").name("ArcGis+天地图");
+	imgFolder.add(vm, "setArcGisHillShader").name("ArcGis山影");
+	imgFolder.add(vm, "setMapTiler").name("MapTiler+天地图");
 	imgFolder.add(vm, "setStadia").name("Stadis");
-	imgFolder.add(vm, "setGD").name("GadoDe");
-	imgFolder.add(vm, "setTencent").name("Tencent");
-	imgFolder.add(vm, "setTdt_w").name("TDT");
+	imgFolder.add(vm, "setGD").name("高德");
+	imgFolder.add(vm, "setTencent").name("腾讯");
+	imgFolder.add(vm, "setTdt_w").name("天地图");
 	imgFolder.add(vm, "setOpentopomap").name("OpenTopoMap");
 
-	imgFolder.add(vm, "setTdt_c").name("TDT(4326 projection)");
+	imgFolder.add(vm, "setTdt_c").name("天地图(EPSG:4326)");
 
-	imgFolder.add(vm, "setGeoJSON").name("GeoJSON-test");
-	imgFolder.add(vm, "setMVT").name("MVT-test");
+	imgFolder.add(vm, "setGeoJSON").name("GeoJSON测试");
+	imgFolder.add(vm, "setMVT").name("矢量瓦片MVT测试");
 
 	// 地形数据源
-	const demFolder = folder.addFolder("Terrain data");
-	demFolder.add(vm, "setDemNull").name("None(plane)");
-	demFolder.add(vm, "setMapBoxDem").name("Mapbox terrain(maxLevel=15)");
-	demFolder.add(vm, "setMapTilerDem").name("MapTiler terrain(maxLevel=12)");
+	const demFolder = folder.addFolder("地形数据");
+	demFolder.add(vm, "setDemNull").name("无地形");
+	demFolder.add(vm, "setMapBoxDem").name("Mapbox(maxLevel=15)");
+	demFolder.add(vm, "setMapTilerDem").name("MapTiler(maxLevel=12)");
 	// demFolder.add(vm, "setZkXtDem").name("ZKXT(maxLevel=10)");
-	demFolder.add(vm, "setArcgisLerc").name("ArcGis terrain LERC(maxLevel=13)");
-	demFolder.add(vm, "setTif").name("TIF DEM");
+	demFolder.add(vm, "setArcgisLerc").name("ArcGis-LERC(maxLevel=13)");
+	demFolder.add(vm, "setTif").name("TIFF地形");
 
 	// 测试数据
-	const testFolder = folder.addFolder("Test data");
-	testFolder.add(vm, "setTileTest").name("MapBoxImage+debug");
-	testFolder.add(vm, "setMapBoxDemTest").name("MapBoxTerrain+debug");
-	testFolder.add(vm, "setMapTilerDemTest").name("MapTilerTerrain+debug");
+	const testFolder = folder.addFolder("测试数据");
+	testFolder.add(vm, "setTileTest").name("MapBox影像调试");
+	testFolder.add(vm, "setMapBoxDemTest").name("MapBox地形调试");
+	testFolder.add(vm, "setMapTilerDemTest").name("MapTiler地形调试");
 	// testFolder.add(vm, "setZkxtDemTest").name("中科星图Terrain+debug");
-	testFolder.add(vm, "setLogoTest").name("Logo test");
-	testFolder.add(vm, "setTileWire").name("Wireframe terrain");
-	testFolder.add(vm, "setTileNormal").name("Normal terrain");
-	testFolder.add(vm, "setBoundsTile").name("Bounds limit test");
-	testFolder.add(vm, "setSingleImage").name("SingleImage");
+	testFolder.add(vm, "setLogoTest").name("Logo测试");
+	testFolder.add(vm, "setTileWire").name("地形模型网格测试");
+	testFolder.add(vm, "setTileNormal").name("地形法向量调试");
+	testFolder.add(vm, "setBoundsTile").name("地图范围控制");
+	testFolder.add(vm, "setSingleImage").name("单图片测试");
 	// testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;

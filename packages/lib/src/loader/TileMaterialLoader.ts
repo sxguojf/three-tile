@@ -5,8 +5,8 @@
  */
 
 import { Texture } from "three";
-import { ITileMaterial, ITileMaterialLoader, TileSourceLoadParamsType } from ".";
-import { TileMaterial } from "../material";
+import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
+import { ITileMaterial, TileMaterial } from "../material";
 import { getSafeTileUrlAndBounds } from "./util";
 
 export type MaterialCreator = (loaderParams: TileSourceLoadParamsType) => ITileMaterial;

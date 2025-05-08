@@ -4,11 +4,13 @@
  *@date: 2024-04-08
  */
 
-import { Camera, CanvasTexture, Intersection, Raycaster, Sprite, SpriteMaterial, Vector2, Vector3 } from "three";
-import { Tile } from "../tile";
+import { Camera, CanvasTexture, Intersection, Mesh, Raycaster, Sprite, SpriteMaterial, Vector2, Vector3 } from "three";
 import { TileMap } from "./TileMap";
 // import { GLViewer } from "../../tt";
 
+const tempRay = new Raycaster();
+const downVec3 = new Vector3(0, -1, 0);
+const orginVec3 = new Vector3();
 /**
  * ground location inifo type
  */
@@ -22,17 +24,16 @@ export interface LocationInfo extends Intersection {
  * @param ray
  * @returns intersect info or undefined(not intersect)
  */
-export function getLocalInfoFromRay(map: TileMap, ray: Raycaster) {
-	const intersects = ray.intersectObjects<Tile>([map.rootTile]);
+export function getLocalInfoFromRay(map: TileMap, ray: Raycaster): LocationInfo | undefined {
+	// threejs R114 射线法会检测不可视对象相交： https://github.com/mrdoob/three.js/issues/14700
+	const intersects = ray.intersectObjects<Mesh>([map.rootTile]);
 	for (const intersect of intersects) {
-		if (intersect.object instanceof Tile) {
-			// intersect point to local point
-			const point = map.worldToLocal(intersect.point.clone());
-			const lonlat = map.map2geo(point);
-			return Object.assign(intersect, {
-				location: lonlat,
-			}) as LocationInfo;
-		}
+		// intersect point to local point
+		const point = map.worldToLocal(intersect.point.clone());
+		const lonlat = map.map2geo(point);
+		return Object.assign(intersect, {
+			location: lonlat,
+		}) as LocationInfo;
 	}
 	return undefined;
 }
@@ -43,12 +44,11 @@ export function getLocalInfoFromRay(map: TileMap, ray: Raycaster) {
  * @returns ground info
  */
 export function getLocalInfoFromWorld(map: TileMap, worldPosition: Vector3) {
-	const downVec3 = new Vector3(0, -1, 0);
-	// // 原点（高空10km）
-	const origin = new Vector3(worldPosition.x, 10 * 1000, worldPosition.z);
+	// // 原点（高空10000m）
+	orginVec3.set(worldPosition.x, 10000, worldPosition.z);
 	// 从原点垂直地面向下做一条射线
-	const ray = new Raycaster(origin, downVec3);
-	return getLocalInfoFromRay(map, ray);
+	tempRay.set(orginVec3, downVec3);
+	return getLocalInfoFromRay(map, tempRay);
 }
 
 /**
@@ -58,69 +58,56 @@ export function getLocalInfoFromWorld(map: TileMap, worldPosition: Vector3) {
  * @returns ground info
  */
 export function getLocalInfoFromScreen(camera: Camera, map: TileMap, pointer: Vector2) {
-	const ray = new Raycaster();
-	ray.setFromCamera(pointer, camera);
-	return getLocalInfoFromRay(map, ray);
+	tempRay.setFromCamera(pointer, camera);
+	return getLocalInfoFromRay(map, tempRay);
 }
 
 export function attachEvent(map: TileMap) {
 	const loadingManager = map.loader.manager;
 
-	const dispatchLoadingEvent = (type: string, payload?: any) => {
+	const dispatchEvent = (type: string, payload?: any) => {
 		map.dispatchEvent({ type, ...payload });
 	};
 
 	// 添加瓦片加载事件
 	loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
-		dispatchLoadingEvent("loading-start", { url, itemsLoaded, itemsTotal });
+		dispatchEvent("loading-start", { url, itemsLoaded, itemsTotal });
 	};
 	loadingManager.onError = url => {
-		dispatchLoadingEvent("loading-error", { url });
+		dispatchEvent("loading-error", { url });
 	};
 	loadingManager.onLoad = () => {
-		dispatchLoadingEvent("loading-complete");
+		dispatchEvent("loading-complete");
 	};
 	loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-		dispatchLoadingEvent("loading-progress", { url, itemsLoaded, itemsTotal });
+		dispatchEvent("loading-progress", { url, itemsLoaded, itemsTotal });
 	};
 
 	// 添加瓦片解析完成事件
-	loadingManager.onParseEnd = url => {
-		dispatchLoadingEvent("parsing-end", { url });
+	loadingManager.onParseEnd = geometry => {
+		dispatchEvent("parsing-end", { geometry });
 	};
-
-	// 地图准备就绪事件
-	map.rootTile.addEventListener("ready", () => dispatchLoadingEvent("ready"));
 
 	// 瓦片创建完成事件
 	map.rootTile.addEventListener("tile-created", evt => {
-		dispatchLoadingEvent("tile-created", { tile: evt.tile });
+		dispatchEvent("tile-created", { tile: evt.tile });
 	});
 
 	// 瓦片加载完成事件
 	map.rootTile.addEventListener("tile-loaded", evt => {
-		dispatchLoadingEvent("tile-loaded", { tile: evt.tile });
+		dispatchEvent("tile-loaded", { tile: evt.tile });
 	});
 
 	// 瓦片释放事件
 	map.rootTile.addEventListener("tile-unload", evt => {
-		dispatchLoadingEvent("tile-unload", { tile: evt.tile });
+		dispatchEvent("tile-unload", { tile: evt.tile });
+	});
+
+	// 瓦片显示状态改变
+	map.rootTile.addEventListener("tile-visible-changed", evt => {
+		dispatchEvent("tile-visible-changed", { tile: evt.tile });
 	});
 }
-
-// export function getAttributions(tileMap: TileMap) {
-// 	const attributions: string[] = [];
-// 	const imgSources = Array.isArray(tileMap.imgSource) ? tileMap.imgSource : [tileMap.imgSource];
-// 	imgSources.forEach((source) => {
-// 		const attr = source.attribution;
-// 		attr && attributions.push(attr);
-// 	});
-// 	if (tileMap.demSource) {
-// 		const attr = tileMap.demSource.attribution;
-// 		attr && attributions.push(attr);
-// 	}
-// 	return [...new Set(attributions)];
-// }
 
 // export function goHome(map: TileMap, viewer: GLViewer) {
 // 	// 按下 F1 键事件

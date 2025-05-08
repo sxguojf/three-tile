@@ -79,11 +79,12 @@ export const createCameraGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			const center = new Vector3(126.62495629765102, 45.7399914201275, 0);
 			flyToGeo(camera, center);
 		},
-		// toHME: () => {
-		// 	const camera = new Vector3(120.44694986586572, -29.169419011880095, 1.466339416442329);
-		// 	const center = new Vector3(120.44854935362576, -29.15362549430602, 1.5315887252160664e-12);
-		// 	flyToGeo(camera, center);
-		// },
+
+		toQinLing: () => {
+			const camera = new Vector3(108.87132772172248, 34.08895431019487, 3788.798936941705);
+			const center = new Vector3(108.83132919921506, 34.044274358763154, 2.8677996230582546e-11);
+			flyToGeo(camera, center);
+		},
 
 		cameraInfoToConsole: () => {
 			const cameraGeo = map.world2geo(viewer.camera.getWorldPosition(new Vector3()));
@@ -113,22 +114,23 @@ export const createCameraGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 
 	let cameraHelper: CameraHelper;
 
-	const folder = gui.addFolder("Camera position");
+	const folder = gui.addFolder("地点（控制摄像机）");
 
-	folder.add(vm, "resetCamera").name("Reset");
-	folder.add(vm, "cameraHelper");
-	folder.add(vm, "cameraInfoToConsole");
-	folder.add(vm, "toHome");
-	folder.add(vm, "toSchool");
-	folder.add(vm, "toBeiJing");
-	folder.add(vm, "toYanan");
-	folder.add(vm, "toQomolangma");
-	folder.add(vm, "toTaiBaiShan");
-	folder.add(vm, "toHuaShan");
-	folder.add(vm, "toHuangShan");
-	folder.add(vm, "toTaiShan");
-	folder.add(vm, "toFuji");
-	folder.add(vm, "toUluru");
-	folder.add(vm, "toNewyork");
+	folder.add(vm, "resetCamera").name("复位");
+	folder.add(vm, "cameraHelper").name("相机辅助线");
+	folder.add(vm, "cameraInfoToConsole").name("输出相机位置");
+	folder.add(vm, "toHome").name("西安");
+	folder.add(vm, "toSchool").name("学校");
+	folder.add(vm, "toBeiJing").name("北京");
+	folder.add(vm, "toYanan").name("延安");
+	folder.add(vm, "toQinLing").name("秦岭");
+	folder.add(vm, "toQomolangma").name("珠穆朗玛峰");
+	folder.add(vm, "toTaiBaiShan").name("太白山");
+	folder.add(vm, "toHuaShan").name("华山");
+	folder.add(vm, "toHuangShan").name("黄山");
+	folder.add(vm, "toTaiShan").name("泰山");
+	folder.add(vm, "toFuji").name("富士山");
+	folder.add(vm, "toUluru").name("乌鲁鲁");
+	folder.add(vm, "toNewyork").name("纽约");
 	// folder.add(vm, "toHME");
 };

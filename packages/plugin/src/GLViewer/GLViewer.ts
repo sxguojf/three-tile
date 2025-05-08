@@ -34,7 +34,7 @@ export interface GLViewerEventMap extends Object3DEventMap {
 /**
  * GlViewer options
  */
-type GLViewerOptions = {
+export type GLViewerOptions = {
 	/** Whether to use antialiasing. Default is false. */
 	antialias?: boolean;
 	/** Whether to use stencil buffer. Default is true. */
@@ -49,11 +49,13 @@ type GLViewerOptions = {
 export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	public readonly scene: Scene;
 	public readonly renderer: WebGLRenderer;
+
 	public readonly camera: PerspectiveCamera;
 	public readonly controls: MapControls;
 	public readonly ambLight: AmbientLight;
 	public readonly dirLight: DirectionalLight;
 	public container?: HTMLElement;
+	public topScenes: Scene[] = [];
 	private readonly _clock: Clock = new Clock();
 
 	private _fogFactor = 1.0;
@@ -148,10 +150,6 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			alpha: true,
 			precision: "highp",
 		});
-		// renderer.debug.checkShaderErrors = true;
-		// renderer.toneMapping = 3;
-		// renderer.toneMappingExposure = 1;
-		// renderer.sortObjects = false;
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.domElement.tabIndex = 0;
 		return renderer;
@@ -250,16 +248,26 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
 		// 防止resize过程中黑屏
-		this.renderer.render(this.scene, this.camera);
+		this.update();
 		this.dispatchEvent({ type: "resize", size: { width, height } });
 		return this;
+	}
+
+	protected update() {
+		this.renderer.autoClear = false;
+		this.renderer.render(this.scene, this.camera);
+		this.topScenes.forEach(scene => {
+			this.renderer.clearDepth();
+			this.renderer.render(scene, this.camera);
+		});
+		this.renderer.autoClear = true;
 	}
 
 	/**
 	 * Threejs animation loop
 	 */
-	private animate() {
-		this.renderer.render(this.scene, this.camera);
+	public animate() {
+		this.update();
 		this.controls.update();
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 		teweenUpdate();
@@ -283,9 +291,9 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 					new Tween(start)
 						.to(cameraPostion, 2000)
 						.easing(Easing.Quintic.Out)
+						.onUpdate(() => [this.controls.dispatchEvent({ type: "change" })])
 						.onComplete(obj => onComplete && onComplete(obj))
 				)
-
 				.start();
 		} else {
 			this.camera.position.copy(cameraPostion);

@@ -8,82 +8,75 @@ import { Vector3 } from "three";
 import { Tile } from ".";
 import { ITileLoader } from "../loader";
 
+/** 瓦片 LOD 结果 */
 export enum LODAction {
-	none,
-	create,
-	remove,
-}
-
-// Get the distance of camera to tile
-export function getDistance(tile: Tile, cameraWorldPosition: Vector3) {
-	const tilePos = tile.position.clone().setZ(tile.maxZ).applyMatrix4(tile.matrixWorld);
-	return cameraWorldPosition.distanceTo(tilePos);
-}
-
-export function getTileSize(tile: Tile) {
-	const scale = tile.scale;
-	const lt = new Vector3(-scale.x, -scale.y, 0).applyMatrix4(tile.matrixWorld);
-	const rt = new Vector3(scale.x, scale.y, 0).applyMatrix4(tile.matrixWorld);
-	return lt.sub(rt).length();
-}
-
-function getDistRatio(tile: Tile): number {
-	return (tile.distToCamera / tile.sizeInWorld) * 0.8;
+	none, // 无操作
+	create, // 细化
+	remove, // 合并
 }
 
 /**
- * Evaluate the Level of Detail (LOD) action
- *
- * @param tile The tile object
- * @param minLevel The minimum level
- * @param maxLevel The maximum level
- * @param threshold The threshold value
- * @returns The LOD action type
+ * 取得瓦片到摄像机的距离与瓦片对角线长度之比(距宽比)：≈tan(瓦片视宽角）
+ * @param tile
+ * @returns 距宽比
+ */
+function getDistRatio(tile: Tile): number {
+	// 增大不在视锥体内瓦片的距离，以使它更快合并
+	const dist = tile.distToCamera * (tile.inFrustum ? 0.8 : 5);
+	return dist / tile.sizeInWorld;
+}
+
+/**
+ * 根据摄像机到瓦片的距离，评估瓦片是否需要细化或合并
+ * @param tile 瓦片实例
+ * @param minLevel 地图最小层级
+ * @param maxLevel 地图最大层级
+ * @param threshold 瓦片LOD阈值
+ * @returns LODAction 细化或合并还无动作
  */
 export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {
-	// Get the tile's FOV
+	// 层级小于地图最小层级，直接返回细化
+	if (tile.z < minLevel && tile.isLeaf) {
+		return LODAction.create;
+	}
+	// 层级大于地图最大层级，不用计算直接返回合并
+	if (tile.z > maxLevel && !tile.isLeaf) {
+		return LODAction.remove;
+	}
+
+	// 取得瓦片视宽角
 	const distRatio = getDistRatio(tile);
 
 	if (tile.isLeaf) {
-		// Only leaf tiles can create child tiles
-		if (
-			tile.inFrustum && // Tile is in frustum
-			tile.z < maxLevel && // Tile level < map maxlevel
-			(tile.z < minLevel || tile.showing) && // (Tile level < map minLevel ) || (Parent tile has showed)
-			(tile.z < minLevel || distRatio < threshold) // (Tile level < map minLevel ) || (Distratio < threshold)
-		) {
+		// 叶子瓦片可以细化
+		if (tile.inFrustum && tile.z < maxLevel && distRatio < threshold && tile.showing) {
 			return LODAction.create;
 		}
 	} else {
-		// Only Non-leaf tile can remove child tiles
-		if (
-			tile.z >= minLevel && // Tile level >= map minLevel
-			(tile.z > maxLevel || distRatio > threshold) // (Tile level > map maxLevel ) || (Distratio > threshold)
-		) {
+		// 非叶子瓦片可以合并
+		if (tile.z >= minLevel && distRatio > threshold) {
 			return LODAction.remove;
 		}
 	}
-
 	return LODAction.none;
 }
 
 /**
- * Load the children tile from coordinate
- * @param loader tile loader instance
- * @param px parent tile x coordinate
- * @param py parent tile y coordinate
- * @param pz parent tile level
- * @returns children tile array
+ * 创建子瓦片
+ * @param tile 父瓦片
+ * @param loader 瓦片加载器
+ * @returns 子瓦片数组
  */
-export function createChildren(loader: ITileLoader, px: number, py: number, pz: number): Tile[] {
+export function createChildren(tile: Tile, loader: ITileLoader): Tile[] {
+	const { x: px, y: py, z: pz } = tile;
 	const children: Tile[] = [];
 	const level = pz + 1;
 	const x = px * 2;
 	const z = 0;
 	const pos = 0.25;
-	// Two children at level 0 when 4326 projection
-	const isWGS = loader.imgSource[0].projectionID === "4326";
-	if (pz === 0 && isWGS) {
+
+	if (pz === 0 && loader.imgSource[0].projectionID === "4326") {
+		// EPSG:4326 瓦片0级只有2块子瓦片
 		const y = py;
 		const scale = new Vector3(0.5, 1.0, 1.0);
 		const t1 = new Tile(x, y, level);
@@ -94,6 +87,7 @@ export function createChildren(loader: ITileLoader, px: number, py: number, pz: 
 		t2.scale.copy(scale);
 		children.push(t1, t2);
 	} else {
+		// 其它情况都为4块子瓦片
 		const y = py * 2;
 		const scale = new Vector3(0.5, 0.5, 1.0);
 		const t1 = new Tile(x, y, level);
