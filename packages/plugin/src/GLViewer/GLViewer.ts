@@ -195,7 +195,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 
 			// Set the camera near/far based on distance and polayr angle
 			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 50000 * 1000);
-			this.camera.near = this.camera.far / 1e4;
+			this.camera.near = this.camera.far / 1e3;
 			this.camera.updateProjectionMatrix();
 
 			// Set fog based on distance and polar angle
