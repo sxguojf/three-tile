@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BoxHelper, BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
+import { BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
 import { throwError } from "..";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
@@ -54,7 +54,7 @@ export class TileLoader implements ITileLoader {
 		}
 
 		const mesh = new Mesh(geometry, materials);
-		mesh.add(new BoxHelper(mesh, 0xff0000));
+		// mesh.add(new BoxHelper(mesh, 0xff0000));
 		return mesh;
 	}
 

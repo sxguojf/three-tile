@@ -5,7 +5,6 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
-import { testTileHelperBox } from "./test";
 
 //================================注册加载器====================================
 // 注册wrieframe加载器
@@ -144,7 +143,7 @@ function main() {
 	fly(viewer, map);
 	// 测试
 	// topMeshTest(viewer, map);
-	testTileHelperBox(map);
+	// testTileHelperBox(map);
 }
 
 main();
