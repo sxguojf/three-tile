@@ -8,8 +8,8 @@
 import geojsonvt from "geojson-vt";
 import { CanvasTexture, FileLoader, Texture } from "three";
 import {
-	TileMaterialLoader,
 	LoaderFactory,
+	TileMaterialLoader,
 	TileSourceLoadParamsType,
 	VectorFeature,
 	VectorFeatureTypes,

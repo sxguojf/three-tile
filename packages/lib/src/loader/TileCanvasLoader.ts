@@ -6,12 +6,12 @@
 
 import { CanvasTexture } from "three";
 import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
-import { TileMaterial } from "../material";
+import { ITileMaterial, TileMaterial } from "../material";
 
 /**
  * Canvas material laoder abstract base class
  */
-export abstract class TileCanvasLoader implements ITileMaterialLoader {
+export abstract class TileCanvasLoader implements ITileMaterialLoader<ITileMaterial> {
 	public readonly info = {
 		version: "0.10.0",
 		description: "Canvas tile abstract loader",
@@ -45,6 +45,16 @@ export abstract class TileCanvasLoader implements ITileMaterialLoader {
 		ctx.scale(1, -1);
 		ctx.translate(0, -height);
 		return ctx;
+	}
+
+	public unload(material: ITileMaterial): void {
+		const texture = material.map;
+		if (texture) {
+			if (texture.image instanceof ImageBitmap) {
+				texture.image.close();
+			}
+			texture.dispose();
+		}
 	}
 
 	/**

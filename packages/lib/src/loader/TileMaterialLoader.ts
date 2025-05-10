@@ -41,6 +41,16 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		return material;
 	}
 
+	public unload(material: ITileMaterial): void {
+		const texture = material.map;
+		if (texture) {
+			if (texture.image instanceof ImageBitmap) {
+				texture.image.close();
+			}
+			texture.dispose();
+		}
+	}
+
 	public setMaterialCreator(creator: MaterialCreator) {
 		this._materialCreator = creator;
 		return this;

@@ -4,14 +4,21 @@
  *@date: 2023-04-05
  */
 
-import { ImageLoader, Material, SRGBColorSpace, Texture } from "three";
+import { ImageLoader, SRGBColorSpace, Texture } from "three";
+import {
+	ISource,
+	ITileMaterial,
+	ITileMaterialLoader,
+	LoaderFactory,
+	TileMaterial,
+	TileSourceLoadParamsType,
+} from "three-tile";
 import { SingleImageSource } from "./SingleImageSource";
-import { ISource, ITileMaterialLoader, LoaderFactory, TileMaterial, TileSourceLoadParamsType } from "three-tile";
 
 /**
  * Single image Material loader
  */
-export class SingleImageLoader implements ITileMaterialLoader {
+export class SingleImageLoader implements ITileMaterialLoader<ITileMaterial> {
 	public readonly info = {
 		version: "0.10.0",
 		description: "Single image loader. It can load single image to bounds and stick to the ground.",
@@ -29,7 +36,7 @@ export class SingleImageLoader implements ITileMaterialLoader {
 	 * @param tile 瓦片
 	 * @returns 材质
 	 */
-	public async load(params: TileSourceLoadParamsType<SingleImageSource>): Promise<Material> {
+	public async load(params: TileSourceLoadParamsType<SingleImageSource>): Promise<ITileMaterial> {
 		const { source, bounds, z } = params;
 
 		const material = new TileMaterial({
@@ -56,6 +63,13 @@ export class SingleImageLoader implements ITileMaterialLoader {
 		source._image = await this._imageLoader.loadAsync(url);
 		this._setTexture(material, source._image, source, bounds);
 		return material;
+	}
+
+	public unload(material: ITileMaterial): void {
+		const texture = material.map;
+		if (texture) {
+			texture.dispose();
+		}
 	}
 
 	private _setTexture(

@@ -202,8 +202,8 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 
 		setMVT() {
-			// map.imgSource = [ms.arcGisSource, ms.mvtTest];
-			map.imgSource = [ms.mvtTest];
+			map.imgSource = [ms.arcGisSource, ms.mvtTest];
+			// map.imgSource = [ms.mvtTest];
 			map.reload();
 		},
 

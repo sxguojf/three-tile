@@ -36,7 +36,6 @@
 	},
 	"dependencies": {
 		"@mapbox/vector-tile": "^2.0.3",
-		"camera-controls": "^2.10.1",
 		"geojson-vt": "^4.0.2",
 		"geotiff": "^2.1.3",
 		"geotiff-tile": "^0.21.0",

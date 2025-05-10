@@ -67,14 +67,22 @@ export class Tile extends Object3D<TTileEventMap> {
 	public readonly z: number;
 	/** 是否为瓦片 */
 	public readonly isTile = true;
+
 	/** 根瓦片 */
-	private _root?: Tile; //   = this.parent instanceof Tile ? this.parent._root : this;
-	/** 瓦片模型 */
-	public model: Mesh | undefined;
-	/** 子瓦片 */
-	public subTiles: Tile[] | undefined;
+	private _root?: Tile;
 	/** 取得瓦片是否正在加载中 */
 	private _isLoading = false;
+
+	/** 瓦片模型 */
+	private _model: Mesh | undefined;
+	public get model() {
+		return this._model;
+	}
+	/** 子瓦片 */
+	private _subTiles: Tile[] | undefined;
+	public get subTiles() {
+		return this._subTiles;
+	}
 
 	private _maxZ = 0;
 	/** 取得瓦片最高高度 */
@@ -114,7 +122,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/** 取得瓦片是否显示 */
-	public get showing() {
+	public get showing(): boolean {
 		return !!this.model?.visible;
 	}
 
@@ -147,7 +155,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 瓦片不进行射线检测（其中地图模型mode进行检测）
+	 * 瓦片不进行射线检测（其子模型mode进行检测）
 	 */
 	public raycast(): void {}
 
@@ -187,8 +195,8 @@ export class Tile extends Object3D<TTileEventMap> {
 		const newTiles = this.LOD(params);
 		if (newTiles) {
 			this.add(...newTiles);
-			this.subTiles = newTiles;
-			this.subTiles.forEach(child => {
+			this._subTiles = newTiles;
+			newTiles.forEach(child => {
 				child.updateMatrix();
 				child.updateMatrixWorld();
 				this._root?.dispatchEvent({ type: "tile-created", tile: child });
@@ -243,16 +251,17 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._isLoading = true;
 		Tile._downloadingThreads++;
 		const { x, y, z } = this;
-		this.model = await loader.load({ x, y, z });
-		this._maxZ = this.model.geometry.boundingBox?.max.z || 0;
+		const model = await loader.load({ x, y, z });
+		this._model = model;
+		this._maxZ = model.geometry.boundingBox?.max.z || 0;
 
 		Tile._downloadingThreads--;
 		this._isLoading = false;
 		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.isLeaf && this._checkVisible();
-		this.add(this.model);
+		this.add(model);
 
-		return this.model;
+		return model;
 	}
 
 	/**
@@ -277,13 +286,13 @@ export class Tile extends Object3D<TTileEventMap> {
 				child.unLoad(loader, true);
 			});
 			this.remove(...this.subTiles);
-			this.subTiles = undefined;
+			this._subTiles = undefined;
 		}
 		// 卸载自己
 		if (unLoadSelf && this.model) {
 			loader.unload(this.model);
 			this._root?.dispatchEvent({ type: "tile-unload", tile: this });
-			this.model = undefined;
+			this._model = undefined;
 		}
 		return this;
 	}

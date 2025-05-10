@@ -2,6 +2,7 @@ import { VectorTile, VectorTileFeature, VectorTileLayer } from "@mapbox/vector-t
 import Pbf from "pbf";
 import { CanvasTexture, FileLoader, Texture } from "three";
 import {
+	ITileMaterial,
 	LoaderFactory,
 	TileMaterialLoader,
 	TileSourceLoadParamsType,
@@ -72,7 +73,7 @@ export class MVTLoader extends TileMaterialLoader {
 					}
 					const layer = vectorTile.layers[layerName];
 					if (layer) {
-						const scale = 256 / layer.extent;
+						const scale = width / layer.extent;
 						this._renderLayer(ctx, layer, layerStyle, scale);
 					}
 				}
@@ -80,7 +81,7 @@ export class MVTLoader extends TileMaterialLoader {
 				// 无style时，遍历矢量瓦片图层使用默认style绘制
 				for (const layerName in vectorTile.layers) {
 					const layer = vectorTile.layers[layerName];
-					const scale = 256 / layer.extent;
+					const scale = width / layer.extent;
 					this._renderLayer(ctx, layer, undefined, scale);
 				}
 			}

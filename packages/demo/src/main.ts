@@ -61,7 +61,7 @@ function createMap() {
 		// 最大缩放级别
 		maxLevel: 20,
 		// 调试模式
-		debug: true,
+		// debug: true,
 	});
 
 	// 地图旋转到xz平面
