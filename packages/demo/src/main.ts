@@ -5,6 +5,7 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
+import { goHome } from "./test";
 
 //================================注册加载器====================================
 // 注册wrieframe加载器
@@ -144,6 +145,7 @@ function main() {
 	// 测试
 	// topMeshTest(viewer, map);
 	// testTileHelperBox(map);
+	goHome(viewer, map);
 }
 
 main();

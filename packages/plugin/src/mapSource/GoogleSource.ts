@@ -19,7 +19,7 @@ export class GoogleSource extends TileSource {
 	public dataType = "image";
 	public attribution = "Google";
 	public maxLevel = 20;
-	public style: Style = "y";
+	public style: Style = "s";
 	public subdomains = "0123";
 
 	// 已失效

@@ -29,10 +29,13 @@ import {
 	Box3,
 	BoxHelper,
 	CameraHelper,
+	CanvasTexture,
 	Group,
 	Scene,
 	SpotLight,
 	SpotLightHelper,
+	Sprite,
+	SpriteMaterial,
 	Vector3,
 } from "three";
 import * as tt from "three-tile";
@@ -121,4 +124,102 @@ export function testTileHelperBox(map: tt.TileMap) {
 			mesh.clear();
 		}
 	});
+}
+
+export function goHome(viewer: plugin.GLViewer, map: tt.TileMap) {
+	// 按下 F1 键事件
+	window.addEventListener("keydown", event => {
+		if (event.key === "F1") {
+			event.preventDefault();
+			if (!map.getObjectByName("boards")) {
+				// open("https://github.com/sxguojf/three-tile");
+				const boards = createBillboards("three-tile");
+				boards.name = "boards";
+				map.add(boards);
+
+				map.addEventListener("loading-complete", () => {
+					const info = map.getLocalInfoFromGeo(lonlat);
+					if (info) {
+						// boards.visible = (info.object as Tile).z > 10;
+						boards.visible = true;
+						const pos = map.geo2map(info.location);
+						boards.position.copy(pos);
+					}
+				});
+			}
+			const lonlat = new Vector3(108.94236, 34.2855, 0);
+			const centerPosition = map.geo2world(lonlat);
+			const cameraPosition = centerPosition.clone().add(new Vector3(-1000, 2000, 0));
+			viewer.flyTo(centerPosition, cameraPosition);
+		}
+	});
+}
+
+function drawBillboards(txt: string, size: number = 128) {
+	const canvas = document.createElement("canvas");
+	const ctx = canvas.getContext("2d");
+
+	if (!ctx) {
+		throw new Error("Failed to get canvas context");
+	}
+
+	canvas.width = size;
+	canvas.height = size;
+	const centerX = size / 2;
+	const centerY = size / 2;
+
+	ctx.imageSmoothingEnabled = false;
+	ctx.fillStyle = "#000022";
+	ctx.strokeStyle = "DarkGoldenrod";
+
+	ctx.lineWidth = 5;
+	ctx.moveTo(centerX, 3);
+	ctx.lineTo(centerX, size);
+	ctx.stroke();
+	ctx.closePath();
+
+	ctx.lineWidth = 2;
+	ctx.beginPath();
+	ctx.roundRect(2, 2, size - 4, centerY - 8, 10);
+	ctx.closePath();
+	ctx.fill();
+	ctx.stroke();
+
+	ctx.font = "24px Arial";
+	ctx.fillStyle = "Goldenrod";
+	ctx.strokeStyle = "black";
+	ctx.textAlign = "center";
+	ctx.textBaseline = "top";
+
+	ctx.strokeText(txt, centerX, 20);
+	ctx.fillText(txt, centerX, 20);
+
+	return canvas;
+}
+
+/**
+ * 创建一个带有指定文本的广告牌精灵对象。
+ *
+ * @param txt - 要显示在广告牌上的文本内容。
+ * @param size - 广告牌纹理的尺寸，默认为 128。
+ * @returns 返回一个 Three.js 的 Sprite 对象，代表创建好的广告牌。
+ */
+export function createBillboards(txt: string, size = 128) {
+	// 调用 drawBillboards 函数生成包含指定文本的画布，然后使用该画布创建纹理
+	const boardTexture = new CanvasTexture(drawBillboards(txt, size));
+	// 使用创建好的纹理创建精灵材质，设置尺寸不随相机距离衰减
+	const boardsMaterial = new SpriteMaterial({
+		map: boardTexture,
+		sizeAttenuation: false,
+	});
+	// 使用精灵材质创建一个精灵对象，即广告牌
+	const boards = new Sprite(boardsMaterial);
+	// 默认将广告牌设置为不可见
+	boards.visible = false;
+	// 设置广告牌的中心点位置，x 轴居中，y 轴偏移 0.3
+	boards.center.set(0.5, 0.3);
+	// 缩放广告牌的尺寸
+	boards.scale.setScalar(0.1);
+	boards.renderOrder = 999;
+	return boards;
 }

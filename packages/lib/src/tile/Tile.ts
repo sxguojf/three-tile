@@ -143,7 +143,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
 		this.matrixAutoUpdate = false;
-		this.matrixWorldAutoUpdate = false;
+		// this.matrixWorldAutoUpdate = false;
 	}
 
 	/**
