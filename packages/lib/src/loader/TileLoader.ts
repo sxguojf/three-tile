@@ -59,17 +59,39 @@ export class TileLoader implements ITileLoader {
 	}
 
 	/**
-	 * Unload tile mesh data
+	 * update tile mesh data
 	 * @param tileMesh tile mesh
 	 */
-	public unload(tileMesh: Mesh): void {
-		const materials = tileMesh.material as Material[];
-		const geometry = tileMesh.geometry as BufferGeometry;
-		// console.log(materials, geometry);
-		for (let i = 0; i < materials.length; i++) {
-			materials[i].dispose();
+	public async update(tileMesh: Mesh, params: TileLoadParamsType, updateMaterial = true, updateGeometry = true) {
+		if (updateMaterial) {
+			const oldMaterials = tileMesh.material as Material[];
+			tileMesh.material = await this.loadMaterial(params);
+			for (let i = 0; i < oldMaterials.length; i++) {
+				oldMaterials[i].dispose();
+			}
 		}
-		geometry.dispose();
+		if (updateGeometry) {
+			const oldGeometry = tileMesh.geometry;
+			tileMesh.geometry = await this.loadGeometry(params);
+			oldGeometry.dispose();
+		}
+	}
+
+	/**
+	 * unload tile mesh data
+	 * @param tileMesh tile mesh
+	 */
+	public unload(tileMesh: Mesh, unloadMaterial = true, unloadGeometry = true): void {
+		if (unloadMaterial) {
+			const materials = tileMesh.material as Material[];
+			for (let i = 0; i < materials.length; i++) {
+				materials[i].dispose();
+			}
+		}
+		if (unloadGeometry) {
+			const geometry = tileMesh.geometry;
+			geometry.dispose();
+		}
 	}
 
 	/**
@@ -115,6 +137,7 @@ export class TileLoader implements ITileLoader {
 				throwError(err);
 				return new MeshBasicMaterial();
 			});
+			material.opacity = source.opacity;
 			const dispose = (evt: Event<"dispose", Material>) => {
 				loader.unload && loader.unload(evt.target);
 				evt.target.removeEventListener("dispose", dispose);

@@ -40,4 +40,23 @@ export class TileMapLoader extends TileLoader {
 
 		return super.load({ x: newX, y, z, bounds, lonLatBounds });
 	}
+
+	public update(
+		tileMesh: Mesh,
+		params: TileLoadParamsType,
+		updateMaterial?: boolean,
+		updateGeometry?: boolean
+	): Promise<void> {
+		if (!this._projection) {
+			throw new Error("projection is undefined");
+		}
+		const { x, y, z } = params;
+		// 计算投影后的瓦片x坐标
+		const newX = this._projection.getTileXWithCenterLon(x, z);
+		// 计算瓦片投影范围
+		const bounds = this._projection.getProjBoundsFromXYZ(x, y, z);
+		// 计算瓦片经纬度范围
+		const lonLatBounds = this._projection.getLonLatBoundsFromXYZ(x, y, z);
+		return super.update(tileMesh, { x: newX, y, z, bounds, lonLatBounds }, updateMaterial, updateGeometry);
+	}
 }

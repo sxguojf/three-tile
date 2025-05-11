@@ -172,7 +172,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			return;
 		}
 
-		// 如果模型则开始异步下载，并立即返回
+		// 如果模型没加载则开始异步下载，并立即返回
 		if (!this.model && this.z >= params.minLevel && Tile._downloadingThreads < THREADSNUM) {
 			this._startLoad(params.loader);
 			return;
@@ -265,11 +265,25 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 重新加载瓦片
+	 * 重新加载(更新)瓦片
 	 * @returns this
 	 */
-	public reload(loader: ITileLoader) {
-		this.unLoad(loader, true);
+	public async reload(loader: ITileLoader, updateMaterial = true, updateGeometry = true) {
+		if (updateGeometry && updateMaterial) {
+			return this.unLoad(loader, false);
+		}
+
+		// 更新子瓦片
+		if (this.subTiles) {
+			this.subTiles.forEach(child => {
+				child.reload(loader, updateMaterial, updateGeometry);
+			});
+		}
+		// 更新自己
+		if (this.model) {
+			const { x, y, z } = this;
+			await loader.update(this.model, { x, y, z }, updateMaterial, updateGeometry);
+		}
 		return this;
 	}
 

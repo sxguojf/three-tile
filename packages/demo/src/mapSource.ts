@@ -157,7 +157,7 @@ export const gdImgSource = new GDSource({ style: "6" });
 export const gdImgLabelSource = new GDSource({ style: "8" });
 
 // arcgis
-export const arcGisSource = new ArcGisSource();
+export const arcGisImgSource = new ArcGisSource();
 export const arcGisDemSource = new ArcGisDemSource();
 export const arcGisCiaSource = new ArcGisSource({
 	style: "Reference/World_Boundaries_and_Places",

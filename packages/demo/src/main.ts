@@ -44,7 +44,7 @@ document.querySelector<HTMLSpanElement>("#version")!.innerText = tt.version;
 // 创建地图
 function createMap() {
 	// 影像数据源
-	const imgSource = [source.arcGisSource, source.arcGisCiaSource];
+	const imgSource = [source.arcGisImgSource, source.arcGisCiaSource];
 	// 地形数据源
 	const demSource = source.arcGisDemSource;
 

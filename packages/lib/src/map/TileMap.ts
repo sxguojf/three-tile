@@ -172,6 +172,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
 		this._imgSource = sources;
 		this.loader.imgSource = sources;
+		this._loader.imgSource = sources;
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -189,6 +190,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	public set demSource(value: ISource | undefined) {
 		this._demSource = value;
 		this.loader.demSource = this._demSource;
+		this._loader.demSource = this._demSource;
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -354,8 +356,8 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	/**
 	 * 重新加载地图，在改变地图数据源后调用它才能生效
 	 */
-	public reload() {
-		this.rootTile.reload(this.loader);
+	public async reload() {
+		await this.rootTile.reload(this._loader);
 	}
 
 	/**

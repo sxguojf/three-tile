@@ -21,16 +21,17 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			map.reload();
 		},
 		setArcGis: () => {
-			map.imgSource = [ms.arcGisSource, ms.tdtCiaSource_w];
+			map.imgSource = [ms.arcGisImgSource, ms.tdtCiaSource_w];
 			map.reload();
 		},
 		setArcGisHillShader: () => {
 			map.imgSource = [
+				new plugin.BingSource({ style: "G", maxLevel: 18 }),
 				new plugin.ArcGisSource({
 					style: "Elevation/World_HillShade_Dark",
+					maxLevel: 13,
+					opacity: 0.6,
 				}),
-
-				ms.tdtCiaSource_w,
 			];
 			map.reload();
 		},
@@ -132,7 +133,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			map.reload();
 		},
 		setTileWire: () => {
-			map.imgSource = [ms.arcGisSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
+			map.imgSource = [ms.arcGisImgSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
 
 			map.reload();
 		},
@@ -161,7 +162,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 				maxLevel: 15,
 			});
 
-			map.imgSource = [ms.arcGisSource, imgSource, ms.debugSource];
+			map.imgSource = [ms.arcGisImgSource, imgSource, ms.debugSource];
 			// map.imgSource = imgSource;
 			map.demSource = demSource;
 
@@ -171,13 +172,13 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			map.reload();
 		},
 		setSingleImage() {
-			map.imgSource = [ms.arcGisSource, ms.singleImage];
+			map.imgSource = [ms.arcGisImgSource, ms.singleImage];
 			map.demSource = ms.arcGisDemSource;
 			map.reload();
 		},
 
 		setQm() {
-			map.imgSource = [ms.arcGisSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
+			map.imgSource = [ms.arcGisImgSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
 			// map.imgSource = [ms.tdtImgSource_c, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
 
 			map.demSource = tt.TileSource.create({
@@ -197,18 +198,18 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 
 		setGeoJSON() {
-			map.imgSource = [ms.arcGisSource, ms.geojsonProvince, ms.geojsonCountry, ms.geojsonCity, ms.geojsonCityPoint];
+			map.imgSource = [ms.arcGisImgSource, ms.geojsonProvince, ms.geojsonCountry, ms.geojsonCity, ms.geojsonCityPoint];
 			map.reload();
 		},
 
 		setMVT() {
-			map.imgSource = [ms.arcGisSource, ms.mvtTest];
+			map.imgSource = [ms.arcGisImgSource, ms.mvtTest];
 			// map.imgSource = [ms.mvtTest];
 			map.reload();
 		},
 
 		setTif: () => {
-			map.imgSource = [ms.arcGisSource];
+			map.imgSource = [ms.arcGisImgSource];
 			map.demSource = ms.tiffDEM;
 			map.reload();
 		},
@@ -224,7 +225,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	imgFolder.add(vm, "setGoogle").name("google影像");
 	imgFolder.add(vm, "setGoogleP").name("google地形渲染");
 	imgFolder.add(vm, "setArcGis").name("ArcGis+天地图");
-	imgFolder.add(vm, "setArcGisHillShader").name("ArcGis山影");
+	imgFolder.add(vm, "setArcGisHillShader").name("ArcGis山影+bing交通");
 	imgFolder.add(vm, "setMapTiler").name("MapTiler+天地图");
 	imgFolder.add(vm, "setStadia").name("Stadis");
 	imgFolder.add(vm, "setGD").name("高德");
