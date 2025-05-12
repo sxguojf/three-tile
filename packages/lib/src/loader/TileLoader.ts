@@ -65,7 +65,7 @@ export class TileLoader implements ITileLoader {
 	}
 
 	private async updateMaterial(tileMesh: Mesh, params: TileLoadParamsType) {
-		const oldMaterial = tileMesh.material as Material[];
+		const oldMaterial = Array.isArray(tileMesh.material) ? tileMesh.material : [tileMesh.material];
 		const material = await this.loadMaterial(params);
 		tileMesh.material = material;
 		tileMesh.geometry.clearGroups();
@@ -95,7 +95,7 @@ export class TileLoader implements ITileLoader {
 	 * @param tileMesh tile mesh
 	 */
 	public unload(tileMesh: Mesh): void {
-		const materials = tileMesh.material as Material[];
+		const materials = Array.isArray(tileMesh.material) ? tileMesh.material : [tileMesh.material];
 		for (let i = 0; i < materials.length; i++) {
 			materials[i].dispose();
 			tileMesh.geometry.groups.pop();

@@ -177,7 +177,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 
 		// 如果模型需要更新，则启动异步更新，并立即返回
-		if (this.model && (this._updateMaterial || this._updateGeometry)) {
+		if (this.model && (this._updateMaterial || this._updateGeometry) && this.isLeaf) {
 			this._startUpdate(params.loader);
 			return;
 		}
@@ -229,7 +229,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			// console.log("create", this.name);
 			return createChildren(this, loader);
 		}
-		if (action === LODAction.remove) {
+		if (action === LODAction.remove && !this._updateMaterial && !this._updateGeometry) {
 			// console.log("remove", this.name);
 			this.showing = true;
 			this.unLoad(loader, false);
@@ -306,6 +306,11 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this;
 	}
 
+	/**
+	 * 销毁瓦片并重新加载
+	 * @param loader - 瓦片加载器
+	 * @returns this
+	 */
 	public reload(loader: ITileLoader) {
 		return this.unLoad(loader, true);
 	}
