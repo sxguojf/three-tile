@@ -1,5 +1,5 @@
 /**
- *@description: 地图瓦片加载器，完成加载前对瓦片坐标、投影范围的预处理
+ *@description: 瓦片加载器代理，完成加载前对瓦片坐标、投影范围的预处理
  *@author: 郭江峰
  *@date: 2023-04-06
  */
@@ -27,26 +27,21 @@ export class TileMapLoader extends TileLoader {
 	}
 
 	public async load(params: TileLoadParamsType): Promise<Mesh> {
-		if (!this._projection) {
-			throw new Error("projection is undefined");
-		}
-		const { x, y, z } = params;
-		// 计算投影后的瓦片x坐标
-		const newX = this._projection.getTileXWithCenterLon(x, z);
-		// 计算瓦片投影范围
-		const bounds = this._projection.getProjBoundsFromXYZ(x, y, z);
-		// 计算瓦片经纬度范围
-		const lonLatBounds = this._projection.getLonLatBoundsFromXYZ(x, y, z);
-
-		return super.load({ x: newX, y, z, bounds, lonLatBounds });
+		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
+		return super.load({ x, y, z, bounds, lonLatBounds });
 	}
 
 	public update(
 		tileMesh: Mesh,
 		params: TileLoadParamsType,
-		updateMaterial?: boolean,
-		updateGeometry?: boolean
+		updateMaterial: boolean,
+		updateGeometry: boolean
 	): Promise<void> {
+		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
+		return super.update(tileMesh, { x, y, z, bounds, lonLatBounds }, updateMaterial, updateGeometry);
+	}
+
+	private getTileCoords(params: TileLoadParamsType) {
 		if (!this._projection) {
 			throw new Error("projection is undefined");
 		}
@@ -57,6 +52,7 @@ export class TileMapLoader extends TileLoader {
 		const bounds = this._projection.getProjBoundsFromXYZ(x, y, z);
 		// 计算瓦片经纬度范围
 		const lonLatBounds = this._projection.getLonLatBoundsFromXYZ(x, y, z);
-		return super.update(tileMesh, { x: newX, y, z, bounds, lonLatBounds }, updateMaterial, updateGeometry);
+
+		return { x: newX, y, z, bounds, lonLatBounds };
 	}
 }

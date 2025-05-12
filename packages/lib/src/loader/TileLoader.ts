@@ -54,44 +54,53 @@ export class TileLoader implements ITileLoader {
 		}
 
 		const mesh = new Mesh(geometry, materials);
-		// mesh.add(new BoxHelper(mesh, 0xff0000));
 		return mesh;
 	}
 
-	/**
-	 * update tile mesh data
-	 * @param tileMesh tile mesh
-	 */
-	public async update(tileMesh: Mesh, params: TileLoadParamsType, updateMaterial = true, updateGeometry = true) {
-		if (updateMaterial) {
-			const oldMaterials = tileMesh.material as Material[];
-			tileMesh.material = await this.loadMaterial(params);
-			for (let i = 0; i < oldMaterials.length; i++) {
-				oldMaterials[i].dispose();
-			}
+	private async updateGeometry(tileMesh: Mesh, params: TileLoadParamsType) {
+		const oldGeometry = tileMesh.geometry;
+		tileMesh.geometry = await this.loadGeometry(params);
+		tileMesh.geometry.groups = oldGeometry.groups;
+		oldGeometry.dispose();
+	}
+
+	private async updateMaterial(tileMesh: Mesh, params: TileLoadParamsType) {
+		const oldMaterial = tileMesh.material as Material[];
+		const material = await this.loadMaterial(params);
+		tileMesh.material = material;
+		tileMesh.geometry.clearGroups();
+		for (let i = 0; i < material.length; i++) {
+			tileMesh.geometry.addGroup(0, Infinity, i);
 		}
-		if (updateGeometry) {
-			const oldGeometry = tileMesh.geometry;
-			tileMesh.geometry = await this.loadGeometry(params);
-			oldGeometry.dispose();
+		for (let i = 0; i < oldMaterial.length; i++) {
+			oldMaterial[i].dispose();
 		}
 	}
 
 	/**
-	 * unload tile mesh data
+	 * Update tile mesh data
 	 * @param tileMesh tile mesh
 	 */
-	public unload(tileMesh: Mesh, unloadMaterial = true, unloadGeometry = true): void {
-		if (unloadMaterial) {
-			const materials = tileMesh.material as Material[];
-			for (let i = 0; i < materials.length; i++) {
-				materials[i].dispose();
-			}
+	public async update(tileMesh: Mesh, params: TileLoadParamsType, updateMaterial: boolean, updateGeometry: boolean) {
+		if (updateGeometry) {
+			await this.updateGeometry(tileMesh, params);
 		}
-		if (unloadGeometry) {
-			const geometry = tileMesh.geometry;
-			geometry.dispose();
+		if (updateMaterial) {
+			await this.updateMaterial(tileMesh, params);
 		}
+	}
+
+	/**
+	 * Unload tile mesh data
+	 * @param tileMesh tile mesh
+	 */
+	public unload(tileMesh: Mesh): void {
+		const materials = tileMesh.material as Material[];
+		for (let i = 0; i < materials.length; i++) {
+			materials[i].dispose();
+			tileMesh.geometry.groups.pop();
+		}
+		tileMesh.geometry.dispose();
 	}
 
 	/**

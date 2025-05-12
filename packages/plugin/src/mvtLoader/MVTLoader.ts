@@ -2,7 +2,6 @@ import { VectorTile, VectorTileFeature, VectorTileLayer } from "@mapbox/vector-t
 import Pbf from "pbf";
 import { CanvasTexture, FileLoader, Texture } from "three";
 import {
-	ITileMaterial,
 	LoaderFactory,
 	TileMaterialLoader,
 	TileSourceLoadParamsType,

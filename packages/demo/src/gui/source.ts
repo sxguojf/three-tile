@@ -10,19 +10,15 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	const vm = {
 		setMapBox: () => {
 			map.imgSource = [ms.mapBoxImgSource, ms.tdtCiaSource_w];
-			map.reload();
 		},
 		setZkxt: () => {
 			map.imgSource = [ms.xtImgSource, ms.xtCiaSource];
-			map.reload();
 		},
 		setBing: () => {
 			map.imgSource = [ms.bingSource, ms.tdtCiaSource_w];
-			map.reload();
 		},
 		setArcGis: () => {
 			map.imgSource = [ms.arcGisImgSource, ms.tdtCiaSource_w];
-			map.reload();
 		},
 		setArcGisHillShader: () => {
 			map.imgSource = [
@@ -33,44 +29,35 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 					opacity: 0.6,
 				}),
 			];
-			map.reload();
 		},
 		setGoogle: () => {
 			// map.imgSource = [new GoogleSource({ style: "y" })];
 			map.imgSource = [new plugin.GoogleSource()];
-			map.reload();
 		},
 		setGoogleP: () => {
 			map.imgSource = [new plugin.GoogleSource({ style: "p", maxLevel: 15 })];
-			map.reload();
 		},
 
 		setStadia: () => {
 			map.imgSource = [ms.stadiamaps];
-			map.reload();
 		},
 		setTdt_w: () => {
 			map.imgSource = [ms.tdtImgSource_w, ms.tdtCiaSource_w];
-			map.reload();
 		},
 		setTdt_c: () => {
 			map.imgSource = [ms.tdtImgSource_c, ms.debugSource];
 			// map.demSource = undefined;
-			map.reload();
 		},
 		setGD: () => {
 			map.imgSource = [ms.gdImgSource, ms.gdImgLabelSource];
-			map.reload();
 		},
 
 		setTencent: () => {
 			// map.imgSource = [source.tencentSource, source.gdImgLabelSource];
 			map.imgSource = [ms.tencentSource];
-			map.reload();
 		},
 		setMapTiler: () => {
 			map.imgSource = [ms.mapTilerImgSource, ms.tdtCiaSource_w];
-			map.reload();
 		},
 
 		setOpentopomap: () => {
@@ -78,48 +65,38 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 				subdomains: "abc",
 				url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
 			});
-			map.reload();
 		},
 
 		// terrain
 		setMapBoxDem: () => {
 			map.demSource = ms.mapBoxDemSource;
-			map.reload();
 		},
 		setMapTilerDem: () => {
 			map.demSource = ms.mapTilerDemSource;
-			map.reload();
 		},
 		setZkXtDem: () => {
 			map.demSource = ms.xtDemSource;
-			map.reload();
 		},
 		setDemNull: () => {
 			map.demSource = undefined;
-			map.reload();
 		},
 
 		setArcgisLerc() {
 			map.demSource = ms.arcGisDemSource;
-			map.reload();
 		},
 
 		// test
 		setMapBoxDemTest: () => {
 			map.imgSource = [ms.mapBoxDemTestSource, ms.debugSource];
-			map.reload();
 		},
 		setMapTilerDemTest: () => {
 			map.imgSource = [ms.mapTilerDemTestSource, ms.debugSource];
-			map.reload();
 		},
 		setZkxtDemTest: () => {
 			map.imgSource = [ms.xtDemTestSource, ms.debugSource];
-			map.reload();
 		},
 		setTileTest: () => {
 			map.imgSource = [ms.mapBoxImgSource, ms.debugSource];
-			map.reload();
 		},
 		setLogoTest: () => {
 			map.imgSource = [
@@ -130,16 +107,13 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 					opacity: 0.8,
 				}),
 			];
-			map.reload();
+			map.updateSource(true, false);
 		},
 		setTileWire: () => {
 			map.imgSource = [ms.arcGisImgSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];
-
-			map.reload();
 		},
 		setTileNormal: () => {
 			map.imgSource = [tt.TileSource.create({ dataType: "normal" }), ms.tdtCiaSource_w, ms.debugSource];
-			map.reload();
 		},
 
 		setBoundsTile: () => {
@@ -169,12 +143,10 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			// Move the camera to the bounds
 			viewer.controls.target.copy(map.geo2world(new Vector3(108.627984, 30.66284, 0.0)));
 			viewer.camera.position.copy(map.geo2world(new Vector3(108.627139, 30.64138, 3.309163)));
-			map.reload();
 		},
 		setSingleImage() {
 			map.imgSource = [ms.arcGisImgSource, ms.singleImage];
 			map.demSource = ms.arcGisDemSource;
-			map.reload();
 		},
 
 		setQm() {
@@ -194,24 +166,20 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 				// bounds: [-124.7333, 24.5333, -67.95, 49.3833],
 				maxLevel: 15,
 			});
-			map.reload();
 		},
 
 		setGeoJSON() {
 			map.imgSource = [ms.arcGisImgSource, ms.geojsonProvince, ms.geojsonCountry, ms.geojsonCity, ms.geojsonCityPoint];
-			map.reload();
 		},
 
 		setMVT() {
 			map.imgSource = [ms.arcGisImgSource, ms.mvtTest];
 			// map.imgSource = [ms.mvtTest];
-			map.reload();
 		},
 
 		setTif: () => {
 			map.imgSource = [ms.arcGisImgSource];
 			map.demSource = ms.tiffDEM;
-			map.reload();
 		},
 	};
 

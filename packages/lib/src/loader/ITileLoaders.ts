@@ -50,10 +50,10 @@ export interface ITileLoader {
 	demSource: ISource | undefined;
 	/** Load Tile Data */
 	load(params: LoadParamsType): Promise<Mesh>;
-	/**  Update Tile Data */
-	update(tileMesh: Mesh, params: LoadParamsType, updateMaterial?: boolean, updateGeometry?: boolean): void;
 	/** Unload Tile Data */
-	unload(tileMesh: Mesh, unloadMaterial?: boolean, unloadGeometry?: boolean): void;
+	unload(tileMesh: Mesh): void;
+	/**  Update Tile Data */
+	update(tileMesh: Mesh, params: LoadParamsType, updateMaterial: boolean, updateGeometry: boolean): void;
 }
 
 /**

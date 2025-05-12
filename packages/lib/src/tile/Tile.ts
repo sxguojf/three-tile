@@ -137,6 +137,11 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 	}
 
+	// 是否更新材质
+	private _updateMaterial = false;
+	// 是否更新几何体
+	private _updateGeometry = false;
+
 	/**
 	 * 构造函数
 	 * @param x - 瓦片X坐标，默认：0
@@ -151,7 +156,6 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
 		this.matrixAutoUpdate = false;
-		// this.matrixWorldAutoUpdate = false;
 	}
 
 	/**
@@ -172,7 +176,13 @@ export class Tile extends Object3D<TTileEventMap> {
 			return;
 		}
 
-		// 如果模型没加载则开始异步下载，并立即返回
+		// 如果模型需要更新，则启动异步更新，并立即返回
+		if (this.model && (this._updateMaterial || this._updateGeometry)) {
+			this._startUpdate(params.loader);
+			return;
+		}
+
+		// 如果模型没有加载，则驱动异步下载，并立即返回
 		if (!this.model && this.z >= params.minLevel && Tile._downloadingThreads < THREADSNUM) {
 			this._startLoad(params.loader);
 			return;
@@ -250,41 +260,54 @@ export class Tile extends Object3D<TTileEventMap> {
 	private async _startLoad(loader: ITileLoader) {
 		this._isLoading = true;
 		Tile._downloadingThreads++;
-		const { x, y, z } = this;
-		const model = await loader.load({ x, y, z });
+		const model = await loader.load(this);
 		this._model = model;
 		this._maxZ = model.geometry.boundingBox?.max.z || 0;
-
 		Tile._downloadingThreads--;
 		this._isLoading = false;
 		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.isLeaf && this._checkVisible();
 		this.add(model);
-
 		return model;
 	}
 
 	/**
-	 * 重新加载(更新)瓦片
+	 * 更新瓦片数据
+	 * @param loader  - 瓦片加载器
 	 * @returns this
 	 */
-	public async reload(loader: ITileLoader, updateMaterial = true, updateGeometry = true) {
-		if (updateGeometry && updateMaterial) {
-			return this.unLoad(loader, false);
+	private async _startUpdate(loader: ITileLoader) {
+		if (!this.model) {
+			return;
 		}
+		this._isLoading = true;
+		Tile._downloadingThreads++;
+		await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
+		this._updateMaterial = false;
+		this._updateGeometry = false;
+		Tile._downloadingThreads--;
+		this._isLoading = false;
+		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
+	}
 
-		// 更新子瓦片
-		if (this.subTiles) {
-			this.subTiles.forEach(child => {
-				child.reload(loader, updateMaterial, updateGeometry);
-			});
-		}
-		// 更新自己
-		if (this.model) {
-			const { x, y, z } = this;
-			await loader.update(this.model, { x, y, z }, updateMaterial, updateGeometry);
-		}
+	/**
+	 * 重新加载(更新)瓦片数据
+	 * @param updateMaterial - 是否更新材质
+	 * @param updateGeometry - 是否更新几何体
+	 * @returns this
+	 */
+	public updateSource(updateMaterial: boolean, updateGeometry: boolean) {
+		this.traverse(child => {
+			if (child instanceof Tile && child.model) {
+				child._updateMaterial = updateMaterial;
+				child._updateGeometry = updateGeometry;
+			}
+		});
 		return this;
+	}
+
+	public reload(loader: ITileLoader) {
+		return this.unLoad(loader, true);
 	}
 
 	/**

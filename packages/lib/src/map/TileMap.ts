@@ -125,7 +125,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 				console.warn(`Map centralMeridian is ${this.lon0}, minLevel must > 0`);
 			}
 			this.projection = ProjectFactory.createFromID(this.projection.ID, value);
-			this.reload();
+			this.updateSource();
 		}
 	}
 
@@ -144,7 +144,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		if (proj.ID != this.projection.ID || proj.lon0 != this.lon0) {
 			this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
 			this._projection = proj;
-			this.reload();
+			this.updateSource();
 			// console.log("Map Projection Changed:", proj.ID, proj.lon0);
 			this.dispatchEvent({
 				type: "projection-changed",
@@ -173,6 +173,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this._imgSource = sources;
 		this.loader.imgSource = sources;
 		this._loader.imgSource = sources;
+		this.updateSource(true, false);
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -191,6 +192,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this._demSource = value;
 		this.loader.demSource = this._demSource;
 		this._loader.demSource = this._demSource;
+		this.updateSource(false, true);
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -354,10 +356,19 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	}
 
 	/**
-	 * 重新加载地图，在改变地图数据源后调用它才能生效
+	 * 重新加载地图数据
+	 * @param updateMaterial 是否重新加载材质，默认为true
+	 * @param updateGeometry 是否重新加载几何体, 默认为true
 	 */
-	public async reload() {
-		await this.rootTile.reload(this._loader);
+	public updateSource(updateMaterial = true, updateGeometry = true) {
+		this.rootTile.updateSource(updateMaterial, updateGeometry);
+	}
+
+	/**
+	 * 销毁全部瓦片并重新加载
+	 */
+	public reload() {
+		this.rootTile.reload(this.loader);
 	}
 
 	/**
