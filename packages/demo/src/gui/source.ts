@@ -146,7 +146,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 		setSingleImage() {
 			map.imgSource = [ms.arcGisImgSource, ms.singleImage];
-			map.demSource = ms.arcGisDemSource;
+			// map.demSource = ms.arcGisDemSource;
 		},
 
 		setQm() {
@@ -180,6 +180,10 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		setTif: () => {
 			map.imgSource = [ms.arcGisImgSource];
 			map.demSource = ms.tiffDEM;
+		},
+
+		setGeoJSONMask: () => {
+			map.imgSource = [ms.arcGisImgSource, ms.cityMaskSource, ms.citySource];
 		},
 	};
 
@@ -226,6 +230,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	testFolder.add(vm, "setTileNormal").name("地形法向量调试");
 	testFolder.add(vm, "setBoundsTile").name("地图范围控制");
 	testFolder.add(vm, "setSingleImage").name("单图片测试");
+	testFolder.add(vm, "setGeoJSONMask").name("GeoJSON遮罩-延安");
 	// testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;

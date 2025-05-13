@@ -4,8 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Event, Material, Mesh, MeshBasicMaterial, PlaneGeometry } from "three";
-import { throwError } from "..";
+import { BufferGeometry, Event, Material, Mesh, MeshBasicMaterial } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
@@ -44,17 +43,19 @@ export class TileLoader implements ITileLoader {
 	 * @returns Promise<MeshDateType> tile data
 	 */
 	public async load(params: TileLoadParamsType): Promise<Mesh> {
-		const geometry = await this.loadGeometry(params);
-		const materials = await this.loadMaterial(params);
+		try {
+			const geometry = await this.loadGeometry(params);
+			const materials = await this.loadMaterial(params);
+			// console.assert(!!materials && !!geometry);
+			for (let i = 0; i < materials.length; i++) {
+				geometry.addGroup(0, Infinity, i);
+			}
 
-		console.assert(!!materials && !!geometry);
-
-		for (let i = 0; i < materials.length; i++) {
-			geometry.addGroup(0, Infinity, i);
+			const mesh = new Mesh(geometry, materials);
+			return mesh;
+		} catch (err) {
+			return new Mesh();
 		}
-
-		const mesh = new Mesh(geometry, materials);
-		return mesh;
 	}
 
 	private async updateGeometry(tileMesh: Mesh, params: TileLoadParamsType) {
@@ -113,10 +114,7 @@ export class TileLoader implements ITileLoader {
 		if (this.demSource && z >= this.demSource.minLevel && this._isBoundsInSourceBounds(this.demSource, bounds)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			const source = this.demSource;
-			geometry = await loader.load({ source, ...params }).catch(err => {
-				throwError(err);
-				return new PlaneGeometry();
-			});
+			geometry = await loader.load({ source, ...params });
 			geometry.addEventListener("dispose", () => {
 				loader.unload && loader.unload(geometry);
 			});
@@ -142,10 +140,7 @@ export class TileLoader implements ITileLoader {
 
 		const materialsPromise = sources.map(async source => {
 			const loader = LoaderFactory.getMaterialLoader(source);
-			const material = await loader.load({ source, ...params }).catch(err => {
-				throwError(err);
-				return new MeshBasicMaterial();
-			});
+			const material = await loader.load({ source, ...params });
 			material.opacity = source.opacity;
 			const dispose = (evt: Event<"dispose", Material>) => {
 				loader.unload && loader.unload(evt.target);

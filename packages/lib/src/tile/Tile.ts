@@ -142,6 +142,10 @@ export class Tile extends Object3D<TTileEventMap> {
 	// 是否更新几何体
 	private _updateGeometry = false;
 
+	private get _isDirty() {
+		return this.model && (this._updateMaterial || this._updateGeometry);
+	}
+
 	/**
 	 * 构造函数
 	 * @param x - 瓦片X坐标，默认：0
@@ -171,21 +175,24 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._root = this.parent instanceof Tile ? this.parent._root : this;
 		console.assert(!!this._root);
 
-		// 没有父瓦片||模型正在加载 时不进行更新
+		// （没有父瓦片||模型正在加载）时不进行更新
 		if (!this.parent || this._isLoading) {
 			return;
 		}
 
-		// 如果模型需要更新，则启动异步更新，并立即返回
-		if (this.model && (this._updateMaterial || this._updateGeometry) && this.isLeaf) {
-			this._startUpdate(params.loader);
-			return;
-		}
+		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载瓦片
+		if (this.z >= params.minLevel && Tile._downloadingThreads < THREADSNUM) {
+			// 如果模型需要更新，则启动异步更新，并立即返回
+			if (this._isDirty) {
+				this._startUpdate(params.loader);
+				return;
+			}
 
-		// 如果模型没有加载，则驱动异步下载，并立即返回
-		if (!this.model && this.z >= params.minLevel && Tile._downloadingThreads < THREADSNUM) {
-			this._startLoad(params.loader);
-			return;
+			// 如果模型没有加载，则启动异步下载，并立即返回
+			if (!this.model) {
+				this._startLoad(params.loader);
+				return;
+			}
 		}
 
 		// 如果是根瓦片，则计算一次视锥体和摄像机坐标
@@ -229,7 +236,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			// console.log("create", this.name);
 			return createChildren(this, loader);
 		}
-		if (action === LODAction.remove && !this._updateMaterial && !this._updateGeometry) {
+		if (action === LODAction.remove) {
 			// console.log("remove", this.name);
 			this.showing = true;
 			this.unLoad(loader, false);
@@ -307,7 +314,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 销毁瓦片并重新加载
+	 * 销毁瓦片树并重新创建并加载数据
 	 * @param loader - 瓦片加载器
 	 * @returns this
 	 */

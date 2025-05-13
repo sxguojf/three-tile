@@ -178,7 +178,8 @@ export const wrieframe = tt.TileSource.create({ dataType: "wireframe", opacity: 
 export const singleImage = new tt.TileSource({
 	dataType: "single-image",
 	url: "./image/test.jpg",
-	bounds: [105, 33, 109, 37],
+	// bounds: [105, 33, 109, 37],
+	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
 });
 
 export const tiffDEM = new tt.TileSource({
@@ -276,4 +277,27 @@ export const geojsonCityPoint = new plugin.GeoJSONSource({
 export const filterImgSource = new tt.TileSource({
 	dataType: "image-filter",
 	url: "https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+});
+
+export const citySource = new plugin.GeoJSONSource({
+	url: "./cityBounds.geojson",
+	dataType: "geojson",
+	style: {
+		stroke: true,
+		color: "red",
+		weight: 2,
+	},
+	// bounds: [107, 35, 111, 38],
+});
+
+export const cityMaskSource = new plugin.GeoJSONSource({
+	url: "./cityBoundsMask.geojson",
+	dataType: "geojson",
+	style: {
+		stroke: false,
+		fill: true,
+		fillColor: "black",
+		fillOpacity: 0.8,
+	},
+	// bounds: [106.875, 34.886, 110.391, 36.598],
 });
