@@ -147,7 +147,7 @@ export class TileLoader implements ITileLoader {
 				if (this.debug) {
 					console.error("Load Material Error:", e);
 				}
-				return new MeshBasicMaterial({ transparent: true, opacity: 0.1, color: "red" });
+				return new MeshBasicMaterial({ transparent: true, opacity: 0.2, color: "#555" });
 			});
 			material.opacity = source.opacity;
 			const dispose = (evt: { target: Material }) => {
