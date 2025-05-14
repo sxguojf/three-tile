@@ -12,8 +12,6 @@ import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { TileMapLoader } from "./TileMapLoader";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
 
-export let _debug = false;
-
 /**
  * 瓦片地图事件
  */
@@ -54,9 +52,6 @@ export type MapParams = {
  * 瓦片地图模型
  */
 export class TileMap extends Object3D<TileMapEventMap> {
-	/** 调试状态 */
-	public debug = false;
-
 	/** 名称 */
 	public readonly name = "map";
 
@@ -270,9 +265,8 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			debug = false,
 		} = params;
 
-		_debug = debug;
-
 		this.loader = loader;
+		this.loader.debug = debug;
 
 		rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
 		this.rootTile = rootTile;

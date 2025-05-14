@@ -60,8 +60,8 @@ function createMap() {
 		minLevel: 2,
 		// 最大缩放级别
 		maxLevel: 20,
-		// 调试模式
-		// debug: true,
+		// 调试标志
+		debug: true,
 	});
 
 	// 地图旋转到xz平面

@@ -22,13 +22,13 @@ export * from "./source";
 // map
 export * from "./map";
 
-import { _debug } from "./map";
+// import { _debug } from "./map";
 
-export function throwError(msg: string) {
-	if (_debug) {
-		throw new Error(msg);
-	}
-}
+// export function throwError(msg: string) {
+// 	if (_debug) {
+// 		throw new Error(msg);
+// 	}
+// }
 
 export function waitFor(condition: boolean, delay = 100) {
 	return new Promise<void>(resolve => {

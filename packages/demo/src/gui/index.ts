@@ -43,7 +43,7 @@ export function showLoading(map: tt.TileMap) {
 		map.addEventListener("loading-error", evt => {
 			loading.innerHTML = "There was an error loading " + evt.url;
 			loading.style.color = "red";
-			console.error("Downloading error:", evt.url);
+			console.info("Downloading error:", evt.url);
 		});
 		// map.addEventListener("parsing-end", () => {
 		// 	loading.innerHTML = "Parsing end!";

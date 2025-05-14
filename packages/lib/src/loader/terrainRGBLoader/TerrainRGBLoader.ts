@@ -7,7 +7,6 @@
 import { ImageLoader, MathUtils } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { getBoundsCoord, LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "..";
-import { throwError } from "../..";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import ParseWorker from "./parse.worker?worker&inline";
 
@@ -43,10 +42,7 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 	 * @returns 返回解析后的BufferGeometry对象
 	 */
 	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<TileGeometry> {
-		const img = await this.imageLoader.loadAsync(url).catch(err => {
-			throwError(err);
-			return new Image();
-		});
+		const img = await this.imageLoader.loadAsync(url);
 		const { bounds, z } = params;
 		// 抽稀像素点
 		const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);

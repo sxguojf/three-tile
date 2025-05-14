@@ -181,6 +181,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		controls.enableDamping = true;
 		controls.dampingFactor = 0.05;
 		controls.keyPanSpeed = 5;
+		controls.zoomToCursor = true;
 
 		controls.listenToKeyEvents(this.renderer.domElement);
 

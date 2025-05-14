@@ -35,10 +35,6 @@ function getDistRatio(tile: Tile): number {
  * @returns LODAction 细化或合并还无动作
  */
 export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {
-	// 视椎体内叶子瓦片层级小于地图最小层级，直接返回细化
-	if (tile.z < minLevel && tile.isLeaf && tile.inFrustum) {
-		return LODAction.create;
-	}
 	// 非叶子瓦片层级大于地图最大层级，直接返回合并
 	if (tile.z > maxLevel && !tile.isLeaf) {
 		return LODAction.remove;
@@ -49,7 +45,7 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 
 	if (tile.isLeaf) {
 		// 叶子瓦片可以细化
-		if (tile.inFrustum && tile.z < maxLevel && distRatio < threshold && tile.showing) {
+		if (tile.inFrustum && tile.z < maxLevel && distRatio < threshold && (tile.showing || tile.z <= minLevel)) {
 			return LODAction.create;
 		}
 	} else {
