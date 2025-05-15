@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial } from "three";
+import { BoxHelper, BufferGeometry, Material, Mesh, MeshBasicMaterial } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
@@ -53,6 +53,11 @@ export class TileLoader implements ITileLoader {
 		}
 
 		const mesh = new Mesh(geometry, materials);
+		if (this.debug && params.z > 7) {
+			const box = new BoxHelper(mesh, 0xffff00);
+			box.name = "boxHelper";
+			mesh.add(box);
+		}
 		return mesh;
 	}
 
@@ -100,6 +105,10 @@ export class TileLoader implements ITileLoader {
 			tileMesh.geometry.groups.pop();
 		}
 		tileMesh.geometry.dispose();
+		const box = tileMesh.getObjectByName("boxHelper");
+		if (box instanceof BoxHelper) {
+			box.dispose();
+		}
 	}
 
 	/**
