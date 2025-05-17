@@ -27,7 +27,7 @@ export abstract class TileCanvasLoader implements ITileMaterialLoader<ITileMater
 	public async load(params: TileSourceLoadParamsType): Promise<TileMaterial> {
 		const ctx = this._creatCanvasContext(256, 256);
 		this.drawTile(ctx, params);
-		const texture = new CanvasTexture(ctx.canvas.transferToImageBitmap());
+		const texture = new CanvasTexture(ctx.canvas);
 		const material = new TileMaterial({
 			transparent: true,
 			map: texture,
@@ -42,8 +42,6 @@ export abstract class TileCanvasLoader implements ITileMaterialLoader<ITileMater
 		if (!ctx) {
 			throw new Error("create canvas context failed");
 		}
-		ctx.scale(1, -1);
-		ctx.translate(0, -height);
 		return ctx;
 	}
 

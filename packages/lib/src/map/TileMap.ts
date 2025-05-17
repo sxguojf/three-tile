@@ -38,7 +38,7 @@ type ProjectCenterLongitude = 0 | 90 | -90;
 
 /** 地图创建参数 */
 export type MapParams = {
-	debug?: boolean; //是否开启调试模式, debug mode
+	debug?: number; //是否开启调试模式, debug mode: 0: off, 1: on, 2: show tile box
 	loader?: ITileLoader; //地图加载器, map data loader
 	rootTile?: Tile; //根瓦片, root Tile
 	imgSource: ISource[] | ISource; //影像数据源, image source
@@ -262,7 +262,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			imgSource,
 			demSource,
 			lon0 = 0,
-			debug = false,
+			debug = 0,
 		} = params;
 
 		this.loader = loader;

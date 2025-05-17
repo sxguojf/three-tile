@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BoxHelper, BufferGeometry, Material, Mesh, MeshBasicMaterial } from "three";
+import { BoxHelper, BufferGeometry, Material, Mesh } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
@@ -37,7 +37,7 @@ export class TileLoader implements ITileLoader {
 	/** Loader manager */
 	public manager = LoaderFactory.manager;
 
-	public debug = false;
+	public debug = 0;
 
 	/**
 	 * Load getmetry and materail of tile from x, y and z coordinate.
@@ -53,7 +53,7 @@ export class TileLoader implements ITileLoader {
 		}
 
 		const mesh = new Mesh(geometry, materials);
-		if (this.debug && params.z > 7) {
+		if (this.debug > 1 && params.z > 5) {
 			const box = new BoxHelper(mesh, 0xffff00);
 			box.name = "boxHelper";
 			mesh.add(box);
@@ -122,7 +122,7 @@ export class TileLoader implements ITileLoader {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			const source = this.demSource;
 			geometry = await loader.load({ source, ...params }).catch(e => {
-				if (this.debug) {
+				if (this.debug > 0) {
 					console.error("Load Geometry Error:", e);
 				}
 				return new TileGeometry();
@@ -150,23 +150,26 @@ export class TileLoader implements ITileLoader {
 			source => z >= source.minLevel && this._isBoundsInSourceBounds(source, bounds)
 		);
 
-		const materialsPromise = sources.map(async source => {
+		const materials = [];
+		for (let i = 0; i < sources.length; i++) {
+			const source = sources[i];
 			const loader = LoaderFactory.getMaterialLoader(source);
-			const material: Material = await loader.load({ source, ...params }).catch(e => {
-				if (this.debug) {
+			const material = await loader.load({ source, ...params }).catch(e => {
+				if (this.debug > 0) {
 					console.error("Load Material Error:", e);
 				}
-				return new MeshBasicMaterial({ transparent: true, opacity: 0.2, color: "#555" });
 			});
-			material.opacity = source.opacity;
-			const dispose = (evt: { target: Material }) => {
-				loader.unload && loader.unload(evt.target);
-				evt.target.removeEventListener("dispose", dispose);
-			};
-			material.addEventListener("dispose", dispose);
-			return material;
-		});
-		return Promise.all(materialsPromise);
+			if (material) {
+				material.opacity = source.opacity;
+				const dispose = (evt: { target: Material }) => {
+					loader.unload && loader.unload(evt.target);
+					evt.target.removeEventListener("dispose", dispose);
+				};
+				material.addEventListener("dispose", dispose);
+				materials.push(material);
+			}
+		}
+		return materials;
 	}
 
 	/**

@@ -36,6 +36,7 @@ import {
 	SpotLightHelper,
 	Sprite,
 	SpriteMaterial,
+	TextureLoader,
 	Vector3,
 } from "three";
 import * as tt from "three-tile";
@@ -222,4 +223,16 @@ export function createBillboards(txt: string, size = 128) {
 	boards.scale.setScalar(0.1);
 	boards.renderOrder = 999;
 	return boards;
+}
+
+export function addIcon(map: tt.TileMap, lonlat: Vector3) {
+	const icon = new Sprite(
+		new SpriteMaterial({ map: new TextureLoader().load("./image/gis.png"), sizeAttenuation: false, transparent: true })
+	);
+	icon.renderOrder = 999;
+	icon.center.set(0.5, 0);
+	icon.scale.setScalar(0.05);
+	const position = map.geo2map(lonlat);
+	icon.position.copy(position);
+	map.add(icon);
 }

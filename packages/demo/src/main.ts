@@ -61,7 +61,7 @@ function createMap() {
 		// 最大缩放级别
 		maxLevel: 20,
 		// 调试标志
-		debug: true,
+		debug: 2,
 	});
 
 	// 地图旋转到xz平面
@@ -146,6 +146,13 @@ function main() {
 	// topMeshTest(viewer, map);
 	// testTileHelperBox(map);
 	goHome(viewer, map);
+
+	// viewer.container?.addEventListener("pointerdown", evt => {
+	// 	const info = plugin.getLocalFromMouse(evt, map, viewer.camera);
+	// 	if (info) {
+	// 		addIcon(map, info);
+	// 	}
+	// });
 }
 
 main();
