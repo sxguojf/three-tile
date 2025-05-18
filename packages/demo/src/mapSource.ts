@@ -178,6 +178,7 @@ export const wrieframe = tt.TileSource.create({ dataType: "wireframe", opacity: 
 export const singleImage = new tt.TileSource({
 	dataType: "single-image",
 	url: "./image/test.jpg",
+	maxLevel: 20,
 	// bounds: [105, 33, 109, 37],
 	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
 });
@@ -185,6 +186,7 @@ export const singleImage = new tt.TileSource({
 export const tiffDEM = new tt.TileSource({
 	dataType: "single-tif",
 	url: "./evl.tif",
+	maxLevel: 20,
 	skirtHeight: 3000,
 	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
 });

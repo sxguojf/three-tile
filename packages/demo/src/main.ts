@@ -61,7 +61,7 @@ function createMap() {
 		// 最大缩放级别
 		maxLevel: 20,
 		// 调试标志
-		debug: 2,
+		debug: 1,
 	});
 
 	// 地图旋转到xz平面
@@ -93,6 +93,9 @@ function initViewer(id: string, map: tt.TileMap) {
 
 	// 防止摄像机进入地下
 	viewer.controls.addEventListener("change", () => {
+		plugin.limitCameraHeight(map, viewer.camera);
+	});
+	map.addEventListener("tile-loaded", () => {
 		plugin.limitCameraHeight(map, viewer.camera);
 	});
 	return viewer;
