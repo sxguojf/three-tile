@@ -4,7 +4,19 @@
  *@date: 2025-05-01
  */
 
-import { BaseEvent, Box3, Camera, Frustum, Matrix4, Mesh, Object3D, Object3DEventMap, Vector3 } from "three";
+import {
+	BaseEvent,
+	Box3,
+	Camera,
+	Frustum,
+	Intersection,
+	Matrix4,
+	Mesh,
+	Object3D,
+	Object3DEventMap,
+	Raycaster,
+	Vector3,
+} from "three";
 import { ITileLoader } from "../loader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
@@ -42,6 +54,7 @@ export interface TTileEventMap extends Object3DEventMap {
 
 /** 临时变量 */
 const tempMat4 = new Matrix4();
+const tempBox3 = new Box3();
 /** 相机世界坐标 */
 const cameraWorldPosition = new Vector3();
 /** 场景视锥体 */
@@ -84,15 +97,12 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this._subTiles;
 	}
 
-	private _maxZ = 0;
-	/** 取得瓦片最高高度 */
-	public get maxZ() {
-		return this._maxZ;
-	}
-
 	/** 取得瓦片离摄像机距离（世界坐标系） */
 	public get distToCamera() {
-		const tilePos = this.position.clone().setZ(this.maxZ).applyMatrix4(this.matrixWorld);
+		const tilePos = this.position
+			.clone()
+			.setZ(this.model?.geometry.boundingBox?.max.z || 0)
+			.applyMatrix4(this.matrixWorld);
 		return cameraWorldPosition.distanceTo(tilePos);
 	}
 
@@ -132,7 +142,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		// 为加快速度，将模型移入其它layer以不参与射线交点计算
 		if (value != this.showing && this.model) {
 			this.model.visible = value;
-			this.model.traverse(child => child.layers.set(value ? 0 : 31));
+			// this.model.traverse(child => child.layers.set(value ? 0 : 31));
 			this._root?.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
 		}
 	}
@@ -163,9 +173,21 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 瓦片不进行射线检测（其子模型mode进行检测）
+	 * 瓦片射线检测，射线在瓦片包围盒内时，才进行模型的射线检测
 	 */
-	public raycast(): void {}
+	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
+		const bbox = tempBox3.setFromObject(this);
+		const intersect = raycaster.ray.intersectsBox(bbox);
+		if (intersect) {
+			if (this.showing) {
+				this.model?.raycast(raycaster, intersects);
+			} else if (this.subTiles) {
+				this.subTiles.forEach(child => {
+					child.raycast(raycaster, intersects);
+				});
+			}
+		}
+	}
 
 	/**
 	 * 瓦片更新，该函数在每帧渲染中被调用
@@ -216,6 +238,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			newTiles.forEach(child => {
 				child.updateMatrix();
 				child.updateMatrixWorld();
+
 				this._root?.dispatchEvent({ type: "tile-created", tile: child });
 			});
 		}
@@ -252,7 +275,6 @@ export class Tile extends Object3D<TTileEventMap> {
 		if (parent instanceof Tile && parent.subTiles) {
 			const subTiles = parent.subTiles;
 			const allLoaded = subTiles.every(child => child.model);
-			// console.assert(subTiles.length === 4);
 			subTiles.forEach(child => (child.showing = allLoaded));
 			parent.showing = !allLoaded;
 		}
@@ -269,12 +291,13 @@ export class Tile extends Object3D<TTileEventMap> {
 		Tile._downloadingThreads++;
 		const model = await loader.load(this);
 		this._model = model;
-		this._maxZ = model.geometry.boundingBox?.max.z || 0;
+		model.geometry.computeBoundingBox();
 		Tile._downloadingThreads--;
 		this._isLoading = false;
 		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.isLeaf && this._checkVisible();
 		this.add(model);
+
 		return model;
 	}
 
