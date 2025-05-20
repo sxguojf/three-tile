@@ -54,13 +54,12 @@ export interface TTileEventMap extends Object3DEventMap {
 
 /** 临时变量 */
 const tempMat4 = new Matrix4();
-const tempBox3 = new Box3();
 /** 相机世界坐标 */
 const cameraWorldPosition = new Vector3();
 /** 场景视锥体 */
 const frustum = new Frustum();
-/** 瓦片包围盒 */
-const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 1));
+/** 瓦片包围盒(局部坐标) */
+const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 0));
 
 /**
  * 动态LOD（DLOD）地图瓦片类，用于表示地图中的一块瓦片，瓦片可以包含子瓦片，以四叉树方式管理。
@@ -83,8 +82,10 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 根瓦片 */
 	private _root?: Tile;
-	/** 取得瓦片是否正在加载中 */
+	/** 瓦片是否正在加载中 */
 	private _isLoading = false;
+	/** 瓦片包围盒（世界坐标） */
+	private _bbox: Box3 | null = null;
 
 	/** 瓦片模型 */
 	private _model: Mesh | undefined;
@@ -101,7 +102,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	public get distToCamera() {
 		const tilePos = this.position
 			.clone()
-			.setZ(this.model?.geometry.boundingBox?.max.z || 0)
+			.setZ(this._bbox?.max.z || 0)
 			.applyMatrix4(this.matrixWorld);
 		return cameraWorldPosition.distanceTo(tilePos);
 	}
@@ -120,10 +121,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 取得瓦片是否在视锥体内 */
 	public get inFrustum(): boolean {
-		const bounds = tileBox.clone().applyMatrix4(this.matrixWorld);
-		bounds.min.setY(-300);
-		bounds.max.setY(9000);
-		return frustum.intersectsBox(bounds);
+		return !this._bbox || frustum.intersectsBox(this._bbox);
 	}
 
 	/** 是否为叶子瓦片 */
@@ -138,11 +136,8 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 设置瓦片是否显示 */
 	public set showing(value) {
-		// threejs R114 后，射线会计算与不可视对象的交点，增加了计算量： https://github.com/mrdoob/three.js/issues/14700
-		// 为加快速度，将模型移入其它layer以不参与射线交点计算
 		if (value != this.showing && this.model) {
 			this.model.visible = value;
-			// this.model.traverse(child => child.layers.set(value ? 0 : 31));
 			this._root?.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
 		}
 	}
@@ -176,8 +171,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * 瓦片射线检测，射线在瓦片包围盒内时，才进行模型的射线检测
 	 */
 	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		const bbox = tempBox3.setFromObject(this);
-		const intersect = raycaster.ray.intersectsBox(bbox);
+		const intersect = !this._bbox || raycaster.ray.intersectsBox(this._bbox);
 		if (intersect) {
 			if (this.showing) {
 				this.model?.raycast(raycaster, intersects);
@@ -219,6 +213,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		// 如果是根瓦片，则计算一次视锥体和摄像机坐标
 		if (this.z === 0) {
+			this._bbox = this._bbox ?? tileBox.clone().applyMatrix4(this.matrixWorld);
 			const camera = params.camera;
 			camera.getWorldPosition(cameraWorldPosition);
 			frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
@@ -238,6 +233,11 @@ export class Tile extends Object3D<TTileEventMap> {
 			newTiles.forEach(child => {
 				child.updateMatrix();
 				child.updateMatrixWorld();
+
+				// 计算包围盒
+				child._bbox = tileBox.clone().applyMatrix4(child.matrixWorld);
+				child._bbox.min.setY(-300);
+				child._bbox.max.setY(9000);
 
 				this._root?.dispatchEvent({ type: "tile-created", tile: child });
 			});
@@ -292,6 +292,8 @@ export class Tile extends Object3D<TTileEventMap> {
 		const model = await loader.load(this);
 		this._model = model;
 		model.geometry.computeBoundingBox();
+		// 更新bbox
+		this._bbox && (this._bbox.max.z = model.geometry.boundingBox?.max.z || 0);
 		Tile._downloadingThreads--;
 		this._isLoading = false;
 		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });

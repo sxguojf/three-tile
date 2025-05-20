@@ -147,14 +147,16 @@ export class TileLoader implements ITileLoader {
 				if (this.debug) {
 					console.error("Load Material Error:", e);
 				}
-				return new MeshBasicMaterial({ transparent: true, opacity: 0.2, color: "#555" });
+				return new MeshBasicMaterial({ transparent: true, opacity: -1 });
 			});
-			material.opacity = source.opacity;
-			const dispose = (evt: { target: Material }) => {
-				loader.unload && loader.unload(evt.target);
-				evt.target.removeEventListener("dispose", dispose);
-			};
-			material.addEventListener("dispose", dispose);
+			if (material.opacity >= 0) {
+				material.opacity = source.opacity;
+				const dispose = (evt: { target: Material }) => {
+					loader.unload && loader.unload(evt.target);
+					evt.target.removeEventListener("dispose", dispose);
+				};
+				material.addEventListener("dispose", dispose);
+			}
 			return material;
 		});
 		return Promise.all(materialsPromise);
