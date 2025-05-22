@@ -9,7 +9,7 @@ import { ITileLoader } from "../loader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
 /** 最大下载线程数 */
-const THREADSNUM = 10;
+const MAXTHREADS = 20;
 
 /** 瓦片更新参数类型 */
 export type TileUpdateParames = {
@@ -46,19 +46,11 @@ const tempMat4 = new Matrix4();
 const cameraWorldPosition = new Vector3();
 /** 场景视锥体 */
 const frustum = new Frustum();
-/** 瓦片包围盒(局部坐标) */
-const tileBox = new Box3().setFromArray([-0.5, -0.5, 0, 0.5, 0.5, 0]); //new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 0));
 
 /**
  * 动态LOD（DLOD）地图瓦片类，用于表示地图中的一块瓦片，瓦片可以包含子瓦片，以四叉树方式管理。
  */
 export class Tile extends Object3D<TTileEventMap> {
-	private static _downloadingThreads = 0;
-	/** 取得下载中的线程数量 */
-	public static get downloadingThreads() {
-		return Tile._downloadingThreads;
-	}
-
 	/** 瓦片x坐标 */
 	public readonly x: number;
 	/** 瓦片y坐标 */
@@ -72,11 +64,20 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 根瓦片 */
 	private _root?: Tile;
 
+	/* 瓦片在世界坐标系中的大小（对角线长度） */
+	private _sizeInWorld = -1;
 	/** 瓦片实际地形包围盒（世界坐标） */
 	private _bbox: Box3 | null = null;
 	private get bbox() {
 		if (!this._bbox) {
-			this._bbox = tileBox.clone().applyMatrix4(this.matrixWorld);
+			const scale = this.scale;
+			this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0)).applyMatrix4(
+				this.matrixWorld
+			);
+
+			const lt = this.bbox.max.clone().setY(0);
+			const rt = this.bbox.min.clone().setY(0);
+			this._sizeInWorld = lt.sub(rt).length();
 		}
 		return this._bbox;
 	}
@@ -103,25 +104,17 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this._subTiles;
 	}
 
-	/** 取得瓦片离摄像机距离（世界坐标系） */
-	public get distToCamera() {
+	/** 瓦片到相机的距离比例，用于 LOD 评估 */
+	public get distRatio() {
+		// 瓦片中心最高点位置
 		const tilePos = this.position
 			.clone()
-			.setZ(this.bbox.max.z || 0)
+			.setZ(this.bbox.max.y || 0)
 			.applyMatrix4(this.matrixWorld);
-		return cameraWorldPosition.distanceTo(tilePos);
-	}
-
-	private _sizeInWorld = -1;
-	/* 瓦片在世界坐标系中的大小（对角线长度） */
-	public get sizeInWorld() {
-		if (this._sizeInWorld < 0) {
-			const scale = this.scale;
-			const lt = new Vector3(-scale.x, -scale.y, 0).applyMatrix4(this.matrixWorld);
-			const rt = new Vector3(scale.x, scale.y, 0).applyMatrix4(this.matrixWorld);
-			this._sizeInWorld = lt.sub(rt).length();
-		}
-		return this._sizeInWorld;
+		const distToCamera = cameraWorldPosition.distanceTo(tilePos);
+		// 增大不在视锥体内瓦片的距离，以使它更快合并
+		const dist = distToCamera * (this.inFrustum ? 0.8 : 5);
+		return dist / this._sizeInWorld;
 	}
 
 	/** 瓦片是否在视锥体内 */
@@ -170,7 +163,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.z = z;
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
-		this.matrixAutoUpdate = false;
+		// this.matrixAutoUpdate = this.z === 0;
 	}
 
 	/**
@@ -193,14 +186,15 @@ export class Tile extends Object3D<TTileEventMap> {
 			return;
 		}
 
+		const { loader, minLevel } = params;
 		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载瓦片
-		if (this.z >= params.minLevel && Tile._downloadingThreads < THREADSNUM) {
+		if (this.z >= minLevel && loader.downloadingThreads < MAXTHREADS) {
 			if (!this.model) {
-				this._startLoad(params.loader); // 下载瓦片
+				this._startLoad(loader); // 下载瓦片
 				return;
 			}
 			if (this._isDirty) {
-				this._startUpdate(params.loader); // 更新瓦片
+				this._startUpdate(loader); // 更新瓦片
 				return;
 			}
 		}
@@ -275,13 +269,10 @@ export class Tile extends Object3D<TTileEventMap> {
 	 */
 	private async _startLoad(loader: ITileLoader) {
 		this._isLoading = true;
-		Tile._downloadingThreads++;
 		const model = await loader.load(this);
 		this._model = model;
-		model.geometry.computeBoundingBox();
-		// 更新bbox
-		this.bbox.max.z = model.geometry.boundingBox?.max.z || 0;
-		Tile._downloadingThreads--;
+		// model.geometry.computeBoundingBox();
+		this.bbox.max.y = model.geometry.boundingBox?.max.z || 0;
 		this._isLoading = false;
 		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.isLeaf && this._checkVisible();
@@ -300,13 +291,10 @@ export class Tile extends Object3D<TTileEventMap> {
 			return;
 		}
 		this._isLoading = true;
-		Tile._downloadingThreads++;
 		await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
-		// 更新bbox
 		this.bbox.max.z = this.model.geometry.boundingBox?.max.z || 0;
 		this._updateMaterial = false;
 		this._updateGeometry = false;
-		Tile._downloadingThreads--;
 		this._isLoading = false;
 		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
 	}

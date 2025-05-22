@@ -45,9 +45,6 @@
 		"vite": "^5.4.16",
 		"vite-plugin-dts": "^4.0.3"
 	},
-	"peerDependencies": {
-		"three": "^0.165.0"
-	},
 	"workspaces": [
 		"packages/*"
 	],
@@ -70,5 +67,8 @@
 	"bugs": {
 		"url": "https://github.com/sxguojf/three-tile/issues"
 	},
-	"homepage": "https://github.com/sxguojf/three-tile#readme"
+	"homepage": "https://github.com/sxguojf/three-tile#readme",
+	"dependencies": {
+		"three": "^0.176.0"
+	}
 }

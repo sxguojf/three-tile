@@ -42,6 +42,9 @@ export type TileSourceLoadParamsType<TSource extends ISource = ISource> = TileLo
  * 瓦片加载器接口
  */
 export interface ITileLoader {
+	/** 正在下载的线程数量 */
+	downloadingThreads: number;
+	/** 是否调试模式 */
 	debug: boolean;
 	/** 瓦片加载管理器 */
 	manager: TileLoadingManager;

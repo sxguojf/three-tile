@@ -175,7 +175,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 
 		controls.target.set(0, 0, -3e3);
 		controls.screenSpacePanning = false;
-		controls.minDistance = 0.1e3;
+		controls.minDistance = 10;
 		controls.maxDistance = 3e7;
 		controls.maxPolarAngle = MAX_POLAR_ANGLE;
 		controls.enableDamping = true;
