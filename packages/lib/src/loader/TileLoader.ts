@@ -118,9 +118,12 @@ export class TileLoader implements ITileLoader {
 				}
 				return new TileGeometry();
 			});
-			geometry.addEventListener("dispose", () => {
-				loader.unload && loader.unload(geometry);
-			});
+
+			const dispose = (evt: { target: BufferGeometry }) => {
+				loader.unload && loader.unload(evt.target);
+				evt.target.removeEventListener("dispose", dispose);
+			};
+			geometry.addEventListener("dispose", dispose);
 		} else {
 			geometry = new TileGeometry();
 		}

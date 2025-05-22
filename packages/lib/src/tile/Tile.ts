@@ -47,7 +47,7 @@ const cameraWorldPosition = new Vector3();
 /** 场景视锥体 */
 const frustum = new Frustum();
 /** 瓦片包围盒(局部坐标) */
-const tileBox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 0));
+const tileBox = new Box3().setFromArray([-0.5, -0.5, 0, 0.5, 0.5, 0]); //new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 0));
 
 /**
  * 动态LOD（DLOD）地图瓦片类，用于表示地图中的一块瓦片，瓦片可以包含子瓦片，以四叉树方式管理。
@@ -67,10 +67,10 @@ export class Tile extends Object3D<TTileEventMap> {
 	public readonly z: number;
 	/** 是否为瓦片 */
 	public readonly isTile = true;
-	/** 根瓦片 */
-	private _root?: Tile;
 	/** 瓦片是否正在加载中 */
 	private _isLoading = false;
+	/** 根瓦片 */
+	private _root?: Tile;
 
 	/** 瓦片实际地形包围盒（世界坐标） */
 	private _bbox: Box3 | null = null;
@@ -88,10 +88,8 @@ export class Tile extends Object3D<TTileEventMap> {
 			this._bigBox = this.bbox.clone();
 			this._bigBox.min.setY(-300);
 			this._bigBox.max.setY(9000);
-			return this._bigBox;
-		} else {
-			return this._bigBox;
 		}
+		return this._bigBox;
 	}
 
 	/** 瓦片模型 */
@@ -128,7 +126,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 瓦片是否在视锥体内 */
 	public get inFrustum(): boolean {
-		return !this.bigBox || frustum.intersectsBox(this.bigBox);
+		return frustum.intersectsBox(this.bigBox);
 	}
 
 	/** 是否为叶子瓦片 */
@@ -179,7 +177,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * 瓦片射线检测，射线穿过瓦片包围盒内时，才进行模型的射线检测
 	 */
 	public raycast(raycaster: Raycaster) {
-		return !this.bigBox || raycaster.ray.intersectsBox(this.bigBox);
+		return raycaster.ray.intersectsBox(this.bigBox);
 	}
 
 	/**
