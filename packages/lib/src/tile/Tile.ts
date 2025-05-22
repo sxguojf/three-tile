@@ -4,19 +4,7 @@
  *@date: 2025-05-01
  */
 
-import {
-	BaseEvent,
-	Box3,
-	Camera,
-	Frustum,
-	Intersection,
-	Matrix4,
-	Mesh,
-	Object3D,
-	Object3DEventMap,
-	Raycaster,
-	Vector3,
-} from "three";
+import { BaseEvent, Box3, Camera, Frustum, Matrix4, Mesh, Object3D, Object3DEventMap, Raycaster, Vector3 } from "three";
 import { ITileLoader } from "../loader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
@@ -79,13 +67,32 @@ export class Tile extends Object3D<TTileEventMap> {
 	public readonly z: number;
 	/** 是否为瓦片 */
 	public readonly isTile = true;
-
 	/** 根瓦片 */
 	private _root?: Tile;
 	/** 瓦片是否正在加载中 */
 	private _isLoading = false;
-	/** 瓦片包围盒（世界坐标） */
+
+	/** 瓦片实际地形包围盒（世界坐标） */
 	private _bbox: Box3 | null = null;
+	private get bbox() {
+		if (!this._bbox) {
+			this._bbox = tileBox.clone().applyMatrix4(this.matrixWorld);
+		}
+		return this._bbox;
+	}
+
+	/** 瓦片大包围盒（世界坐标） */
+	private _bigBox: Box3 | null = null;
+	private get bigBox() {
+		if (!this._bigBox) {
+			this._bigBox = this.bbox.clone();
+			this._bigBox.min.setY(-300);
+			this._bigBox.max.setY(9000);
+			return this._bigBox;
+		} else {
+			return this._bigBox;
+		}
+	}
 
 	/** 瓦片模型 */
 	private _model: Mesh | undefined;
@@ -102,7 +109,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	public get distToCamera() {
 		const tilePos = this.position
 			.clone()
-			.setZ(this._bbox?.max.z || 0)
+			.setZ(this.bbox.max.z || 0)
 			.applyMatrix4(this.matrixWorld);
 		return cameraWorldPosition.distanceTo(tilePos);
 	}
@@ -119,9 +126,9 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this._sizeInWorld;
 	}
 
-	/** 取得瓦片是否在视锥体内 */
+	/** 瓦片是否在视锥体内 */
 	public get inFrustum(): boolean {
-		return !this._bbox || frustum.intersectsBox(this._bbox);
+		return !this.bigBox || frustum.intersectsBox(this.bigBox);
 	}
 
 	/** 是否为叶子瓦片 */
@@ -137,6 +144,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 设置瓦片是否显示 */
 	public set showing(value) {
 		if (value != this.showing && this.model) {
+			this.model.traverse(child => child.layers.set(value ? 0 : 31));
 			this.model.visible = value;
 			this._root?.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
 		}
@@ -168,19 +176,10 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 瓦片射线检测，射线在瓦片包围盒内时，才进行模型的射线检测
+	 * 瓦片射线检测，射线穿过瓦片包围盒内时，才进行模型的射线检测
 	 */
-	public raycast(raycaster: Raycaster, intersects: Intersection[]): void {
-		const intersect = !this._bbox || raycaster.ray.intersectsBox(this._bbox);
-		if (intersect) {
-			if (this.showing) {
-				this.model?.raycast(raycaster, intersects);
-			} else if (this.subTiles) {
-				this.subTiles.forEach(child => {
-					child.raycast(raycaster, intersects);
-				});
-			}
-		}
+	public raycast(raycaster: Raycaster) {
+		return !this.bigBox || raycaster.ray.intersectsBox(this.bigBox);
 	}
 
 	/**
@@ -198,22 +197,18 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载瓦片
 		if (this.z >= params.minLevel && Tile._downloadingThreads < THREADSNUM) {
-			// 如果模型需要更新，则启动异步更新，并立即返回
-			if (this._isDirty) {
-				this._startUpdate(params.loader);
+			if (!this.model) {
+				this._startLoad(params.loader); // 下载瓦片
 				return;
 			}
-
-			// 如果模型没有加载，则启动异步下载，并立即返回
-			if (!this.model) {
-				this._startLoad(params.loader);
+			if (this._isDirty) {
+				this._startUpdate(params.loader); // 更新瓦片
 				return;
 			}
 		}
 
 		// 如果是根瓦片，则计算一次视锥体和摄像机坐标
 		if (this.z === 0) {
-			this._bbox = this._bbox ?? tileBox.clone().applyMatrix4(this.matrixWorld);
 			const camera = params.camera;
 			camera.getWorldPosition(cameraWorldPosition);
 			frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
@@ -233,12 +228,6 @@ export class Tile extends Object3D<TTileEventMap> {
 			newTiles.forEach(child => {
 				child.updateMatrix();
 				child.updateMatrixWorld();
-
-				// 计算包围盒
-				child._bbox = tileBox.clone().applyMatrix4(child.matrixWorld);
-				child._bbox.min.setY(-300);
-				child._bbox.max.setY(9000);
-
 				this._root?.dispatchEvent({ type: "tile-created", tile: child });
 			});
 		}
@@ -293,7 +282,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._model = model;
 		model.geometry.computeBoundingBox();
 		// 更新bbox
-		this._bbox && (this._bbox.max.z = model.geometry.boundingBox?.max.z || 0);
+		this.bbox.max.z = model.geometry.boundingBox?.max.z || 0;
 		Tile._downloadingThreads--;
 		this._isLoading = false;
 		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
@@ -315,6 +304,8 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._isLoading = true;
 		Tile._downloadingThreads++;
 		await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
+		// 更新bbox
+		this.bbox.max.z = this.model.geometry.boundingBox?.max.z || 0;
 		this._updateMaterial = false;
 		this._updateGeometry = false;
 		Tile._downloadingThreads--;
