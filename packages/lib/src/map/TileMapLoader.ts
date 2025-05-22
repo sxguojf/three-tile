@@ -31,14 +31,14 @@ export class TileMapLoader extends TileLoader {
 		return super.load({ x, y, z, bounds, lonLatBounds });
 	}
 
-	public update(
+	public async update(
 		tileMesh: Mesh,
 		params: TileLoadParamsType,
 		updateMaterial: boolean,
 		updateGeometry: boolean
-	): Promise<void> {
+	): Promise<Mesh> {
 		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
-		return super.update(tileMesh, { x, y, z, bounds, lonLatBounds }, updateMaterial, updateGeometry);
+		return await super.update(tileMesh, { x, y, z, bounds, lonLatBounds }, updateMaterial, updateGeometry);
 	}
 
 	private getTileCoords(params: TileLoadParamsType) {

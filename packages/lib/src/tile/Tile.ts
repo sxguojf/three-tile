@@ -291,7 +291,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			return;
 		}
 		this._isLoading = true;
-		await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
+		this._model = await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
 		this.bbox.max.z = this.model.geometry.boundingBox?.max.z || 0;
 		this._updateMaterial = false;
 		this._updateGeometry = false;

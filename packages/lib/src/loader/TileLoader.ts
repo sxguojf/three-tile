@@ -93,6 +93,7 @@ export class TileLoader implements ITileLoader {
 		if (updateMaterial) {
 			await this.updateMaterial(tileMesh, params);
 		}
+		return tileMesh;
 	}
 
 	/**
