@@ -300,14 +300,15 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 重新加载(更新)瓦片数据
+	 * 更新瓦片数据
 	 * @param updateMaterial - 是否更新材质
 	 * @param updateGeometry - 是否更新几何体
 	 * @returns this
 	 */
 	public updateSource(updateMaterial: boolean, updateGeometry: boolean) {
 		this.traverse(child => {
-			if (child instanceof Tile && child.model) {
+			if (child instanceof Tile) {
+				child._isLoading = false;
 				child._updateMaterial = updateMaterial;
 				child._updateGeometry = updateGeometry;
 			}
@@ -316,7 +317,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 销毁瓦片树并重新创建并加载数据
+	 * 销毁瓦片树重新创建，并加载数据
 	 * @param loader - 瓦片加载器
 	 * @returns this
 	 */

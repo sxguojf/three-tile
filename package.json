@@ -1,6 +1,6 @@
 {
 	"name": "three-tile",
-	"version": "0.10.3",
+	"version": "0.11.0",
 	"type": "module",
 	"files": [
 		"dist"
@@ -37,13 +37,16 @@
 	"devDependencies": {
 		"@types/node": "^20.17.30",
 		"@types/offscreencanvas": "^2019.7.0",
-		"@types/three": "^0.165.0",
+		"@types/three": "^0.171.0",
 		"fs-extra": "^11.3.0",
 		"prettier": "^3.5.3",
 		"typedoc": "^0.25.13",
 		"typescript": "^5.3.3",
 		"vite": "^5.4.16",
 		"vite-plugin-dts": "^4.0.3"
+	},
+	"dependencies": {
+		"three": "^0.171.0"
 	},
 	"workspaces": [
 		"packages/*"
@@ -68,7 +71,7 @@
 		"url": "https://github.com/sxguojf/three-tile/issues"
 	},
 	"homepage": "https://github.com/sxguojf/three-tile#readme",
-	"dependencies": {
-		"three": "^0.176.0"
+	"peerdependencies": {
+		"three": "^0.171.0"
 	}
 }
