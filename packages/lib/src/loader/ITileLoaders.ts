@@ -54,7 +54,7 @@ export interface ITileLoader {
 	/** 释放瓦片模型 */
 	unload(tileMesh: Mesh): void;
 	/**  更新瓦片数据 */
-	update(tileMesh: Mesh, params: TileCoords, updateMaterial: boolean, updateGeometry: boolean): void;
+	update(tileMesh: Mesh, params: TileCoords, updateMaterial: boolean, updateGeometry: boolean): Promise<Mesh>;
 }
 
 /**

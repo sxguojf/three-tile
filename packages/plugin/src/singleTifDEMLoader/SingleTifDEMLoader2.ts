@@ -17,7 +17,7 @@ import { DEMType, parse } from "./parse";
 export class SingleTifDEMLoader implements ITileGeometryLoader {
 	public readonly info = {
 		author: "chaoxl",
-		version: "0.10.0",
+		version: "0.11.0",
 		description: "TIF DEM terrain loader. It can load single tif dem.",
 	};
 

@@ -12,7 +12,7 @@ import { ITileMaterialLoader, TileSourceLoadParamsType } from "three-tile";
  */
 export class TileMaterialWrieLoader implements ITileMaterialLoader {
 	public readonly info = {
-		version: "0.10.0",
+		version: "0.11.0",
 		description: "Tile wireframe material loader.",
 	};
 

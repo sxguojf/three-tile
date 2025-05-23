@@ -16,17 +16,6 @@ export enum LODAction {
 }
 
 /**
- * 取得瓦片到摄像机的距离与瓦片对角线长度之比(距宽比)：≈tan(瓦片视宽角）
- * @param tile
- * @returns 距宽比
- */
-function getDistRatio(tile: Tile): number {
-	// 增大不在视锥体内瓦片的距离，以使它更快合并
-	const dist = tile.distToCamera * (tile.inFrustum ? 0.8 : 5);
-	return dist / tile.sizeInWorld;
-}
-
-/**
  * 根据摄像机到瓦片的距离，评估瓦片是否需要细化或合并
  * @param tile 瓦片实例
  * @param minLevel 地图最小层级
@@ -35,24 +24,25 @@ function getDistRatio(tile: Tile): number {
  * @returns LODAction 细化或合并还无动作
  */
 export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {
-	// 非叶子瓦片层级大于地图最大层级，直接返回合并
-	if (tile.z > maxLevel && !tile.isLeaf) {
+	if (tile.z > maxLevel) {
 		return LODAction.remove;
 	}
 
 	// 取得瓦片视宽角
-	const distRatio = getDistRatio(tile);
+	const distRatio = tile.distRatio;
 
-	if (tile.isLeaf) {
-		// 叶子瓦片可以细化
-		if (tile.inFrustum && tile.z < maxLevel && distRatio < threshold && (tile.showing || tile.z <= minLevel)) {
-			return LODAction.create;
-		}
-	} else {
-		// 非叶子瓦片可以合并
-		if (tile.z >= minLevel && distRatio > threshold) {
-			return LODAction.remove;
-		}
+	if (
+		tile.isLeaf &&
+		tile.inFrustum &&
+		tile.z < maxLevel &&
+		distRatio < threshold &&
+		(tile.showing || tile.z <= minLevel)
+	) {
+		return LODAction.create;
+	}
+
+	if (!tile.isLeaf && tile.z >= minLevel && distRatio > threshold) {
+		return LODAction.remove;
 	}
 	return LODAction.none;
 }

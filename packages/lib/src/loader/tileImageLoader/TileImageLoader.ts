@@ -12,7 +12,7 @@ import { LoaderFactory, TileMaterialLoader, TileSourceLoadParamsType, getSubImag
  */
 export class TileImageLoader extends TileMaterialLoader {
 	public readonly info = {
-		version: "0.10.0",
+		version: "0.11.0",
 		description: "Tile image loader. It can load xyz tile image.",
 	};
 
