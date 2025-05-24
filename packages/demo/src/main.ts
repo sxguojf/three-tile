@@ -144,7 +144,7 @@ function main() {
 	// 初始化GUI
 	initGui(viewer, map);
 	// 摄像机动画移动到3000高度
-	fly(viewer, map);
+	// fly(viewer, map);
 	// 测试
 	// topMeshTest(viewer, map);
 	// testTileHelperBox(map);
