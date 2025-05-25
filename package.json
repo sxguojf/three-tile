@@ -70,8 +70,5 @@
 	"bugs": {
 		"url": "https://github.com/sxguojf/three-tile/issues"
 	},
-	"homepage": "https://github.com/sxguojf/three-tile#readme",
-	"peerdependencies": {
-		"three": "^0.171.0"
-	}
+	"homepage": "https://github.com/sxguojf/three-tile#readme"
 }
