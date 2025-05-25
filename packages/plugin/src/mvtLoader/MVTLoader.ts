@@ -17,7 +17,7 @@ export class MVTLoader extends TileMaterialLoader {
 	public dataType: string = "mvt";
 	// 加载器信息
 	public info = {
-		version: "0.11.0",
+		version: "0.11.2",
 		author: "GuoJF",
 		description: "MVT瓦片加载器",
 	};

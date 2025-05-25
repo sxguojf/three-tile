@@ -1,6 +1,6 @@
 [English](README.md) | [简体中文](README_CN.md)
 
-# **three-tile V0.11.0**
+# **three-tile V0.11.1**
 
 <p align='right'>hz_gjf@163.com</p>
 
@@ -54,7 +54,7 @@ https://sxguojf.github.io/mydemo/three-tile-vue/index.html
 - 语言：TypeScript 100%
 - IDE： VSCode
 - 打包：Vite 4.0
-- 依赖：three 0.165
+- 依赖：three 0.171
 
 ---
 

@@ -16,7 +16,7 @@ export type MaterialCreator = (loaderParams: TileSourceLoadParamsType) => ITileM
  */
 export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMaterial> {
 	public info = {
-		version: "0.11.0",
+		version: "0.11.2",
 		description: "Image loader base class",
 	};
 

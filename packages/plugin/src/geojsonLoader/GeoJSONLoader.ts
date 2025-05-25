@@ -21,7 +21,7 @@ import {
 export class GeoJSONLoader extends TileMaterialLoader {
 	// 加载器信息
 	public info = {
-		version: "0.11.0",
+		version: "0.11.2",
 		author: "GuoJF",
 		description: "GeoJSON 加载器",
 	};

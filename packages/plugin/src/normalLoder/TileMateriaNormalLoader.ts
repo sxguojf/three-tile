@@ -12,7 +12,7 @@ import { Material, MeshNormalMaterial } from "three";
  */
 export class TileMateriaNormalLoader implements ITileMaterialLoader {
 	public readonly info = {
-		version: "0.11.0",
+		version: "0.11.2",
 		description: "Tile normal material loader.",
 	};
 	public readonly dataType: string = "normal";

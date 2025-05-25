@@ -62,7 +62,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 瓦片是否正在加载中 */
 	private _isLoading = false;
 	/** 根瓦片 */
-	private _root?: Tile;
+	private _root: Tile = this;
 
 	/* 瓦片在世界坐标系中的大小（对角线长度） */
 	private _sizeInWorld = -1;
@@ -138,7 +138,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		if (value != this.showing && this.model) {
 			this.model.traverse(child => child.layers.set(value ? 0 : 31));
 			this.model.visible = value;
-			this._root?.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
+			this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
 		}
 	}
 
@@ -171,7 +171,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * 瓦片射线检测，射线穿过瓦片包围盒内时，才进行模型的射线检测
 	 */
 	public raycast(raycaster: Raycaster) {
-		return this.z === 0 || (this.bigBox && raycaster.ray.intersectsBox(this.bigBox));
+		return this.bigBox && raycaster.ray.intersectsBox(this.bigBox);
 	}
 
 	/**
@@ -207,8 +207,8 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		// 阴影
 		if (this.model) {
-			this.model.castShadow = this._root?.castShadow || false;
-			this.model.receiveShadow = this._root?.receiveShadow || false;
+			this.model.castShadow = this._root.castShadow || false;
+			this.model.receiveShadow = this._root.receiveShadow || false;
 		}
 
 		// LOD
@@ -219,7 +219,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			newTiles.forEach(child => {
 				child.updateMatrix();
 				child.updateMatrixWorld();
-				this._root?.dispatchEvent({ type: "tile-created", tile: child });
+				this._root.dispatchEvent({ type: "tile-created", tile: child });
 			});
 		}
 
@@ -273,7 +273,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		// model.geometry.computeBoundingBox();
 		this.bbox && (this.bbox.max.y = model.geometry.boundingBox?.max.z || 0);
 		this._isLoading = false;
-		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
+		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.isLeaf && this._checkVisible();
 		this.add(model);
 
@@ -295,7 +295,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._updateMaterial = false;
 		this._updateGeometry = false;
 		this._isLoading = false;
-		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
+		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 	}
 
 	/**
@@ -342,7 +342,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		// 卸载自己
 		if (unLoadSelf && this.model) {
 			loader.unload(this.model);
-			this._root?.dispatchEvent({ type: "tile-unload", tile: this });
+			this._root.dispatchEvent({ type: "tile-unload", tile: this });
 			this._model = undefined;
 		}
 		return this;

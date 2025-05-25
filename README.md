@@ -1,6 +1,6 @@
 [English](README.md) | [简体中文](README_CN.md)
 
-# **three-tile V0.11.0**
+# **three-tile V0.11.2**
 
 <p align='right'>hz_gjf@163.com</p>
 
@@ -54,7 +54,7 @@ Disclaimer:
 - Language: 100% TypeScript
 - IDE: VSCode
 - Bundler: Vite 4.0
-- Dependency: three 0.165
+- Dependency: three 0.171
 
 ---
 
