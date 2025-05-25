@@ -475,6 +475,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	public getTileCount() {
 		let total = 0,
 			visible = 0,
+			inFrustum = 0,
 			maxLevel = 0,
 			leaf = 0,
 			downloading = 0;
@@ -485,11 +486,12 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			total++;
 			if (tile.isLeaf) {
 				leaf++;
-				if (tile.inFrustum) visible++;
+				tile.showing && visible++;
+				tile.inFrustum && inFrustum++;
 			}
 			maxLevel = Math.max(maxLevel, tile.z);
 			downloading = this._loader.downloadingThreads;
 		});
-		return { total, visible, leaf, maxLevel: maxLevel, downloading: downloading };
+		return { total, leaf, visible, inFrustum, maxLevel, downloading };
 	}
 }
