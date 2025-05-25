@@ -66,17 +66,17 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/* 瓦片在世界坐标系中的大小（对角线长度） */
 	private _sizeInWorld = -1;
+
 	/** 瓦片实际地形包围盒（世界坐标） */
 	private _bbox: Box3 | null = null;
 	private get bbox() {
-		if (!this._bbox) {
-			const scale = this.z === 0 ? new Vector3(1, 1, 1) : this.scale;
-			this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0)).applyMatrix4(
-				this.matrixWorld
-			);
+		if (!this._bbox && this.parent) {
+			const scale = this.scale;
+			this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0));
+			this._bbox.applyMatrix4(this.matrixWorld);
 
-			const lt = this.bbox.max.clone().setY(0);
-			const rt = this.bbox.min.clone().setY(0);
+			const lt = this._bbox.max.clone().setY(0);
+			const rt = this._bbox.min.clone().setY(0);
 			this._sizeInWorld = lt.sub(rt).length();
 			console.assert(this._sizeInWorld > 10);
 		}
@@ -86,7 +86,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 瓦片大包围盒（世界坐标） */
 	private _bigBox: Box3 | null = null;
 	private get bigBox() {
-		if (!this._bigBox) {
+		if (!this._bigBox && this.bbox) {
 			this._bigBox = this.bbox.clone();
 			this._bigBox.min.setY(-300);
 			this._bigBox.max.setY(9000);
@@ -110,7 +110,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		// 瓦片中心最高点位置
 		const tilePos = this.position
 			.clone()
-			.setZ(this.bbox.max.y || 0)
+			.setZ(this.bbox?.max.y || 0)
 			.applyMatrix4(this.matrixWorld);
 		const distToCamera = cameraWorldPosition.distanceTo(tilePos);
 		// 增大不在视锥体内瓦片的距离，以使它更快合并
@@ -120,7 +120,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 瓦片是否在视锥体内 */
 	public get inFrustum(): boolean {
-		return frustum.intersectsBox(this.bigBox);
+		return !!this.parent && !!this.bigBox && frustum.intersectsBox(this.bigBox);
 	}
 
 	/** 是否为叶子瓦片 */
@@ -164,15 +164,14 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.z = z;
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
-		// this.matrixAutoUpdate = false;
-		// this.matrixWorldAutoUpdate = false;
+		this.matrixAutoUpdate = false;
 	}
 
 	/**
 	 * 瓦片射线检测，射线穿过瓦片包围盒内时，才进行模型的射线检测
 	 */
 	public raycast(raycaster: Raycaster) {
-		return raycaster.ray.intersectsBox(this.bigBox);
+		return this.z === 0 || (this.bigBox && raycaster.ray.intersectsBox(this.bigBox));
 	}
 
 	/**
@@ -194,7 +193,7 @@ export class Tile extends Object3D<TTileEventMap> {
 				this._startLoad(loader); // 下载瓦片
 				return;
 			}
-			if (this._isDirty) {
+			if (this._isDirty && this.inFrustum) {
 				this._startUpdate(loader); // 更新瓦片
 				return;
 			}
@@ -272,7 +271,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		const model = await loader.load(this);
 		this._model = model;
 		// model.geometry.computeBoundingBox();
-		this.bbox.max.y = model.geometry.boundingBox?.max.z || 0;
+		this.bbox && (this.bbox.max.y = model.geometry.boundingBox?.max.z || 0);
 		this._isLoading = false;
 		this._root?.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.isLeaf && this._checkVisible();
@@ -292,7 +291,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 		this._isLoading = true;
 		this._model = await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
-		this.bbox.max.z = this.model.geometry.boundingBox?.max.z || 0;
+		this.bbox && (this.bbox.max.z = this.model.geometry.boundingBox?.max.z || 0);
 		this._updateMaterial = false;
 		this._updateGeometry = false;
 		this._isLoading = false;
