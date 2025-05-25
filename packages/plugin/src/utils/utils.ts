@@ -43,7 +43,7 @@ export function getAttributions(map: TileMap) {
 	return Array.from(attributions);
 }
 
-export function limitCameraHeight1(map: TileMap, camera: PerspectiveCamera, limitHeight = 10) {
+export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limitHeight = 10) {
 	// 计算近截面下沿中点（相机局部坐标系）
 	const height = 2 * camera.near * Math.tan(MathUtils.degToRad(camera.fov) / 2);
 	const localPoint = new Vector3(0, -height / 2, -camera.near - height / 10); // 局部坐标
@@ -86,7 +86,7 @@ export function limitCameraHeight1(map: TileMap, camera: PerspectiveCamera, limi
 
 const ray = new Raycaster();
 const tanFov = Math.tan(MathUtils.degToRad(70 / 2));
-export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limitHeight = 10) {
+export function limitCameraHeight1(map: TileMap, camera: PerspectiveCamera, limitHeight = 10) {
 	let hit = false;
 	// 计算相机到近截面下沿中点的射线与地图的交点
 	ray.setFromCamera(new Vector2(0, -1), camera);

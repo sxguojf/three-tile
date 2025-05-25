@@ -1,4 +1,4 @@
-import { REVISION, Vector3 } from "three";
+import { REVISION } from "three";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
