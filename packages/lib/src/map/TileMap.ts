@@ -258,7 +258,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			loader = new TileLoader(),
 			rootTile = new Tile(),
 			minLevel = 2,
-			maxLevel = 19,
+			maxLevel = 20,
 			imgSource,
 			demSource,
 			lon0 = 0,
@@ -284,6 +284,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 
 		// 模型矩阵更新
 		rootTile.updateMatrix();
+		rootTile.updateMatrixWorld();
 
 		// 绑定事件
 		attachEvent(this);

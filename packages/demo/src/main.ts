@@ -120,21 +120,21 @@ function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
 }
 
 // 动画漫游指定位置
-function fly(viewer: plugin.GLViewer, map: tt.TileMap) {
-	// 地图中心坐标(经度，纬度，高度)
-	const centerGeo = new Vector3(110, 35, 0);
-	// 摄像坐标(经度，纬度，高度)
-	const camersGeo = new Vector3(110, 15, 4000 * 1000);
-	// 地图中心经纬度高度转为世界坐标
-	const centerPosition = map.geo2world(centerGeo);
-	// 摄像经纬度高度转为世界坐标
-	const cmaeraPosition = map.geo2world(camersGeo);
-	viewer.controls.enabled = false;
-	// 飞到指定位置
-	viewer.flyTo(centerPosition, cmaeraPosition, true, () => {
-		viewer.controls.enabled = true;
-	});
-}
+// function fly(viewer: plugin.GLViewer, map: tt.TileMap) {
+// 	// 地图中心坐标(经度，纬度，高度)
+// 	const centerGeo = new Vector3(110, 35, 0);
+// 	// 摄像坐标(经度，纬度，高度)
+// 	const camersGeo = new Vector3(110, 15, 4000 * 1000);
+// 	// 地图中心经纬度高度转为世界坐标
+// 	const centerPosition = map.geo2world(centerGeo);
+// 	// 摄像经纬度高度转为世界坐标
+// 	const cmaeraPosition = map.geo2world(camersGeo);
+// 	viewer.controls.enabled = false;
+// 	// 飞到指定位置
+// 	viewer.flyTo(centerPosition, cmaeraPosition, true, () => {
+// 		viewer.controls.enabled = true;
+// 	});
+// }
 
 function main() {
 	// 创建地图

@@ -5,6 +5,7 @@ import {
 	Mesh,
 	MeshLambertMaterial,
 	PerspectiveCamera,
+	Raycaster,
 	SphereGeometry,
 	Vector2,
 	Vector3,
@@ -42,7 +43,7 @@ export function getAttributions(map: TileMap) {
 	return Array.from(attributions);
 }
 
-export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limitHeight = 10) {
+export function limitCameraHeight1(map: TileMap, camera: PerspectiveCamera, limitHeight = 10) {
 	// 计算近截面下沿中点（相机局部坐标系）
 	const height = 2 * camera.near * Math.tan(MathUtils.degToRad(camera.fov) / 2);
 	const localPoint = new Vector3(0, -height / 2, -camera.near - height / 10); // 局部坐标
@@ -80,5 +81,37 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 		pointMesh.scale.setScalar(height / 50);
 	}
 
+	return hit;
+}
+
+const ray = new Raycaster();
+const tanFov = Math.tan(MathUtils.degToRad(70 / 2));
+export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limitHeight = 10) {
+	let hit = false;
+	// 计算相机到近截面下沿中点的射线与地图的交点
+	ray.setFromCamera(new Vector2(0, -1), camera);
+	const intersects = ray.intersectObject(map, true);
+
+	if (intersects.length > 0) {
+		// 相机到交点的距离
+		const d1 = intersects[0].distance;
+
+		// 计算近截面下沿中点到相机的距离
+		const near = camera.near;
+		const halfHeight = tanFov * near;
+		const d0 = Math.sqrt(near * near + halfHeight * halfHeight);
+
+		// 计算距离差
+		const dist = d1 - d0;
+		if (dist < limitHeight) {
+			const offset = dist < 0 ? -dist * 1.1 : dist / 5;
+			const dv = map.localToWorld(map.up.clone()).multiplyScalar(offset);
+			camera.position.add(dv);
+			hit = true;
+			console.log(dist);
+		}
+	} else {
+		console.log("no intersects");
+	}
 	return hit;
 }

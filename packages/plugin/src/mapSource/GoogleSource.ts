@@ -18,7 +18,7 @@ export type GoogleSourceOptions = SourceOptions & { style?: Style };
 export class GoogleSource extends TileSource {
 	public dataType = "image";
 	public attribution = "Google";
-	public maxLevel = 20;
+	public maxLevel = 21;
 	public style: Style = "s";
 	public subdomains = "0123";
 

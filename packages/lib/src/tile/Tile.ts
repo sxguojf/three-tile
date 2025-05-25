@@ -9,7 +9,7 @@ import { ITileLoader } from "../loader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
 /** 最大下载线程数 */
-const MAXTHREADS = 20;
+const MAXTHREADS = 10;
 
 /** 瓦片更新参数类型 */
 export type TileUpdateParames = {
@@ -70,7 +70,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	private _bbox: Box3 | null = null;
 	private get bbox() {
 		if (!this._bbox) {
-			const scale = this.scale;
+			const scale = this.z === 0 ? new Vector3(1, 1, 1) : this.scale;
 			this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0)).applyMatrix4(
 				this.matrixWorld
 			);
@@ -78,6 +78,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			const lt = this.bbox.max.clone().setY(0);
 			const rt = this.bbox.min.clone().setY(0);
 			this._sizeInWorld = lt.sub(rt).length();
+			console.assert(this._sizeInWorld > 10);
 		}
 		return this._bbox;
 	}
@@ -163,7 +164,8 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.z = z;
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
-		// this.matrixAutoUpdate = this.z === 0;
+		// this.matrixAutoUpdate = false;
+		// this.matrixWorldAutoUpdate = false;
 	}
 
 	/**
@@ -178,15 +180,14 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * @param params 瓦片加载参数
 	 */
 	public update(params: TileUpdateParames) {
-		this._root = this.parent instanceof Tile ? this.parent._root : this;
-		console.assert(!!this._root);
-
 		// （没有父瓦片||模型正在加载）时不进行更新
 		if (!this.parent || this._isLoading) {
 			return;
 		}
 
-		const { loader, minLevel } = params;
+		this._root = this.parent instanceof Tile ? this.parent._root : this;
+
+		const { loader, minLevel, camera } = params;
 		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载瓦片
 		if (this.z >= minLevel && loader.downloadingThreads < MAXTHREADS) {
 			if (!this.model) {
@@ -201,7 +202,6 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		// 如果是根瓦片，则计算一次视锥体和摄像机坐标
 		if (this.z === 0) {
-			const camera = params.camera;
 			camera.getWorldPosition(cameraWorldPosition);
 			frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 		}

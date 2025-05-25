@@ -26,7 +26,7 @@ export interface LocationInfo extends Intersection {
  */
 export function getLocalInfoFromRay(map: TileMap, ray: Raycaster): LocationInfo | undefined {
 	// threejs R114 射线法会检测不可视对象相交： https://github.com/mrdoob/three.js/issues/14700
-	const intersects = ray.intersectObjects<Mesh>([map.rootTile], true);
+	const intersects = ray.intersectObject<Mesh>(map.rootTile, true);
 	for (const intersect of intersects) {
 		// intersect point to local point
 		const point = map.worldToLocal(intersect.point.clone());
@@ -44,7 +44,7 @@ export function getLocalInfoFromRay(map: TileMap, ray: Raycaster): LocationInfo 
  * @returns ground info
  */
 export function getLocalInfoFromWorld(map: TileMap, worldPosition: Vector3) {
-	// // 原点（高空10000m）
+	// 原点（高空10000m）
 	orginVec3.set(worldPosition.x, 10000, worldPosition.z);
 	// 从原点垂直地面向下做一条射线
 	tempRay.set(orginVec3, downVec3);
