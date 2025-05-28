@@ -42,6 +42,7 @@ export interface TTileEventMap extends Object3DEventMap {
 
 /** 临时变量 */
 const tempMat4 = new Matrix4();
+const tempVec3 = new Vector3();
 /** 相机世界坐标 */
 const cameraWorldPosition = new Vector3();
 /** 场景视锥体 */
@@ -57,42 +58,24 @@ export class Tile extends Object3D<TTileEventMap> {
 	public readonly y: number;
 	/** 瓦片层级 */
 	public readonly z: number;
+
 	/** 是否为瓦片 */
 	public readonly isTile = true;
+
 	/** 瓦片是否正在加载中 */
 	private _isLoading = false;
+
 	/** 根瓦片 */
 	private _root: Tile = this;
 
-	/* 瓦片在世界坐标系中的大小（对角线长度） */
+	/* 瓦片在世界坐标系中的大小*/
 	private _sizeInWorld = -1;
 
 	/** 瓦片实际地形包围盒（世界坐标） */
 	private _bbox: Box3 | null = null;
-	private get bbox() {
-		if (!this._bbox && this.parent) {
-			const scale = this.scale;
-			this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0));
-			this._bbox.applyMatrix4(this.matrixWorld);
 
-			const lt = this._bbox.max.clone().setY(0);
-			const rt = this._bbox.min.clone().setY(0);
-			this._sizeInWorld = lt.sub(rt).length();
-			console.assert(this._sizeInWorld > 10);
-		}
-		return this._bbox;
-	}
-
-	/** 瓦片大包围盒（世界坐标） */
+	/** 瓦片虚拟大小包围盒（世界坐标） */
 	private _bigBox: Box3 | null = null;
-	private get bigBox() {
-		if (!this._bigBox && this.bbox) {
-			this._bigBox = this.bbox.clone();
-			this._bigBox.min.setY(-300);
-			this._bigBox.max.setY(9000);
-		}
-		return this._bigBox;
-	}
 
 	/** 瓦片模型 */
 	private _model: Mesh | undefined;
@@ -110,7 +93,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		// 瓦片中心最高点位置
 		const tilePos = this.position
 			.clone()
-			.setZ(this.bbox?.max.y || 0)
+			.setZ(this._bbox?.max.y || 0)
 			.applyMatrix4(this.matrixWorld);
 		const distToCamera = cameraWorldPosition.distanceTo(tilePos);
 		// 增大不在视锥体内瓦片的距离，以使它更快合并
@@ -120,7 +103,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 瓦片是否在视锥体内 */
 	public get inFrustum(): boolean {
-		return !!this.parent && !!this.bigBox && frustum.intersectsBox(this.bigBox);
+		return !!this._bigBox && frustum.intersectsBox(this._bigBox);
 	}
 
 	/** 是否为叶子瓦片 */
@@ -147,8 +130,8 @@ export class Tile extends Object3D<TTileEventMap> {
 	// 是否更新几何体
 	private _updateGeometry = false;
 
-	private get _isDirty() {
-		return this.model && (this._updateMaterial || this._updateGeometry);
+	private get _isDirty(): boolean {
+		return !!this.model && (this._updateMaterial || this._updateGeometry);
 	}
 
 	/**
@@ -171,7 +154,24 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * 瓦片射线检测，射线穿过瓦片包围盒内时，才进行模型的射线检测
 	 */
 	public raycast(raycaster: Raycaster) {
-		return this.bigBox && raycaster.ray.intersectsBox(this.bigBox);
+		return !!this._bigBox && raycaster.ray.intersectsBox(this._bigBox);
+	}
+
+	/**
+	 * 计算瓦片bbox、bigbox、size
+	 */
+	private calculateBBox() {
+		const scale = this.scale;
+		const bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0));
+		bbox.applyMatrix4(this.matrixWorld);
+		this._bbox = bbox;
+
+		this._bigBox = bbox.clone();
+		this._bigBox.min.setY(-300);
+		this._bigBox.max.setY(9000);
+
+		this._sizeInWorld = bbox.getSize(tempVec3).length();
+		console.assert(this._sizeInWorld > 10);
 	}
 
 	/**
@@ -184,9 +184,18 @@ export class Tile extends Object3D<TTileEventMap> {
 			return;
 		}
 
-		this._root = this.parent instanceof Tile ? this.parent._root : this;
+		// 设置根瓦片
+		if (this.parent instanceof Tile) {
+			this.parent._root;
+		}
+
+		// 计算瓦片包围盒等
+		if (!this._bbox) {
+			this.calculateBBox();
+		}
 
 		const { loader, minLevel, camera } = params;
+
 		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载瓦片
 		if (this.z >= minLevel && loader.downloadingThreads < MAXTHREADS) {
 			if (!this.model) {
@@ -271,7 +280,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		const model = await loader.load(this);
 		this._model = model;
 		// model.geometry.computeBoundingBox();
-		this.bbox && (this.bbox.max.y = model.geometry.boundingBox?.max.z || 0);
+		this._bbox && (this._bbox.max.y = model.geometry.boundingBox?.max.z || 0);
 		this._isLoading = false;
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.isLeaf && this._checkVisible();
@@ -291,7 +300,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 		this._isLoading = true;
 		this._model = await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
-		this.bbox && (this.bbox.max.z = this.model.geometry.boundingBox?.max.z || 0);
+		this._bbox && (this._bbox.max.z = this.model.geometry.boundingBox?.max.z || 0);
 		this._updateMaterial = false;
 		this._updateGeometry = false;
 		this._isLoading = false;
@@ -304,7 +313,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * @param updateGeometry - 是否更新几何体
 	 * @returns this
 	 */
-	public updateSource(updateMaterial: boolean, updateGeometry: boolean) {
+	public updateData(updateMaterial: boolean, updateGeometry: boolean) {
 		this.traverse(child => {
 			if (child instanceof Tile) {
 				child._isLoading = false;

@@ -356,7 +356,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 * @param updateGeometry 是否重新加载几何体, 默认为true
 	 */
 	public updateSource(updateMaterial = true, updateGeometry = true) {
-		this.rootTile.updateSource(updateMaterial, updateGeometry);
+		this.rootTile.updateData(updateMaterial, updateGeometry);
 	}
 
 	/**
