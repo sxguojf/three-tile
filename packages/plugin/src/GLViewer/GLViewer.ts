@@ -160,7 +160,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	 * @returns camera
 	 */
 	private _createCamera() {
-		const camera = new PerspectiveCamera(70, 1, 100, 5e4);
+		const camera = new PerspectiveCamera(70, 1, 100, 5e7);
 		camera.position.set(0, 2.8e7, 0);
 		return camera;
 	}
@@ -181,6 +181,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		controls.enableDamping = true;
 		controls.dampingFactor = 0.05;
 		controls.keyPanSpeed = 5;
+		controls.panSpeed = 2;
 		controls.zoomToCursor = true;
 
 		controls.listenToKeyEvents(this.renderer.domElement);
