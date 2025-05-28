@@ -4,12 +4,10 @@
  *@date: 2023-04-06
  */
 
-import { LoadingManager, BufferGeometry } from "three";
+import { BufferGeometry, LoadingManager } from "three";
+import { author } from "../../package.json";
 import { ISource } from "../source";
 import { ITileGeometryLoader, ITileMaterialLoader } from "./ITileLoaders";
-import { author, version } from "../../package.json";
-
-console.log(`====================three-tile V${version}==============================`);
 
 export class TileLoadingManager extends LoadingManager {
 	public onParseEnd?: (geometry: BufferGeometry) => void = undefined;
@@ -36,7 +34,7 @@ export const LoaderFactory = {
 	registerMaterialLoader(loader: ITileMaterialLoader) {
 		LoaderFactory.imgLoaderMap.set(loader.dataType, loader);
 		loader.info.author = loader.info.author ?? author.name;
-		console.log(`* Register imageLoader: '${loader.dataType}', Author: '${loader.info.author}'`);
+		// console.log(`* Register imageLoader: '${loader.dataType}', Author: '${loader.info.author}'`);
 	},
 
 	/**
@@ -46,7 +44,7 @@ export const LoaderFactory = {
 	registerGeometryLoader(loader: ITileGeometryLoader) {
 		LoaderFactory.demLoaderMap.set(loader.dataType, loader);
 		loader.info.author = loader.info.author ?? author.name;
-		console.log(`* Register terrainLoader: '${loader.dataType}', Author: '${loader.info.author}'`);
+		// console.log(`* Register terrainLoader: '${loader.dataType}', Author: '${loader.info.author}'`);
 	},
 
 	/**
@@ -77,5 +75,16 @@ export const LoaderFactory = {
 		} else {
 			throw `Source dataType "${dataType}" is not support!`;
 		}
+	},
+
+	/**
+	 * Get all loaders
+	 * @returns Image loaders and terrain loaders
+	 */
+	getLoaders() {
+		return {
+			imgLoaders: Array.from(LoaderFactory.imgLoaderMap.values()),
+			demLoaders: Array.from(LoaderFactory.demLoaderMap.values()),
+		};
 	},
 };

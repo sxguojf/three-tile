@@ -58,3 +58,7 @@ export function getImgLoader<T>(dateType: string) {
 export function getDEMLoader<T>(dateType: string) {
 	return LoaderFactory.getGeometryLoader(dateType) as T;
 }
+
+export function getTileLoaders() {
+	return LoaderFactory.getLoaders();
+}

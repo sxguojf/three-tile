@@ -7,39 +7,52 @@ import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
 // import { goHome } from "./test";
 
-//================================注册加载器====================================
-// 注册wrieframe加载器
-tt.registerImgLoader(new plugin.TileMaterialWrieLoader());
-// 注册瓦片调试加载器
-tt.registerImgLoader(new plugin.TileMaterialDebugeLoader());
-// 注册logo加载器
-tt.registerImgLoader(new plugin.TileMaterialLogoLoader());
-// 注册法向量图像加载器
-tt.registerImgLoader(new plugin.TileMateriaNormalLoader());
-// 注册GeoJSON加载器
-tt.registerImgLoader(new plugin.GeoJSONLoader());
-// 注册矢量瓦片MVT加载器
-tt.registerImgLoader(new plugin.MVTLoader());
-// 注册单影像加载器
-tt.registerImgLoader(new plugin.SingleImageLoader());
-// 注册单影像TIF-DEM加载器
-tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
-// 注册带滤镜的瓦片影像加载器
-// tt.registerImgLoader(new plugin.TileFilterLoader());
-//===============================================================================
+// 注册加载器
+function registerLoader() {
+	//================================注册加载器====================================
+	// 注册wrieframe加载器
+	tt.registerImgLoader(new plugin.TileMaterialWrieLoader());
+	// 注册瓦片调试加载器
+	tt.registerImgLoader(new plugin.TileMaterialDebugeLoader());
+	// 注册logo加载器
+	tt.registerImgLoader(new plugin.TileMaterialLogoLoader());
+	// 注册法向量图像加载器
+	tt.registerImgLoader(new plugin.TileMateriaNormalLoader());
+	// 注册GeoJSON加载器
+	tt.registerImgLoader(new plugin.GeoJSONLoader());
+	// 注册矢量瓦片MVT加载器
+	tt.registerImgLoader(new plugin.MVTLoader());
+	// 注册单影像加载器
+	tt.registerImgLoader(new plugin.SingleImageLoader());
+	// 注册单影像TIF-DEM加载器
+	tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
+	// 注册带滤镜的瓦片影像加载器
+	// tt.registerImgLoader(new plugin.TileFilterLoader());
+	//===============================================================================
 
-// 取得影像加载器
-// const imgLoader = tt.getImgLoader<tt.TileImageLoader>("image");
-// // 设置影像加载器的材质工厂函数
-// imgLoader.setMaterialCreator(_params => new MeshLambertMaterial({ color: 0x5555ff, transparent: false }));
+	// 取得影像加载器
+	// const imgLoader = tt.getImgLoader<tt.TileImageLoader>("image");
+	// // 设置影像加载器的材质工厂函数
+	// imgLoader.setMaterialCreator(_params => new MeshLambertMaterial({ color: 0x5555ff, transparent: false }));
 
-// 启用indexDB缓存
-// plugin.IndexDBCacheEable();
+	// 启用indexDB缓存
+	// plugin.IndexDBCacheEable();
 
-console.log("===================================================================");
-console.log(`threejs V${REVISION}`);
-console.log(`three-tile V${tt.version}, ${tt.author.email}`);
-document.querySelector<HTMLSpanElement>("#version")!.innerText = tt.version;
+	console.log("======================================================");
+	console.log(`threejs V${REVISION}`);
+	console.log(`three-tile V${tt.version}, ${tt.author.email}`);
+	document.querySelector<HTMLSpanElement>("#version")!.innerText = tt.version;
+	console.log("======================================================");
+	const loaders = tt.getTileLoaders();
+	console.log("瓦片加载器列表:");
+	loaders.imgLoaders.forEach(loader => {
+		console.log(`* 影像加载器: '${loader.dataType}' Author: '${loader.info.author}'`);
+	});
+	loaders.demLoaders.forEach(loader => {
+		console.log(`* 地形加载器: '${loader.dataType}', Author: '${loader.info.author}'`);
+	});
+	console.log("======================================================");
+}
 
 // 创建地图
 function createMap() {
@@ -137,6 +150,8 @@ function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
 // }
 
 function main() {
+	// 注册加载器
+	registerLoader();
 	// 创建地图
 	const map = createMap();
 	// 创建视图
