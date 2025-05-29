@@ -4,7 +4,19 @@
  *@date: 2025-05-01
  */
 
-import { BaseEvent, Box3, Camera, Frustum, Matrix4, Mesh, Object3D, Object3DEventMap, Raycaster, Vector3 } from "three";
+import {
+	BaseEvent,
+	Box3,
+	Box3Helper,
+	Camera,
+	Frustum,
+	Matrix4,
+	Mesh,
+	Object3D,
+	Object3DEventMap,
+	Raycaster,
+	Vector3,
+} from "three";
 import { ITileLoader } from "../loader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
@@ -67,8 +79,8 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 根瓦片 */
 	private _root: Tile = this;
 
-	/** 瓦片距离检测点坐标 */
-	private _checkPointer: Vector3 | null = null;
+	/** 瓦片距离检测点世界坐标 */
+	private _checkPointer: Vector3 = tempVec3;
 
 	/* 瓦片在世界坐标系中的大小*/
 	private _sizeInWorld = -1;
@@ -89,7 +101,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 瓦片到相机的距离比例，用于 LOD 评估 */
 	public get distRatio() {
-		const distToCamera = cameraWorldPosition.distanceTo(this._checkPointer || new Vector3());
+		const distToCamera = cameraWorldPosition.distanceTo(this._checkPointer);
 		// 增大不在视锥体内瓦片的距离，以使它更快合并
 		const dist = distToCamera * (this.inFrustum ? 0.8 : 5);
 		return dist / this._sizeInWorld;
@@ -158,13 +170,13 @@ export class Tile extends Object3D<TTileEventMap> {
 	private computeTileSize() {
 		const scale = this.scale;
 
-		// 检测点-瓦片中心点
-		this._checkPointer = new Vector3(scale.x / 2, scale.y / 2, 0);
-		this._checkPointer.applyMatrix4(this.matrixWorld);
-
 		// 包围盒
-		this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0));
+		this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0)); // 本地坐标
 		this._bbox.applyMatrix4(this.matrixWorld);
+
+		// 检测点-瓦片中心点
+		// this._checkPointer = this._bbox.getCenter(tempVec3);
+		this._checkPointer = new Vector3(scale.x / 2, scale.y / 2, 0).applyMatrix4(this.matrixWorld);
 
 		// 大小
 		this._sizeInWorld = this._bbox.getSize(tempVec3).length();

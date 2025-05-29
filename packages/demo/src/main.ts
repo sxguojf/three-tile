@@ -5,7 +5,7 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
-import { goHome, testHole, testTopMesh } from "./test";
+// import { goHome, testHole, testTopMesh } from "./test";
 
 // 注册加载器
 function registerLoader() {

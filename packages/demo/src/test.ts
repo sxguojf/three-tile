@@ -34,7 +34,6 @@ import {
 	Group,
 	Material,
 	Mesh,
-	MeshBasicMaterial,
 	MeshLambertMaterial,
 	Plane,
 	Scene,
