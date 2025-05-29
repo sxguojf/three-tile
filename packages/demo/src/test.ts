@@ -27,10 +27,16 @@
 import {
 	AnimationMixer,
 	Box3,
+	BoxGeometry,
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
 	Group,
+	Material,
+	Mesh,
+	MeshBasicMaterial,
+	MeshLambertMaterial,
+	Plane,
 	Scene,
 	SpotLight,
 	SpotLightHelper,
@@ -235,4 +241,40 @@ export function addIcon(map: tt.TileMap, lonlat: Vector3) {
 	const position = map.geo2map(lonlat);
 	icon.position.copy(position);
 	map.add(icon);
+}
+
+export function testHole(viewer: plugin.GLViewer, map: tt.TileMap) {
+	viewer.renderer.localClippingEnabled = true;
+
+	// Dig a hole on basemap
+	const bounds = [108.6880874, 33.921995, 108.882408, 34.057271];
+	const sw = map.geo2world(new Vector3(bounds[0], bounds[1]));
+	const ne = map.geo2world(new Vector3(bounds[2], bounds[3]));
+
+	const mesh = new Mesh(
+		new BoxGeometry(ne.x - sw.x - 1000, 0, ne.z - sw.z - 1000),
+		new MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 0.8 })
+	);
+	mesh.position.copy(sw);
+	mesh.position.x += (ne.x - sw.x) / 2;
+	mesh.position.z += (ne.z - sw.z) / 2;
+	mesh.position.y = 0;
+	viewer.scene.add(mesh);
+
+	const clipPlanes = [
+		new Plane(new Vector3(-1, 0, 0), sw.x),
+		new Plane(new Vector3(1, 0, 0), -ne.x),
+		new Plane(new Vector3(0, 0, 1), -sw.z),
+		new Plane(new Vector3(0, 0, -1), ne.z),
+	];
+	map.addEventListener("tile-loaded", evt => {
+		console.log(evt.tile.x, evt.tile.y, evt.tile.z);
+
+		const materails = evt.tile.model?.material as Material[];
+
+		materails?.forEach(m => {
+			m.clipIntersection = true;
+			m.clippingPlanes = clipPlanes;
+		});
+	});
 }

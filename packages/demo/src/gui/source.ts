@@ -46,7 +46,8 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 		setTdt_c: () => {
 			map.imgSource = [ms.tdtImgSource_c, ms.debugSource];
-			// map.demSource = undefined;
+			map.demSource = undefined;
+			map.reload();
 		},
 		setGD: () => {
 			map.imgSource = [ms.gdImgSource, ms.gdImgLabelSource];
