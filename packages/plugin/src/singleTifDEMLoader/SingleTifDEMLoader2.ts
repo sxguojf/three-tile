@@ -58,7 +58,7 @@ export class SingleTifDEMLoader implements ITileGeometryLoader {
 		// 如果数据未加载，加载数据
 		if (!source._data) {
 			// 打印加载信息
-			console.log("load image...", url);
+			// console.log("load image...", url);
 			// 加载tif文件，使用 _loader.loadAsync 方法异步加载 TIF 文件，并将结果转换为 ArrayBuffer 类型
 			const buffer = (await this._loader.loadAsync(url)) as ArrayBuffer;
 			// 调用 getTIFFRaster 方法将 ArrayBuffer 解析为包含栅格数据的对象，并将其存储在 source.data 中

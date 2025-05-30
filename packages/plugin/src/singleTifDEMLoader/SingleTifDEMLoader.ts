@@ -57,7 +57,7 @@ export class SingleTifDEMLoader implements ITileGeometryLoader {
 
 		// 如果数据未加载，加载数据
 		if (!source._data) {
-			console.log("load image...", url);
+			// console.log("load image...", url);
 			source._data = await fromUrl(url);
 		}
 

@@ -10,6 +10,13 @@ import { createChildren, LODAction, LODEvaluate } from "./util";
 
 /** 最大下载线程数 */
 const MAXTHREADS = 10;
+/** 相机世界坐标 */
+const cameraWorldPosition = new Vector3();
+/** 场景视锥体 */
+const frustum = new Frustum();
+/** 临时变量 */
+const tempMat4 = new Matrix4();
+const tempVec3 = new Vector3();
 
 /** 瓦片更新参数类型 */
 export type TileUpdateParames = {
@@ -40,14 +47,6 @@ export interface TTileEventMap extends Object3DEventMap {
 	"tile-visible-changed": BaseEvent & { tile: Tile; visible: boolean };
 }
 
-/** 临时变量 */
-const tempMat4 = new Matrix4();
-const tempVec3 = new Vector3();
-/** 相机世界坐标 */
-const cameraWorldPosition = new Vector3();
-/** 场景视锥体 */
-const frustum = new Frustum();
-
 /**
  * 动态LOD（DLOD）地图瓦片类，用于表示地图中的一块瓦片，瓦片可以包含子瓦片，以四叉树方式管理。
  */
@@ -68,14 +67,14 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 根瓦片 */
 	private _root: Tile = this;
 
+	/** 瓦片距离检测点世界坐标 */
+	private _checkPointer: Vector3 = tempVec3;
+
 	/* 瓦片在世界坐标系中的大小*/
 	private _sizeInWorld = -1;
 
-	/** 瓦片实际地形包围盒（世界坐标） */
+	/** 瓦片包围盒（世界坐标） */
 	private _bbox: Box3 | null = null;
-
-	/** 瓦片虚拟大小包围盒（世界坐标） */
-	private _bigBox: Box3 | null = null;
 
 	/** 瓦片模型 */
 	private _model: Mesh | undefined;
@@ -90,12 +89,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 瓦片到相机的距离比例，用于 LOD 评估 */
 	public get distRatio() {
-		// 瓦片中心最高点位置
-		const tilePos = this.position
-			.clone()
-			.setZ(this._bbox?.max.y || 0)
-			.applyMatrix4(this.matrixWorld);
-		const distToCamera = cameraWorldPosition.distanceTo(tilePos);
+		const distToCamera = cameraWorldPosition.distanceTo(this._checkPointer);
 		// 增大不在视锥体内瓦片的距离，以使它更快合并
 		const dist = distToCamera * (this.inFrustum ? 0.8 : 5);
 		return dist / this._sizeInWorld;
@@ -103,7 +97,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 瓦片是否在视锥体内 */
 	public get inFrustum(): boolean {
-		return !!this._bigBox && frustum.intersectsBox(this._bigBox);
+		return !!this._bbox && frustum.intersectsBox(this._bbox);
 	}
 
 	/** 是否为叶子瓦片 */
@@ -148,30 +142,37 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
 		this.matrixAutoUpdate = false;
+		// this.matrixWorldAutoUpdate = false;
 	}
 
 	/**
 	 * 瓦片射线检测，射线穿过瓦片包围盒内时，才进行模型的射线检测
 	 */
 	public raycast(raycaster: Raycaster) {
-		return !!this._bigBox && raycaster.ray.intersectsBox(this._bigBox);
+		return !!this._bbox && raycaster.ray.intersectsBox(this._bbox);
 	}
 
 	/**
-	 * 计算瓦片bbox、bigbox、size
+	 * 计算瓦片checkpointer、bbox、size
 	 */
-	private calculateBBox() {
-		const scale = this.scale;
-		const bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0));
-		bbox.applyMatrix4(this.matrixWorld);
-		this._bbox = bbox;
+	private computeTileSize() {
+		// const scale = this.z === 0 ? new Vector3(0.5, 0.5, 1) : this.scale;
+		const scale = new Vector3(0.5, 0.5, 1);
+		// 包围盒
+		this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0)).applyMatrix4(
+			this.matrixWorld
+		);
 
-		this._bigBox = bbox.clone();
-		this._bigBox.min.setY(-300);
-		this._bigBox.max.setY(9000);
+		// 检测点-瓦片中心点
+		this._checkPointer = new Vector3().applyMatrix4(this.matrixWorld);
 
-		this._sizeInWorld = bbox.getSize(tempVec3).length();
+		// 大小
+		this._sizeInWorld = this._bbox.getSize(tempVec3).length();
 		console.assert(this._sizeInWorld > 10);
+
+		// 增大包围盒高度（-300到90000米）
+		this._bbox.min.setY(-300);
+		this._bbox.max.setY(9000);
 	}
 
 	/**
@@ -186,12 +187,13 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		// 设置根瓦片
 		if (this.parent instanceof Tile) {
-			this.parent._root;
+			this._root = this.parent._root;
 		}
+		console.assert(this._root.z === 0);
 
-		// 计算瓦片包围盒等
-		if (!this._bbox) {
-			this.calculateBBox();
+		// 计算瓦片大小、包围盒等
+		if (this._sizeInWorld < 0) {
+			this.computeTileSize();
 		}
 
 		const { loader, minLevel, camera } = params;
@@ -221,16 +223,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 
 		// LOD
-		const newTiles = this.LOD(params);
-		if (newTiles) {
-			this.add(...newTiles);
-			this._subTiles = newTiles;
-			newTiles.forEach(child => {
-				child.updateMatrix();
-				child.updateMatrixWorld();
-				this._root.dispatchEvent({ type: "tile-created", tile: child });
-			});
-		}
+		this.LOD(params);
 
 		// 递归更新子瓦片
 		this.subTiles?.forEach(child => child.update(params));
@@ -246,14 +239,20 @@ export class Tile extends Object3D<TTileEventMap> {
 		const action = LODEvaluate(this, minLevel, maxLevel, LODThreshold);
 		if (action === LODAction.create) {
 			// console.log("create", this.name);
-			return createChildren(this, loader);
-		}
-		if (action === LODAction.remove) {
+			const newTiles = createChildren(this, loader);
+			this.add(...newTiles);
+			this._subTiles = newTiles;
+			newTiles.forEach(child => {
+				child.updateMatrix();
+				child.updateMatrixWorld();
+				this._root.dispatchEvent({ type: "tile-created", tile: child });
+			});
+		} else if (action === LODAction.remove) {
 			// console.log("remove", this.name);
 			this.showing = true;
 			this.unLoad(loader, false);
 		}
-		return undefined;
+		return action;
 	}
 
 	/**
@@ -273,20 +272,18 @@ export class Tile extends Object3D<TTileEventMap> {
 	/**
 	 * 下载瓦片数据
 	 * @param loader  - 瓦片加载器
-	 * @returns this
 	 */
 	private async _startLoad(loader: ITileLoader) {
 		this._isLoading = true;
-		const model = await loader.load(this);
-		this._model = model;
-		// model.geometry.computeBoundingBox();
-		this._bbox && (this._bbox.max.y = model.geometry.boundingBox?.max.z || 0);
+		this._model = await loader.load(this);
+		this._model.geometry.computeBoundingBox();
+		this._checkPointer.y = this._model.geometry.boundingBox?.max.z || 0;
 		this._isLoading = false;
-		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.isLeaf && this._checkVisible();
-		this.add(model);
-
-		return model;
+		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
+		this.add(this._model);
+		// console.log(this.name, this._bbox, new Box3().setFromObject(this));
+		// console.log(new Box3().setFromObject(this._root));
 	}
 
 	/**
@@ -300,7 +297,8 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 		this._isLoading = true;
 		this._model = await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
-		this._bbox && (this._bbox.max.z = this.model.geometry.boundingBox?.max.z || 0);
+		this.model.geometry.computeBoundingBox();
+		this._checkPointer.y = this.model.geometry.boundingBox?.max.z || 0;
 		this._updateMaterial = false;
 		this._updateGeometry = false;
 		this._isLoading = false;
@@ -325,7 +323,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 销毁瓦片树重新创建，并加载数据
+	 * 销毁瓦片树重新创建，并加载数据，改变地图投影时必须调用它以生效
 	 * @param loader - 瓦片加载器
 	 * @returns this
 	 */

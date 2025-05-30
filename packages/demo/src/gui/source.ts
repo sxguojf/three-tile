@@ -46,7 +46,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 		setTdt_c: () => {
 			map.imgSource = [ms.tdtImgSource_c, ms.debugSource];
-			// map.demSource = undefined;
+			map.demSource = undefined;
 		},
 		setGD: () => {
 			map.imgSource = [ms.gdImgSource, ms.gdImgLabelSource];
@@ -147,6 +147,9 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		setSingleImage() {
 			map.imgSource = [ms.arcGisImgSource, ms.singleImage];
 			// map.demSource = ms.arcGisDemSource;
+			const [minX, minY, maxX, maxY] = ms.singleImage.bounds;
+			const center = [(minX + maxX) / 2, (minY + maxY) / 2];
+			viewer.flyTo(map.geo2world(new Vector3(center[0], center[1] + 0.01, 0)), map.geo2world(new Vector3(center[0], center[1], 4000)));
 		},
 
 		setQm() {
@@ -180,6 +183,9 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		setTif: () => {
 			map.imgSource = [ms.arcGisImgSource];
 			map.demSource = ms.tiffDEM;
+			const [minX, minY, maxX, maxY] = ms.tiffDEM.bounds;
+			const center = [(minX + maxX) / 2, (minY + maxY) / 2];
+			viewer.flyTo(map.geo2world(new Vector3(center[0], center[1] + 0.01, 0)), map.geo2world(new Vector3(center[0], center[1], 4000)));
 		},
 
 		setGeoJSONMask: () => {
@@ -217,7 +223,6 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	demFolder.add(vm, "setMapTilerDem").name("MapTiler(maxLevel=12)");
 	// demFolder.add(vm, "setZkXtDem").name("ZKXT(maxLevel=10)");
 	demFolder.add(vm, "setArcgisLerc").name("ArcGis-LERC(maxLevel=13)");
-	demFolder.add(vm, "setTif").name("TIFF地形");
 
 	// 测试数据
 	const testFolder = folder.addFolder("测试数据");
@@ -229,7 +234,8 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	testFolder.add(vm, "setTileWire").name("地形模型网格测试");
 	testFolder.add(vm, "setTileNormal").name("地形法向量调试");
 	testFolder.add(vm, "setBoundsTile").name("地图范围控制");
-	testFolder.add(vm, "setSingleImage").name("单图片测试");
+	testFolder.add(vm, "setSingleImage").name("单图片影像测试");
+	testFolder.add(vm, "setTif").name("单TIFF地形测试");
 	testFolder.add(vm, "setGeoJSONMask").name("GeoJSON遮罩-延安");
 	// testFolder.add(vm, "setQm").name("quantized-mesh test");
 

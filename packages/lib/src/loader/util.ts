@@ -60,7 +60,7 @@ export function getSafeTileUrlAndBounds(
 
 	// 取出数据源最大级别瓦片和当前瓦片在最大瓦片中的位置
 	const maxLevelTileAndBox = getMaxLevelTileAndBounds(x, y, z, source.maxLevel);
-	const pxyz = maxLevelTileAndBox.parentNO;
+	const pxyz = maxLevelTileAndBox.parentCoord;
 	const url = source._getUrl(pxyz.x, pxyz.y, pxyz.z);
 
 	return { url, clipBounds: maxLevelTileAndBox.bounds };
@@ -83,7 +83,7 @@ export function getSubImage(image: HTMLImageElement, bounds: [number, number, nu
 
 function getMaxLevelTileAndBounds(x: number, y: number, z: number, maxLevel: number) {
 	const dl = z - maxLevel;
-	const parentNO = { x: x >> dl, y: y >> dl, z: z - dl };
+	const parentCoord = { x: x >> dl, y: y >> dl, z: z - dl };
 	const sep = Math.pow(2, dl);
 	const size = Math.pow(0.5, dl);
 	const xx = (x % sep) / sep - 0.5 + size / 2;
@@ -93,5 +93,5 @@ function getMaxLevelTileAndBounds(x: number, y: number, z: number, maxLevel: num
 	const box = new Box2().setFromCenterAndSize(parentCenter, new Vector2(size, size));
 	const bounds: [number, number, number, number] = [box.min.x + 0.5, box.min.y + 0.5, box.max.x + 0.5, box.max.y + 0.5];
 
-	return { parentNO, bounds };
+	return { parentCoord, bounds };
 }

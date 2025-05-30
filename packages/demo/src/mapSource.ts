@@ -177,18 +177,17 @@ export const wrieframe = tt.TileSource.create({ dataType: "wireframe", opacity: 
 // 单张图片测试瓦片源
 export const singleImage = new tt.TileSource({
 	dataType: "single-image",
-	url: "./image/test.jpg",
+	url: "./image/qinling.png",
 	maxLevel: 20,
 	// bounds: [105, 33, 109, 37],
-	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
+	bounds: [108.68808746337891,33.92199531197548, 108.88240814208984,34.05727051198483],
 });
 
 export const tiffDEM = new tt.TileSource({
 	dataType: "single-tif",
-	url: "./evl.tif",
+	url: "./dem.tif",
 	maxLevel: 20,
-	skirtHeight: 3000,
-	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
+	bounds: [111.16267204284668,21.59287851485902, 111.23897552490234,21.64825416643841],
 });
 
 export const mvtTest = new plugin.MVTSource({

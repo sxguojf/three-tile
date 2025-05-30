@@ -57,7 +57,7 @@ export class SingleImageLoader implements ITileMaterialLoader<ITileMaterial> {
 			return material;
 		}
 
-		console.log("loadi image...", url);
+		// console.log("loadi image...", url);
 
 		// 加载纹理
 		source._image = await this._imageLoader.loadAsync(url);
