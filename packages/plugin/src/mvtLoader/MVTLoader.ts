@@ -9,6 +9,7 @@ import {
 	VectorFeatureTypes,
 	VectorStyle,
 	VectorTileRender,
+	version,
 } from "three-tile";
 
 export type StyleType = { layer: VectorStyle[] };
@@ -17,7 +18,7 @@ export class MVTLoader extends TileMaterialLoader {
 	public dataType: string = "mvt";
 	// 加载器信息
 	public info = {
-		version: "0.11.2",
+		version,
 		author: "GuoJF",
 		description: "MVT瓦片加载器",
 	};

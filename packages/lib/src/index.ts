@@ -5,9 +5,7 @@
  */
 
 import { ITileGeometryLoader, ITileMaterialLoader, LoaderFactory } from "./loader";
-import pkg from "../package.json?raw";
-const { version, author } = JSON.parse(pkg);
-export { version, author };
+export { version, author } from "../package.json";
 
 // core
 export * from "./tile";
@@ -21,14 +19,6 @@ export * from "./loader";
 export * from "./source";
 // map
 export * from "./map";
-
-// import { _debug } from "./map";
-
-// export function throwError(msg: string) {
-// 	if (_debug) {
-// 		throw new Error(msg);
-// 	}
-// }
 
 export function waitFor(condition: boolean, delay = 100) {
 	return new Promise<void>(resolve => {

@@ -8,6 +8,7 @@ import { Texture } from "three";
 import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
 import { ITileMaterial, TileMaterial } from "../material";
 import { getSafeTileUrlAndBounds } from "./util";
+import { version } from "..";
 
 export type MaterialCreator = (loaderParams: TileSourceLoadParamsType) => ITileMaterial;
 
@@ -16,7 +17,7 @@ export type MaterialCreator = (loaderParams: TileSourceLoadParamsType) => ITileM
  */
 export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMaterial> {
 	public info = {
-		version: "0.11.2",
+		version,
 		description: "Image loader base class",
 	};
 

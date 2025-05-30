@@ -12,6 +12,7 @@ import {
 	LoaderFactory,
 	TileMaterial,
 	TileSourceLoadParamsType,
+	version,
 } from "three-tile";
 import { SingleImageSource } from "./SingleImageSource";
 
@@ -20,7 +21,7 @@ import { SingleImageSource } from "./SingleImageSource";
  */
 export class SingleImageLoader implements ITileMaterialLoader<ITileMaterial> {
 	public readonly info = {
-		version: "0.11.2",
+		version,
 		description: "Single image loader. It can load single image to bounds and stick to the ground.",
 	};
 

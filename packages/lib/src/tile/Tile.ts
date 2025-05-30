@@ -156,20 +156,13 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * 计算瓦片checkpointer、bbox、size
 	 */
 	private computeTileSize() {
-		// const scale = this.z === 0 ? new Vector3(0.5, 0.5, 1) : this.scale;
-		const scale = new Vector3(0.5, 0.5, 1);
 		// 包围盒
-		this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0)).applyMatrix4(
-			this.matrixWorld
-		);
-
+		this._bbox = new Box3(new Vector3(-0.5, -0.5), new Vector3(0.5, 0.5)).applyMatrix4(this.matrixWorld);
 		// 检测点-瓦片中心点
 		this._checkPointer = new Vector3().applyMatrix4(this.matrixWorld);
-
 		// 大小
 		this._sizeInWorld = this._bbox.getSize(tempVec3).length();
 		console.assert(this._sizeInWorld > 10);
-
 		// 增大包围盒高度（-300到90000米）
 		this._bbox.min.setY(-300);
 		this._bbox.max.setY(9000);

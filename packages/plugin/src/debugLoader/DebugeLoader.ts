@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { TileCanvasLoader, TileSourceLoadParamsType } from "three-tile";
+import { TileCanvasLoader, TileSourceLoadParamsType, version } from "three-tile";
 
 /**
  * Debug material laoder, it draw a rectangle and coordinate on the tile
@@ -12,7 +12,7 @@ import { TileCanvasLoader, TileSourceLoadParamsType } from "three-tile";
 export class TileMaterialDebugeLoader extends TileCanvasLoader {
 	/** Loader info */
 	public readonly info = {
-		version: "0.11.2",
+		version,
 		description: "Tile debug image loader. It will draw a rectangle and coordinate on the tile.",
 	};
 

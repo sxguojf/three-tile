@@ -5,14 +5,14 @@
  */
 
 import { Color, Material, MeshBasicMaterial } from "three";
-import { ITileMaterialLoader, TileSourceLoadParamsType } from "three-tile";
+import { ITileMaterialLoader, TileSourceLoadParamsType, version } from "three-tile";
 
 /**
  * Wireframe material loader
  */
 export class TileMaterialWrieLoader implements ITileMaterialLoader {
 	public readonly info = {
-		version: "0.11.2",
+		version,
 		description: "Tile wireframe material loader.",
 	};
 

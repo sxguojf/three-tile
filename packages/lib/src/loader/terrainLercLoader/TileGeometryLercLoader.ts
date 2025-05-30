@@ -10,6 +10,7 @@ import { TileGeometry } from "../../geometry/TileGeometry";
 import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "..";
 
 import ParseWorker from "./parse.worker?worker&inline";
+import { version } from "../..";
 
 const THREADSNUM = 5;
 
@@ -19,7 +20,7 @@ const THREADSNUM = 5;
  */
 export class TileGeometryLercLoader extends TileGeometryLoader {
 	public readonly info = {
-		version: "0.11.2",
+		version,
 		description: "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.",
 	};
 

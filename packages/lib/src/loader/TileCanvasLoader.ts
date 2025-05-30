@@ -7,13 +7,14 @@
 import { CanvasTexture } from "three";
 import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
 import { ITileMaterial, TileMaterial } from "../material";
+import { version } from "..";
 
 /**
  * Canvas material laoder abstract base class
  */
 export abstract class TileCanvasLoader implements ITileMaterialLoader<ITileMaterial> {
 	public readonly info = {
-		version: "0.11.2",
+		version,
 		description: "Canvas tile abstract loader",
 	};
 

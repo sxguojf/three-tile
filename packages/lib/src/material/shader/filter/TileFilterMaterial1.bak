@@ -11,7 +11,7 @@ import vs from "./vert.glsl?raw";
 export class ShaderMaterialTileLoader implements ITileMaterialLoader {
 	public readonly dataType: string = "shaderImage";
 	public readonly info = {
-		version: "0.11.2",
+		version: "0.11.3",
 		description: "shaderImage，使用ShaderMaterial，通过着色器设置材质",
 	};
 	private _imageLoader = new ImageLoader();

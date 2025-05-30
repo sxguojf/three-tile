@@ -15,13 +15,14 @@ import {
 	VectorFeatureTypes,
 	VectorStyle,
 	VectorTileRender,
+	version,
 } from "three-tile";
 
 /** GeoJSON 加载器 */
 export class GeoJSONLoader extends TileMaterialLoader {
 	// 加载器信息
 	public info = {
-		version: "0.11.2",
+		version,
 		author: "GuoJF",
 		description: "GeoJSON 加载器",
 	};

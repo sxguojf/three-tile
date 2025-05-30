@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { ITileMaterialLoader, TileSourceLoadParamsType } from "three-tile";
+import { ITileMaterialLoader, TileSourceLoadParamsType, version } from "three-tile";
 import { Material, MeshNormalMaterial } from "three";
 
 /**
@@ -12,7 +12,7 @@ import { Material, MeshNormalMaterial } from "three";
  */
 export class TileMateriaNormalLoader implements ITileMaterialLoader {
 	public readonly info = {
-		version: "0.11.2",
+		version,
 		description: "Tile normal material loader.",
 	};
 	public readonly dataType: string = "normal";

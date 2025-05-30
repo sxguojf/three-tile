@@ -5,6 +5,7 @@
  */
 
 import { ITileGeometryLoader, ITileLoaderInfo, TileSourceLoadParamsType } from ".";
+import { version } from "..";
 import { TileGeometry } from "../geometry";
 import { LoaderFactory } from "./LoaderFactory";
 import { getSafeTileUrlAndBounds } from "./util";
@@ -14,7 +15,7 @@ import { getSafeTileUrlAndBounds } from "./util";
  */
 export abstract class TileGeometryLoader implements ITileGeometryLoader<TileGeometry> {
 	public info: ITileLoaderInfo = {
-		version: "0.11.2",
+		version,
 		description: "Terrain loader base class",
 	};
 

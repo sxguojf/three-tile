@@ -4,14 +4,14 @@
  *@date: 2023-04-05
  */
 
-import { TileCanvasLoader, TileSourceLoadParamsType } from "three-tile";
+import { TileCanvasLoader, TileSourceLoadParamsType, version } from "three-tile";
 
 /**
  * LOGO tile Material loader
  */
 export class TileMaterialLogoLoader extends TileCanvasLoader {
 	public readonly info = {
-		version: "0.11.2",
+		version,
 		description: "Tile debug image loader. It will draw a rectangle and coordinate on the tile.",
 	};
 

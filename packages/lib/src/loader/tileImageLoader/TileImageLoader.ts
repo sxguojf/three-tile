@@ -6,13 +6,14 @@
 
 import { ImageLoader, SRGBColorSpace, Texture } from "three";
 import { LoaderFactory, TileMaterialLoader, TileSourceLoadParamsType, getSubImage } from "..";
+import { version } from "../..";
 
 /**
  * Tile image loader
  */
 export class TileImageLoader extends TileMaterialLoader {
 	public readonly info = {
-		version: "0.11.2",
+		version,
 		description: "Tile image loader. It can load xyz tile image.",
 	};
 

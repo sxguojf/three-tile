@@ -9,7 +9,7 @@ import { BufferGeometry, FileLoader, MathUtils } from "three";
 //@ts-ignore
 import createTile from "geotiff-tile";
 
-import { ITileGeometryLoader, LoaderFactory, TileGeometry, TileSourceLoadParamsType } from "three-tile";
+import { ITileGeometryLoader, LoaderFactory, TileGeometry, TileSourceLoadParamsType, version } from "three-tile";
 import { SingleTifDEMSource } from "./SingleTifDEMSource";
 
 /**
@@ -18,7 +18,7 @@ import { SingleTifDEMSource } from "./SingleTifDEMSource";
 export class SingleTifDEMLoader implements ITileGeometryLoader {
 	public readonly info = {
 		author: "chaoxl",
-		version: "0.11.2",
+		version,
 		description: "TIF DEM terrain loader. It can load single tif dem.",
 	};
 

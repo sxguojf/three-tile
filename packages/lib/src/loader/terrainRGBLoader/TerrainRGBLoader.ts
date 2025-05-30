@@ -9,6 +9,7 @@ import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { getBoundsCoord, LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "..";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import ParseWorker from "./parse.worker?worker&inline";
+import { version } from "../..";
 
 const THREADSNUM = 10;
 
@@ -17,7 +18,7 @@ const THREADSNUM = 10;
  */
 export class TerrainRGBLoader extends TileGeometryLoader {
 	public readonly info = {
-		version: "0.11.2",
+		version,
 		description: "Mapbox-RGB terrain loader, It can load Mapbox-RGB terrain data.",
 	};
 
