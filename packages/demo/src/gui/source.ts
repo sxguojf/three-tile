@@ -147,6 +147,9 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		setSingleImage() {
 			map.imgSource = [ms.arcGisImgSource, ms.singleImage];
 			// map.demSource = ms.arcGisDemSource;
+			const [minX, minY, maxX, maxY] = ms.singleImage.bounds;
+			const center = [(minX + maxX) / 2, (minY + maxY) / 2];
+			viewer.flyTo(map.geo2world(new Vector3(center[0], center[1] + 0.01, 0)), map.geo2world(new Vector3(center[0], center[1], 4000)));
 		},
 
 		setQm() {
@@ -180,6 +183,9 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		setTif: () => {
 			map.imgSource = [ms.arcGisImgSource];
 			map.demSource = ms.tiffDEM;
+			const [minX, minY, maxX, maxY] = ms.tiffDEM.bounds;
+			const center = [(minX + maxX) / 2, (minY + maxY) / 2];
+			viewer.flyTo(map.geo2world(new Vector3(center[0], center[1] + 0.01, 0)), map.geo2world(new Vector3(center[0], center[1], 4000)));
 		},
 
 		setGeoJSONMask: () => {

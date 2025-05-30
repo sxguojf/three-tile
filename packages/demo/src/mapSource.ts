@@ -177,7 +177,7 @@ export const wrieframe = tt.TileSource.create({ dataType: "wireframe", opacity: 
 // 单张图片测试瓦片源
 export const singleImage = new tt.TileSource({
 	dataType: "single-image",
-	url: "./image/test.jpg",
+	url: "./image/qinling.png",
 	maxLevel: 20,
 	// bounds: [105, 33, 109, 37],
 	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
