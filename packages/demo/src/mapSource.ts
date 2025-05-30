@@ -185,10 +185,9 @@ export const singleImage = new tt.TileSource({
 
 export const tiffDEM = new tt.TileSource({
 	dataType: "single-tif",
-	url: "./evl.tif",
+	url: "./dem.tif",
 	maxLevel: 20,
-	skirtHeight: 3000,
-	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
+	bounds: [111.16267204284668,21.59287851485902, 111.23897552490234,21.64825416643841],
 });
 
 export const mvtTest = new plugin.MVTSource({
