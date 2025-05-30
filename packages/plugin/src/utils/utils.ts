@@ -66,7 +66,7 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 	}
 
 	// 添加一个球做测试
-	if (map.loader.debug > 0) {
+	if (map.debug > 0) {
 		let pointMesh = map.getObjectByName("checkPoint");
 		if (!pointMesh) {
 			pointMesh = new Mesh<BufferGeometry, MeshLambertMaterial>(

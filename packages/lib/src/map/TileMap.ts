@@ -64,6 +64,8 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	/** 地图是否在每帧渲染时自动更新，默认为真 */
 	public autoUpdate = true;
 
+	public debug = 0;
+
 	/** 瓦片树更新间隔，单位毫秒（默认100ms） */
 	public updateInterval = 100;
 
@@ -139,7 +141,11 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		if (proj.ID != this.projection.ID || proj.lon0 != this.lon0) {
 			this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
 			this._projection = proj;
-			this.updateSource();
+			// 模型矩阵更新
+			this.rootTile.updateMatrix();
+			this.rootTile.updateMatrixWorld();
+
+			this.reload();
 			// console.log("Map Projection Changed:", proj.ID, proj.lon0);
 			this.dispatchEvent({
 				type: "projection-changed",
@@ -266,7 +272,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		} = params;
 
 		this.loader = loader;
-		this.loader.debug = debug;
+		this.debug = this.loader.debug = debug;
 
 		rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
 		this.rootTile = rootTile;

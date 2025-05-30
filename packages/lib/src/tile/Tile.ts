@@ -4,19 +4,7 @@
  *@date: 2025-05-01
  */
 
-import {
-	BaseEvent,
-	Box3,
-	Box3Helper,
-	Camera,
-	Frustum,
-	Matrix4,
-	Mesh,
-	Object3D,
-	Object3DEventMap,
-	Raycaster,
-	Vector3,
-} from "three";
+import { BaseEvent, Box3, Camera, Frustum, Matrix4, Mesh, Object3D, Object3DEventMap, Raycaster, Vector3 } from "three";
 import { ITileLoader } from "../loader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
@@ -168,15 +156,15 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * 计算瓦片checkpointer、bbox、size
 	 */
 	private computeTileSize() {
-		const scale = this.scale;
-
+		// const scale = this.z === 0 ? new Vector3(0.5, 0.5, 1) : this.scale;
+		const scale = new Vector3(0.5, 0.5, 1);
 		// 包围盒
-		this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0)); // 本地坐标
-		this._bbox.applyMatrix4(this.matrixWorld);
+		this._bbox = new Box3(new Vector3(-scale.x, -scale.y, 0), new Vector3(scale.x, scale.y, 0)).applyMatrix4(
+			this.matrixWorld
+		);
 
 		// 检测点-瓦片中心点
-		// this._checkPointer = this._bbox.getCenter(tempVec3);
-		this._checkPointer = new Vector3(scale.x / 2, scale.y / 2, 0).applyMatrix4(this.matrixWorld);
+		this._checkPointer = new Vector3().applyMatrix4(this.matrixWorld);
 
 		// 大小
 		this._sizeInWorld = this._bbox.getSize(tempVec3).length();
@@ -289,11 +277,13 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._isLoading = true;
 		this._model = await loader.load(this);
 		this._model.geometry.computeBoundingBox();
-		this._checkPointer && (this._checkPointer.y = this._model.geometry.boundingBox?.max.z || 0);
+		this._checkPointer.y = this._model.geometry.boundingBox?.max.z || 0;
 		this._isLoading = false;
 		this.isLeaf && this._checkVisible();
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.add(this._model);
+		// console.log(this.name, this._bbox, new Box3().setFromObject(this));
+		// console.log(new Box3().setFromObject(this._root));
 	}
 
 	/**
@@ -308,7 +298,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._isLoading = true;
 		this._model = await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
 		this.model.geometry.computeBoundingBox();
-		this._checkPointer && (this._checkPointer.y = this.model.geometry.boundingBox?.max.z || 0);
+		this._checkPointer.y = this.model.geometry.boundingBox?.max.z || 0;
 		this._updateMaterial = false;
 		this._updateGeometry = false;
 		this._isLoading = false;
@@ -333,7 +323,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 销毁瓦片树重新创建，并加载数据
+	 * 销毁瓦片树重新创建，并加载数据，改变地图投影时必须调用它以生效
 	 * @param loader - 瓦片加载器
 	 * @returns this
 	 */
