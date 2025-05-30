@@ -180,7 +180,7 @@ export const singleImage = new tt.TileSource({
 	url: "./image/qinling.png",
 	maxLevel: 20,
 	// bounds: [105, 33, 109, 37],
-	bounds: [108.6880874, 33.921995, 108.882408, 34.057271],
+	bounds: [108.68808746337891,33.92199531197548, 108.88240814208984,34.05727051198483],
 });
 
 export const tiffDEM = new tt.TileSource({
