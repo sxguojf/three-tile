@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { BoxGeometry, BoxHelper, Mesh, MeshLambertMaterial, Vector3 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 import * as tt from "three-tile";
@@ -145,11 +145,14 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			viewer.camera.position.copy(map.geo2world(new Vector3(108.627139, 30.64138, 3.309163)));
 		},
 		setSingleImage() {
-			map.imgSource = [ms.arcGisImgSource, ms.singleImage];
-			// map.demSource = ms.arcGisDemSource;
+			map.imgSource = [ms.bingSource, ms.singleImage, ms.wrieframe];
+			map.demSource = ms.singleTif;
 			const [minX, minY, maxX, maxY] = ms.singleImage.bounds;
 			const center = [(minX + maxX) / 2, (minY + maxY) / 2];
-			viewer.flyTo(map.geo2world(new Vector3(center[0], center[1] + 0.01, 0)), map.geo2world(new Vector3(center[0], center[1], 4000)));
+			viewer.flyTo(
+				map.geo2world(new Vector3(center[0], center[1], 0)),
+				map.geo2world(new Vector3(center[0], center[1] + 0.1, 10000))
+			);
 		},
 
 		setQm() {
@@ -183,9 +186,25 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		setTif: () => {
 			map.imgSource = [ms.arcGisImgSource];
 			map.demSource = ms.tiffDEM;
-			const [minX, minY, maxX, maxY] = ms.tiffDEM.bounds;
-			const center = [(minX + maxX) / 2, (minY + maxY) / 2];
-			viewer.flyTo(map.geo2world(new Vector3(center[0], center[1] + 0.01, 0)), map.geo2world(new Vector3(center[0], center[1], 4000)));
+
+			const bounds = ms.tiffDEM.bounds;
+			const sw = map.geo2world(new Vector3(bounds[0], bounds[1]));
+			const ne = map.geo2world(new Vector3(bounds[2], bounds[3]));
+
+			const center = new Vector3((ne.x + sw.x) / 2, 0, (ne.z + sw.z) / 2);
+			viewer.flyTo(center, new Vector3(center.x + 3000, 2000, center.z));
+
+			const sizeX = ne.x - sw.x;
+			const sizeZ = ne.z - sw.z;
+			const box = new Mesh(
+				new BoxGeometry(sizeX, 1000, sizeZ),
+				new MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 0.3 })
+			);
+			box.renderOrder = 1000;
+			box.position.copy(center);
+			const boxHelper = new BoxHelper(box, 0xffff00);
+			viewer.scene.add(boxHelper);
+			viewer.scene.add(box);
 		},
 
 		setGeoJSONMask: () => {

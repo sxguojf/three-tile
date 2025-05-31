@@ -27,14 +27,11 @@
 import {
 	AnimationMixer,
 	Box3,
-	BoxGeometry,
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
 	Group,
 	Material,
-	Mesh,
-	MeshLambertMaterial,
 	Plane,
 	Scene,
 	SpotLight,
@@ -250,15 +247,15 @@ export function testHole(viewer: plugin.GLViewer, map: tt.TileMap) {
 	const sw = map.geo2world(new Vector3(bounds[0], bounds[1]));
 	const ne = map.geo2world(new Vector3(bounds[2], bounds[3]));
 
-	const mesh = new Mesh(
-		new BoxGeometry(ne.x - sw.x - 1000, 0, ne.z - sw.z - 1000),
-		new MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 0.8 })
-	);
-	mesh.position.copy(sw);
-	mesh.position.x += (ne.x - sw.x) / 2;
-	mesh.position.z += (ne.z - sw.z) / 2;
-	mesh.position.y = 0;
-	viewer.scene.add(mesh);
+	// const mesh = new Mesh(
+	// 	new BoxGeometry(ne.x - sw.x - 1000, 0, ne.z - sw.z - 1000),
+	// 	new MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 0.8 })
+	// );
+	// mesh.position.copy(sw);
+	// mesh.position.x += (ne.x - sw.x) / 2;
+	// mesh.position.z += (ne.z - sw.z) / 2;
+	// mesh.position.y = 0;
+	// viewer.scene.add(mesh);
 
 	const clipPlanes = [
 		new Plane(new Vector3(-1, 0, 0), sw.x),

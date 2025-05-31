@@ -112,15 +112,15 @@ function extractAndScaleFloat32Data(
 			// 获取当前点的四个邻近点的整数坐标
 			const x1 = Math.floor(srcX);
 			const y1 = Math.floor(srcY);
+
 			const x2 = Math.min(x1 + 1, srcWidth - 1);
 			const y2 = Math.min(y1 + 1, srcHeight - 1);
 
 			// 瓦片边缘点不插值，直接取值
-			// const onEdge = x1 > startX && x1 < endX && y1 > startY && y1 < endY;
-			// if (!onEdge) {
-			// 	result[index] = buffer[y1 * srcWidth + x1];
-			// 	continue;
-			// }
+			if (!(x1 >= startX && x1 <= endX && y1 >= startY && y1 <= endY)) {
+				result[index] = buffer[y1 * srcWidth + x1];
+				continue;
+			}
 
 			// 计算当前点相对于四个邻近点的偏移量
 			const dx = srcX - x1;
