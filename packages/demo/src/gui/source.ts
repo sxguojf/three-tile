@@ -1,4 +1,4 @@
-import { BoxGeometry, BoxHelper, Mesh, MeshLambertMaterial, Vector3 } from "three";
+import { BackSide, BoxGeometry, BoxHelper, Matrix4, Mesh, MeshLambertMaterial, Vector3 } from "three";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 import * as tt from "three-tile";
@@ -192,19 +192,23 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			const ne = map.geo2world(new Vector3(bounds[2], bounds[3]));
 
 			const center = new Vector3((ne.x + sw.x) / 2, 0, (ne.z + sw.z) / 2);
-			viewer.flyTo(center, new Vector3(center.x + 3000, 2000, center.z));
+			const scale = new Vector3(ne.x - sw.x, 1000, ne.z - sw.z);
+			const mat = new Matrix4();
+			mat.setPosition(center);
+			mat.scale(scale);
 
-			const sizeX = ne.x - sw.x;
-			const sizeZ = ne.z - sw.z;
 			const box = new Mesh(
-				new BoxGeometry(sizeX, 1000, sizeZ),
-				new MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 0.3 })
+				new BoxGeometry(),
+				new MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 0.3, side: BackSide })
 			);
+
+			box.applyMatrix4(mat);
 			box.renderOrder = 1000;
-			box.position.copy(center);
 			const boxHelper = new BoxHelper(box, 0xffff00);
 			viewer.scene.add(boxHelper);
 			viewer.scene.add(box);
+
+			viewer.flyTo(center, new Vector3(center.x + 3000, 2000, center.z));
 		},
 
 		setGeoJSONMask: () => {

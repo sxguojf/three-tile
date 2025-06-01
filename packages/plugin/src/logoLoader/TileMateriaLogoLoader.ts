@@ -31,6 +31,7 @@ export class TileMaterialLogoLoader extends TileCanvasLoader {
 		ctx.font = "bold 14px arial";
 		ctx.textAlign = "center";
 		ctx.translate(ctx.canvas.width / 2, ctx.canvas.height / 2);
+		ctx.rotate(-Math.PI / 4);
 		ctx.fillText(`${params.source.attribution}`, 0, 0);
 	}
 }
