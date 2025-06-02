@@ -45,13 +45,6 @@ export function showLoading(map: tt.TileMap) {
 			loading.style.color = "red";
 			console.info("Downloading error:", evt.url);
 		});
-		// map.addEventListener("parsing-end", () => {
-		// 	loading.innerHTML = "Parsing end!";
-		// });
-
-		// map.addEventListener("tile-dispose", tile => {
-		// 	console.log("tile-dispose", tile);
-		// });
 	}
 }
 

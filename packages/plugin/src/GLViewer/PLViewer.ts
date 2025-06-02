@@ -6,27 +6,34 @@
 
 import {
 	AmbientLight,
-	BaseEvent,
+	type BaseEvent,
 	Clock,
 	Color,
 	DirectionalLight,
 	EventDispatcher,
 	FogExp2,
-	MathUtils,
-	Object3DEventMap,
+	type Object3DEventMap,
 	PerspectiveCamera,
 	Scene,
 	Vector3,
 	WebGLRenderer,
 } from "three";
+import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls.js";
+import { update as teweenUpdate } from "three/examples/jsm/libs/tween.module.js";
 
-import { MapControls } from "three/examples/jsm/controls/MapControls.js";
-import { Easing, Tween, update as teweenUpdate } from "three/examples/jsm/libs/tween.module.js";
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+let canJump = false;
+let prevTime = performance.now();
+const velocity = new Vector3();
+const direction = new Vector3();
 
 /**
  * GlViewer event map
  */
-export interface GLViewerEventMap extends Object3DEventMap {
+export interface PLViewerEventMap extends Object3DEventMap {
 	update: BaseEvent & { delta: number };
 	resize: BaseEvent & { size: { width: number; height: number } };
 }
@@ -34,7 +41,7 @@ export interface GLViewerEventMap extends Object3DEventMap {
 /**
  * GlViewer options
  */
-export type GLViewerOptions = {
+export type PLViewerOptions = {
 	/** Whether to use antialiasing. Default is false. */
 	antialias?: boolean;
 	/** Whether to use stencil buffer. Default is true. */
@@ -46,30 +53,19 @@ export type GLViewerOptions = {
 /**
  * Threejs scene initialize class
  */
-export class GLViewer extends EventDispatcher<GLViewerEventMap> {
+export class PLViewer extends EventDispatcher<PLViewerEventMap> {
 	public readonly scene: Scene;
 	public readonly renderer: WebGLRenderer;
 
 	public readonly camera: PerspectiveCamera;
-	public readonly controls: MapControls;
+	public readonly controls: PointerLockControls;
 	public readonly ambLight: AmbientLight;
 	public readonly dirLight: DirectionalLight;
 	public container?: HTMLElement;
 	public topScenes: Scene[] = [];
 	private readonly _clock: Clock = new Clock();
 
-	private _fogFactor = 1.0;
-
-	/** Get fog factor */
-	public get fogFactor() {
-		return this._fogFactor;
-	}
-
-	/** Set fog factor, default 1 */
-	public set fogFactor(value) {
-		this._fogFactor = value;
-		this.controls.dispatchEvent({ type: "change" });
-	}
+	public cameraHeight = 8 * 1000;
 
 	/** Container width */
 	public get width() {
@@ -81,12 +77,21 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		return this.container?.clientHeight || 0;
 	}
 
+	private _autoForward = false;
+	public get autoForward() {
+		return this._autoForward;
+	}
+	public set autoForward(value) {
+		moveForward = value;
+		this._autoForward = value;
+	}
+
 	/**
 	 * Constructor
 	 * @param container container element or selector string
 	 * @param options GLViewer options
 	 */
-	constructor(container?: HTMLElement | string, options: GLViewerOptions = {}) {
+	constructor(container?: HTMLElement | string, options: PLViewerOptions = {}) {
 		super();
 
 		const { antialias = false, stencil = true, logarithmicDepthBuffer = true } = options;
@@ -96,7 +101,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		if (container) {
 			this.addTo(container);
 		}
-		this.controls = this._createControls();
+		this.controls = this._createControls(this.camera, this.renderer.domElement);
 		this.ambLight = this._createAmbLight();
 		this.scene.add(this.ambLight);
 		this.dirLight = this._createDirLight();
@@ -131,7 +136,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		const scene = new Scene();
 		const backColor = 0xdbf0ff;
 		scene.background = new Color(backColor);
-		scene.fog = new FogExp2(backColor, 0);
+		scene.fog = new FogExp2(backColor, 0.000005);
 		return scene;
 	}
 
@@ -148,10 +153,10 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 			logarithmicDepthBuffer,
 			stencil,
 			alpha: true,
-			precision: "highp",
 		});
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.domElement.tabIndex = 0;
+		renderer.domElement.style.outline = "none";
 		return renderer;
 	}
 
@@ -160,62 +165,71 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	 * @returns camera
 	 */
 	private _createCamera() {
-		const camera = new PerspectiveCamera(70, 1, 100, 5e7);
-		camera.position.set(0, 2.8e7, 0);
+		const camera = new PerspectiveCamera(70, 1, 100, 1e6);
+		camera.position.set(0, camera.far / 2, 0);
 		return camera;
 	}
 
-	/**
-	 * Create map controls
-	 * @returns MapControls
-	 */
-	private _createControls() {
-		const controls = new MapControls(this.camera, this.renderer.domElement);
-		const MAX_POLAR_ANGLE = 1.2;
+	private _createControls(camera: PerspectiveCamera, domElement: HTMLElement) {
+		const controls = new PointerLockControls(camera, domElement);
+		// controls.minPolarAngle = 1.55;
+		controls.maxPolarAngle = Math.PI - 0.5;
 
-		controls.target.set(0, 0, -3e3);
-		controls.screenSpacePanning = false;
-		controls.minDistance = 10;
-		controls.maxDistance = 3e7;
-		controls.maxPolarAngle = MAX_POLAR_ANGLE;
-		controls.enableDamping = true;
-		controls.dampingFactor = 0.05;
-		controls.keyPanSpeed = 5;
-		controls.panSpeed = 2;
-		controls.zoomToCursor = true;
+		const onKeyDown = function (event: KeyboardEvent) {
+			switch (event.code) {
+				case "ArrowUp":
+				case "KeyW":
+					moveForward = true;
+					break;
 
-		controls.listenToKeyEvents(this.renderer.domElement);
+				case "ArrowLeft":
+				case "KeyA":
+					moveLeft = true;
+					break;
 
-		// Adjust zinear/far and azimuth/polar when controls changed
-		controls.addEventListener("change", () => {
-			// Get the current polar angle and distance
-			const polar = Math.max(controls.getPolarAngle(), 0.1);
-			const dist = Math.max(controls.getDistance(), 100);
+				case "ArrowDown":
+				case "KeyS":
+					moveBackward = true;
+					break;
 
-			// Set ther zoom speed based on distance
-			controls.zoomSpeed = Math.max(Math.log(dist / 1e3), 0) + 0.5;
+				case "ArrowRight":
+				case "KeyD":
+					moveRight = true;
+					break;
 
-			// Set the camera near/far based on distance and polayr angle
-			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 1e8);
-			this.camera.near = this.camera.far / 1e3;
-			this.camera.updateProjectionMatrix();
-
-			// Set fog based on distance and polar angle
-			if (this.scene.fog instanceof FogExp2) {
-				this.scene.fog.density = (polar / (dist + 5)) * this.fogFactor * 0.2;
+				case "Space":
+					if (canJump) velocity.y += 5000;
+					canJump = false;
+					break;
 			}
+		};
 
-			// Set the azimuth/polar angles based on distance
-			const DIST_THRESHOLD = 8e6;
-			const isDistAboveThreshold = dist > DIST_THRESHOLD;
-			controls.minAzimuthAngle = isDistAboveThreshold ? 0 : -Infinity;
-			controls.maxAzimuthAngle = isDistAboveThreshold ? 0 : Infinity;
+		const onKeyUp = function (event: KeyboardEvent) {
+			switch (event.code) {
+				case "ArrowUp":
+				case "KeyW":
+					moveForward = false;
+					break;
 
-			// Set the polar angle based on distance
-			const POLAR_BASE = 1e7;
-			const POLAR_EXPONENT = 4;
-			controls.maxPolarAngle = Math.min(Math.pow(POLAR_BASE / dist, POLAR_EXPONENT), MAX_POLAR_ANGLE);
-		});
+				case "ArrowLeft":
+				case "KeyA":
+					moveLeft = false;
+					break;
+
+				case "ArrowDown":
+				case "KeyS":
+					moveBackward = false;
+					break;
+
+				case "ArrowRight":
+				case "KeyD":
+					moveRight = false;
+					break;
+			}
+		};
+		document.addEventListener("keydown", onKeyDown);
+		document.addEventListener("keyup", onKeyUp);
+
 		return controls;
 	}
 
@@ -235,7 +249,6 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	private _createDirLight() {
 		const dirLight = new DirectionalLight(0xffffff, 1);
 		dirLight.position.set(0, 2e3, 1e3);
-		dirLight.target.position.copy(this.controls.target);
 		return dirLight;
 	}
 
@@ -256,13 +269,40 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	}
 
 	protected update() {
-		this.renderer.autoClear = false;
+		const time = performance.now();
+		const controls = this.controls;
+
+		if (controls.isLocked) {
+			moveForward ||= this.autoForward;
+			const delta = (time - prevTime) / 500;
+
+			velocity.x -= velocity.x * 10.0 * delta;
+			velocity.z -= velocity.z * 10.0 * delta;
+
+			velocity.y -= 9.8 * 1000.0 * delta; // 100.0 = mass
+
+			direction.z = Number(moveForward) - Number(moveBackward);
+			direction.x = Number(moveRight) - Number(moveLeft);
+			direction.normalize();
+
+			if (moveForward || moveBackward) velocity.z -= direction.z * this.cameraHeight * 5 * delta;
+			if (moveLeft || moveRight) velocity.x -= direction.x * this.cameraHeight * 5 * delta;
+
+			controls.moveRight(-velocity.x * delta);
+			controls.moveForward(-velocity.z * delta);
+
+			controls.object.position.y += velocity.y * delta; // new behavior
+
+			if (controls.object.position.y < this.cameraHeight) {
+				velocity.y = 0;
+				controls.object.position.y = this.cameraHeight;
+				canJump = true;
+			}
+		}
+
+		prevTime = time;
+
 		this.renderer.render(this.scene, this.camera);
-		this.topScenes.forEach(scene => {
-			this.renderer.clearDepth();
-			this.renderer.render(scene, this.camera);
-		});
-		this.renderer.autoClear = true;
 	}
 
 	/**
@@ -270,46 +310,7 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	 */
 	public animate() {
 		this.update();
-		this.controls.update();
 		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
 		teweenUpdate();
-	}
-
-	/**
-	 * Fly to a position
-	 * @param centerPostion Map center target position (world coordinate)
-	 * @param cameraPostion Camera target position (world coordinate)
-	 * @param animate animate or not
-	 */
-	public flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate = true, onComplete?: (obj: Vector3) => void) {
-		this.controls.target.copy(centerPostion);
-		if (animate) {
-			const start = this.camera.position;
-			new Tween(start)
-				// fly to 10000km
-				.to({ y: 1e7, z: 0 }, 500)
-				// to taget
-				.chain(
-					new Tween(start)
-						.to(cameraPostion, 2000)
-						.easing(Easing.Quintic.Out)
-						.onUpdate(() => [this.controls.dispatchEvent({ type: "change" })])
-						.onComplete(obj => onComplete && onComplete(obj))
-				)
-				.start();
-		} else {
-			this.camera.position.copy(cameraPostion);
-		}
-	}
-
-	/**
-	 * Get current scens state
-	 * @returns center position and camera position
-	 */
-	public getState() {
-		return {
-			centerPosition: this.controls.target,
-			cameraPosition: this.camera.position,
-		};
 	}
 }
