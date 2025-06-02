@@ -194,7 +194,7 @@ export const singleTif = new tt.TileSource({
 export const tiffDEM = new tt.TileSource({
 	dataType: "single-tif",
 	url: "./dem.tif",
-	maxLevel: 20,
+	// maxLevel: 20,
 	skirtHeight: 100,
 	bounds: [111.16267204284668, 21.59287851485902, 111.23897552490234, 21.64825416643841],
 });

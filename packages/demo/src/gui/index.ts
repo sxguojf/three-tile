@@ -49,9 +49,9 @@ export function showLoading(map: tt.TileMap) {
 		// 	loading.innerHTML = "Parsing end!";
 		// });
 
-		map.addEventListener("tile-dispose", tile => {
-			console.log("tile-dispose", tile);
-		});
+		// map.addEventListener("tile-dispose", tile => {
+		// 	console.log("tile-dispose", tile);
+		// });
 	}
 }
 
