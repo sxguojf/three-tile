@@ -344,10 +344,8 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		if (!this._ready) {
 			this._ready = true;
 			this.rootTile.traverse(child => {
-				if (child instanceof Tile && child.isLeaf) {
-					if (!child.model) {
-						this._ready = false;
-					}
+				if (child instanceof Tile && child.isLeaf && child.inFrustum && !child.model) {
+					this._ready = false;
 				}
 			});
 			if (this._ready) {
