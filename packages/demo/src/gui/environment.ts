@@ -17,6 +17,13 @@ export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.
 		contrast: 1,
 	};
 
+	// new TextureLoader().setPath("./image/").load("skybox2.jpg", texture => {
+	// 	texture.mapping = EquirectangularRefractionMapping;
+	// 	const pmremGenerator = new PMREMGenerator(viewer.renderer);
+	// 	pmremGenerator.compileEquirectangularShader();
+	// 	viewer.scene.background = pmremGenerator.fromEquirectangular(texture).texture;
+	// });
+
 	viewer.scene.background = vm.skybox;
 
 	const folder = gui.addFolder("场景环境").close();
