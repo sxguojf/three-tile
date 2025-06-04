@@ -15,5 +15,6 @@ export * from "./mvtLoader";
 
 export * from "./indexDBCache";
 export * from "./utils";
+export * from "./groundGroup";
 
 export * from "./postprocessing";

@@ -27,13 +27,18 @@
 import {
 	AnimationMixer,
 	Box3,
+	BoxGeometry,
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
+	ConeGeometry,
 	Group,
 	Material,
+	Mesh,
+	MeshLambertMaterial,
 	Plane,
 	Scene,
+	SphereGeometry,
 	SpotLight,
 	SpotLightHelper,
 	Sprite,
@@ -273,4 +278,19 @@ export function testHole(viewer: plugin.GLViewer, map: tt.TileMap) {
 			m.clippingPlanes = clipPlanes;
 		});
 	});
+}
+
+export function createGroundGroup(map: tt.TileMap) {
+	const groundGroup = new plugin.GroundGroup(map);
+	groundGroup.name = "groundGroup";
+	const ball = new Mesh(new ConeGeometry(1, 20, 32), new MeshLambertMaterial({ color: 0xff0000, wireframe: false }));
+	ball.rotateX(-Math.PI / 2);
+	for (let i = 0; i < 1000; i++) {
+		const oneBall = ball.clone();
+		const lon = Math.random() * 360 - 180;
+		const lat = Math.random() * 180 - 90;
+		oneBall.position.copy(map.geo2map(new Vector3(lon, lat, 0)));
+		oneBall.scale.setScalar(10000);
+		groundGroup.add(oneBall);
+	}
 }
