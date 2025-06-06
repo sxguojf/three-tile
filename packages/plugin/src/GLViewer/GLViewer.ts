@@ -4,59 +4,17 @@
  *@date: 2023-04-05
  */
 
-import {
-	AmbientLight,
-	BaseEvent,
-	Clock,
-	Color,
-	DirectionalLight,
-	EventDispatcher,
-	FogExp2,
-	MathUtils,
-	Object3DEventMap,
-	PerspectiveCamera,
-	Scene,
-	Vector3,
-	WebGLRenderer,
-} from "three";
+import { FogExp2, MathUtils, Vector3 } from "three";
 
 import { MapControls } from "three/examples/jsm/controls/MapControls.js";
-import { Easing, Tween, update as teweenUpdate } from "three/examples/jsm/libs/tween.module.js";
-
-/**
- * GlViewer event map
- */
-export interface GLViewerEventMap extends Object3DEventMap {
-	update: BaseEvent & { delta: number };
-	resize: BaseEvent & { size: { width: number; height: number } };
-}
-
-/**
- * GlViewer options
- */
-export type GLViewerOptions = {
-	/** Whether to use antialiasing. Default is false. */
-	antialias?: boolean;
-	/** Whether to use stencil buffer. Default is true. */
-	stencil?: boolean;
-	/** Whether to use logarithmic depth buffer. Default is true. */
-	logarithmicDepthBuffer?: boolean;
-};
+import { Easing, Tween } from "three/examples/jsm/libs/tween.module.js";
+import { BaseViewer, ViewerOptions } from "./BaseViewer";
 
 /**
  * Threejs scene initialize class
  */
-export class GLViewer extends EventDispatcher<GLViewerEventMap> {
-	public readonly scene: Scene;
-	public readonly renderer: WebGLRenderer;
-
-	public readonly camera: PerspectiveCamera;
-	public readonly controls: MapControls;
-	public readonly ambLight: AmbientLight;
-	public readonly dirLight: DirectionalLight;
-	public container?: HTMLElement;
-	public topScenes: Scene[] = [];
-	private readonly _clock: Clock = new Clock();
+export class GLViewer extends BaseViewer {
+	public controls: MapControls;
 
 	private _fogFactor = 1.0;
 
@@ -71,98 +29,14 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 		this.controls.dispatchEvent({ type: "change" });
 	}
 
-	/** Container width */
-	public get width() {
-		return this.container?.clientWidth || 0;
-	}
-
-	/** Container height */
-	public get height() {
-		return this.container?.clientHeight || 0;
-	}
-
 	/**
 	 * Constructor
 	 * @param container container element or selector string
 	 * @param options GLViewer options
 	 */
-	constructor(container?: HTMLElement | string, options: GLViewerOptions = {}) {
-		super();
-
-		const { antialias = false, stencil = true, logarithmicDepthBuffer = true } = options;
-		this.renderer = this._createRenderer(antialias, stencil, logarithmicDepthBuffer);
-		this.scene = this._createScene();
-		this.camera = this._createCamera();
-		if (container) {
-			this.addTo(container);
-		}
+	constructor(container?: HTMLElement | string, options: ViewerOptions = {}) {
+		super(container, options);
 		this.controls = this._createControls();
-		this.ambLight = this._createAmbLight();
-		this.scene.add(this.ambLight);
-		this.dirLight = this._createDirLight();
-		this.scene.add(this.dirLight);
-		this.scene.add(this.dirLight.target);
-
-		this.renderer.setAnimationLoop(this.animate.bind(this));
-	}
-
-	/**
-	 * Add the renderer to a container
-	 * @param container container element or selector string
-	 * @returns this
-	 */
-	public addTo(container: HTMLElement | string) {
-		const el = typeof container === "string" ? document.querySelector(container) : container;
-		if (el instanceof HTMLElement) {
-			this.container = el;
-			el.appendChild(this.renderer.domElement);
-			new ResizeObserver(this.resize.bind(this)).observe(el);
-		} else {
-			throw `${container} not found!}`;
-		}
-		return this;
-	}
-
-	/**
-	 * Create scene
-	 * @returns scene
-	 */
-	private _createScene() {
-		const scene = new Scene();
-		const backColor = 0xdbf0ff;
-		scene.background = new Color(backColor);
-		scene.fog = new FogExp2(backColor, 0);
-		return scene;
-	}
-
-	/**
-	 * Create WebGL renderer
-	 * @param antialias
-	 * @param stencil
-	 * @param logarithmicDepthBuffer
-	 * @returns renderer
-	 */
-	private _createRenderer(antialias: boolean, stencil: boolean, logarithmicDepthBuffer: boolean) {
-		const renderer = new WebGLRenderer({
-			antialias,
-			logarithmicDepthBuffer,
-			stencil,
-			alpha: true,
-			precision: "highp",
-		});
-		renderer.setPixelRatio(window.devicePixelRatio);
-		renderer.domElement.tabIndex = 0;
-		return renderer;
-	}
-
-	/**
-	 * Create camera
-	 * @returns camera
-	 */
-	private _createCamera() {
-		const camera = new PerspectiveCamera(70, 1, 100, 5e7);
-		camera.position.set(0, 2.8e7, 0);
-		return camera;
 	}
 
 	/**
@@ -220,59 +94,11 @@ export class GLViewer extends EventDispatcher<GLViewerEventMap> {
 	}
 
 	/**
-	 * Create ambient light
-	 * @returns AmbientLight
-	 */
-	private _createAmbLight() {
-		const ambLight = new AmbientLight(0xffffff, 1);
-		return ambLight;
-	}
-
-	/**
-	 * Create directional light
-	 * @returns DirectionalLight
-	 */
-	private _createDirLight() {
-		const dirLight = new DirectionalLight(0xffffff, 1);
-		dirLight.position.set(0, 2e3, 1e3);
-		dirLight.target.position.copy(this.controls.target);
-		return dirLight;
-	}
-
-	/**
-	 * Container resize
-	 * @returns this
-	 */
-	public resize() {
-		const width = this.width;
-		const height = this.height;
-		this.renderer.setSize(width, height);
-		this.camera.aspect = width / height;
-		this.camera.updateProjectionMatrix();
-		// 防止resize过程中黑屏
-		this.update();
-		this.dispatchEvent({ type: "resize", size: { width, height } });
-		return this;
-	}
-
-	protected update() {
-		this.renderer.autoClear = false;
-		this.renderer.render(this.scene, this.camera);
-		this.topScenes.forEach(scene => {
-			this.renderer.clearDepth();
-			this.renderer.render(scene, this.camera);
-		});
-		this.renderer.autoClear = true;
-	}
-
-	/**
 	 * Threejs animation loop
 	 */
 	public animate() {
-		this.update();
+		super.animate();
 		this.controls.update();
-		this.dispatchEvent({ type: "update", delta: this._clock.getDelta() });
-		teweenUpdate();
 	}
 
 	/**
