@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { FogExp2, MathUtils, Vector3 } from "three";
+import { FogExp2, Vector3 } from "three";
 
 import { MapControls } from "three/examples/jsm/controls/MapControls.js";
 import { Easing, Tween } from "three/examples/jsm/libs/tween.module.js";

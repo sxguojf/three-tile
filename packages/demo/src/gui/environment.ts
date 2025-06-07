@@ -74,7 +74,7 @@ export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.
 
 	folder.add(viewer, "fogFactor", 0, 10, 0.001).listen().name("雾浓度");
 
-	folder.addColor(map, "backgroundColor").name("背景颜色");
+	folder.addColor(map, "backgroundColor").name("地图背景颜色");
 	// map.backgroundColor = 0xffffff;
 
 	const fakeEarth = viewer.scene.getObjectByName("fakeearth") as plugin.FakeEarth;

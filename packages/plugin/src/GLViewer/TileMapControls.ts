@@ -15,7 +15,7 @@ export class TileMapControls extends MapControls {
 		this.maxDistance = 3e7;
 		this.maxPolarAngle = MAX_POLAR_ANGLE;
 		this.enableDamping = true;
-		this.dampingFactor = 0.05;
+		this.dampingFactor = 0.1;
 		this.keyPanSpeed = 5;
 		this.panSpeed = 2;
 		this.zoomToCursor = true;
@@ -44,8 +44,8 @@ export class TileMapControls extends MapControls {
 			this.maxPolarAngle = Math.min(Math.pow(POLAR_BASE / dist, POLAR_EXPONENT), MAX_POLAR_ANGLE);
 
 			if (camera instanceof PerspectiveCamera) {
-				camera.far = MathUtils.clamp((dist / polar) * 8, 100, 1e8);
-				camera.near = camera.far / 1e3;
+				camera.far = MathUtils.clamp((dist / polar) * 8, 2e4, 5e7);
+				camera.near = Math.max(camera.far / 1e4, 1);
 				camera.updateProjectionMatrix();
 			}
 

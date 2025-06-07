@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BoxHelper, BufferGeometry, Material, Mesh, MeshBasicMaterial } from "three";
+import { BoxHelper, BufferGeometry, Material, Mesh, MeshBasicMaterial, MeshLambertMaterial } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
@@ -51,7 +51,7 @@ export class TileLoader implements ITileLoader {
 
 	// private _backgroundMaterial = new MeshBasicMaterial({ color: this.backgroundColor });
 	private _errorMaterial = new MeshBasicMaterial({ transparent: true, opacity: 0 });
-	public readonly backgroundMaterial = new MeshBasicMaterial({ color: 0x112233 });
+	public readonly backgroundMaterial = new MeshLambertMaterial({ color: 0x112233 });
 
 	/** Loader manager */
 	public manager = LoaderFactory.manager;
