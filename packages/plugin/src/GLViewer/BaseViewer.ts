@@ -110,7 +110,7 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 		const scene = new Scene();
 		const backColor = 0xdbf0ff;
 		scene.background = new Color(backColor);
-		scene.fog = new FogExp2(backColor, 0.000005);
+		scene.fog = new FogExp2(backColor, 0);
 		return scene;
 	}
 

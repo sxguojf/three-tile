@@ -9,6 +9,7 @@ import { FogExp2, MathUtils, Vector3 } from "three";
 import { MapControls } from "three/examples/jsm/controls/MapControls.js";
 import { Easing, Tween } from "three/examples/jsm/libs/tween.module.js";
 import { BaseViewer, ViewerOptions } from "./BaseViewer";
+import { TileMapControls } from "./TileMapControls";
 
 /**
  * Threejs scene initialize class
@@ -44,52 +45,14 @@ export class GLViewer extends BaseViewer {
 	 * @returns MapControls
 	 */
 	private _createControls() {
-		const controls = new MapControls(this.camera, this.renderer.domElement);
-		const MAX_POLAR_ANGLE = 1.2;
-
-		controls.target.set(0, 0, -3e3);
-		controls.screenSpacePanning = false;
-		controls.minDistance = 10;
-		controls.maxDistance = 3e7;
-		controls.maxPolarAngle = MAX_POLAR_ANGLE;
-		controls.enableDamping = true;
-		controls.dampingFactor = 0.05;
-		controls.keyPanSpeed = 5;
-		controls.panSpeed = 2;
-		controls.zoomToCursor = true;
-
-		controls.listenToKeyEvents(this.renderer.domElement);
-
-		// Adjust zinear/far and azimuth/polar when controls changed
-		controls.addEventListener("change", () => {
-			// Get the current polar angle and distance
-			const polar = Math.max(controls.getPolarAngle(), 0.1);
-			const dist = Math.max(controls.getDistance(), 100);
-
-			// Set ther zoom speed based on distance
-			controls.zoomSpeed = Math.max(Math.log(dist / 1e3), 0) + 0.5;
-
-			// Set the camera near/far based on distance and polayr angle
-			this.camera.far = MathUtils.clamp((dist / polar) * 8, 100, 1e8);
-			this.camera.near = this.camera.far / 1e3;
-			this.camera.updateProjectionMatrix();
-
+		const controls = new TileMapControls(this.camera, this.renderer.domElement);
+		controls.onChange = state => {
+			const { polar, dist } = state;
 			// Set fog based on distance and polar angle
 			if (this.scene.fog instanceof FogExp2) {
 				this.scene.fog.density = (polar / (dist + 5)) * this.fogFactor * 0.2;
 			}
-
-			// Set the azimuth/polar angles based on distance
-			const DIST_THRESHOLD = 8e6;
-			const isDistAboveThreshold = dist > DIST_THRESHOLD;
-			controls.minAzimuthAngle = isDistAboveThreshold ? 0 : -Infinity;
-			controls.maxAzimuthAngle = isDistAboveThreshold ? 0 : Infinity;
-
-			// Set the polar angle based on distance
-			const POLAR_BASE = 1e7;
-			const POLAR_EXPONENT = 4;
-			controls.maxPolarAngle = Math.min(Math.pow(POLAR_BASE / dist, POLAR_EXPONENT), MAX_POLAR_ANGLE);
-		});
+		};
 		return controls;
 	}
 
