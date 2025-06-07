@@ -4,7 +4,7 @@
  * @date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh } from "three";
+import { BufferGeometry, ColorRepresentation, Material, Mesh, MeshBasicMaterial } from "three";
 import { ISource } from "../source";
 import { TileLoadingManager } from "./LoaderFactory";
 
@@ -51,6 +51,8 @@ export interface ITileLoader {
 	imgSource: ISource[];
 	/** 地形数据加载器 */
 	demSource: ISource | undefined;
+	/** 地图背景材质 */
+	backgroundMaterial: MeshBasicMaterial;
 	/** 加载瓦片数据 */
 	load(params: TileCoords): Promise<Mesh>;
 	/** 释放瓦片模型 */

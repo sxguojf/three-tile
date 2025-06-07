@@ -20,8 +20,10 @@ export interface SourceOptions {
 	maxLevel?: number;
 	/** Data projection */
 	projectionID?: ProjectionType;
-	/** Display opacity */
+	/** Material opacity */
 	opacity?: number;
+	/** Material transparent */
+	transparent?: boolean;
 	/* Data bounds， */
 	bounds?: [number, number, number, number];
 	/** Data Url template */
@@ -54,8 +56,10 @@ export class TileSource implements ISource {
 	public subdomains: string[] | string = [];
 	/** Currently used subdomain. Randomly selected from subdomains when requesting tiles */
 	public s: string = "";
-	/** Layer opacity. Range 0-1, default is 1.0 (completely opaque) */
+	/** material opacity. Range 0-1, default is 1.0 (completely opaque) */
 	public opacity: number = 1.0;
+	/** Whether the material is transparent. Default is true (transparent) */
+	public transparent: boolean = true;
 	/** Whether to use TMS tile coordinate system. Default false uses XYZ system, true uses TMS system */
 	public isTMS = false;
 	/** Data bounds in format [minLon, minLat, maxLon, maxLat]. Default covers global range excluding polar regions */

@@ -214,6 +214,10 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		setGeoJSONMask: () => {
 			map.imgSource = [ms.arcGisImgSource, ms.cityMaskSource, ms.citySource];
 		},
+
+		setGDRoad: () => {
+			map.imgSource = [ms.gdImgLabelSource];
+		},
 	};
 
 	// 数据源
@@ -260,6 +264,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	testFolder.add(vm, "setSingleImage").name("单图片影像测试");
 	testFolder.add(vm, "setTif").name("单TIFF地形测试");
 	testFolder.add(vm, "setGeoJSONMask").name("GeoJSON遮罩-延安");
+	testFolder.add(vm, "setGDRoad").name("高德路网");
 	// testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;

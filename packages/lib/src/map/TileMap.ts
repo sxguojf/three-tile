@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BaseEvent, Camera, Clock, Object3D, Object3DEventMap, Vector2, Vector3 } from "three";
+import { BaseEvent, Camera, Clock, ColorRepresentation, Object3D, Object3DEventMap, Vector2, Vector3 } from "three";
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
@@ -43,6 +43,7 @@ export type MapParams = {
 	rootTile?: Tile; //根瓦片, root Tile
 	imgSource: ISource[] | ISource; //影像数据源, image source
 	demSource?: ISource; //高程数据源, terrain source
+	backgroundColor?: ColorRepresentation; //背景色, background color
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
 	lon0?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
@@ -212,6 +213,20 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	}
 
 	/**
+	 * 取得背景色
+	 */
+	public get backgroundColor() {
+		return this.loader.backgroundMaterial.color;
+	}
+
+	/**
+	 * 设置背景色
+	 */
+	public set backgroundColor(value: ColorRepresentation) {
+		this.loader.backgroundMaterial.color.set(value);
+	}
+
+	/**
      * 地图创建工厂函数
        @param params 地图参数 {@link MapParams}
        @returns map mesh 地图模型
@@ -267,11 +282,13 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			maxLevel = 20,
 			imgSource,
 			demSource,
+			backgroundColor = 0x112233,
 			lon0 = 0,
 			debug = 0,
 		} = params;
 
 		this.loader = loader;
+		this.loader.backgroundMaterial.color.set(backgroundColor);
 		this.debug = this.loader.debug = debug;
 
 		rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);

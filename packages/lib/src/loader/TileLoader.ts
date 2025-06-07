@@ -40,6 +40,19 @@ export class TileLoader implements ITileLoader {
 		this._demSource = value;
 	}
 
+	// private _backgroundColor: ColorRepresentation = 0x112233;
+	// public get backgroundColor(): ColorRepresentation {
+	// 	return this._backgroundColor;
+	// }
+	// public set backgroundColor(value: ColorRepresentation) {
+	// 	this._backgroundColor = value;
+	// 	this._backgroundMaterial.color.set(value);
+	// }
+
+	// private _backgroundMaterial = new MeshBasicMaterial({ color: this.backgroundColor });
+	private _errorMaterial = new MeshBasicMaterial({ transparent: true, opacity: 0 });
+	public readonly backgroundMaterial = new MeshBasicMaterial({ color: 0x112233 });
+
 	/** Loader manager */
 	public manager = LoaderFactory.manager;
 
@@ -161,12 +174,12 @@ export class TileLoader implements ITileLoader {
 	 * @returns Material[]
 	 */
 	protected async loadMaterial(params: TileLoadParamsType): Promise<Material[]> {
+		const materials: Material[] = [this.backgroundMaterial];
 		const { bounds, z } = params;
 		const sources = this.imgSource.filter(
 			source => z >= source.minLevel && this._isBoundsInSourceBounds(source, bounds)
 		);
 
-		const materials = [];
 		for (let i = 0; i < sources.length; i++) {
 			const source = sources[i];
 			const loader = LoaderFactory.getMaterialLoader(source);
@@ -177,14 +190,16 @@ export class TileLoader implements ITileLoader {
 					if (this.debug > 0) {
 						console.error("Load Material Error:", e);
 					}
-					return new MeshBasicMaterial({ transparent: true, opacity: -1 });
+					//return new MeshBasicMaterial({ transparent: true, opacity: -1 });
+					return this._errorMaterial;
 				})
 				.finally(() => {
 					TileLoader._downloadingThreads--;
 				});
 
-			if (material.opacity >= 0) {
+			if (material !== this._errorMaterial && material !== this.backgroundMaterial) {
 				material.opacity = source.opacity;
+				material.transparent = source.transparent;
 				const dispose = (evt: { target: Material }) => {
 					loader.unload && loader.unload(evt.target);
 					evt.target.removeEventListener("dispose", dispose);

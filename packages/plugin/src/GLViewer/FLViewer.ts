@@ -47,7 +47,6 @@ export class FLViewer extends BaseViewer {
 	 */
 	public animate() {
 		super.animate();
-		const delta = this.clock.getDelta();
-		this.controls.update(delta);
+		this.controls.update(this.clock.getDelta());
 	}
 }

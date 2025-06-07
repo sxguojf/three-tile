@@ -22,8 +22,10 @@ export interface ISource {
 	maxLevel: number;
 	/** Data projection */
 	projectionID: ProjectionType;
-	/** Display opacity */
+	/** Material opacity */
 	opacity: number;
+	/** Material transparent */
+	transparent: boolean;
 	/** is TMS scheme */
 	isTMS?: boolean;
 	/* Data bounds in lonlat [minLon,minLat,maxLon,maxLat]*/

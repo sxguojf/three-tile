@@ -176,12 +176,12 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
 		// 防止resize过程中黑屏
-		this.controlsUpdate();
+		this.update();
 		this.dispatchEvent({ type: "resize", size: { width, height } });
 		return this;
 	}
 
-	protected controlsUpdate() {
+	protected update() {
 		this.renderer.autoClear = false;
 		this.renderer.render(this.scene, this.camera);
 		this.topScenes.forEach(scene => {
@@ -195,7 +195,7 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 	 * Threejs animation loop
 	 */
 	public animate() {
-		this.controlsUpdate();
+		this.update();
 		this.dispatchEvent({ type: "update", delta: this.clock.getDelta() });
 		teweenUpdate();
 	}

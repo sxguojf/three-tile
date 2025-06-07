@@ -106,7 +106,7 @@ export class PLViewer extends BaseViewer {
 		return controls;
 	}
 
-	protected controlsUpdate() {
+	public update() {
 		const time = performance.now();
 		const controls = this.controls;
 
@@ -140,14 +140,6 @@ export class PLViewer extends BaseViewer {
 
 		prevTime = time;
 
-		// this.renderer.render(this.scene, this.camera);
-	}
-
-	/**
-	 * Threejs animation loop
-	 */
-	public animate() {
-		super.animate();
-		this.controlsUpdate();
+		super.update();
 	}
 }
