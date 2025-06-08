@@ -46,13 +46,13 @@ export class GLViewer extends BaseViewer {
 	 */
 	private _createControls() {
 		const controls = new TileMapControls(this.camera, this.renderer.domElement);
-		controls.onChange = state => {
-			const { polar, dist } = state;
-			// Set fog based on distance and polar angle
+		controls.addEventListener("change", () => {
 			if (this.scene.fog instanceof FogExp2) {
+				const polar = controls.getPolarAngle();
+				const dist = controls.getDistance();
 				this.scene.fog.density = (polar / (dist + 5)) * this.fogFactor * 0.2;
 			}
-		};
+		});
 		return controls;
 	}
 
