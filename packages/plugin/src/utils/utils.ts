@@ -55,13 +55,21 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 
 	if (info) {
 		// 地面高度与该点高度差(世界坐标系下)
-		const h = checkPoint.y - info.point.y;
-		// 距离低于限制高度时，沿天顶方向抬高摄像机
-		if (h < limitHeight) {
-			const offset = h < 0 ? -h * 1.1 : h / 20;
-			const dv = map.localToWorld(map.up.clone()).multiplyScalar(offset);
-			camera.position.add(dv);
+		const dh = checkPoint.y - info.point.y;
+		// 地面高度低于限制高度时，沿天顶方向抬高摄像机
+		if (dh < limitHeight) {
+			const offset = (limitHeight - dh) * 1.2;
+			// const dv = map.localToWorld(map.up.clone()).multiplyScalar(offset);
+			// camera.position.add(dv);
+			camera.position.y += offset;
 			hit = true;
+			const pointMesh = map.getObjectByName("checkPoint");
+			if (pointMesh instanceof Mesh) {
+				pointMesh.material.color.set(0xf00f00);
+				setTimeout(() => {
+					pointMesh.material.color.set(0x00ff00);
+				}, 20);
+			}
 		}
 	}
 
@@ -71,7 +79,7 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 		if (!pointMesh) {
 			pointMesh = new Mesh<BufferGeometry, MeshLambertMaterial>(
 				new SphereGeometry(1),
-				new MeshLambertMaterial({ color: 0xff0000 })
+				new MeshLambertMaterial({ color: 0x00ff00 })
 			);
 			pointMesh.name = "checkPoint";
 			map.add(pointMesh);
