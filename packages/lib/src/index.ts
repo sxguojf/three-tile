@@ -4,7 +4,6 @@
  *@date: 2023-04-05
  */
 
-import { ITileGeometryLoader, ITileMaterialLoader, LoaderFactory } from "./loader";
 export { version, author } from "../package.json";
 
 // core
@@ -19,6 +18,8 @@ export * from "./loader";
 export * from "./source";
 // map
 export * from "./map";
+
+import { ITileGeometryLoader, ITileMaterialLoader, LoaderFactory } from "./loader";
 
 export function waitFor(condition: boolean, delay = 100) {
 	return new Promise<void>(resolve => {

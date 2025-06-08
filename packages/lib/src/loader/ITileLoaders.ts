@@ -6,7 +6,7 @@
 
 import { BufferGeometry, Color, Material, Mesh } from "three";
 import { ISource } from "../source";
-import { TileLoadingManager } from "./LoaderFactory";
+import { TileLoadingManager } from "./TileLoadingManager";
 
 /**
  * 瓦片坐标类型
@@ -48,6 +48,7 @@ interface TileBackgroundMaterial extends Material {
 export interface ITileLoader {
 	/** 正在进行的下载线程数量 */
 	downloadingThreads: number;
+	/** 调试级别 */
 	debug: number;
 	/** 瓦片加载管理器 */
 	manager: TileLoadingManager;

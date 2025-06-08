@@ -9,6 +9,7 @@ import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
+import { TileLoadingManager } from "./TileLoadingManager";
 
 /**
  * Tile loader
@@ -40,21 +41,15 @@ export class TileLoader implements ITileLoader {
 		this._demSource = value;
 	}
 
-	// private _backgroundColor: ColorRepresentation = 0x112233;
-	// public get backgroundColor(): ColorRepresentation {
-	// 	return this._backgroundColor;
-	// }
-	// public set backgroundColor(value: ColorRepresentation) {
-	// 	this._backgroundColor = value;
-	// 	this._backgroundMaterial.color.set(value);
-	// }
+	private readonly _errorMaterial = new MeshBasicMaterial({ transparent: true, opacity: 0 });
+	private readonly _errorGeometry = new TileGeometry();
 
-	// private _backgroundMaterial = new MeshBasicMaterial({ color: this.backgroundColor });
-	private _errorMaterial = new MeshBasicMaterial({ transparent: true, opacity: 0 });
 	public readonly backgroundMaterial = new MeshLambertMaterial({ color: 0x112233 });
 
 	/** Loader manager */
-	public manager = LoaderFactory.manager;
+	public get manager(): TileLoadingManager {
+		return LoaderFactory.manager;
+	}
 
 	public debug = 0;
 
@@ -67,10 +62,10 @@ export class TileLoader implements ITileLoader {
 		const geometry = await this.loadGeometry(params);
 		const materials = await this.loadMaterial(params);
 		console.assert(!!materials && !!geometry);
+		geometry.clearGroups();
 		for (let i = 0; i < materials.length; i++) {
 			geometry.addGroup(0, Infinity, i);
 		}
-
 		const mesh = new Mesh(geometry, materials);
 		if (this.debug > 1 && params.z > 5) {
 			const box = new BoxHelper(mesh, 0xffff00);
@@ -148,17 +143,19 @@ export class TileLoader implements ITileLoader {
 					if (this.debug > 0) {
 						console.error("Load Geometry Error:", e);
 					}
-					return new TileGeometry();
+					return this._errorGeometry;
 				})
 				.finally(() => {
 					TileLoader._downloadingThreads--;
 				});
 
-			const dispose = (evt: { target: BufferGeometry }) => {
-				loader.unload && loader.unload(evt.target);
-				evt.target.removeEventListener("dispose", dispose);
-			};
-			geometry.addEventListener("dispose", dispose);
+			if (geometry != this._errorGeometry) {
+				const dispose = (evt: { target: BufferGeometry }) => {
+					loader.unload && loader.unload(evt.target);
+					evt.target.removeEventListener("dispose", dispose);
+				};
+				geometry.addEventListener("dispose", dispose);
+			}
 		} else {
 			geometry = new TileGeometry();
 		}

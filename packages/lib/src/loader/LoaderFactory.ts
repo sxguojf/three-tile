@@ -4,18 +4,11 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, LoadingManager } from "three";
-import { author } from "../../package.json";
 import { ISource } from "../source";
 import { ITileGeometryLoader, ITileMaterialLoader } from "./ITileLoaders";
+import { TileLoadingManager } from "./TileLoadingManager";
 
-export class TileLoadingManager extends LoadingManager {
-	public onParseEnd?: (geometry: BufferGeometry) => void = undefined;
-
-	public parseEnd(geometry: BufferGeometry) {
-		this.onParseEnd && this.onParseEnd(geometry);
-	}
-}
+const author = { name: "GuoJF" };
 
 /**
  * Factory for loader

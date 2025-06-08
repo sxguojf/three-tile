@@ -25,9 +25,15 @@ export class GroundGroup extends Group {
 		this.map = map;
 		this.updateAllTiles = updateEveryTile;
 		map.addEventListener("tile-loaded", () => {
-			this.updateAllTiles && this.update();
+			setTimeout(() => {
+				this.updateAllTiles && this.update();
+			}, 10);
 		});
-		map.addEventListener("loading-complete", () => this.update());
+		map.addEventListener("loading-complete", () => {
+			setTimeout(() => {
+				this.update();
+			}, 10);
+		});
 		map.add(this);
 	}
 
@@ -64,14 +70,15 @@ export class GroundGroup extends Group {
  * @param obj 模型(需要添加在TileMap里)
  */
 export function clampToGround(map: TileMap, obj: Object3D) {
-	const worldPosition = obj.getWorldPosition(tempVec3);
-	const info = map.getLocalInfoFromWorld(worldPosition);
-	if (info) {
-		const size = tempBox3.setFromObject(obj).getSize(tempVec3);
-		const center = tempBox3.getCenter(new Vector3());
-		const bottomY = center.y - size.y / 2;
-		const offsetY = info.location.z - bottomY;
-		obj.position.z += offsetY;
+	if (obj.visible) {
+		const worldPosition = obj.getWorldPosition(tempVec3);
+		const info = map.getLocalInfoFromWorld(worldPosition);
+		if (info) {
+			const size = tempBox3.setFromObject(obj).getSize(tempVec3);
+			const center = tempBox3.getCenter(new Vector3());
+			const bottomY = center.y - size.y / 2;
+			const offsetY = info.location.z - bottomY;
+			obj.position.z += offsetY;
+		}
 	}
-	return info;
 }

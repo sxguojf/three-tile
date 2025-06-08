@@ -4,11 +4,13 @@
  *@date: 2023-04-05
  */
 
-// extends the threejs loader
-export * from "./ITileLoaders";
-
 // tile factory
 export * from "./LoaderFactory";
+
+export * from "./TileLoadingManager";
+
+// extends the threejs loader
+export * from "./ITileLoaders";
 
 export * from "./PromiseWorker";
 

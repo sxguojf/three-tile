@@ -4,13 +4,30 @@
  *@date: 2023-04-06
  */
 
-import { BaseEvent, Camera, Clock, ColorRepresentation, Object3D, Object3DEventMap, Vector2, Vector3 } from "three";
+import {
+	BaseEvent,
+	Camera,
+	Clock,
+	ColorRepresentation,
+	Intersection,
+	Object3D,
+	Object3DEventMap,
+	Vector2,
+	Vector3,
+} from "three";
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
 import { TileMapLoader } from "./TileMapLoader";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
+
+/**
+ * ground location inifo type
+ */
+export interface LocationInfo extends Intersection {
+	location: Vector3;
+}
 
 /**
  * 瓦片地图事件

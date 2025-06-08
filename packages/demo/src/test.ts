@@ -27,7 +27,6 @@
 import {
 	AnimationMixer,
 	Box3,
-	BoxGeometry,
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
@@ -38,7 +37,6 @@ import {
 	MeshLambertMaterial,
 	Plane,
 	Scene,
-	SphereGeometry,
 	SpotLight,
 	SpotLightHelper,
 	Sprite,

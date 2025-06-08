@@ -4,19 +4,13 @@
  *@date: 2024-04-08
  */
 
-import { Camera, Intersection, Mesh, Raycaster, Vector2, Vector3 } from "three";
-import { TileMap } from "./TileMap";
+import { Camera, Mesh, Raycaster, Vector2, Vector3 } from "three";
+import { LocationInfo, TileMap } from "./TileMap";
 // import { GLViewer } from "../../tt";
 
 const tempRay = new Raycaster();
 const downVec3 = new Vector3(0, -1, 0);
 const orginVec3 = new Vector3();
-/**
- * ground location inifo type
- */
-export interface LocationInfo extends Intersection {
-	location: Vector3;
-}
 
 /**
  * get ground info from an ary
@@ -28,6 +22,7 @@ export function getLocalInfoFromRay(map: TileMap, ray: Raycaster): LocationInfo 
 	// threejs R114 射线法会检测不可视对象相交： https://github.com/mrdoob/three.js/issues/14700
 	const intersects = ray.intersectObject<Mesh>(map.rootTile, true);
 	for (const intersect of intersects) {
+		console.assert(intersect.object.visible);
 		// intersect point to local point
 		const point = map.worldToLocal(intersect.point.clone());
 		const lonlat = map.map2geo(point);
