@@ -4,7 +4,6 @@
  *@date: 2023-04-05
  */
 
-import { Vector3 } from "three";
 import { Tile } from ".";
 import { ITileLoader } from "../loader";
 
@@ -27,10 +26,7 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 	if (tile.z > maxLevel) {
 		return LODAction.remove;
 	}
-
-	// 取得瓦片视宽角
 	const distRatio = tile.distRatio;
-
 	if (
 		tile.isLeaf &&
 		tile.inFrustum &&
@@ -40,7 +36,6 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 	) {
 		return LODAction.create;
 	}
-
 	if (!tile.isLeaf && tile.z >= minLevel && distRatio > threshold) {
 		return LODAction.remove;
 	}
@@ -48,46 +43,55 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 }
 
 /**
+ * 创建瓦片
+ * @param x 瓦片X坐标
+ * @param y 瓦片Y坐标
+ * @param z 瓦片层级
+ * @param px 瓦片位置X
+ * @param py 瓦片位置Y
+ * @param sx 瓦片缩放X
+ * @param sy 瓦片缩放Y
+ * @param sz 瓦片缩放Z
+ * @returns 子瓦片实例
+ */
+function creatTile(x: number, y: number, z: number, px: number, py: number, sx: number, sy: number, sz: number) {
+	const tile = new Tile(x, y, z);
+	tile.position.set(px, py, 0);
+	tile.scale.set(sx, sy, sz);
+	return tile;
+}
+
+/**
  * 创建子瓦片
- * @param tile 父瓦片
+ * @param parentTile 父瓦片
  * @param loader 瓦片加载器
  * @returns 子瓦片数组
  */
-export function createChildren(tile: Tile, loader: ITileLoader): Tile[] {
-	const { x: px, y: py, z: pz } = tile;
+export function createChildren(parentTile: Tile, loader: ITileLoader): Tile[] {
+	const { x: parentX, y: parentY, z: parentZ } = parentTile;
 	const children: Tile[] = [];
-	const level = pz + 1;
-	const x = px * 2;
-	const z = 0;
-	const pos = 0.25;
 
-	if (pz === 0 && loader.imgSource[0].projectionID === "4326") {
+	const x = parentX * 2;
+	const z = parentZ + 1;
+	const p = 0.25;
+	const sx = 0.5;
+	const sz = 1.0;
+
+	if (parentZ === 0 && loader.imgSource[0].projectionID === "4326") {
 		// EPSG:4326 瓦片0级只有2块子瓦片
-		const y = py;
-		const scale = new Vector3(0.5, 1.0, 1.0);
-		const t1 = new Tile(x, y, level);
-		const t2 = new Tile(x + 1, y, level);
-		t1.position.set(-pos, 0, z);
-		t1.scale.copy(scale);
-		t2.position.set(pos, 0, z);
-		t2.scale.copy(scale);
+		const y = parentY;
+		const sy = 1.0;
+		const t1 = creatTile(x, y, z, -p, 0, sx, sy, sz);
+		const t2 = creatTile(x + 1, y, z, p, 0, sx, sy, sz);
 		children.push(t1, t2);
 	} else {
 		// 其它情况都为4块子瓦片
-		const y = py * 2;
-		const scale = new Vector3(0.5, 0.5, 1.0);
-		const t1 = new Tile(x, y, level);
-		const t2 = new Tile(x + 1, y, level);
-		const t3 = new Tile(x, y + 1, level);
-		const t4 = new Tile(x + 1, y + 1, level);
-		t1.position.set(-pos, pos, z);
-		t1.scale.copy(scale);
-		t2.position.set(pos, pos, z);
-		t2.scale.copy(scale);
-		t3.position.set(-pos, -pos, z);
-		t3.scale.copy(scale);
-		t4.position.set(pos, -pos, z);
-		t4.scale.copy(scale);
+		const y = parentY * 2;
+		const sy = 0.5;
+		const t1 = creatTile(x, y, z, -p, p, sx, sy, sz);
+		const t2 = creatTile(x + 1, y, z, p, p, sx, sy, sz);
+		const t3 = creatTile(x, y + 1, z, -p, -p, sx, sy, sz);
+		const t4 = creatTile(x + 1, y + 1, z, p, -p, sx, sy, sz);
 		children.push(t1, t2, t3, t4);
 	}
 
