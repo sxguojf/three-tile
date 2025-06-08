@@ -305,7 +305,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	public updateData(updateMaterial: boolean, updateGeometry: boolean) {
 		this.traverse(child => {
 			if (child instanceof Tile) {
-				child._isLoading = false;
+				// child._isLoading = false;
 				child._updateMaterial = updateMaterial;
 				child._updateGeometry = updateGeometry;
 			}
