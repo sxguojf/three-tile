@@ -90,9 +90,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 瓦片到相机的距离比例，用于 LOD 评估 */
 	public get distRatio() {
 		const distToCamera = cameraWorldPosition.distanceTo(this._checkPointer);
-		// 增大不在视锥体内瓦片的距离，以使它更快合并
-		const dist = distToCamera * (this.inFrustum ? 0.8 : 5);
-		return dist / this._sizeInWorld;
+		return Math.pow((distToCamera * 0.8) / this._sizeInWorld, 10);
 	}
 
 	/** 瓦片是否在视锥体内 */
