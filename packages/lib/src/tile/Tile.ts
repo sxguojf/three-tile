@@ -144,10 +144,10 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 瓦片射线检测，射线穿过瓦片包围盒内时，才进行模型的射线检测
+	 * 瓦片射线检测，仅检测视锥体中的瓦片
 	 */
-	public raycast(raycaster: Raycaster) {
-		return !!this._bbox && raycaster.ray.intersectsBox(this._bbox);
+	public raycast(_raycaster: Raycaster) {
+		return this.inFrustum;
 	}
 
 	/**

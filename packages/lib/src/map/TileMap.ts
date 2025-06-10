@@ -4,50 +4,20 @@
  *@date: 2023-04-06
  */
 
-import {
-	BaseEvent,
-	Camera,
-	Clock,
-	ColorRepresentation,
-	Intersection,
-	Object3D,
-	Object3DEventMap,
-	Vector2,
-	Vector3,
-} from "three";
+import { Camera, Clock, ColorRepresentation, Intersection, Object3D, Vector2, Vector3 } from "three";
 import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { IProjection, ProjMCT, ProjectFactory } from "./projection";
+import { TileMapEventMap } from "./TileMapEventMap";
 import { TileMapLoader } from "./TileMapLoader";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
 
 /**
- * ground location inifo type
+ * 地面信息类型
  */
 export interface LocationInfo extends Intersection {
 	location: Vector3;
-}
-
-/**
- * 瓦片地图事件
- */
-export interface TileMapEventMap extends Object3DEventMap {
-	update: BaseEvent & { delta: number };
-	ready: BaseEvent;
-	"tile-created": BaseEvent & { tile: Tile };
-	"tile-loaded": BaseEvent & { tile: Tile };
-	"tile-unload": BaseEvent & { tile: Tile };
-
-	"projection-changed": BaseEvent & { projection: IProjection };
-	"source-changed": BaseEvent & { source: ISource | ISource[] | undefined };
-
-	"loading-start": BaseEvent & { itemsLoaded: number; itemsTotal: number };
-	"loading-error": BaseEvent & { url: string };
-	"loading-complete": BaseEvent;
-	"loading-progress": BaseEvent & { url: string; itemsLoaded: number; itemsTotal: number };
-
-	"parsing-end": BaseEvent & { url: string };
 }
 
 /** 地图投影中心经度类型 */
@@ -328,6 +298,13 @@ export class TileMap extends Object3D<TileMapEventMap> {
 
 		// 绑定事件
 		attachEvent(this);
+
+		// ready
+		const onLoadingComplete = () => {
+			this.dispatchEvent({ type: "ready" });
+			this.removeEventListener("loading-complete", onLoadingComplete);
+		};
+		this.addEventListener("loading-complete", onLoadingComplete);
 	}
 
 	/**
@@ -355,7 +332,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			}
 			this._clock.start();
 			this.dispatchEvent({ type: "update", delta: elapseTime });
-			this._checkReady();
+			// this._checkReady();
 		}
 
 		// 动态调整地图高度
@@ -368,25 +345,25 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		// }
 	}
 
-	private _ready = false;
+	// private _ready = false;
 
 	/**
 	 * 检查地图是否已准备就绪。
 	 * 当地图的所有叶子瓦片都加载了模型数据时，认为地图准备就绪，并触发 'ready' 事件。
 	 */
-	private _checkReady() {
-		if (!this._ready) {
-			this._ready = true;
-			this.rootTile.traverse(child => {
-				if (child instanceof Tile && child.isLeaf && child.inFrustum && !child.model) {
-					this._ready = false;
-				}
-			});
-			if (this._ready) {
-				this.dispatchEvent({ type: "ready" });
-			}
-		}
-	}
+	// private _checkReady() {
+	// 	if (!this._ready) {
+	// 		this._ready = true;
+	// 		this.rootTile.traverse(child => {
+	// 			if (child instanceof Tile && child.isLeaf && child.inFrustum && !child.model) {
+	// 				this._ready = false;
+	// 			}
+	// 		});
+	// 		if (this._ready) {
+	// 			this.dispatchEvent({ type: "ready" });
+	// 		}
+	// 	}
+	// }
 
 	/**
 	 * 重新加载地图数据

@@ -95,10 +95,10 @@ function initViewer(id: string, map: tt.TileMap) {
 	viewer.scene.add(map);
 
 	// 填加伪球体
-	const frakeEarth = plugin.createFrakEarth(map);
+	const frakeEarth = plugin.createFrakEarth(map, 0x11111);
 	map.add(frakeEarth);
-	viewer.addEventListener("update", () => {
-		frakeEarth.visible = viewer.controls.getDistance() > 5e5;
+	map.addEventListener("update", () => {
+		frakeEarth.visible = viewer.controls.getDistance() > 5e5 && viewer.controls.getPolarAngle() < Math.PI / 2;
 	});
 
 	// 添加罗盘
@@ -106,12 +106,8 @@ function initViewer(id: string, map: tt.TileMap) {
 	document.querySelector("#compass-container")?.appendChild(compass.dom);
 
 	// 防止摄像机进入地下
-	viewer.controls.addEventListener("change", () => {
-		plugin.limitCameraHeight(map, viewer.camera);
-	});
-	map.addEventListener("tile-loaded", () => {
-		plugin.limitCameraHeight(map, viewer.camera);
-	});
+	viewer.controls.addEventListener("change", () => plugin.limitCameraHeight(map, viewer.camera));
+	map.addEventListener("tile-loaded", () => plugin.limitCameraHeight(map, viewer.camera));
 	return viewer;
 }
 

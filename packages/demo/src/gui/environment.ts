@@ -1,11 +1,12 @@
 import { Color, CubeTextureLoader } from "three";
-import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
+import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
-		skyColor: new Color(0xdbf0ff),
+		// skyColor: new Color(0xdbf0ff),
+		skyColor: new Color(0x111111),
 		skyVisible: true,
 		skybox: new CubeTextureLoader()
 			.setPath("./image/skybox/")
@@ -24,7 +25,12 @@ export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.
 	// 	viewer.scene.background = pmremGenerator.fromEquirectangular(texture).texture;
 	// });
 
-	viewer.scene.background = vm.skybox;
+	// viewer.scene.background = vm.skybox;
+
+	viewer.addEventListener("update", () => {
+		const dist = viewer.controls.getDistance();
+		viewer.scene.background = dist > 5e5 ? vm.skyColor : vm.skybox;
+	});
 
 	const folder = gui.addFolder("场景环境").close();
 	folder.add(viewer.ambLight, "intensity", 0, 5, 0.1).name("环境光");

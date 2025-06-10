@@ -22,7 +22,6 @@ uniform vec3 bkColor;
 uniform vec3 airColor;
 
 void main() {   
-
     // 当前点距中点的距离
     float d = distance(vUv, vec2(0.5f)); 
     d = d * d * 100.0f;
@@ -34,8 +33,8 @@ void main() {
     } else if(d<=1.0f){
         float c = (d-0.98f)/(1.0f-0.98f);        
         gl_FragColor =vec4(mix(vec3(0.0f),airColor,c),1.0f);        
-    } else if(d<=1.1f){        
-        float c = (d-1.0f)/(1.1f-1.0f);
+    } else if(d<=1.08f){        
+        float c = (d-1.0f)/(1.08f-1.0f);
         gl_FragColor = vec4(mix(airColor,bkColor,sqrt(c)),1.0f);
     } else{
         // 球体外颜色
