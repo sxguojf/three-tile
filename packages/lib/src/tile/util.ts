@@ -58,6 +58,7 @@ function creatTile(x: number, y: number, z: number, px: number, py: number, sx: 
 	const tile = new Tile(x, y, z);
 	tile.position.set(px, py, 0);
 	tile.scale.set(sx, sy, sz);
+	tile.updateMatrix();
 	return tile;
 }
 

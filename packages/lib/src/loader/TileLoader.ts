@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BoxHelper, BufferGeometry, Material, Mesh, MeshBasicMaterial, MeshLambertMaterial } from "three";
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial, MeshLambertMaterial } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
@@ -67,11 +67,11 @@ export class TileLoader implements ITileLoader {
 			geometry.addGroup(0, Infinity, i);
 		}
 		const mesh = new Mesh(geometry, materials);
-		if (this.debug > 1 && params.z > 5) {
-			const box = new BoxHelper(mesh, 0xffff00);
-			box.name = "boxHelper";
-			mesh.add(box);
-		}
+		// if (this.debug > 1 && params.z > 5) {
+		// 	const box = new BoxHelper(mesh, 0xffff00);
+		// 	box.name = "boxHelper";
+		// 	mesh.add(box);
+		// }
 		return mesh;
 	}
 
@@ -120,10 +120,10 @@ export class TileLoader implements ITileLoader {
 			tileMesh.geometry.groups.pop();
 		}
 		tileMesh.geometry.dispose();
-		const box = tileMesh.getObjectByName("boxHelper");
-		if (box instanceof BoxHelper) {
-			box.dispose();
-		}
+		// const box = tileMesh.getObjectByName("boxHelper");
+		// if (box instanceof BoxHelper) {
+		// 	box.dispose();
+		// }
 	}
 
 	/**

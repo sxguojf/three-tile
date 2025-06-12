@@ -4,7 +4,19 @@
  *@date: 2025-05-01
  */
 
-import { BaseEvent, Box3, Camera, Frustum, Matrix4, Mesh, Object3D, Object3DEventMap, Raycaster, Vector3 } from "three";
+import {
+	BaseEvent,
+	Box3,
+	Box3Helper,
+	Camera,
+	Frustum,
+	Matrix4,
+	Mesh,
+	Object3D,
+	Object3DEventMap,
+	Raycaster,
+	Vector3,
+} from "three";
 import { ITileLoader } from "../loader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
@@ -153,7 +165,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	/**
 	 * 计算瓦片checkpointer、bbox、size
 	 */
-	private computeTileSize() {
+	private computeTileSize(debug: number) {
 		// 包围盒
 		this._bbox = new Box3(new Vector3(-0.5, -0.5), new Vector3(0.5, 0.5)).applyMatrix4(this.matrixWorld);
 		// 检测点-瓦片中心点
@@ -164,6 +176,15 @@ export class Tile extends Object3D<TTileEventMap> {
 		// 增大包围盒高度（-300到90000米）
 		this._bbox.min.setY(-300);
 		this._bbox.max.setY(9000);
+
+		if (debug > 0 && this._bbox) {
+			const box = this._bbox.clone().applyMatrix4(this.matrixWorld.clone().invert());
+			const boxMesh = new Box3Helper(box, 0xff000);
+			boxMesh.name = "tilebox";
+			this.add(boxMesh);
+		}
+
+		return this._sizeInWorld;
 	}
 
 	/**
@@ -182,12 +203,12 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 		console.assert(this._root.z === 0);
 
+		const { loader, minLevel, camera } = params;
+
 		// 计算瓦片大小、包围盒等
 		if (this._sizeInWorld < 0) {
-			this.computeTileSize();
+			this.computeTileSize(loader.debug);
 		}
-
-		const { loader, minLevel, camera } = params;
 
 		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载瓦片
 		if (this.z >= minLevel && loader.downloadingThreads < MAXTHREADS) {
@@ -234,7 +255,6 @@ export class Tile extends Object3D<TTileEventMap> {
 			this.add(...newTiles);
 			this._subTiles = newTiles;
 			newTiles.forEach(child => {
-				child.updateMatrix();
 				child.updateMatrixWorld();
 				this._root.dispatchEvent({ type: "tile-created", tile: child });
 			});
@@ -273,8 +293,6 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.isLeaf && this._checkVisible();
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.add(this._model);
-		// console.log(this.name, this._bbox, new Box3().setFromObject(this));
-		// console.log(new Box3().setFromObject(this._root));
 	}
 
 	/**
@@ -342,6 +360,9 @@ export class Tile extends Object3D<TTileEventMap> {
 			loader.unload(this.model);
 			this._root.dispatchEvent({ type: "tile-unload", tile: this });
 			this._model = undefined;
+		}
+		if (loader.debug > 0) {
+			(this.getObjectByName("tilebox") as Mesh)?.geometry.dispose();
 		}
 		return this;
 	}
