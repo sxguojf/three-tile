@@ -177,7 +177,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._bbox.min.setY(-300);
 		this._bbox.max.setY(9000);
 
-		if (debug > 0 && this._bbox) {
+		if (debug > 1 && this._bbox) {
 			const box = this._bbox.clone().applyMatrix4(this.matrixWorld.clone().invert());
 			const boxMesh = new Box3Helper(box, 0xff000);
 			boxMesh.name = "tilebox";
@@ -361,7 +361,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			this._root.dispatchEvent({ type: "tile-unload", tile: this });
 			this._model = undefined;
 		}
-		if (loader.debug > 0) {
+		if (loader.debug > 1) {
 			(this.getObjectByName("tilebox") as Mesh)?.geometry.dispose();
 		}
 		return this;

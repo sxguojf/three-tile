@@ -13,7 +13,7 @@ import { getGeometryDataFromDem } from "./utils";
  * Inherit of PlaneGeometry, add setData method
  */
 export class TileGeometry extends PlaneGeometry {
-	public readonly type = "TileGeometry";
+	public type = "TileGeometry";
 
 	/**
 	 * set attribute data to geometry

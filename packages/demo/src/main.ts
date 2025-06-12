@@ -1,4 +1,4 @@
-import { REVISION } from "three";
+import { MeshLambertMaterial, REVISION } from "three";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
@@ -27,14 +27,12 @@ function registerLoader() {
 	tt.registerImgLoader(new plugin.SingleImageLoader());
 	// 注册单影像TIF-DEM加载器
 	tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
-	// 注册带滤镜的瓦片影像加载器
-	// tt.registerImgLoader(new plugin.TileFilterLoader());
 	//===============================================================================
 
 	// 取得影像加载器
 	// const imgLoader = tt.getImgLoader<tt.TileImageLoader>("image");
-	// // 设置影像加载器的材质工厂函数
-	// imgLoader.setMaterialCreator(_params => new MeshLambertMaterial({ color: 0x5555ff, transparent: false }));
+	// // 设置影像加载器的材质
+	// imgLoader.material = new MeshLambertMaterial({ color: 0x5555ff });
 
 	// 启用indexDB缓存
 	// plugin.IndexDBCacheEable();

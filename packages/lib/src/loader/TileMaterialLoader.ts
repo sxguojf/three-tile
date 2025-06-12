@@ -10,8 +10,6 @@ import { ITileMaterial, TileMaterial } from "../material";
 import { getSafeTileUrlAndBounds } from "./util";
 import { version } from "..";
 
-export type MaterialCreator = (loaderParams: TileSourceLoadParamsType) => ITileMaterial;
-
 /**
  * Image loader base calss
  */
@@ -22,7 +20,16 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	};
 
 	public dataType = "";
-	private _materialCreator: MaterialCreator = (_params: TileSourceLoadParamsType) => new TileMaterial();
+	private _material = new TileMaterial();
+	/** 取得默认材质 */
+	public get material() {
+		return this._material;
+	}
+	/** 设置默认材质 */
+	public set material(value) {
+		this.material.dispose();
+		this._material = value;
+	}
 
 	/**
 	 * Load tile data from source
@@ -32,7 +39,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 */
 	public async load(params: TileSourceLoadParamsType): Promise<ITileMaterial> {
 		const { source, x, y, z } = params;
-		const material = this._materialCreator(params);
+		const material = this.material.clone();
 		// get max level tile and bounds
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
@@ -50,11 +57,6 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 			}
 			texture.dispose();
 		}
-	}
-
-	public setMaterialCreator(creator: MaterialCreator) {
-		this._materialCreator = creator;
-		return this;
 	}
 
 	/**
