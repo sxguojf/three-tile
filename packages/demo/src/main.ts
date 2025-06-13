@@ -1,11 +1,11 @@
-import { MeshLambertMaterial, REVISION } from "three";
+import { REVISION } from "three";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
-import { createGroundGroup } from "./test";
+import { createGroundGroup, testTopMesh } from "./test";
 // import { goHome, testHole, testTopMesh } from "./test";
 
 // 注册加载器
@@ -156,7 +156,7 @@ function main() {
 	// 摄像机动画移动到3000高度
 	// fly(viewer, map);
 	// 测试
-	// testTopMesh(viewer, map);
+	testTopMesh(viewer, map);
 	// testHole(viewer, map);
 	// testTileHelperBox(map);
 	// goHome(viewer, map);

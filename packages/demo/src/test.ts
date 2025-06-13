@@ -108,6 +108,8 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 		// // 添加一个聚光灯辅助模型
 		const lightHelper = new SpotLightHelper(shadowLight);
 		scene.add(lightHelper);
+
+		viewer.flyToObject(model);
 	});
 }
 

@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { FogExp2, Vector3 } from "three";
+import { Box3, FogExp2, Object3D, Sphere, Vector3 } from "three";
 
 import { MapControls } from "three/examples/jsm/controls/MapControls.js";
 import { Easing, Tween } from "three/examples/jsm/libs/tween.module.js";
@@ -92,6 +92,29 @@ export class GLViewer extends BaseViewer {
 			this.camera.position.copy(cameraPostion);
 			return Promise.resolve();
 		}
+	}
+
+	/**
+	 * Fly to a object
+	 * @param object Object3D target object
+	 * @param offset Camera offset from object center
+	 * @param animate animate or not
+	 */
+	public flyToObject(object: Object3D, offset = new Vector3(), animate = true): Promise<void> {
+		const box = new Box3().setFromObject(object); // 计算模型的包围盒
+		const sphere = box.getBoundingSphere(new Sphere()); // 转换为包围球
+		const center = sphere.center; // 包围球中心点
+		const radius = sphere.radius; // 包围球半径
+
+		this.controls.target.copy(center);
+
+		// 计算相机距离
+		const fov = this.camera.fov * (Math.PI / 180); // 转弧度
+		const distance = radius / Math.sin(fov / 2); // 基于 FOV 计算距离
+
+		const cameraPostion = center.clone().add(new Vector3(0, 0, distance).add(offset));
+
+		return this.flyTo(center, cameraPostion, animate);
 	}
 
 	/**
