@@ -53,28 +53,32 @@ import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
 export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 	// 增加顶层场景，用于显示模型
 	const topScene = new Scene();
-
 	viewer.topScenes.push(topScene);
+
+	const groundGroup = new plugin.GroundGroup(map);
 
 	const centerGeo = new Vector3(110, 35, 0);
 	const centerPosition = map.geo2world(centerGeo);
+
+	viewer.flyTo(centerPosition, new Vector3(centerPosition.x, 1000, centerPosition.z + 2000), true);
 
 	const dracoLoader = new DRACOLoader();
 	dracoLoader.setDecoderPath("./lib/draco/gltf/");
 	const loader = new GLTFLoader();
 	loader.setDRACOLoader(dracoLoader);
-	let model: Group;
 
 	// 加载模型
 	loader.load("./model/LittlestTokyo.glb", function (gltf) {
-		model = gltf.scene;
+		const model = gltf.scene;
 		model.traverse(child => {
 			child.castShadow = true;
 			child.receiveShadow = true;
 		});
 		// 计算模型位置
-		const bbox = new Box3().setFromObject(model);
-		model.position.set(centerPosition.x, 500 - bbox.min.y, centerPosition.z);
+		// const bbox = new Box3().setFromObject(model);
+		// model.position.set(centerPosition.x, 500 - bbox.min.y, centerPosition.z);
+		model.position.copy(centerPosition);
+		groundGroup.add(model);
 		// 模型动画
 		const mixer = new AnimationMixer(model);
 		mixer.clipAction(gltf.animations[0]).play();
@@ -86,7 +90,8 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 		scene.receiveShadow = true;
 		scene.castShadow = true;
 		// 添加模型
-		scene.add(model);
+		// scene.add(model);
+		scene.add(groundGroup);
 		// 添加环境光
 		scene.add(viewer.ambLight.clone());
 		// 添加直射光
@@ -108,6 +113,9 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 		// // 添加一个聚光灯辅助模型
 		const lightHelper = new SpotLightHelper(shadowLight);
 		scene.add(lightHelper);
+
+		// viewer.flyToObject(model, { animate: false });
+		// viewer.flyTo(centerPosition, new Vector3(centerPosition.x, 2000, centerPosition.z), true);
 
 		viewer.flyToObject(model);
 	});
@@ -283,6 +291,7 @@ export function testHole(viewer: plugin.GLViewer, map: tt.TileMap) {
 export function createGroundGroup(map: tt.TileMap) {
 	const groundGroup = new plugin.GroundGroup(map);
 	groundGroup.name = "groundGroup";
+	map.add(groundGroup);
 	const ball = new Mesh(new ConeGeometry(1, 20, 32), new MeshLambertMaterial({ color: 0xff0000, wireframe: false }));
 	ball.rotateX(-Math.PI / 2);
 	for (let i = 0; i < 1000; i++) {

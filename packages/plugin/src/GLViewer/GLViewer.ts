@@ -99,23 +99,23 @@ export class GLViewer extends BaseViewer {
 	public flyToObject(
 		object: Object3D,
 		offset: {
-			azimuthDeg: number; // 方位角
-			pitchDeg: number; // 俯仰角
-			distanceMultiplier: number; // 距离乘数
-		} = { azimuthDeg: 0, pitchDeg: 20, distanceMultiplier: 1.5 },
-		animate = true
+			azimuthDeg?: number; // 方位角
+			pitchDeg?: number; // 俯仰角
+			distanceMultiplier?: number; // 距离乘数
+			animate?: boolean; // 是否动画
+		} = { azimuthDeg: 0, pitchDeg: 20, distanceMultiplier: 1.5, animate: true }
 	): Promise<void> {
-		const box = new Box3().setFromObject(object); // 计算模型的包围盒
-		const sphere = box.getBoundingSphere(new Sphere()); // 转换为包围球
-		const center = sphere.center; // 包围球中心点
-		const radius = sphere.radius; // 包围球半径
+		const getShpere = (object: Object3D) => {
+			const box = new Box3().setFromObject(object); // 计算模型的包围盒
+			return box.getBoundingSphere(new Sphere()); // 转换为包围球
+		};
 
-		this.controls.target.copy(center);
+		const { center, radius } = getShpere(object);
 
 		// 计算相机距离
 		const distance = radius / Math.sin(MathUtils.degToRad(this.camera.fov / 2));
 
-		const { azimuthDeg = 0, pitchDeg = 20, distanceMultiplier = 1.5 } = offset;
+		const { azimuthDeg = 0, pitchDeg = 20, distanceMultiplier = 1.5, animate = true } = offset;
 
 		// 计算相机位置
 		const cameraPostion = new Vector3()
@@ -126,7 +126,29 @@ export class GLViewer extends BaseViewer {
 			)
 			.add(center);
 
-		return this.flyTo(center, cameraPostion, animate);
+		this.controls.target.copy(center);
+		if (animate) {
+			const start = this.camera.position;
+			return new Promise(resolve => {
+				new Tween(start)
+					// to taget
+					.chain(
+						new Tween(start)
+							.to(cameraPostion, 2000)
+							.easing(Easing.Quintic.Out)
+							.onUpdate(() => {
+								this.controls.dispatchEvent({ type: "change" });
+								const shpere = getShpere(object);
+								this.controls.target.copy(shpere.center);
+							})
+							.onComplete(() => resolve())
+					)
+					.start();
+			});
+		} else {
+			this.camera.position.copy(cameraPostion);
+			return Promise.resolve();
+		}
 	}
 
 	/**

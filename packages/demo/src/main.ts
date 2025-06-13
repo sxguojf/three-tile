@@ -166,7 +166,7 @@ function main() {
 	// 		addIcon(map, info);
 	// 	}
 	// });
-	createGroundGroup(map);
+	// createGroundGroup(map);
 }
 
 main();

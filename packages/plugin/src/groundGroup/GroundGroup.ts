@@ -1,4 +1,4 @@
-import { Box3, Group, Object3D, Vector3 } from "three";
+import { Box3, Group, Object3D, Scene, Vector3 } from "three";
 import { TileMap } from "three-tile";
 
 const tempVec3 = new Vector3();
@@ -16,8 +16,8 @@ export class GroundGroup extends Group {
 	public updateAllTiles = false;
 	/**
 	 * 贴地模型组（ 创建后会自动加入地图）
-	 * @param map 地图
-	 * @param params {updateEveryTile：是否每块瓦片下载完成调整模型高度以贴地}
+	 * map 地图
+	 * params {updateEveryTile：是否每块瓦片下载完成调整模型高度以贴地}
 	 */
 	constructor(map: TileMap, params = { updateAllTiles: false }) {
 		super();
@@ -34,7 +34,7 @@ export class GroundGroup extends Group {
 				this.update();
 			}, 10);
 		});
-		map.add(this);
+		// map.add(this);
 	}
 
 	public add(...object: Object3D[]): this {
@@ -50,11 +50,11 @@ export class GroundGroup extends Group {
 		}
 		if (object.length === 0) {
 			this.children.forEach((child: Object3D) => {
-				clampToGround(this.map, child);
+				clampToGround(this.map, child, this.parent instanceof Scene);
 			});
 		} else {
-			for (const objject of object) {
-				clampToGround(this.map, objject);
+			for (const obj of object) {
+				clampToGround(this.map, obj, this.parent instanceof Scene);
 			}
 		}
 		if (this.map.debug > 0) {
@@ -67,9 +67,9 @@ export class GroundGroup extends Group {
 /**
  * 将指定模型贴地
  * @param map 地图
- * @param obj 模型(需要添加在TileMap里)
+ * @param obj 模型
  */
-export function clampToGround(map: TileMap, obj: Object3D) {
+export function clampToGround(map: TileMap, obj: Object3D, inWorldAxis = false) {
 	if (obj.visible) {
 		const worldPosition = obj.getWorldPosition(tempVec3);
 		const info = map.getLocalInfoFromWorld(worldPosition);
@@ -78,7 +78,11 @@ export function clampToGround(map: TileMap, obj: Object3D) {
 			const center = tempBox3.getCenter(new Vector3());
 			const bottomY = center.y - size.y / 2;
 			const offsetY = info.location.z - bottomY;
-			obj.position.z += offsetY;
+			if (inWorldAxis) {
+				obj.position.y += offsetY;
+			} else {
+				obj.position.z += offsetY;
+			}
 		}
 	}
 }
