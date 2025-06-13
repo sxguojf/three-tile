@@ -9,10 +9,12 @@ export const createCameraGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	 * @param newCameraGeo 目标摄像机经纬度坐标
 	 * @param newcenterGeo 目标地图中心经纬度坐标
 	 */
-	const flyToGeo = (newCameraGeo: Vector3, newcenterGeo: Vector3) => {
+	const flyToGeo = async (newCameraGeo: Vector3, newcenterGeo: Vector3) => {
 		const cameraPosition = map.geo2world(newCameraGeo);
 		const centerPosition = map.geo2world(newcenterGeo);
-		viewer.flyTo(centerPosition, cameraPosition);
+		map.autoUpdate = false;
+		await viewer.flyTo(centerPosition, cameraPosition);
+		map.autoUpdate = true;
 	};
 
 	const vm = {

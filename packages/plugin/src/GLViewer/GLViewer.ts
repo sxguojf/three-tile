@@ -70,24 +70,27 @@ export class GLViewer extends BaseViewer {
 	 * @param cameraPostion Camera target position (world coordinate)
 	 * @param animate animate or not
 	 */
-	public flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate = true, onComplete?: (obj: Vector3) => void) {
+	public flyTo(centerPostion: Vector3, cameraPostion: Vector3, animate = true): Promise<void> {
 		this.controls.target.copy(centerPostion);
 		if (animate) {
 			const start = this.camera.position;
-			new Tween(start)
-				// fly to 10000km
-				.to({ y: 1e7, z: 0 }, 500)
-				// to taget
-				.chain(
-					new Tween(start)
-						.to(cameraPostion, 2000)
-						.easing(Easing.Quintic.Out)
-						.onUpdate(() => [this.controls.dispatchEvent({ type: "change" })])
-						.onComplete(obj => onComplete && onComplete(obj))
-				)
-				.start();
+			return new Promise(resolve => {
+				new Tween(start)
+					// fly to 10000km
+					.to({ y: 1e7, z: 0 }, 500)
+					// to taget
+					.chain(
+						new Tween(start)
+							.to(cameraPostion, 2000)
+							.easing(Easing.Quintic.Out)
+							.onUpdate(() => [this.controls.dispatchEvent({ type: "change" })])
+							.onComplete(() => resolve())
+					)
+					.start();
+			});
 		} else {
 			this.camera.position.copy(cameraPostion);
+			return Promise.resolve();
 		}
 	}
 
