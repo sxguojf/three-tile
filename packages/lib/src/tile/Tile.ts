@@ -216,7 +216,7 @@ export class Tile extends Object3D<TTileEventMap> {
 				this._startLoad(loader); // 下载瓦片
 				return;
 			}
-			if (this._isDirty && this.inFrustum) {
+			if (this._isDirty && this.inFrustum && this.isLeaf) {
 				this._startUpdate(loader); // 更新瓦片
 				return;
 			}
