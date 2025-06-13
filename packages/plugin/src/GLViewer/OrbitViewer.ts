@@ -14,5 +14,6 @@ export class OrbitViewer extends GLViewer {
 			RIGHT: MOUSE.PAN,
 		};
 		this.controls.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
+		this.controls.zoomToCursor = false;
 	}
 }

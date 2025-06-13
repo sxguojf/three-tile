@@ -4,9 +4,8 @@
  *@date: 2023-04-05
  */
 
-import { Box3, FogExp2, Object3D, Sphere, Vector3 } from "three";
+import { Box3, FogExp2, MathUtils, Object3D, Sphere, Vector3 } from "three";
 
-import { MapControls } from "three/examples/jsm/controls/MapControls.js";
 import { Easing, Tween } from "three/examples/jsm/libs/tween.module.js";
 import { BaseViewer, ViewerOptions } from "./BaseViewer";
 import { TileMapControls } from "./TileMapControls";
@@ -15,7 +14,7 @@ import { TileMapControls } from "./TileMapControls";
  * Threejs scene initialize class
  */
 export class GLViewer extends BaseViewer {
-	public controls: MapControls;
+	public controls: TileMapControls;
 
 	private _fogFactor = 1.0;
 
@@ -96,11 +95,16 @@ export class GLViewer extends BaseViewer {
 
 	/**
 	 * Fly to a object
-	 * @param object Object3D target object
-	 * @param offset Camera offset from object center
-	 * @param animate animate or not
 	 */
-	public flyToObject(object: Object3D, offset = new Vector3(), animate = true): Promise<void> {
+	public flyToObject(
+		object: Object3D,
+		offset: {
+			azimuthDeg: number; // 方位角
+			pitchDeg: number; // 俯仰角
+			distanceMultiplier: number; // 距离乘数
+		} = { azimuthDeg: 0, pitchDeg: 20, distanceMultiplier: 1.5 },
+		animate = true
+	): Promise<void> {
 		const box = new Box3().setFromObject(object); // 计算模型的包围盒
 		const sphere = box.getBoundingSphere(new Sphere()); // 转换为包围球
 		const center = sphere.center; // 包围球中心点
@@ -109,12 +113,76 @@ export class GLViewer extends BaseViewer {
 		this.controls.target.copy(center);
 
 		// 计算相机距离
-		const fov = this.camera.fov * (Math.PI / 180); // 转弧度
-		const distance = radius / Math.sin(fov / 2); // 基于 FOV 计算距离
+		const distance = radius / Math.sin(MathUtils.degToRad(this.camera.fov / 2));
 
-		const cameraPostion = center.clone().add(new Vector3(0, 0, distance).add(offset));
+		const { azimuthDeg = 0, pitchDeg = 20, distanceMultiplier = 1.5 } = offset;
+
+		// 计算相机位置
+		const cameraPostion = new Vector3()
+			.setFromSphericalCoords(
+				distance * distanceMultiplier,
+				Math.PI / 2 - MathUtils.degToRad(pitchDeg),
+				MathUtils.degToRad(azimuthDeg)
+			)
+			.add(center);
 
 		return this.flyTo(center, cameraPostion, animate);
+	}
+
+	/**
+	 * 飞向包围球动画
+	 * @param {number} azimuthDeg 方位角(度)
+	 * @param {number} pitchDeg 俯仰角(度)
+	 * @param {number} [distanceMultiplier=3] 距离乘数
+	 * @param {number} [duration=2000] 动画时长(毫秒)
+	 */
+	public flyToBoundingSphere(
+		model: Object3D,
+		azimuthDeg: number,
+		pitchDeg: number,
+		distanceMultiplier = 1,
+		duration = 2000
+	) {
+		// 计算模型包围球
+		// model.geometry.computeBoundingSphere();
+		// const boundingSphere = model.geometry.boundingSphere!;
+		const box = new Box3().setFromObject(model); // 计算模型的包围盒
+		const boundingSphere = box.getBoundingSphere(new Sphere()); // 转换为包围球
+		const center = boundingSphere.center; // 包围球中心点
+
+		this.controls.target.copy(center);
+
+		// 转换角度为弧度
+		const azimuth = MathUtils.degToRad(azimuthDeg);
+		const pitch = MathUtils.degToRad(pitchDeg);
+
+		// 计算相机距离
+		const distance = boundingSphere.radius * distanceMultiplier;
+
+		// 计算目标位置(球坐标转笛卡尔坐标)
+		const targetPosition = new Vector3();
+		targetPosition
+			.setFromSphericalCoords(
+				distance,
+				Math.PI / 2 - pitch, // 极角 = π/2 - pitch
+				azimuth
+			)
+			.add(boundingSphere.center);
+
+		// 创建位置动画
+		new Tween(this.camera.position).to(targetPosition, duration).easing(Easing.Quadratic.InOut).start();
+
+		// 创建旋转动画(使相机始终看向模型中心)
+		// const targetQuaternion = new Quaternion();
+		// targetQuaternion.setFromRotationMatrix(
+		// 	new Matrix4().lookAt(
+		// 		targetPosition,
+		// 		boundingSphere.center,
+		// 		new Vector3(0, 1, 0) // 上方向为Y轴
+		// 	)
+		// );
+
+		// new Tween(this.camera.quaternion).to(targetQuaternion, duration).easing(Easing.Quadratic.InOut).start();
 	}
 
 	/**
