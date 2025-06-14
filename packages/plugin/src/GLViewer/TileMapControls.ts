@@ -1,10 +1,10 @@
-import { Camera, MathUtils, PerspectiveCamera } from "three";
-import { MapControls } from "three/examples/jsm/Addons.js";
+import { Camera, MathUtils, MOUSE, PerspectiveCamera, TOUCH } from "three";
+import { OrbitControls } from "three/examples/jsm/Addons.js";
 
 /**
  * Tile map controls
  */
-export class TileMapControls extends MapControls {
+export class TileMapControls extends OrbitControls {
 	/**
 	 * Map max polar angle, default is Math.PI / 2.5
 	 */
@@ -20,11 +20,29 @@ export class TileMapControls extends MapControls {
 	 */
 	public dymamicZoomSpeed = true;
 
+	private _controlsMode: "MAP" | "ORBIT" = "MAP";
+	public get controlsMode(): "MAP" | "ORBIT" {
+		return this._controlsMode;
+	}
+	public set controlsMode(value: "MAP" | "ORBIT") {
+		this._controlsMode = value;
+		if (this.controlsMode.toUpperCase() === "MAP") {
+			this.screenSpacePanning = false;
+			this.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.ROTATE };
+			this.touches = { ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_ROTATE };
+			this.zoomToCursor = true;
+		} else {
+			this.screenSpacePanning = true;
+			this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
+			this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
+			this.zoomToCursor = false;
+		}
+	}
+
 	constructor(camera: Camera, domElement: HTMLElement) {
 		super(camera, domElement);
 
-		this.screenSpacePanning = false;
-		this.zoomToCursor = true;
+		this.controlsMode = "MAP";
 
 		this.minDistance = 10;
 		this.maxDistance = 3e7;

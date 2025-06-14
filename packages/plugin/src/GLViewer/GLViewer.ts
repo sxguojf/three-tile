@@ -29,6 +29,13 @@ export class GLViewer extends BaseViewer {
 		this.controls.dispatchEvent({ type: "change" });
 	}
 
+	public get controlsMode(): "MAP" | "ORBIT" {
+		return this.controls.controlsMode;
+	}
+	public set controlsMode(value: "MAP" | "ORBIT") {
+		this.controls.controlsMode = value;
+	}
+
 	/**
 	 * Constructor
 	 * @param container container element or selector string

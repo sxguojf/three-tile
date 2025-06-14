@@ -5,6 +5,8 @@ import * as plugin from "three-tile-plugin";
 
 export const createMapOptionsGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileMap) => {
 	const folder = gui.addFolder("地图设置").close();
+	folder.add(viewer, "controlsMode", { 地图控制器: "MAP", 轨道控制器: "ORBIT" }).name("控制器");
+
 	folder.add(map, "autoUpdate").name("地图自动更新");
 	folder
 		.add(viewer.camera, "fov", 30, 120)
