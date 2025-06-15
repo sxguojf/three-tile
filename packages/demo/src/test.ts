@@ -26,12 +26,10 @@
 
 import {
 	AnimationMixer,
-	Box3,
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
 	ConeGeometry,
-	Group,
 	Material,
 	Mesh,
 	MeshLambertMaterial,
@@ -60,7 +58,7 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 	const centerGeo = new Vector3(110, 35, 0);
 	const centerPosition = map.geo2world(centerGeo);
 
-	viewer.flyTo(centerPosition, new Vector3(centerPosition.x, 1000, centerPosition.z + 2000), true);
+	// viewer.flyTo(centerPosition, new Vector3(centerPosition.x, 1000, centerPosition.z + 2000), true);
 
 	const dracoLoader = new DRACOLoader();
 	dracoLoader.setDecoderPath("./lib/draco/gltf/");
@@ -75,8 +73,6 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 			child.receiveShadow = true;
 		});
 		// 计算模型位置
-		// const bbox = new Box3().setFromObject(model);
-		// model.position.set(centerPosition.x, 500 - bbox.min.y, centerPosition.z);
 		model.position.copy(centerPosition);
 		groundGroup.add(model);
 		// 模型动画

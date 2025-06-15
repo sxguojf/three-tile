@@ -27,15 +27,13 @@ export class TileMapControls extends OrbitControls {
 	public set controlsMode(value: "MAP" | "ORBIT") {
 		this._controlsMode = value;
 		if (this.controlsMode.toUpperCase() === "MAP") {
-			this.screenSpacePanning = false;
 			this.mouseButtons = { LEFT: MOUSE.PAN, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.ROTATE };
 			this.touches = { ONE: TOUCH.PAN, TWO: TOUCH.DOLLY_ROTATE };
-			this.zoomToCursor = true;
+			// this.zoomToCursor = true;
 		} else {
-			this.screenSpacePanning = true;
 			this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
 			this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
-			this.zoomToCursor = false;
+			// this.zoomToCursor = false;
 		}
 	}
 
@@ -43,6 +41,7 @@ export class TileMapControls extends OrbitControls {
 		super(camera, domElement);
 
 		this.controlsMode = "MAP";
+		this.screenSpacePanning = false;
 
 		this.minDistance = 10;
 		this.maxDistance = 3e7;
@@ -62,7 +61,7 @@ export class TileMapControls extends OrbitControls {
 
 		// Set ther zoom speed based on distance
 		if (this.dymamicZoomSpeed) {
-			this.zoomSpeed = Math.max(Math.log(dist / 1e3), 0.5);
+			this.zoomSpeed = Math.max(Math.log(dist / 1e3), 1);
 		}
 
 		// Set the azimuth/polar angles based on distance

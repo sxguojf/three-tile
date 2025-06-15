@@ -29,10 +29,10 @@ export class GLViewer extends BaseViewer {
 		this.controls.dispatchEvent({ type: "change" });
 	}
 
-	public get controlsMode(): "MAP" | "ORBIT" {
+	public get controlsMode() {
 		return this.controls.controlsMode;
 	}
-	public set controlsMode(value: "MAP" | "ORBIT") {
+	public set controlsMode(value) {
 		this.controls.controlsMode = value;
 	}
 
@@ -56,7 +56,7 @@ export class GLViewer extends BaseViewer {
 			if (this.scene.fog instanceof FogExp2) {
 				const polar = controls.getPolarAngle();
 				const dist = controls.getDistance();
-				this.scene.fog.density = (polar / (dist + 5)) * this.fogFactor * 0.2;
+				this.scene.fog.density = (polar / (dist + 1)) * this.fogFactor * 0.2;
 			}
 		});
 		return controls;
@@ -114,7 +114,9 @@ export class GLViewer extends BaseViewer {
 	): Promise<void> {
 		const getShpere = (object: Object3D) => {
 			const box = new Box3().setFromObject(object); // 计算模型的包围盒
-			return box.getBoundingSphere(new Sphere()); // 转换为包围球
+			const sphere = box.getBoundingSphere(new Sphere()); // 转换为包围球
+			sphere.center.setY(box.min.y);
+			return sphere;
 		};
 
 		const { center, radius } = getShpere(object);
@@ -156,62 +158,6 @@ export class GLViewer extends BaseViewer {
 			this.camera.position.copy(cameraPostion);
 			return Promise.resolve();
 		}
-	}
-
-	/**
-	 * 飞向包围球动画
-	 * @param {number} azimuthDeg 方位角(度)
-	 * @param {number} pitchDeg 俯仰角(度)
-	 * @param {number} [distanceMultiplier=3] 距离乘数
-	 * @param {number} [duration=2000] 动画时长(毫秒)
-	 */
-	public flyToBoundingSphere(
-		model: Object3D,
-		azimuthDeg: number,
-		pitchDeg: number,
-		distanceMultiplier = 1,
-		duration = 2000
-	) {
-		// 计算模型包围球
-		// model.geometry.computeBoundingSphere();
-		// const boundingSphere = model.geometry.boundingSphere!;
-		const box = new Box3().setFromObject(model); // 计算模型的包围盒
-		const boundingSphere = box.getBoundingSphere(new Sphere()); // 转换为包围球
-		const center = boundingSphere.center; // 包围球中心点
-
-		this.controls.target.copy(center);
-
-		// 转换角度为弧度
-		const azimuth = MathUtils.degToRad(azimuthDeg);
-		const pitch = MathUtils.degToRad(pitchDeg);
-
-		// 计算相机距离
-		const distance = boundingSphere.radius * distanceMultiplier;
-
-		// 计算目标位置(球坐标转笛卡尔坐标)
-		const targetPosition = new Vector3();
-		targetPosition
-			.setFromSphericalCoords(
-				distance,
-				Math.PI / 2 - pitch, // 极角 = π/2 - pitch
-				azimuth
-			)
-			.add(boundingSphere.center);
-
-		// 创建位置动画
-		new Tween(this.camera.position).to(targetPosition, duration).easing(Easing.Quadratic.InOut).start();
-
-		// 创建旋转动画(使相机始终看向模型中心)
-		// const targetQuaternion = new Quaternion();
-		// targetQuaternion.setFromRotationMatrix(
-		// 	new Matrix4().lookAt(
-		// 		targetPosition,
-		// 		boundingSphere.center,
-		// 		new Vector3(0, 1, 0) // 上方向为Y轴
-		// 	)
-		// );
-
-		// new Tween(this.camera.quaternion).to(targetQuaternion, duration).easing(Easing.Quadratic.InOut).start();
 	}
 
 	/**
