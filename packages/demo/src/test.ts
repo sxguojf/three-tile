@@ -113,7 +113,7 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 		// viewer.flyToObject(model, { animate: false });
 		// viewer.flyTo(centerPosition, new Vector3(centerPosition.x, 2000, centerPosition.z), true);
 
-		viewer.flyToObject(model);
+		viewer.flyToObject(model, { pitchDeg: 50 });
 	});
 }
 

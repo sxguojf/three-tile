@@ -110,7 +110,7 @@ export class GLViewer extends BaseViewer {
 			pitchDeg?: number; // 俯仰角
 			distanceMultiplier?: number; // 距离乘数
 			animate?: boolean; // 是否动画
-		} = { azimuthDeg: 0, pitchDeg: 20, distanceMultiplier: 1.5, animate: true }
+		} = { azimuthDeg: 0, pitchDeg: 30, distanceMultiplier: 1.2, animate: true }
 	): Promise<void> {
 		const getShpere = (object: Object3D) => {
 			const box = new Box3().setFromObject(object); // 计算模型的包围盒
@@ -124,16 +124,17 @@ export class GLViewer extends BaseViewer {
 		// 计算相机距离
 		const distance = radius / Math.sin(MathUtils.degToRad(this.camera.fov / 2));
 
-		const { azimuthDeg = 0, pitchDeg = 20, distanceMultiplier = 1.5, animate = true } = offset;
+		const { azimuthDeg = 0, pitchDeg = 30, distanceMultiplier = 1.5, animate = true } = offset;
 
 		// 计算相机位置
 		const cameraPostion = new Vector3()
 			.setFromSphericalCoords(
 				distance * distanceMultiplier,
-				Math.PI / 2 - MathUtils.degToRad(pitchDeg),
+				MathUtils.degToRad(90 - pitchDeg),
+				// MathUtils.degToRad(90),
 				MathUtils.degToRad(azimuthDeg)
 			)
-			.add(center);
+			.add(center.clone().setY(0));
 
 		this.controls.target.copy(center);
 		if (animate) {

@@ -41,10 +41,10 @@ export class TileLoader implements ITileLoader {
 		this._demSource = value;
 	}
 
-	private readonly _errorMaterial = new MeshBasicMaterial({ transparent: true, opacity: 0 });
+	private readonly _errorMaterial = new MeshBasicMaterial({ transparent: true, opacity: 0, name: "error-material" });
 	private readonly _errorGeometry = new TileGeometry();
 
-	public readonly backgroundMaterial = new MeshLambertMaterial({ color: 0x112233 });
+	public readonly backgroundMaterial = new MeshLambertMaterial({ color: 0x112233, name: "background-material" });
 
 	/** Loader manager */
 	public get manager(): TileLoadingManager {
@@ -67,11 +67,6 @@ export class TileLoader implements ITileLoader {
 			geometry.addGroup(0, Infinity, i);
 		}
 		const mesh = new Mesh(geometry, materials);
-		// if (this.debug > 1 && params.z > 5) {
-		// 	const box = new BoxHelper(mesh, 0xffff00);
-		// 	box.name = "boxHelper";
-		// 	mesh.add(box);
-		// }
 		return mesh;
 	}
 
@@ -120,10 +115,6 @@ export class TileLoader implements ITileLoader {
 			tileMesh.geometry.groups.pop();
 		}
 		tileMesh.geometry.dispose();
-		// const box = tileMesh.getObjectByName("boxHelper");
-		// if (box instanceof BoxHelper) {
-		// 	box.dispose();
-		// }
 	}
 
 	/**
@@ -187,7 +178,6 @@ export class TileLoader implements ITileLoader {
 					if (this.debug > 0) {
 						console.error("Load Material Error:", e);
 					}
-					//return new MeshBasicMaterial({ transparent: true, opacity: -1 });
 					return this._errorMaterial;
 				})
 				.finally(() => {

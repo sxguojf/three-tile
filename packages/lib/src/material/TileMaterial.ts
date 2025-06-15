@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { FrontSide, Material, MeshLambertMaterial, MeshLambertMaterialParameters, Texture } from "three";
+import { FrontSide, Material, MeshLambertMaterialParameters, MeshStandardMaterial, Texture } from "three";
 
 /**
  * 瓦片材质接口
@@ -16,8 +16,8 @@ export interface ITileMaterial extends Material {
 /**
  * 瓦片材质
  */
-export class TileMaterial extends MeshLambertMaterial {
+export class TileMaterial extends MeshStandardMaterial {
 	constructor(params: MeshLambertMaterialParameters = {}) {
-		super({ ...{ transparent: true, side: FrontSide }, ...params });
+		super({ ...{ transparent: false, side: FrontSide }, ...params });
 	}
 }

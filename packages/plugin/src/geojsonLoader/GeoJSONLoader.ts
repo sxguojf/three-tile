@@ -16,6 +16,7 @@ import {
 	VectorStyle,
 	VectorTileRender,
 	version,
+	waitFor,
 } from "three-tile";
 
 /** GeoJSON 加载器 */
@@ -67,11 +68,7 @@ export class GeoJSONLoader extends TileMaterialLoader {
 		}
 
 		// 等待数据加载完成
-		await (async (): Promise<void> => {
-			while (!source.gv) {
-				await new Promise(resolve => setTimeout(resolve, 100)); // 每100毫秒检查一次
-			}
-		})();
+		await waitFor(() => !!source.gv);
 
 		console.assert(source.gv);
 

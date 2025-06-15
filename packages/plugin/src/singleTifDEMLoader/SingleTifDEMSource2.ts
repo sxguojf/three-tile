@@ -8,5 +8,5 @@ export class SingleTifDEMSource extends TileSource {
 	/** 瓦片裙边高度(m) */
 	public skirtHeight = 1000;
 	/** 高程数据，内部使用 */
-	public _data?: DEMType;
+	public data?: DEMType;
 }

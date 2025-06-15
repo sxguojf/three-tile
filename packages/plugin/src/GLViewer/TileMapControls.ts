@@ -6,9 +6,9 @@ import { OrbitControls } from "three/examples/jsm/Addons.js";
  */
 export class TileMapControls extends OrbitControls {
 	/**
-	 * Map max polar angle, default is Math.PI / 2.5
+	 * Map max polar angle, default is Math.PI / 2.1
 	 */
-	public mapMaxPolarAngle: number = Math.PI / 2.5;
+	public mapMaxPolarAngle: number = Math.PI / 2.1;
 
 	/**
 	 * Rest azimuth when distance > restAzimuthDist, default is 8e6
@@ -70,7 +70,7 @@ export class TileMapControls extends OrbitControls {
 		this.maxAzimuthAngle = isDistAboveThreshold ? 0 : Infinity;
 
 		// Set the polar angle based on distance
-		this.maxPolarAngle = Math.min(Math.pow(1e7 / dist, 4), this.mapMaxPolarAngle);
+		this.maxPolarAngle = Math.min(Math.pow(1e7 / dist, 2), this.mapMaxPolarAngle);
 
 		const camera = this.object;
 		if (camera instanceof PerspectiveCamera) {
