@@ -1,4 +1,4 @@
-import { Box3, Group, Object3D, Scene, Vector3 } from "three";
+import { Box3, Group, Object3D, Vector3 } from "three";
 import { TileMap } from "three-tile";
 
 const tempVec3 = new Vector3();
@@ -15,13 +15,13 @@ export class GroundGroup extends Group {
 	 */
 	public updateAllTiles = false;
 	/**
-	 * 贴地模型组（ 创建后会自动加入地图）
+	 * 贴地模型组
 	 * map 地图
 	 * params {updateEveryTile：是否每块瓦片下载完成调整模型高度以贴地}
 	 */
-	constructor(map: TileMap, params = { updateAllTiles: false }) {
+	constructor(map: TileMap, params = { updateEveryTile: false }) {
 		super();
-		const { updateAllTiles: updateEveryTile = false } = params;
+		const { updateEveryTile = false } = params;
 		this.map = map;
 		this.updateAllTiles = updateEveryTile;
 		map.addEventListener("tile-loaded", () => {
@@ -34,7 +34,6 @@ export class GroundGroup extends Group {
 				this.update();
 			}, 10);
 		});
-		// map.add(this);
 	}
 
 	public add(...object: Object3D[]): this {
