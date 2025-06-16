@@ -4,7 +4,6 @@
  * @author 郭江峰
  * @date 2025-03-15
  */
-//@ts-ignore
 import geojsonvt from "geojson-vt";
 import { CanvasTexture, FileLoader, Texture } from "three";
 import {
@@ -18,6 +17,7 @@ import {
 	version,
 	waitFor,
 } from "three-tile";
+import { GeoJSONSource } from "./GeoJSONSource";
 
 /** GeoJSON 加载器 */
 export class GeoJSONLoader extends TileMaterialLoader {
@@ -51,13 +51,12 @@ export class GeoJSONLoader extends TileMaterialLoader {
 	 * @param params 加载参数，包括数据源、瓦片坐标等
 	 * @returns 瓦片纹理
 	 */
-	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture> {
+	protected async doLoad(url: string, params: TileSourceLoadParamsType<GeoJSONSource>): Promise<Texture> {
 		const { x, y, z, source } = params;
 
-		const style = ("style" in source ? source.style : source.style) as VectorStyle;
 		// 判断数据是否加载完成，如果已完成则直接绘制瓦片纹理
 		if (source.gv) {
-			return this._getTileTexture(source.gv, x, y, z, style);
+			return this._getTileTexture(source.gv, x, y, z, source.style);
 		}
 
 		// 判断是否正在加载数据，如果不是则加载数据并绘制瓦片纹理
@@ -73,7 +72,7 @@ export class GeoJSONLoader extends TileMaterialLoader {
 		console.assert(source.gv);
 
 		// 加载完成后绘制瓦片纹理
-		return this._getTileTexture(source.gv, x, y, z, style);
+		return this._getTileTexture(source.gv, x, y, z, source.style);
 	}
 
 	/**

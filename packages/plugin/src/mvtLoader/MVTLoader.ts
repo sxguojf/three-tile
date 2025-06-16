@@ -11,6 +11,7 @@ import {
 	VectorTileRender,
 	version,
 } from "three-tile";
+import { MVTSource } from "./MVTSource";
 
 export type StyleType = { layer: VectorStyle[] };
 
@@ -31,15 +32,13 @@ export class MVTLoader extends TileMaterialLoader {
 		this._loader.setResponseType("arraybuffer");
 	}
 
-	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture> {
-		const source = params.source;
-		const style = ("style" in source ? source.style : source.style) as StyleType;
+	protected async doLoad(url: string, params: TileSourceLoadParamsType<MVTSource>): Promise<Texture> {
 		// 加载矢量瓦片数据
 		const data = (await this._loader.loadAsync(url)) as ArrayBuffer;
 		// 解析矢量瓦片
 		const vectorTile = new VectorTile(new Pbf(data));
 		// 绘制矢量瓦片
-		const img = this.drawTile(vectorTile, style, params.z);
+		const img = this.drawTile(vectorTile, params.source.style, params.z);
 		// 生成瓦片纹理
 		return new CanvasTexture(img);
 	}
