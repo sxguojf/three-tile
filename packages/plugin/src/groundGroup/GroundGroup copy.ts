@@ -1,4 +1,4 @@
-import { Box3, Group, Object3D, Scene, Vector3 } from "three";
+import { Box3, Group, Object3D, Vector3 } from "three";
 import { TileMap } from "three-tile";
 
 const tempVec3 = new Vector3();
@@ -50,11 +50,11 @@ export class GroundGroup extends Group {
 		}
 		if (object.length === 0) {
 			this.children.forEach((child: Object3D) => {
-				clampToGround(this.map, child, this.parent instanceof Scene);
+				clampToGround(this.map, child);
 			});
 		} else {
 			for (const obj of object) {
-				clampToGround(this.map, obj, this.parent instanceof Scene);
+				clampToGround(this.map, obj);
 			}
 		}
 		if (this.map.debug > 0) {
@@ -67,29 +67,20 @@ export class GroundGroup extends Group {
 /**
  * 将指定模型贴地
  * @param map 地图
- * @param obj 模型
+ * @param obj 要贴地的模型
  */
-export function clampToGround(map: TileMap, obj: Object3D, inWorldAxis = false) {
-	if (obj.visible) {
+export function clampToGround(map: TileMap, obj: Object3D) {
+	if (obj.visible && obj.parent) {
 		const worldPosition = obj.getWorldPosition(tempVec3);
 		const info = map.getLocalInfoFromWorld(worldPosition);
 		if (info) {
 			const size = tempBox3.setFromObject(obj).getSize(tempVec3);
-			const center = tempBox3.getCenter(new Vector3());
+			const center = tempBox3.getCenter(tempVec3);
 			const bottomY = center.y - size.y / 2;
 			const offsetY = info.location.z - bottomY;
-			// if (inWorldAxis) {
-			// 	obj.position.y += offsetY;
-			// } else {
-			// 	obj.position.z += offsetY;
-			// }
-
-			obj.updateMatrixWorld();
 			const worldPosition = obj.getWorldPosition(tempVec3);
-			const worldYAxis = map.localToWorld(map.up.clone()); //new Vector3(0, 1, 0);
-			worldPosition.addScaledVector(worldYAxis, offsetY);
-			// obj.position.z = worldPosition.y;
-			obj.position.copy(obj.parent!.worldToLocal(worldPosition));
+			worldPosition.y += offsetY;
+			obj.position.copy(obj.parent.worldToLocal(worldPosition));
 		}
 	}
 }
