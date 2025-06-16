@@ -50,11 +50,11 @@ export class GroundGroup extends Group {
 		}
 		if (object.length === 0) {
 			this.children.forEach((child: Object3D) => {
-				clampToGround(this.map, child, this.parent instanceof Scene);
+				clampToGround(this.map, child);
 			});
 		} else {
 			for (const obj of object) {
-				clampToGround(this.map, obj, this.parent instanceof Scene);
+				clampToGround(this.map, obj);
 			}
 		}
 		if (this.map.debug > 0) {
@@ -69,8 +69,8 @@ export class GroundGroup extends Group {
  * @param map 地图
  * @param obj 模型
  */
-export function clampToGround(map: TileMap, obj: Object3D, inWorldAxis = false) {
-	if (obj.visible) {
+export function clampToGround(map: TileMap, obj: Object3D) {
+	if (obj.visible && obj.parent) {
 		const worldPosition = obj.getWorldPosition(tempVec3);
 		const info = map.getLocalInfoFromWorld(worldPosition);
 		if (info) {
@@ -78,18 +78,10 @@ export function clampToGround(map: TileMap, obj: Object3D, inWorldAxis = false) 
 			const center = tempBox3.getCenter(new Vector3());
 			const bottomY = center.y - size.y / 2;
 			const offsetY = info.location.z - bottomY;
-			// if (inWorldAxis) {
-			// 	obj.position.y += offsetY;
-			// } else {
-			// 	obj.position.z += offsetY;
-			// }
-
-			obj.updateMatrixWorld();
 			const worldPosition = obj.getWorldPosition(tempVec3);
-			const worldYAxis = map.localToWorld(map.up.clone()); //new Vector3(0, 1, 0);
+			const worldYAxis = map.localToWorld(map.up.clone());
 			worldPosition.addScaledVector(worldYAxis, offsetY);
-			// obj.position.z = worldPosition.y;
-			obj.position.copy(obj.parent!.worldToLocal(worldPosition));
+			obj.position.copy(obj.parent.worldToLocal(worldPosition));
 		}
 	}
 }
