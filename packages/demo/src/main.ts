@@ -155,7 +155,7 @@ function main() {
 	// 摄像机动画移动到3000高度
 	// fly(viewer, map);
 	// 测试
-	testTopMesh(viewer, map);
+	// testTopMesh(viewer, map);
 	// testHole(viewer, map);
 	// testTileHelperBox(map);
 	// goHome(viewer, map);
@@ -166,7 +166,7 @@ function main() {
 	// 		addIcon(map, info);
 	// 	}
 	// });
-	createGroundGroup(map);
+	// createGroundGroup(map);
 }
 
 main();

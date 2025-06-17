@@ -216,7 +216,10 @@ export class Tile extends Object3D<TTileEventMap> {
 				this._startLoad(loader); // 下载瓦片
 				return;
 			}
-			if (this._isDirty && this.inFrustum && this.isLeaf) {
+
+			// 子瓦片更新完成后再更新父瓦片，以更快显示
+			const childrenUpdated = this.subTiles ? !this.subTiles.some(child => child._isDirty && child.inFrustum) : true;
+			if (this._isDirty && this.inFrustum && childrenUpdated) {
 				this._startUpdate(loader); // 更新瓦片
 				return;
 			}
