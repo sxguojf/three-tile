@@ -54,6 +54,7 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 	let hit = false;
 
 	if (info) {
+		const pointMesh = map.getObjectByName("checkPoint");
 		// 地面高度与该点高度差(世界坐标系下)
 		const dh = checkPoint.y - info.point.y;
 		// 地面高度低于限制高度时，沿天顶方向抬高摄像机
@@ -64,16 +65,15 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 			// camera.position.y += offset;
 			camera.updateMatrixWorld();
 			hit = true;
-			const pointMesh = map.getObjectByName("checkPoint");
+
 			if (pointMesh instanceof Mesh) {
 				pointMesh.material.color.set(0xf00f00);
-				setTimeout(() => {
-					pointMesh.material.color.set(0x00ff00);
-				}, 20);
 			}
 			if (map.debug > 0) {
 				console.log("Hit ground ", dh);
 			}
+		} else if (pointMesh instanceof Mesh) {
+			pointMesh.material.color.set(0x00ff00);
 		}
 	}
 
