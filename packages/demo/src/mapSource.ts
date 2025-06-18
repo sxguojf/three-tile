@@ -310,3 +310,11 @@ export const cityMaskSource = new plugin.GeoJSONSource({
 	},
 	// bounds: [106.875, 34.886, 110.391, 36.598],
 });
+
+export const wmsTest1 = new plugin.WmsSource({
+	url: "https://server.mars3d.cn/geoserver/mars/wms?transparent=true&format=image/png&service=WMS&version=1.1.1&request=GetMap&styles=&layers=mars:hf&bbox={bbox}&width=256&height=256&srs=EPSG:3857",
+});
+
+export const wmsTest2 = new plugin.WmsSource({
+	url: "https://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r-t.cgi?&service=WMS&request=GetMap&layers=nexrad-n0r-wmst&styles=&format=image/png&transparent=true&version=1.1.1&time=2005-08-29T14:00&width=256&height=256&srs=EPSG:3857&bbox={bbox}",
+});

@@ -17,4 +17,5 @@ export * from "./StadiaSource";
 export * from "./TDTSource";
 export * from "./TXSource";
 export * from "./ZKXTSource";
+export * from "./WmsSource";
 // export * from "./BaiduSource"; // 瓦片规则未搞清楚

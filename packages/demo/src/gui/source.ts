@@ -218,6 +218,14 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		setGDRoad: () => {
 			map.imgSource = [ms.gdImgLabelSource];
 		},
+
+		setWms1: () => {
+			map.imgSource = [ms.arcGisImgSource, ms.wmsTest1];
+		},
+
+		setWms2: () => {
+			map.imgSource = [ms.arcGisImgSource, ms.wmsTest2];
+		},
 	};
 
 	// 数据源
@@ -242,6 +250,9 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 
 	imgFolder.add(vm, "setGeoJSON").name("GeoJSON测试");
 	imgFolder.add(vm, "setMVT").name("矢量瓦片MVT测试");
+
+	imgFolder.add(vm, "setWms1").name("WMS服务测试1");
+	imgFolder.add(vm, "setWms2").name("WMS服务测试2");
 
 	// 地形数据源
 	const demFolder = folder.addFolder("地形数据");

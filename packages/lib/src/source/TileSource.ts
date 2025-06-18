@@ -123,7 +123,7 @@ export class TileSource implements ISource {
 // and a data object like `{a: 'foo', b: 'bar'}`, returns evaluated string
 // `('Hello foo, bar')`. You can also specify functions instead of strings for
 // data values — they will be evaluated passing `data` as an argument.
-function strTemplate(str: string, data: { [name: string]: any }) {
+export function strTemplate(str: string, data: { [name: string]: any }) {
 	const templateRe = /\{ *([\w_-]+) *\}/g;
 	return str.replace(templateRe, (str, key) => {
 		const value =
