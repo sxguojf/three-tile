@@ -44,7 +44,10 @@ export class TileLoader implements ITileLoader {
 	private readonly _errorMaterial = new MeshBasicMaterial({ transparent: true, opacity: 0, name: "error-material" });
 	private readonly _errorGeometry = new TileGeometry();
 
-	public readonly backgroundMaterial = new MeshLambertMaterial({ color: 0x112233, name: "background-material" });
+	public readonly backgroundMaterial = new MeshLambertMaterial({
+		color: 0x112233,
+		name: "background-material",
+	});
 
 	/** Loader manager */
 	public get manager(): TileLoadingManager {
@@ -162,7 +165,9 @@ export class TileLoader implements ITileLoader {
 	 * @returns Material[]
 	 */
 	protected async loadMaterial(params: TileLoadParamsType): Promise<Material[]> {
+		// this.backgroundMaterial.depthWrite = false;
 		const materials: Material[] = [this.backgroundMaterial];
+		// const materials: Material[] = [];
 		const { bounds, z } = params;
 		const sources = this.imgSource.filter(
 			source => z >= source.minLevel && this._isBoundsInSourceBounds(source, bounds)

@@ -19,6 +19,7 @@ export * from "./source";
 // map
 export * from "./map";
 
+import { BufferGeometry, Material } from "three";
 import { ITileGeometryLoader, ITileMaterialLoader, LoaderFactory } from "./loader";
 
 /**
@@ -65,7 +66,7 @@ export function registerDEMLoader(loader: ITileGeometryLoader) {
  * @param dateType 数据类型
  * @returns 加载器
  */
-export function getImgLoader<T>(dateType: string) {
+export function getImgLoader<T extends ITileMaterialLoader<Material>>(dateType: string) {
 	return LoaderFactory.getMaterialLoader(dateType) as T;
 }
 
@@ -74,7 +75,7 @@ export function getImgLoader<T>(dateType: string) {
  * @param dateType 数据类型
  * @returns 加载器
  */
-export function getDEMLoader<T>(dateType: string) {
+export function getDEMLoader<T extends ITileGeometryLoader<BufferGeometry>>(dateType: string) {
 	return LoaderFactory.getGeometryLoader(dateType) as T;
 }
 

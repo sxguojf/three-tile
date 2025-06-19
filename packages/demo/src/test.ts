@@ -29,17 +29,23 @@ import {
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
+	Color,
 	ConeGeometry,
-	Material,
+	DoubleSide,
+	FrontSide,
 	Mesh,
+	MeshBasicMaterial,
 	MeshLambertMaterial,
-	Plane,
+	MeshStandardMaterial,
 	Scene,
+	ShaderMaterial,
 	SpotLight,
 	SpotLightHelper,
 	Sprite,
 	SpriteMaterial,
+	Texture,
 	TextureLoader,
+	UniformsLib,
 	Vector3,
 } from "three";
 import * as tt from "three-tile";
@@ -80,8 +86,8 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 		mixer.clipAction(gltf.animations[0]).play();
 		map.addEventListener("update", evt => mixer.update(evt.delta));
 
-		// const scene = viewer.scene;
-		const scene = topScene;
+		const scene = viewer.scene;
+		// const scene = topScene;
 
 		scene.receiveShadow = true;
 		scene.castShadow = true;
@@ -262,4 +268,42 @@ export function createGroundGroup(map: tt.TileMap) {
 		oneBall.scale.setScalar(10000);
 		groundGroup.add(oneBall);
 	}
+}
+
+export function testShader() {
+	const loader = tt.getImgLoader<tt.TileMaterialLoader>("image");
+	loader.createMaterial = () => {
+		const singleColorMaterial = new MeshBasicMaterial({
+			map: null, // 原始纹理（可选）
+			color: new Color(0xaaffff), // 目标单色（红色示例）
+			fog: true,
+		});
+
+		singleColorMaterial.onBeforeCompile = shader => {
+			// console.log(shader.fragmentShader);
+
+			// 修改片段着色器
+			shader.fragmentShader = shader.fragmentShader.replace(
+				"#include <dithering_fragment>",
+				`			
+			    vec4 texel = texture2D( map, vMapUv );
+      
+				// 1. 反色处理
+				vec3 inverted = mix(texel.rgb, 1.0 - texel.rgb, 0.9);
+				
+				// 2. 转换为灰度
+				float luminance = dot(inverted, vec3(0.299, 0.587, 0.114));
+				vec3 grayscale = vec3(luminance);
+				
+				// 3. 应用目标颜色
+				vec3 finalColor = mix(grayscale, inverted, 0.5) * diffuse;
+				
+				gl_FragColor =  vec4( finalColor, opacity * texel.a );
+				
+			`
+			);
+			// console.log(shader.fragmentShader);
+		};
+		return singleColorMaterial;
+	};
 }

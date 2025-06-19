@@ -154,7 +154,7 @@ export const bingSource = new BingSource({ style: "A" });
 
 // 高德
 export const gdImgSource = new GDSource({ style: "6" });
-export const gdImgLabelSource = new GDSource({ style: "8" });
+export const gdImgLabelSource = new GDSource({ style: "7" });
 
 // arcgis
 export const arcGisImgSource = new ArcGisSource();
@@ -312,7 +312,7 @@ export const cityMaskSource = new plugin.GeoJSONSource({
 });
 
 export const wmsTest1 = new plugin.WmsSource({
-	url: "https://server.mars3d.cn/geoserver/mars/wms?transparent=true&format=image/png&service=WMS&version=1.1.1&request=GetMap&styles=&layers=mars:hf&bbox={bbox}&width=256&height=256&srs=EPSG:3857",
+	url: "https://server.mars3d.cn/geoserver/mars/wms?transparent=true&format=image/png&service=WMS&version=1.1.1&request=GetMap&styles=&layers=hfdl,hfbj&bbox={bbox}&width=256&height=256&srs=EPSG:3857",
 });
 
 export const wmsTest2 = new plugin.WmsSource({
