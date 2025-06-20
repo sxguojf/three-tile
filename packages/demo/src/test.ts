@@ -25,27 +25,24 @@
 // }
 
 import {
+	AdditiveBlending,
 	AnimationMixer,
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
 	Color,
 	ConeGeometry,
-	DoubleSide,
 	FrontSide,
 	Mesh,
 	MeshBasicMaterial,
 	MeshLambertMaterial,
-	MeshStandardMaterial,
 	Scene,
 	ShaderMaterial,
 	SpotLight,
 	SpotLightHelper,
 	Sprite,
 	SpriteMaterial,
-	Texture,
 	TextureLoader,
-	UniformsLib,
 	Vector3,
 } from "three";
 import * as tt from "three-tile";
@@ -272,7 +269,7 @@ export function createGroundGroup(map: tt.TileMap) {
 
 export function testShader() {
 	const loader = tt.getImgLoader<tt.TileMaterialLoader>("image");
-	loader.createMaterial = () => {
+	loader.onCreateMaterial = () => {
 		const singleColorMaterial = new MeshBasicMaterial({
 			map: null, // 原始纹理（可选）
 			color: new Color(0xaaffff), // 目标单色（红色示例）
@@ -306,4 +303,117 @@ export function testShader() {
 		};
 		return singleColorMaterial;
 	};
+}
+
+export function testDEMShader() {
+	const loader = tt.getImgLoader<tt.TileMaterialLoader>("image");
+	loader.onCreateMaterial = () => {
+		const demMaterial = createTerrainHeightMaterial(0, 3500);
+		return demMaterial;
+	};
+}
+
+// 创建地形高度着色器材质
+function createTerrainHeightMaterial(minHeight: number, maxHeight: number) {
+	// 顶点着色器
+	const vertexShader = `
+        varying float vHeight;
+        varying vec3 vPosition;
+        
+
+        void main() {
+            vHeight = position.z;
+            vPosition = position;
+            
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `;
+
+	// 片段着色器
+	const fragmentShader = `
+        varying float vHeight;
+        varying vec3 vPosition;
+
+        uniform float uMinHeight;
+        uniform float uMaxHeight;
+        uniform vec3 uWaterColor;
+        uniform vec3 uSandColor;
+        uniform vec3 uGrassColor;
+        uniform vec3 uRockColor;
+        uniform vec3 uSnowColor;
+        
+        // 平滑过渡函数
+        float smoothBlend(float edge0, float edge1, float x) {
+            float t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+            return t * t * (3.0 - 2.0 * t);
+        }
+
+        void main() {
+            // 归一化高度 (0到1之间)
+            float normalizedHeight = (vHeight - uMinHeight) / (uMaxHeight - uMinHeight);
+            
+            // 定义各高度段的阈值
+            float waterLevel = 0.2;
+            float sandLevel = 0.3;
+            float grassLevel = 0.6;
+            float rockLevel = 0.85;
+            
+            // 根据高度混合颜色
+            vec3 color;
+            
+            if(normalizedHeight < waterLevel) {
+                // 水区域 - 深蓝色到浅蓝色
+                float t = smoothBlend(0.0, waterLevel, normalizedHeight);
+                color = mix(uWaterColor * 0.5, uWaterColor, t);
+            } 
+            else if(normalizedHeight < sandLevel) {
+                // 沙滩区域 - 浅蓝色到沙色
+                float t = smoothBlend(waterLevel, sandLevel, normalizedHeight);
+                color = mix(uWaterColor, uSandColor, t);
+            } 
+            else if(normalizedHeight < grassLevel) {
+                // 草地区域 - 沙色到绿色
+                float t = smoothBlend(sandLevel, grassLevel, normalizedHeight);
+                color = mix(uSandColor, uGrassColor, t);
+            } 
+            else if(normalizedHeight < rockLevel) {
+                // 岩石区域 - 绿色到棕色
+                float t = smoothBlend(grassLevel, rockLevel, normalizedHeight);
+                color = mix(uGrassColor, uRockColor, t);
+            } 
+            else {
+                // 雪地区域 - 棕色到白色
+                float t = smoothBlend(rockLevel, 1.0, normalizedHeight);
+                color = mix(uRockColor, uSnowColor, t);
+            }
+            
+            // 添加简单光照效果（基于法线）
+            // vec3 lightDir = normalize(vec3(0.5, 1.0, 0.5));
+            // float diffuse = dot(normalize(vPosition), lightDir) * 0.5 + 0.5;
+            // color *= diffuse;
+            
+            gl_FragColor = vec4(color, 1.0);
+        }
+    `;
+
+	// 创建着色器材质
+	const material = new ShaderMaterial({
+		uniforms: {
+			uMinHeight: { value: minHeight },
+			uMaxHeight: { value: maxHeight },
+			uWaterColor: { value: new Color(0.1, 0.3, 0.7) },
+			uSandColor: { value: new Color(0.76, 0.7, 0.5) },
+			uGrassColor: { value: new Color(0.3, 0.6, 0.2) },
+			uRockColor: { value: new Color(0.5, 0.4, 0.3) },
+			uSnowColor: { value: new Color(0.95, 0.95, 1.0) },
+		},
+		vertexShader: vertexShader,
+		fragmentShader: fragmentShader,
+		side: FrontSide,
+		wireframe: false,
+		transparent: true,
+		blending: AdditiveBlending,
+	});
+
+	return material;
 }

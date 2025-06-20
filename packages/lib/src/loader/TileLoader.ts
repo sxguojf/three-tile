@@ -41,10 +41,16 @@ export class TileLoader implements ITileLoader {
 		this._demSource = value;
 	}
 
-	private readonly _errorMaterial = new MeshBasicMaterial({ transparent: true, opacity: 0, name: "error-material" });
+	private readonly _errorMaterial = new MeshBasicMaterial({
+		transparent: true,
+		opacity: 0,
+		name: "error-material",
+	});
 	private readonly _errorGeometry = new TileGeometry();
 
-	public readonly backgroundMaterial = new MeshLambertMaterial({
+	public readonly backgroundMaterial = new MeshBasicMaterial({
+		transparent: true,
+		opacity: 0.5,
 		color: 0x112233,
 		name: "background-material",
 	});

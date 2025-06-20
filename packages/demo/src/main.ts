@@ -5,7 +5,7 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
-import { createGroundGroup, testShader, testTopMesh } from "./test";
+import { createGroundGroup, testDEMShader, testShader, testTopMesh } from "./test";
 
 // 注册加载器
 function registerLoader() {
@@ -168,6 +168,7 @@ function main() {
 	// });
 	// createGroundGroup(map);
 	// testShader();
+	testDEMShader();
 }
 
 main();

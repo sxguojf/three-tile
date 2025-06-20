@@ -312,6 +312,7 @@ export const cityMaskSource = new plugin.GeoJSONSource({
 });
 
 export const wmsTest1 = new plugin.WmsSource({
+	bounds: [116.6, 30.9, 118, 32.6],
 	url: "https://server.mars3d.cn/geoserver/mars/wms?transparent=true&format=image/png&service=WMS&version=1.1.1&request=GetMap&styles=&layers=hfdl,hfbj&bbox={bbox}&width=256&height=256&srs=EPSG:3857",
 });
 
