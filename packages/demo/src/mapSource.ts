@@ -154,7 +154,7 @@ export const bingSource = new BingSource({ style: "A" });
 
 // 高德
 export const gdImgSource = new GDSource({ style: "6" });
-export const gdImgLabelSource = new GDSource({ style: "7" });
+export const gdImgLabelSource = new GDSource({ style: "8" });
 
 // arcgis
 export const arcGisImgSource = new ArcGisSource();

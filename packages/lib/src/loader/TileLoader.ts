@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial, MeshLambertMaterial } from "three";
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
@@ -48,12 +48,7 @@ export class TileLoader implements ITileLoader {
 	});
 	private readonly _errorGeometry = new TileGeometry();
 
-	public readonly backgroundMaterial = new MeshBasicMaterial({
-		transparent: true,
-		opacity: 0.5,
-		color: 0x112233,
-		name: "background-material",
-	});
+	public readonly backgroundMaterial = new MeshBasicMaterial();
 
 	/** Loader manager */
 	public get manager(): TileLoadingManager {
@@ -61,6 +56,8 @@ export class TileLoader implements ITileLoader {
 	}
 
 	public debug = 0;
+
+	public constructor() {}
 
 	/**
 	 * Load getmetry and materail of tile from x, y and z coordinate.

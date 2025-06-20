@@ -1,0 +1,23 @@
+precision highp float;
+
+#include <common>
+#include <fog_pars_vertex>
+#include <logdepthbuf_pars_vertex>
+
+varying vec3 vNormal;
+varying vec3 vViewPosition;
+varying float vHeight;
+
+void main() {
+    #include <begin_vertex>
+    #include <project_vertex>
+	#include <logdepthbuf_vertex>
+
+	vHeight = position.z;
+	vNormal = normalize(normalMatrix * normal);
+	vViewPosition = -mvPosition.xyz;
+
+	#include <fog_vertex>
+	#include <logdepthbuf_vertex>
+
+}

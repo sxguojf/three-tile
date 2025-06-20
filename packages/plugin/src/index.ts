@@ -12,6 +12,7 @@ export * from "./singleImageLoader";
 export * from "./singleTifDEMLoader";
 export * from "./geojsonLoader";
 export * from "./mvtLoader";
+export * from "./elevationLoader";
 
 export * from "./indexDBCache";
 export * from "./utils";

@@ -4,8 +4,5 @@
  *@date: 2023-04-05
  */
 
-// export * from "./TileShaderMaterial";
-
 export * from "./TileMaterial";
 export * from "./vectorTileRenderer";
-// export * from "./shader/TileShaderMaterial";

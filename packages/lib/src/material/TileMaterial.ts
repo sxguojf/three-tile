@@ -19,5 +19,10 @@ export interface ITileMaterial extends Material {
 export class TileMaterial extends MeshStandardMaterial {
 	constructor(params: MeshLambertMaterialParameters = {}) {
 		super({ ...{ transparent: false, side: FrontSide }, ...params });
+		// this.onBeforeCompile = shader => {
+		// 	console.log(shader.vertexShader);
+		// 	console.log("==============================");
+		// 	console.log(shader.fragmentShader);
+		// };
 	}
 }

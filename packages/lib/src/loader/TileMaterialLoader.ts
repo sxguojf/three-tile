@@ -68,5 +68,9 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 * @param url url
 	 * @returns {Promise<TBuffer>} the buffer of download data
 	 */
-	protected abstract doLoad(url: string, params: TileSourceLoadParamsType): Promise<Texture>;
+	protected doLoad(_url: string, _params: TileSourceLoadParamsType): Promise<Texture> {
+		return new Promise(resolve => {
+			resolve(new Texture());
+		});
+	}
 }

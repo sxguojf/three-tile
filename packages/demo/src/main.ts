@@ -5,7 +5,7 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
-import { createGroundGroup, testDEMShader, testShader, testTopMesh } from "./test";
+import { testDEMShader } from "./test";
 
 // 注册加载器
 function registerLoader() {
@@ -26,6 +26,8 @@ function registerLoader() {
 	tt.registerImgLoader(new plugin.SingleImageLoader());
 	// 注册单影像TIF-DEM加载器
 	tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
+	// 注册高程加载器
+	tt.registerImgLoader(new plugin.ElevationLoader());
 	//===============================================================================
 
 	// 取得影像加载器
@@ -168,7 +170,7 @@ function main() {
 	// });
 	// createGroundGroup(map);
 	// testShader();
-	testDEMShader();
+	// testDEMShader();
 }
 
 main();
