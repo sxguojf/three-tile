@@ -35,6 +35,7 @@ import {
 	FrontSide,
 	Mesh,
 	MeshBasicMaterial,
+	MeshBasicMaterialParameters,
 	MeshLambertMaterial,
 	Scene,
 	ShaderMaterial,
@@ -267,25 +268,17 @@ export function createGroundGroup(map: tt.TileMap) {
 	}
 }
 
-export function testShader() {
-	const loader = tt.getImgLoader<tt.TileMaterialLoader>("image");
-	loader.onCreateMaterial = () => {
-		const singleColorMaterial = new MeshBasicMaterial({
-			map: null, // 原始纹理（可选）
-			color: new Color(0xaaffff), // 目标单色（红色示例）
-			fog: true,
-		});
-
-		singleColorMaterial.onBeforeCompile = shader => {
-			// console.log(shader.fragmentShader);
-
+class Filter extends MeshBasicMaterial {
+	constructor(params?: MeshBasicMaterialParameters) {
+		super(params);
+		this.onBeforeCompile = shader => {
 			// 修改片段着色器
 			shader.fragmentShader = shader.fragmentShader.replace(
 				"#include <dithering_fragment>",
 				`
 				// 1. 取纹理颜色
-			    vec4 texel = texture2D( map, vMapUv );
-      
+				vec4 texel = texture2D( map, vMapUv );
+	
 				// 2. 反色处理
 				vec3 inverted = mix(texel.rgb, 1.0 - texel.rgb, 1.0);
 				
@@ -300,10 +293,19 @@ export function testShader() {
 				gl_FragColor =  vec4( finalColor, opacity * texel.a );
 			`
 			);
-			// console.log(shader.fragmentShader);
 		};
-		return singleColorMaterial;
-	};
+	}
+
+	copy(source: this): this {
+		super.copy(source);
+		this.onBeforeCompile = source.onBeforeCompile;
+		return this;
+	}
+}
+
+export function testShader() {
+	const loader = tt.getImgLoader<tt.TileMaterialLoader>("image");
+	loader.material = new Filter();
 }
 
 export function testDEMShader() {
