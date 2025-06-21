@@ -216,7 +216,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 
 		setGDRoad: () => {
-			map.imgSource = [ms.gdImgLabelSource];
+			map.imgSource = [new plugin.GDSource({ style: "7" })];
 		},
 
 		setWms1: () => {
@@ -227,9 +227,9 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			map.imgSource = [ms.arcGisImgSource, ms.wmsTest2];
 		},
 
-		setEleator: () => {
+		setElevation: () => {
 			map.imgSource = tt.TileSource.create({
-				dataType: "eleator",
+				dataType: "elevation",
 			});
 		},
 	};
@@ -282,7 +282,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	testFolder.add(vm, "setTif").name("单TIFF地形测试");
 	testFolder.add(vm, "setGeoJSONMask").name("GeoJSON遮罩-延安");
 	testFolder.add(vm, "setGDRoad").name("高德路网");
-	testFolder.add(vm, "setEleator").name("Eleator测试");
+	testFolder.add(vm, "setElevation").name("Eleator测试");
 	// testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;

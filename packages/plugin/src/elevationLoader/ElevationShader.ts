@@ -84,7 +84,7 @@ export class ElevationShader extends ShaderMaterial {
                 uniform vec3 uRockColor;
                 uniform vec3 uSnowColor;
 
-                        // 平滑过渡函数
+                // 平滑过渡函数
                 float smoothBlend(float edge0, float edge1, float x) {
                     float t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
                     return t * t * (3.0 - 2.0 * t);
@@ -96,17 +96,17 @@ export class ElevationShader extends ShaderMaterial {
                     // 归一化高度 (0到1之间)
                     float normalizedHeight = (vHeight - uMinHeight) / (uMaxHeight - uMinHeight);
 
-                            // 定义各高度段的阈值
+                    // 定义各高度段的阈值
                     float waterLevel = 0.2;
                     float sandLevel = 0.3;
                     float grassLevel = 0.6;
                     float rockLevel = 0.85;
 
-                            // 根据高度混合颜色
+                    // 根据高度混合颜色
                     vec3 color;
 
                     if(normalizedHeight < waterLevel) {
-                                // 水区域 - 深蓝色到浅蓝色
+                        // 水区域 - 深蓝色到浅蓝色
                         float t = smoothBlend(0.0, waterLevel, normalizedHeight);
                         color = mix(uWaterColor * 0.5, uWaterColor, t);
                     } else if(normalizedHeight < sandLevel) {
@@ -137,10 +137,12 @@ export class ElevationShader extends ShaderMaterial {
                     #include <fog_fragment>
                 }
             `,
-			wireframe: false,
 			transparent: false,
-			toneMapped: false,
 			fog: true,
 		});
+	}
+	public copy(material: this): this {
+		this.uniforms = material.uniforms;
+		return this;
 	}
 }

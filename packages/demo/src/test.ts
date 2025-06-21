@@ -282,21 +282,22 @@ export function testShader() {
 			// 修改片段着色器
 			shader.fragmentShader = shader.fragmentShader.replace(
 				"#include <dithering_fragment>",
-				`			
+				`
+				// 1. 取纹理颜色
 			    vec4 texel = texture2D( map, vMapUv );
       
-				// 1. 反色处理
-				vec3 inverted = mix(texel.rgb, 1.0 - texel.rgb, 0.9);
+				// 2. 反色处理
+				vec3 inverted = mix(texel.rgb, 1.0 - texel.rgb, 1.0);
 				
-				// 2. 转换为灰度
+				// 4. 转换为灰度
 				float luminance = dot(inverted, vec3(0.299, 0.587, 0.114));
 				vec3 grayscale = vec3(luminance);
 				
-				// 3. 应用目标颜色
-				vec3 finalColor = mix(grayscale, inverted, 0.5) * diffuse;
+				// 4. 应用目标颜色
+				vec3 finalColor = mix(grayscale, inverted, 0.3) * diffuse;
 				
+				// 5. 最终颜色
 				gl_FragColor =  vec4( finalColor, opacity * texel.a );
-				
 			`
 			);
 			// console.log(shader.fragmentShader);
