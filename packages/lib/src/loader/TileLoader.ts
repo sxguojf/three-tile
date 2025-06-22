@@ -72,6 +72,7 @@ export class TileLoader implements ITileLoader {
 		for (let i = 0; i < materials.length; i++) {
 			geometry.addGroup(0, Infinity, i);
 		}
+		console.assert(materials.length === geometry.groups.length);
 		const mesh = new Mesh(geometry, materials);
 		return mesh;
 	}

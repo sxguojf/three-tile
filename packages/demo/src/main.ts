@@ -177,7 +177,7 @@ function main() {
 	// 	}
 	// });
 	// createGroundGroup(map);
-	testShader();
+	// testShader();
 	// testDEMShader();
 }
 

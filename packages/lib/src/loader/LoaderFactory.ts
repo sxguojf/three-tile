@@ -51,7 +51,7 @@ export const LoaderFactory = {
 		if (loader) {
 			return loader;
 		} else {
-			throw `Source dataType "${dataType}" is not support!`;
+			throw `Image source dataType "${dataType}" is not support!`;
 		}
 	},
 
@@ -66,7 +66,7 @@ export const LoaderFactory = {
 		if (loader) {
 			return loader;
 		} else {
-			throw `Source dataType "${dataType}" is not support!`;
+			throw `Terrain source dataType "${dataType}" is not support!`;
 		}
 	},
 
