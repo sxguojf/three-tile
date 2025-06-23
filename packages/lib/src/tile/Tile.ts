@@ -45,8 +45,7 @@ export type TileUpdateParames = {
 };
 
 /**
- * 瓦片事件映射类型
- * 为了便于使用，所有事件均由根瓦片发出
+ * 瓦片事件映射类型，为了便于使用，所有事件均由根瓦片发出
  */
 export interface TTileEventMap extends Object3DEventMap {
 	/** 瓦片创建事件 */
@@ -152,7 +151,6 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
 		this.matrixAutoUpdate = false;
-		// this.matrixWorldAutoUpdate = false;
 	}
 
 	/**
@@ -326,7 +324,6 @@ export class Tile extends Object3D<TTileEventMap> {
 	public updateData(updateMaterial: boolean, updateGeometry: boolean) {
 		this.traverse(child => {
 			if (child instanceof Tile) {
-				// child._isLoading = false;
 				child._updateMaterial = updateMaterial;
 				child._updateGeometry = updateGeometry;
 			}

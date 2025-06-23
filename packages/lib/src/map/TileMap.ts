@@ -44,7 +44,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	public readonly name = "map";
 
 	/** 瓦片树更新时钟 */
-	private readonly _clock = new Clock();
+	private readonly _mapClock = new Clock();
 
 	/** 是否为LOD模型（LOD模型，当autoUpdate为真时渲染时会自动调用update方法）*/
 	public readonly isLOD = true;
@@ -52,6 +52,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	/** 地图是否在每帧渲染时自动更新，默认为真 */
 	public autoUpdate = true;
 
+	/** 调试标志，0：不调试 */
 	public debug = 0;
 
 	/** 瓦片树更新间隔，单位毫秒（默认100ms） */
@@ -161,7 +162,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
 		this._imgSource = sources;
 		this.loader.imgSource = sources;
-		// this._loader.imgSource = sources;
 		this.updateSource(true, false);
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
@@ -180,7 +180,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	public set demSource(value: ISource | undefined) {
 		this._demSource = value;
 		this.loader.demSource = this._demSource;
-		// this._loader.demSource = this._demSource;
 		this.updateSource(false, true);
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
@@ -244,8 +243,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 * ``` typescript
 	
 	  const map = new TileMap({
-	  		// 加载器
-			loader: new TileLoader(),
             // 影像数据源
             imgSource: [Source.mapBoxImgSource, new TestSource()],
             // 高程数据源
@@ -312,7 +309,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 * @param camera
 	 */
 	public update(camera: Camera) {
-		const elapseTime = this._clock.getElapsedTime();
+		const elapseTime = this._mapClock.getElapsedTime();
 		// 控制瓦片树更新速率
 		if (elapseTime > this.updateInterval / 1000) {
 			this._loader.attcth(this.loader, this.projection);
@@ -331,7 +328,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			} catch (err) {
 				console.error("Error on loading tile data.", err);
 			}
-			this._clock.start();
+			this._mapClock.start();
 		}
 
 		// 动态调整地图高度
@@ -343,26 +340,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		// 	this.position.sub(dv);
 		// }
 	}
-
-	// private _ready = false;
-
-	/**
-	 * 检查地图是否已准备就绪。
-	 * 当地图的所有叶子瓦片都加载了模型数据时，认为地图准备就绪，并触发 'ready' 事件。
-	 */
-	// private _checkReady() {
-	// 	if (!this._ready) {
-	// 		this._ready = true;
-	// 		this.rootTile.traverse(child => {
-	// 			if (child instanceof Tile && child.isLeaf && child.inFrustum && !child.model) {
-	// 				this._ready = false;
-	// 			}
-	// 		});
-	// 		if (this._ready) {
-	// 			this.dispatchEvent({ type: "ready" });
-	// 		}
-	// 	}
-	// }
 
 	/**
 	 * 重新加载地图数据
