@@ -32,7 +32,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	}
 
 	/**
-	 * Load tile data from source
+	 * Load tile material from source
 	 * @param source
 	 * @param tile
 	 * @returns
@@ -49,6 +49,10 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		return material;
 	}
 
+	/**
+	 * Dispose material
+	 * @param material material
+	 */
 	public unload(material: ITileMaterial): void {
 		const texture = material.map;
 		if (texture) {
@@ -59,6 +63,10 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		}
 	}
 
+	/**
+	 * Create material
+	 * @returns {ITileMaterial} the material of tile
+	 */
 	public onCreateMaterial(): ITileMaterial {
 		return this.material.clone();
 	}
@@ -68,9 +76,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 * @param url url
 	 * @returns {Promise<TBuffer>} the buffer of download data
 	 */
-	protected doLoad(_url: string, _params: TileSourceLoadParamsType): Promise<Texture> {
-		return new Promise(resolve => {
-			resolve(new Texture());
-		});
+	protected async doLoad(_url: string, _params: TileSourceLoadParamsType): Promise<Texture | undefined | null> {
+		return Promise.resolve(undefined);
 	}
 }

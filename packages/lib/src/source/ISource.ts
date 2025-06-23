@@ -14,6 +14,8 @@ export type ProjectionType = "3857" | "4326";
 export interface ISource {
 	/** A string identifies the source data type, it requires the support of the loader. */
 	dataType: string;
+	/** Tile service url template */
+	url: string;
 	/** Source attribution info, it allows you to display attribution*/
 	attribution: string;
 	/** Data max level */
