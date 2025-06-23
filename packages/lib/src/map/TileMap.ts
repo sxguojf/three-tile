@@ -161,7 +161,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
 		this._imgSource = sources;
 		this.loader.imgSource = sources;
-		this._loader.imgSource = sources;
+		// this._loader.imgSource = sources;
 		this.updateSource(true, false);
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
@@ -180,7 +180,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	public set demSource(value: ISource | undefined) {
 		this._demSource = value;
 		this.loader.demSource = this._demSource;
-		this._loader.demSource = this._demSource;
+		// this._loader.demSource = this._demSource;
 		this.updateSource(false, true);
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
@@ -327,12 +327,11 @@ export class TileMap extends Object3D<TileMapEventMap> {
 				// shadow
 				this.rootTile.castShadow = this.castShadow;
 				this.rootTile.receiveShadow = this.receiveShadow;
+				this.dispatchEvent({ type: "update", delta: elapseTime });
 			} catch (err) {
 				console.error("Error on loading tile data.", err);
 			}
 			this._clock.start();
-			this.dispatchEvent({ type: "update", delta: elapseTime });
-			// this._checkReady();
 		}
 
 		// 动态调整地图高度
