@@ -9,7 +9,6 @@ import {
 	Box3,
 	Box3Helper,
 	Camera,
-	Frustum,
 	Matrix4,
 	Mesh,
 	Object3D,
@@ -18,6 +17,7 @@ import {
 	Vector3,
 } from "three";
 import { ITileLoader } from "../loader";
+import { FrustumEx } from "./FrustumEx";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
 /** 最大下载线程数 */
@@ -25,7 +25,7 @@ const MAXTHREADS = 10;
 /** 相机世界坐标 */
 const cameraWorldPosition = new Vector3();
 /** 场景视锥体 */
-const frustum = new Frustum();
+const frustum = new FrustumEx();
 /** 临时变量 */
 const tempMat4 = new Matrix4();
 const tempVec3 = new Vector3();
