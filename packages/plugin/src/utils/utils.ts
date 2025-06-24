@@ -76,11 +76,9 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 				new MeshLambertMaterial({ color: 0x00ff00 })
 			);
 			pointMesh.name = "checkPoint";
-			// map.add(pointMesh);
-			pointMesh.position.set(0, 0, -1); //-height / 2, -camera.near - height / 10);
-			camera.add(pointMesh);
+			map.add(pointMesh);
 		}
-		// pointMesh.position.copy(map.worldToLocal(checkPoint));
+		pointMesh.position.copy(map.worldToLocal(checkPoint));
 		pointMesh.scale.setScalar(height / 50);
 		if (pointMesh instanceof Mesh) {
 			pointMesh.material.color.set(hit ? 0xf00f00 : 0x00ff00);
