@@ -44,7 +44,7 @@ export function getAttributions(map: TileMap) {
 
 export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limitHeight = 10) {
 	camera.updateMatrixWorld();
-	// 计算近截面下沿中点
+	// // 计算近截面下沿中点
 	const height = 2 * camera.near * Math.tan(MathUtils.degToRad(camera.fov) / 2); // 屏幕高度(摄像机坐标系)
 	const checkPoint = new Vector3(0, -height / 2, -camera.near - height / 10); // 检测点坐标（摄像机坐标）
 	checkPoint.applyMatrix4(camera.matrixWorld); // 转换世界坐标
@@ -76,11 +76,11 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 				new MeshLambertMaterial({ color: 0x00ff00 })
 			);
 			pointMesh.name = "checkPoint";
-			map.add(pointMesh);
+			// map.add(pointMesh);
+			pointMesh.position.set(0, 0, -1); //-height / 2, -camera.near - height / 10);
+			camera.add(pointMesh);
 		}
-		camera.updateMatrixWorld();
-		camera.updateMatrix();
-		pointMesh.position.copy(map.worldToLocal(checkPoint));
+		// pointMesh.position.copy(map.worldToLocal(checkPoint));
 		pointMesh.scale.setScalar(height / 50);
 		if (pointMesh instanceof Mesh) {
 			pointMesh.material.color.set(hit ? 0xf00f00 : 0x00ff00);

@@ -79,7 +79,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	private _root: Tile = this;
 
 	/** 瓦片距离检测点世界坐标 */
-	private _checkPointer: Vector3 = tempVec3;
+	private _checkPointer: Vector3 = new Vector3();
 
 	/* 瓦片在世界坐标系中的大小*/
 	private _sizeInWorld = -1;
@@ -98,10 +98,11 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this._subTiles;
 	}
 
-	/** 瓦片到相机的距离比例，用于 LOD 评估 */
+	/** 瓦片到相机的距离比例，用于 LOD 评估，值越小瓦片越密集 */
 	public get distRatio() {
 		const distToCamera = cameraWorldPosition.distanceTo(this._checkPointer);
-		return Math.pow((distToCamera * 0.8) / this._sizeInWorld, 10);
+		const ratio = (distToCamera / this._sizeInWorld) * 0.8;
+		return this.inFrustum ? ratio : ratio + 0.5;
 	}
 
 	/** 瓦片是否在视锥体内 */
@@ -166,9 +167,9 @@ export class Tile extends Object3D<TTileEventMap> {
 	private computeTileSize(debug: number) {
 		// 包围盒
 		this._bbox = new Box3(new Vector3(-0.5, -0.5), new Vector3(0.5, 0.5)).applyMatrix4(this.matrixWorld);
-		// 检测点-瓦片中心点
+		// 检测点-瓦片中心世界坐标
 		this._checkPointer = new Vector3().applyMatrix4(this.matrixWorld);
-		// 大小
+		// 瓦片大小
 		this._sizeInWorld = this._bbox.getSize(tempVec3).length();
 		console.assert(this._sizeInWorld > 10);
 		// 增大包围盒高度（-300到90000米）
@@ -203,6 +204,12 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		const { loader, minLevel, camera } = params;
 
+		// 如果是根瓦片，则计算一次视锥体和摄像机坐标
+		if (this.z === 0) {
+			camera.getWorldPosition(cameraWorldPosition);
+			frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+		}
+
 		// 计算瓦片大小、包围盒等
 		if (this._sizeInWorld < 0) {
 			this.computeTileSize(loader.debug);
@@ -210,29 +217,27 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载瓦片
 		if (this.z >= minLevel && loader.downloadingThreads < MAXTHREADS) {
+			// 下载瓦片
 			if (!this.model) {
-				this._startLoad(loader); // 下载瓦片
+				this._startLoad(loader);
 				return;
 			}
 
-			// 子瓦片更新完成后再更新父瓦片，以更快显示
-			const childrenUpdated = this.subTiles ? !this.subTiles.some(child => child._isDirty && child.inFrustum) : true;
-			if (this._isDirty && this.inFrustum && childrenUpdated) {
-				this._startUpdate(loader); // 更新瓦片
-				return;
+			// 更新脏瓦片
+			if (this._isDirty && this.inFrustum) {
+				// 先更新子瓦片再更新父瓦片，以加快显示
+				const childrenUpdated = !this.subTiles?.some(child => child._isDirty);
+				if (childrenUpdated) {
+					this._startUpdate(loader);
+					return;
+				}
 			}
 		}
 
-		// 如果是根瓦片，则计算一次视锥体和摄像机坐标
-		if (this.z === 0) {
-			camera.getWorldPosition(cameraWorldPosition);
-			frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
-		}
-
-		// 阴影
+		// 子瓦片阴影取决于根瓦片
 		if (this.model) {
-			this.model.castShadow = this._root.castShadow || false;
-			this.model.receiveShadow = this._root.receiveShadow || false;
+			this.model.castShadow = this._root.castShadow;
+			this.model.receiveShadow = this._root.receiveShadow;
 		}
 
 		// LOD
@@ -255,12 +260,13 @@ export class Tile extends Object3D<TTileEventMap> {
 			const newTiles = createChildren(this, loader);
 			this.add(...newTiles);
 			this._subTiles = newTiles;
-			newTiles.forEach(child => {
+			this._subTiles.forEach(child => {
 				child.updateMatrixWorld();
 				this._root.dispatchEvent({ type: "tile-created", tile: child });
 			});
 		} else if (action === LODAction.remove) {
 			// console.log("remove", this.name);
+			console.assert(!!this.model);
 			this.showing = true;
 			this.unLoad(loader, false);
 		}
@@ -274,7 +280,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		const parent = this.parent;
 		if (parent instanceof Tile && parent.subTiles) {
 			const subTiles = parent.subTiles;
-			const allLoaded = subTiles.every(child => child.model);
+			const allLoaded = !subTiles.some(child => !child.model);
 			subTiles.forEach(child => (child.showing = allLoaded));
 			parent.showing = !allLoaded;
 		}
@@ -298,7 +304,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/**
 	 * 更新瓦片数据
-	 * @param loader  - 瓦片加载器
+	 * @param loader 瓦片加载器
 	 * @returns this
 	 */
 	private async _startUpdate(loader: ITileLoader) {
