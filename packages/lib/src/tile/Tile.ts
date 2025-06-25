@@ -79,7 +79,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	private _root: Tile = this;
 
 	/** 瓦片距离检测点世界坐标 */
-	private _checkPointer: Vector3 = new Vector3();
+	private _checkPoint: Vector3 = new Vector3();
 
 	/* 瓦片在世界坐标系中的大小*/
 	private _sizeInWorld = -1;
@@ -100,9 +100,9 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 瓦片到相机的距离比例，用于 LOD 评估，值越小瓦片越密集 */
 	public get distRatio() {
-		const distToCamera = cameraWorldPosition.distanceTo(this._checkPointer);
-		const ratio = (distToCamera / this._sizeInWorld) * 0.8;
-		return this.inFrustum ? ratio : ratio + 0.5;
+		const distToCamera = cameraWorldPosition.distanceTo(this._checkPoint);
+		const ratio = distToCamera / this._sizeInWorld;
+		return this.inFrustum ? ratio * 0.8 : ratio * 2;
 	}
 
 	/** 瓦片是否在视锥体内 */
@@ -123,6 +123,10 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 设置瓦片是否显示 */
 	public set showing(value) {
 		if (value != this.showing && this.model) {
+			if (value) {
+				this.model.castShadow = this._root.castShadow;
+				this.model.receiveShadow = this._root.receiveShadow;
+			}
 			this.model.traverse(child => child.layers.set(value ? 0 : 31));
 			this.model.visible = value;
 			this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
@@ -168,7 +172,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		// 包围盒
 		this._bbox = new Box3(new Vector3(-0.5, -0.5), new Vector3(0.5, 0.5)).applyMatrix4(this.matrixWorld);
 		// 检测点-瓦片中心世界坐标
-		this._checkPointer = new Vector3().applyMatrix4(this.matrixWorld);
+		this._checkPoint = new Vector3().applyMatrix4(this.matrixWorld);
 		// 瓦片大小
 		this._sizeInWorld = this._bbox.getSize(tempVec3).length();
 		console.assert(this._sizeInWorld > 10);
@@ -295,9 +299,9 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._isLoading = true;
 		this._model = await loader.load(this);
 		this._model.geometry.computeBoundingBox();
-		this._checkPointer.y = this._model.geometry.boundingBox?.max.z || 0;
-		this._isLoading = false;
+		this._checkPoint.y = this._model.geometry.boundingBox?.max.z || 0;
 		this.isLeaf && this._checkVisible();
+		this._isLoading = false;
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 		this.add(this._model);
 	}
@@ -314,7 +318,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._isLoading = true;
 		this._model = await loader.update(this.model, this, this._updateMaterial, this._updateGeometry);
 		this.model.geometry.computeBoundingBox();
-		this._checkPointer.y = this.model.geometry.boundingBox?.max.z || 0;
+		this._checkPoint.y = this.model.geometry.boundingBox?.max.z || 0;
 		this._updateMaterial = false;
 		this._updateGeometry = false;
 		this._isLoading = false;
