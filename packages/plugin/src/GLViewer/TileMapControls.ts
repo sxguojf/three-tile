@@ -44,7 +44,7 @@ export class TileMapControls extends OrbitControls {
 		this.screenSpacePanning = false;
 
 		this.minDistance = 10;
-		this.maxDistance = 3e7;
+		this.maxDistance = 2e7;
 		this.maxPolarAngle = 1.2;
 		this.enableDamping = true;
 		this.dampingFactor = 0.1;
@@ -62,6 +62,7 @@ export class TileMapControls extends OrbitControls {
 		// Set ther zoom speed based on distance
 		if (this.dymamicZoomSpeed) {
 			this.zoomSpeed = Math.max(Math.log(dist / 1e3), 1);
+			// this.panSpeed = Math.max(Math.log(dist) / 9, 0.1);
 		}
 
 		// Set the azimuth/polar angles based on distance
@@ -75,8 +76,8 @@ export class TileMapControls extends OrbitControls {
 		const camera = this.object;
 		if (camera instanceof PerspectiveCamera) {
 			// todo 精确推导far/near计算公式
-			camera.far = MathUtils.clamp((dist / polar) * 8, 2e4, this.maxDistance * 2);
-			camera.near = Math.max(camera.far / 1e5, this.minDistance);
+			camera.far = MathUtils.clamp((dist / (polar / 1.5)) * 7, 2e4, this.maxDistance * 2);
+			camera.near = Math.max(camera.far / 5e4, this.minDistance);
 			camera.updateProjectionMatrix();
 		}
 	}

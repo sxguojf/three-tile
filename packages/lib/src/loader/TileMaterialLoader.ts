@@ -39,7 +39,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 */
 	public async load(params: TileSourceLoadParamsType): Promise<ITileMaterial> {
 		const { source, x, y, z } = params;
-		const material = this.onCreateMaterial();
+		const material = this.createMaterial();
 		// get max level tile and bounds
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
@@ -67,7 +67,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 * Create material
 	 * @returns {ITileMaterial} the material of tile
 	 */
-	public onCreateMaterial(): ITileMaterial {
+	public createMaterial(): ITileMaterial {
 		return this.material.clone();
 	}
 

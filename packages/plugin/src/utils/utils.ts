@@ -61,9 +61,6 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 			const dv = map.localToWorld(map.up.clone().multiplyScalar(offset));
 			camera.position.add(dv);
 			hit = true;
-			if (map.debug > 0) {
-				console.log("Hit ground ", dh);
-			}
 		}
 	}
 
@@ -81,7 +78,12 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 		pointMesh.position.copy(map.worldToLocal(checkPoint));
 		pointMesh.scale.setScalar(height / 50);
 		if (pointMesh instanceof Mesh) {
-			pointMesh.material.color.set(hit ? 0xf00f00 : 0x00ff00);
+			if (hit) {
+				pointMesh.material.color.set(0xf00f00);
+				console.log("Hit ground");
+			} else {
+				pointMesh.material.color.set(0x00ff00);
+			}
 		}
 	}
 

@@ -53,6 +53,9 @@ import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
 // shadowTest(viewer, map);
 
 export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
+	viewer.renderer.shadowMap.enabled = true;
+	map.receiveShadow = true;
+
 	// 增加顶层场景，用于显示模型
 	const topScene = new Scene();
 	viewer.topScenes.push(topScene);
@@ -61,8 +64,6 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 
 	const centerGeo = new Vector3(110, 35, 0);
 	const centerPosition = map.geo2world(centerGeo);
-
-	// viewer.flyTo(centerPosition, new Vector3(centerPosition.x, 1000, centerPosition.z + 2000), true);
 
 	const dracoLoader = new DRACOLoader();
 	dracoLoader.setDecoderPath("./lib/draco/gltf/");
@@ -88,7 +89,7 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 		// const scene = topScene;
 
 		scene.receiveShadow = true;
-		scene.castShadow = true;
+
 		// 添加模型
 		// scene.add(model);
 		scene.add(groundGroup);
@@ -98,7 +99,7 @@ export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
 		scene.add(viewer.dirLight.clone());
 
 		// 添加一个聚光灯
-		const shadowLight = new SpotLight(0xffffff, 3, 4e3, Math.PI / 6, 0.2, 0);
+		const shadowLight = new SpotLight(0xffffff, 10, 4e3, Math.PI / 6, 0.2, 0);
 		shadowLight.position.set(centerPosition.x, 2e3, centerPosition.z + 1000);
 		shadowLight.target = model;
 		shadowLight.castShadow = true;
@@ -310,7 +311,7 @@ export function testShader() {
 
 export function testDEMShader() {
 	const loader = tt.getImgLoader<tt.TileMaterialLoader>("image");
-	loader.onCreateMaterial = () => {
+	loader.createMaterial = () => {
 		const demMaterial = createTerrainHeightMaterial(0, 3500);
 		return demMaterial;
 	};

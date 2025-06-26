@@ -122,14 +122,16 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 设置瓦片是否显示 */
 	public set showing(value) {
-		if (value != this.showing && this.model) {
+		if (this.model) {
 			if (value) {
 				this.model.castShadow = this._root.castShadow;
 				this.model.receiveShadow = this._root.receiveShadow;
 			}
-			this.model.traverse(child => child.layers.set(value ? 0 : 31));
-			this.model.visible = value;
-			this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
+			if (value != this.showing) {
+				this.model.traverse(child => child.layers.set(value ? 0 : 31));
+				this.model.visible = value;
+				this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
+			}
 		}
 	}
 
@@ -270,7 +272,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			});
 		} else if (action === LODAction.remove) {
 			// console.log("remove", this.name);
-			console.assert(!!this.model);
+			// console.assert(!!this.model);
 			this.showing = true;
 			this.unLoad(loader, false);
 		}
