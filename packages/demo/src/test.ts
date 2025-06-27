@@ -288,7 +288,7 @@ class Filter extends MeshBasicMaterial {
 				vec3 grayscale = vec3(luminance);
 				
 				// 4. 应用目标颜色
-				vec3 finalColor = mix(grayscale, inverted, 0.3) * diffuse;
+				vec3 finalColor = mix(grayscale, inverted, 0.3) * diffuse * 2.0;
 				
 				// 5. 最终颜色
 				gl_FragColor =  vec4( finalColor, opacity * texel.a );
@@ -296,17 +296,11 @@ class Filter extends MeshBasicMaterial {
 			);
 		};
 	}
-
-	copy(source: this): this {
-		super.copy(source);
-		this.onBeforeCompile = source.onBeforeCompile;
-		return this;
-	}
 }
 
 export function testShader() {
 	const loader = tt.getImgLoader<tt.TileMaterialLoader>("image");
-	loader.material = new Filter();
+	loader.material = new Filter({ color: 0xaabbee });
 }
 
 export function testDEMShader() {
