@@ -3,6 +3,7 @@ export * from "./compass";
 export * from "./mapSource";
 export * from "./fakeEarth";
 export * from "./fog";
+export * from "./limitCameraHeight";
 
 export * from "./debugLoader";
 export * from "./logoLoader";
