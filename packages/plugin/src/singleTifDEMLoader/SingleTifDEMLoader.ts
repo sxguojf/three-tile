@@ -4,16 +4,17 @@
  *@date: 2023-04-05
  */
 
-import { fromUrl } from "geotiff";
 import { BufferGeometry, FileLoader, MathUtils } from "three";
-//@ts-ignore
-import createTile from "geotiff-tile";
 
+// import { fromArrayBuffer } from "geotiff";
 import { ITileGeometryLoader, LoaderFactory, TileGeometry, TileSourceLoadParamsType, version } from "three-tile";
 import { SingleTifDEMSource } from "./SingleTifDEMSource";
+import { DEMType, parse } from "./parse";
+// @ts-ignore
+import UTIF from "three/examples/jsm/libs/utif.module.js";
 
 /**
- * TIF DEM terrain loader
+ * TIF DEM terrain loader 单张TIF图地形加载器
  */
 export class SingleTifDEMLoader implements ITileGeometryLoader {
 	public readonly info = {
@@ -42,43 +43,66 @@ export class SingleTifDEMLoader implements ITileGeometryLoader {
 	 * @returns 加载完成后返回一个 BufferGeometry 对象
 	 */
 	public async load(params: TileSourceLoadParamsType<SingleTifDEMSource>): Promise<BufferGeometry> {
-		// 从 params 中解构出数据源、瓦片层级、经纬度边界
-		const { source, z, lonLatBounds } = params;
+		// 从 params 中解构出数据源、瓦片层级、经纬度边界和投影边界
+		const { source, z, bounds } = params;
 		// 创建一个新的 TileGeometry 实例，用于存储瓦片的几何体数据
 		const geometry = new TileGeometry();
 		// 获取 TIF 文件的 URL
 		const url = source._getUrl(0, 0, 0);
 		// 请求的瓦片不在数据源范围内或没有url，直接返回几何体
-		if (z < source.minLevel || z > source.maxLevel || !url) {
+		// if (z < source.minLevel || z > source.maxLevel || !url) {
+		if (z < source.minLevel || !url) {
 			return geometry;
 		}
+
 		// 抽稀像素点，根据瓦片层级计算目标像素大小，并使用 MathUtils.clamp 方法将其限制在 2 到 128 之间
 		const targetSize = MathUtils.clamp((params.z + 2) * 3, 2, 256);
 
 		// 如果数据未加载，加载数据
-		if (!source._data) {
-			// console.log("load image...", url);
-			source._data = await fromUrl(url);
+		if (!source.data) {
+			// 打印加载信息
+			console.log("load image...", url);
+			// 加载tif文件，使用 _loader.loadAsync 方法异步加载 TIF 文件，并将结果转换为 ArrayBuffer 类型
+			const buffer = (await this._loader.loadAsync(url)) as ArrayBuffer;
+			// 调用 getTIFFRaster 方法将 ArrayBuffer 解析为包含栅格数据的对象，并将其存储在 source.data 中
+			source.data = this.getTIFFRaster(buffer);
 		}
+		// 调用 getTileDEM 方法获取指定瓦片的 DEM 数据
+		const dem = parse(source.data, source._projectionBounds, bounds, targetSize, targetSize);
 
-		// 获取 TIF 文件的无数据值
-		// const no_data = (await source._data.getImage()).fileDirectory;
-		// debugger;
-		// 瓦片截取参数
-		const tileOpts = {
-			geotiff: source._data,
-			bbox: lonLatBounds,
-			method: "bilinear",
-			tile_height: targetSize,
-			tile_width: targetSize,
-			// tile_no_data: no_data,
-		};
-		// 截取瓦片
-		const { tile } = await createTile(tileOpts);
-		// 设置数据
-		const dem = tile[0].map((i: number) => (isNaN(i) ? null : i));
-		geometry.setData(dem, source.skirtHeight);
-		// geometry.setData(tile[0]);
-		return geometry;
+		// 将获取到的 DEM 数据设置到 geometry 中，并返回 geometry\
+		return geometry.setData(dem, source.skirtHeight);
 	}
+
+	/**
+	 * 从 ArrayBuffer 中读取 TIFF 图像的栅格数据
+	 * @param buffer 包含 TIFF 图像数据的 ArrayBuffer
+	 * @returns 包含栅格数据的对象，包含 buffer、width 和 height 属性
+	 */
+	private getTIFFRaster(buffer: ArrayBuffer): DEMType {
+		const ifds = UTIF.decode(buffer);
+		// console.log(ifds);
+		UTIF.decodeImage(buffer, ifds[0]);
+		const buf = new Float32Array(ifds[0].data.buffer);
+		return {
+			buffer: buf,
+			width: ifds[0].t256[0],
+			height: ifds[0].t257[0],
+		};
+	}
+	// private async getTIFFRaster1(buffer: ArrayBuffer): Promise<DEMType> {
+	// 	// 从 ArrayBuffer 中解析出 GeoTIFF 对象
+	// 	const tiff = await fromArrayBuffer(buffer);
+	// 	// 获取 GeoTIFF 中的第一个图像，并读取其栅格数据
+	// 	const rasters = await (await tiff.getImage(0)).readRasters();
+	// 	// 返回包含栅格数据的对象
+	// 	return {
+	// 		// 第一个波段的栅格数据，强制转换为 Float32Array 类型
+	// 		buffer: rasters[0] as Float32Array,
+	// 		// 栅格数据的宽度
+	// 		width: rasters.width,
+	// 		// 栅格数据的高度
+	// 		height: rasters.height,
+	// 	};
+	// }
 }
