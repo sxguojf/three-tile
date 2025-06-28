@@ -31,6 +31,7 @@ export type MapParams = {
 	imgSource: ISource[] | ISource; //影像数据源, image source
 	demSource?: ISource; //高程数据源, terrain source
 	backgroundColor?: ColorRepresentation; //背景色, background color
+	bounds?: [number, number, number, number]; // 地图经纬度范围
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
 	lon0?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
@@ -212,6 +213,16 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.loader.backgroundMaterial.color.set(value);
 	}
 
+	// private _bounds: [number, number, number, number] = [-180, -85, 180, 85];
+	/** 取得地图经纬度范围 */
+	public get bounds() {
+		return this.loader.bounds;
+	}
+	/** 设置地图经纬度范围 */
+	public set bounds(value) {
+		this.loader.bounds = value;
+	}
+
 	/**
      * 地图创建工厂函数
        @param params 地图参数 {@link MapParams}
@@ -266,13 +277,15 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			maxLevel = 20,
 			imgSource,
 			demSource,
-			backgroundColor = 0x112233,
+			backgroundColor,
+			bounds,
 			lon0 = 0,
 			debug = 0,
 		} = params;
 
 		this.loader = loader;
-		this.loader.backgroundMaterial.color.set(backgroundColor);
+		backgroundColor && this.loader.backgroundMaterial.color.set(backgroundColor);
+		bounds && (this.loader.bounds = bounds);
 		this.debug = this.loader.debug = debug;
 
 		rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);

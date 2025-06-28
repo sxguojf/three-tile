@@ -23,7 +23,7 @@ export enum LODAction {
  * @returns LODAction 细化或合并还无动作
  */
 export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, threshold: number): LODAction {
-	if (tile.z > maxLevel) {
+	if (!tile.isLeaf && tile.z > maxLevel) {
 		return LODAction.remove;
 	}
 	const distRatio = tile.distRatio;

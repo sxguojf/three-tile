@@ -64,7 +64,7 @@ function registerLoader() {
 // 创建地图
 function createMap() {
 	// 影像数据源
-	const imgSource = [source.arcGisImgSource, source.arcGisCiaSource];
+	const imgSource = [source.arcGisImgSource, source.debugSource];
 	// 地形数据源
 	const demSource = source.arcGisDemSource;
 
@@ -77,9 +77,11 @@ function createMap() {
 		// 地图投影中央经线经度
 		lon0: 90,
 		// 最小缩放级别
-		minLevel: 5,
+		minLevel: 2,
 		// 最大缩放级别
 		maxLevel: 20,
+		// 地图经纬度范围
+		bounds: [60, 0, 140, 60],
 		// 调试标志
 		debug: 1,
 	});

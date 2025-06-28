@@ -185,7 +185,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this._bbox.max.setY(9000);
 
 		// 添加瓦片调试瓦围盒
-		if (debug > 0) {
+		if (debug > 1) {
 			// 包围盒局地坐标
 			const box = this._bbox.clone().applyMatrix4(this.matrixWorld.clone().invert());
 			const boxMesh = new Box3Helper(box, 0xff000);
@@ -276,7 +276,6 @@ export class Tile extends Object3D<TTileEventMap> {
 			});
 		} else if (action === LODAction.remove) {
 			// console.log("remove", this.name);
-			// console.assert(!!this.model);
 			if (this.model) {
 				this.showing = true;
 				this.unLoad(loader, false);
@@ -295,7 +294,6 @@ export class Tile extends Object3D<TTileEventMap> {
 				const subTiles = parent.subTiles;
 				if (subTiles) {
 					const allLoaded = !subTiles.some(child => !child.model);
-					// const allLoaded = subTiles.every(child => child.model);
 					subTiles.forEach(child => (child.showing = allLoaded));
 					parent.showing = !allLoaded;
 				}

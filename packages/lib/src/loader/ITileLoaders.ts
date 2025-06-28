@@ -58,6 +58,8 @@ export interface ITileLoader {
 	demSource: ISource | undefined;
 	/** 地图背景材质 */
 	backgroundMaterial: TileBackgroundMaterial;
+	/** 经纬度范围 */
+	bounds: [number, number, number, number];
 	/** 加载瓦片数据 */
 	load(params: TileCoords): Promise<Mesh>;
 	/** 释放瓦片模型 */

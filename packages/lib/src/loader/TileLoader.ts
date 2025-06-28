@@ -16,6 +16,15 @@ import { TileLoadingManager } from "./TileLoadingManager";
  */
 export class TileLoader implements ITileLoader {
 	private static _downloadingThreads = 0;
+
+	private _bounds: [number, number, number, number] = [-180, -85, 180, 85];
+	public get bounds() {
+		return this._bounds;
+	}
+	public set bounds(value) {
+		this._bounds = value;
+	}
+
 	/** Get downloading threads */
 	public get downloadingThreads(): number {
 		return TileLoader._downloadingThreads;
@@ -41,23 +50,28 @@ export class TileLoader implements ITileLoader {
 		this._demSource = value;
 	}
 
+	/** Error material */
 	private readonly _errorMaterial = new MeshBasicMaterial({
 		transparent: true,
 		opacity: 0,
 		name: "error-material",
 	});
+
+	/** Error geometry */
 	private readonly _errorGeometry = new TileGeometry();
 
-	public readonly backgroundMaterial = new MeshBasicMaterial();
+	/** Background material */
+	public readonly backgroundMaterial = new MeshBasicMaterial({ color: 0x112233 });
 
 	/** Loader manager */
 	public get manager(): TileLoadingManager {
 		return LoaderFactory.manager;
 	}
 
+	/** Debug single */
 	public debug = 0;
 
-	public constructor() {}
+	// public constructor() {}
 
 	/**
 	 * Load getmetry and materail of tile from x, y and z coordinate.
