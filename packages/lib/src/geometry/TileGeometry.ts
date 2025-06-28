@@ -4,17 +4,22 @@
  *@date: 2023-04-06
  */
 
-import { BufferAttribute, PlaneGeometry } from "three";
+import { BufferAttribute, BufferGeometry } from "three";
 import { GeometryDataType } from "./GeometryDataTypes";
 import { addSkirt } from "./skirt";
 import { getGeometryDataFromDem } from "./utils";
 
 /**
- * Inherit of PlaneGeometry, add setData method
+ * Tile geometry
  */
-export class TileGeometry extends PlaneGeometry {
+export class TileGeometry extends BufferGeometry {
 	public type = "TileGeometry";
 
+	public constructor() {
+		super();
+		const data = new Float32Array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0]);
+		this.setData(data);
+	}
 	/**
 	 * set attribute data to geometry
 	 * @param data geometry or DEM data
