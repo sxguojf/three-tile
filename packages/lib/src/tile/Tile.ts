@@ -16,7 +16,7 @@ import {
 	Raycaster,
 	Vector3,
 } from "three";
-import { ITileLoader } from "../loader";
+import { ITileLoader } from "./ITileLoader";
 import { FrustumEx } from "./FrustumEx";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
@@ -47,7 +47,7 @@ export type TileUpdateParames = {
 /**
  * 瓦片事件映射类型，为了便于使用，所有事件均由根瓦片发出
  */
-export interface TTileEventMap extends Object3DEventMap {
+interface TTileEventMap extends Object3DEventMap {
 	/** 瓦片创建事件 */
 	"tile-created": BaseEvent & { tile: Tile };
 	/** 瓦片加载完成事件 */

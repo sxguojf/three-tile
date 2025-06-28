@@ -56,6 +56,8 @@ export interface ITileLoader {
 	imgSource: ISource[];
 	/** 地形数据加载器 */
 	demSource: ISource | undefined;
+	/** 投影ID */
+	projectionID: string;
 	/** 地图背景材质 */
 	backgroundMaterial: TileBackgroundMaterial;
 	/** 经纬度范围 */

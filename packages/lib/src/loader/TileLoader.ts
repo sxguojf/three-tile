@@ -50,6 +50,10 @@ export class TileLoader implements ITileLoader {
 		this._demSource = value;
 	}
 
+	public get projectionID() {
+		return this.imgSource[0].projectionID;
+	}
+
 	/** Error material */
 	private readonly _errorMaterial = new MeshBasicMaterial({
 		transparent: true,

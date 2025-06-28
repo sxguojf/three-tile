@@ -4,8 +4,8 @@
  *@date: 2023-04-05
  */
 
-import { Tile } from ".";
-import { ITileLoader } from "../loader";
+import { Tile } from "./Tile";
+import { ITileLoader } from "./ITileLoader";
 
 /** 瓦片 LOD 结果 */
 export enum LODAction {
@@ -78,7 +78,7 @@ export function createChildren(parentTile: Tile, loader: ITileLoader): Tile[] {
 	const sx = 0.5;
 	const sz = 1.0;
 
-	if (parentZ === 0 && loader.imgSource[0].projectionID === "4326") {
+	if (parentZ === 0 && loader.projectionID === "4326") {
 		// EPSG:4326 瓦片0级只有2块子瓦片
 		const y = parentY;
 		const sy = 1.0;
