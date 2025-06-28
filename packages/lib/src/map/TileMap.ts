@@ -343,15 +343,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			}
 			this._mapClock.start();
 		}
-
-		// 动态调整地图高度
-		// if (this.autoPosition) {
-		// 	// 平均海拔高度向量
-		// 	const hv = this.localToWorld(this.up.clone().multiplyScalar(this.avgZInView));
-		// 	// 当前地图高度与平均海拔高度之差，每次移动0.01km
-		// 	const dv = this.position.clone().add(hv).multiplyScalar(0.01);
-		// 	this.position.sub(dv);
-		// }
 	}
 
 	/**
