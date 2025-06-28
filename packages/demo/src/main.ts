@@ -5,7 +5,6 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
-import { testShader, testTopMesh } from "./test";
 
 // 注册加载器
 function registerLoader() {
@@ -78,7 +77,7 @@ function createMap() {
 		// 地图投影中央经线经度
 		lon0: 90,
 		// 最小缩放级别
-		minLevel: 2,
+		minLevel: 5,
 		// 最大缩放级别
 		maxLevel: 20,
 		// 调试标志

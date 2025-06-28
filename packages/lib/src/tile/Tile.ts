@@ -132,6 +132,8 @@ export class Tile extends Object3D<TTileEventMap> {
 				this.model.visible = value;
 				this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
 			}
+		} else {
+			console.assert(!value);
 		}
 	}
 
@@ -168,21 +170,23 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 计算瓦片checkpointer、bbox、size
+	 * 计算瓦片checkpoint、bbox、size
 	 */
 	private computeTileSize(debug: number) {
-		// 包围盒
+		// 瓦片包围盒-世界坐标
 		this._bbox = new Box3(new Vector3(-0.5, -0.5), new Vector3(0.5, 0.5)).applyMatrix4(this.matrixWorld);
-		// 检测点-瓦片中心世界坐标
+		// 距离检测点-瓦片中心世界坐标
 		this._checkPoint = new Vector3().applyMatrix4(this.matrixWorld);
-		// 瓦片大小
+		// 瓦片大小-对角线长度
 		this._sizeInWorld = this._bbox.getSize(tempVec3).length();
 		console.assert(this._sizeInWorld > 10);
 		// 增大包围盒高度（-300到90000米）
 		this._bbox.min.setY(-300);
 		this._bbox.max.setY(9000);
 
-		if (debug > 1 && this._bbox) {
+		// 添加瓦片调试瓦围盒
+		if (debug > 0) {
+			// 包围盒局地坐标
 			const box = this._bbox.clone().applyMatrix4(this.matrixWorld.clone().invert());
 			const boxMesh = new Box3Helper(box, 0xff000);
 			boxMesh.name = "tilebox";
@@ -221,7 +225,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			this.computeTileSize(loader.debug);
 		}
 
-		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载瓦片
+		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载或更新瓦片
 		if (this.z >= minLevel && loader.downloadingThreads < MAXTHREADS) {
 			// 下载瓦片
 			if (!this.model) {
@@ -273,8 +277,10 @@ export class Tile extends Object3D<TTileEventMap> {
 		} else if (action === LODAction.remove) {
 			// console.log("remove", this.name);
 			// console.assert(!!this.model);
-			this.showing = true;
-			this.unLoad(loader, false);
+			if (this.model) {
+				this.showing = true;
+				this.unLoad(loader, false);
+			}
 		}
 		return action;
 	}
@@ -284,11 +290,18 @@ export class Tile extends Object3D<TTileEventMap> {
 	 */
 	private _checkVisible() {
 		const parent = this.parent;
-		if (parent instanceof Tile && parent.subTiles) {
-			const subTiles = parent.subTiles;
-			const allLoaded = !subTiles.some(child => !child.model);
-			subTiles.forEach(child => (child.showing = allLoaded));
-			parent.showing = !allLoaded;
+		if (parent instanceof Tile) {
+			if (parent.model) {
+				const subTiles = parent.subTiles;
+				if (subTiles) {
+					const allLoaded = !subTiles.some(child => !child.model);
+					// const allLoaded = subTiles.every(child => child.model);
+					subTiles.forEach(child => (child.showing = allLoaded));
+					parent.showing = !allLoaded;
+				}
+			} else {
+				this.showing = true;
+			}
 		}
 		return this;
 	}
@@ -310,7 +323,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/**
 	 * 更新瓦片数据
-	 * @param loader 瓦片加载器
+	 * @param loader - 瓦片加载器
 	 * @returns this
 	 */
 	private async _startUpdate(loader: ITileLoader) {
@@ -373,6 +386,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			this._root.dispatchEvent({ type: "tile-unload", tile: this });
 			this._model = undefined;
 		}
+		// 卸载调试包围盒
 		if (loader.debug > 1) {
 			(this.getObjectByName("tilebox") as Mesh)?.geometry.dispose();
 		}
