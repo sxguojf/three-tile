@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { ITileGeometryLoader, ITileLoaderInfo, TileSourceLoadParamsType } from ".";
+import { ITileGeometryLoader, ITileLoaderInfo, TileLoadClipParamsType, TileSourceLoadParamsType } from ".";
 import { version } from "..";
 import { TileGeometry } from "../geometry";
 import { LoaderFactory } from "./LoaderFactory";
@@ -34,7 +34,7 @@ export abstract class TileGeometryLoader implements ITileGeometryLoader<TileGeom
 		if (!url) {
 			return new TileGeometry();
 		}
-		const geometry = await this.doLoad(url, { source, x, y, z, bounds: clipBounds });
+		const geometry = await this.doLoad(url, { ...params, clipBounds });
 		LoaderFactory.manager.parseEnd(geometry);
 		return geometry;
 	}
@@ -43,5 +43,5 @@ export abstract class TileGeometryLoader implements ITileGeometryLoader<TileGeom
 	 * Download terrain data
 	 * @param url url
 	 */
-	protected abstract doLoad(url: string, params: TileSourceLoadParamsType): Promise<TileGeometry>;
+	protected abstract doLoad(url: string, params: TileLoadClipParamsType): Promise<TileGeometry>;
 }

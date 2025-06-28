@@ -31,7 +31,7 @@ export interface ISource {
 	/** is TMS scheme */
 	isTMS?: boolean;
 	/* Data bounds in lonlat [minLon,minLat,maxLon,maxLat]*/
-	bounds?: [number, number, number, number];
+	bounds: [number, number, number, number];
 	/** Data bounds in Proejction, internal use */
 	_projectionBounds: [number, number, number, number];
 	/** Get url from xyz, internal use */

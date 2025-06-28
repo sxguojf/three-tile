@@ -19,10 +19,10 @@ export class TileMapLoader extends TileLoader {
 		const demSource = loader.demSource;
 		// 计算数据源投影范围
 		imgSource.forEach(source => {
-			source._projectionBounds = projection.getProjBoundsFromLonLat(source.bounds || loader.bounds);
+			source._projectionBounds = projection.getProjBoundsFromLonLat(loader.bounds || source.bounds);
 		});
 		if (demSource) {
-			demSource._projectionBounds = projection.getProjBoundsFromLonLat(demSource.bounds || loader.bounds);
+			demSource._projectionBounds = projection.getProjBoundsFromLonLat(loader.bounds || demSource.bounds);
 		}
 	}
 

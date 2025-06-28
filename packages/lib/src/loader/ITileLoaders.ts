@@ -8,6 +8,8 @@ import { BufferGeometry, Color, Material, Mesh } from "three";
 import { ISource } from "../source";
 import { TileLoadingManager } from "./TileLoadingManager";
 
+type BoundsType = [number, number, number, number];
+
 /**
  * 瓦片坐标类型
  */
@@ -25,9 +27,9 @@ export type TileCoords = {
  */
 export type TileLoadParamsType = TileCoords & {
 	/** 瓦片投影范围（或剪裁范围） */
-	bounds: [number, number, number, number];
+	bounds: BoundsType;
 	/** 瓦片经纬度范围 */
-	lonLatBounds?: [number, number, number, number];
+	lonLatBounds?: BoundsType;
 };
 
 /**
@@ -36,6 +38,13 @@ export type TileLoadParamsType = TileCoords & {
 export type TileSourceLoadParamsType<TSource extends ISource = ISource> = TileLoadParamsType & {
 	/** 瓦片数据源 */
 	source: TSource;
+};
+
+/**
+ * 瓦片加载参数类型，包括剪裁范围
+ */
+export type TileLoadClipParamsType<TSource extends ISource = ISource> = TileSourceLoadParamsType<TSource> & {
+	clipBounds: [number, number, number, number];
 };
 
 interface TileBackgroundMaterial extends Material {
@@ -61,7 +70,7 @@ export interface ITileLoader {
 	/** 地图背景材质 */
 	backgroundMaterial: TileBackgroundMaterial;
 	/** 经纬度范围 */
-	bounds: [number, number, number, number];
+	bounds: BoundsType;
 	/** 加载瓦片数据 */
 	load(params: TileCoords): Promise<Mesh>;
 	/** 释放瓦片模型 */

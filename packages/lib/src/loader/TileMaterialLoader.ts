@@ -5,7 +5,7 @@
  */
 
 import { Texture } from "three";
-import { ITileMaterialLoader, TileSourceLoadParamsType } from ".";
+import { ITileMaterialLoader, TileLoadClipParamsType, TileSourceLoadParamsType } from ".";
 import { version } from "..";
 import { ITileMaterial, TileMaterial } from "../material";
 import { getSafeTileUrlAndBounds } from "./util";
@@ -43,7 +43,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		// get max level tile and bounds
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
-			const texture = await this.doLoad(url, { source, x, y, z, bounds: clipBounds });
+			const texture = await this.doLoad(url, { ...params, clipBounds });
 			material.map = texture;
 		}
 		return material;
@@ -76,7 +76,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 * @param url url
 	 * @returns {Promise<TBuffer>} the buffer of download data
 	 */
-	protected async doLoad(_url: string, _params: TileSourceLoadParamsType): Promise<Texture | undefined | null> {
+	protected async doLoad(_url: string, _params: TileLoadClipParamsType): Promise<Texture | undefined | null> {
 		return Promise.resolve(undefined);
 	}
 }

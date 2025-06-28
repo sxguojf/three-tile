@@ -6,7 +6,13 @@
 
 import { ImageLoader, MathUtils } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
-import { getBoundsCoord, LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "..";
+import {
+	getBoundsCoord,
+	LoaderFactory,
+	TileGeometryLoader,
+	TileLoadClipParamsType,
+	TileSourceLoadParamsType,
+} from "..";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import ParseWorker from "./parse.worker?worker&inline";
 import { version } from "../..";
@@ -42,13 +48,13 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 	 * @param params 加载参数，包含瓦片xyz和裁剪边界clipBounds
 	 * @returns 返回解析后的BufferGeometry对象
 	 */
-	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<TileGeometry> {
+	protected async doLoad(url: string, params: TileLoadClipParamsType): Promise<TileGeometry> {
 		const img = await this.imageLoader.loadAsync(url);
-		const { bounds, z } = params;
+		const { clipBounds, z } = params;
 		// 抽稀像素点
 		const targetSize = MathUtils.clamp((z + 2) * 3, 2, 64);
 		// 图像剪裁缩放
-		const imgData = getSubImageData(img, bounds, targetSize);
+		const imgData = getSubImageData(img, clipBounds, targetSize);
 
 		let dem;
 

@@ -3,6 +3,7 @@ import Pbf from "pbf";
 import { CanvasTexture, FileLoader, Texture } from "three";
 import {
 	LoaderFactory,
+	TileLoadClipParamsType,
 	TileMaterialLoader,
 	TileSourceLoadParamsType,
 	VectorFeature,
@@ -32,7 +33,7 @@ export class MVTLoader extends TileMaterialLoader {
 		this._loader.setResponseType("arraybuffer");
 	}
 
-	protected async doLoad(url: string, params: TileSourceLoadParamsType<MVTSource>): Promise<Texture> {
+	protected async doLoad(url: string, params: TileLoadClipParamsType<MVTSource>): Promise<Texture> {
 		// 加载矢量瓦片数据
 		const data = (await this._loader.loadAsync(url)) as ArrayBuffer;
 		// 解析矢量瓦片

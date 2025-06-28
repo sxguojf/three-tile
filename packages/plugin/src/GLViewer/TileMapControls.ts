@@ -44,7 +44,7 @@ export class TileMapControls extends OrbitControls {
 		this.screenSpacePanning = false;
 
 		this.minDistance = 10;
-		this.maxDistance = 2e7;
+		this.maxDistance = 3e7;
 		this.maxPolarAngle = 1.2;
 		this.enableDamping = true;
 		this.dampingFactor = 0.1;

@@ -63,7 +63,7 @@ export class TileSource implements ISource {
 	/** Whether to use TMS tile coordinate system. Default false uses XYZ system, true uses TMS system */
 	public isTMS = false;
 	/** Data bounds in format [minLon, minLat, maxLon, maxLat]. Default is undefined */
-	public bounds?: [number, number, number, number];
+	public bounds: [number, number, number, number] = [-180, -85, 180, 85];
 	/** Projected data bounds */
 	public _projectionBounds: [number, number, number, number] = [-Infinity, -Infinity, Infinity, Infinity];
 	/** Any data */

@@ -7,7 +7,7 @@
 import { FileLoader } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
 import { TileGeometry } from "../../geometry/TileGeometry";
-import { LoaderFactory, TileGeometryLoader, TileSourceLoadParamsType } from "..";
+import { LoaderFactory, TileGeometryLoader, TileLoadClipParamsType, TileSourceLoadParamsType } from "..";
 
 import ParseWorker from "./parse.worker?worker&inline";
 import { version } from "../..";
@@ -42,20 +42,20 @@ export class TileGeometryLercLoader extends TileGeometryLoader {
 	 * @param params 解析参数，包含瓦片xyz和裁剪边界clipBounds
 	 * @returns 返回解析后的BufferGeometry对象
 	 */
-	protected async doLoad(url: string, params: TileSourceLoadParamsType): Promise<TileGeometry> {
+	protected async doLoad(url: string, params: TileLoadClipParamsType): Promise<TileGeometry> {
 		if (this._workerPool.pool === 0) {
 			this._workerPool.setWorkerLimit(THREADSNUM);
 		}
 
 		// 取得瓦片层级和剪裁范围
-		const { z, bounds } = params;
+		const { z, clipBounds } = params;
 		const buffer = await this.fileLoader.loadAsync(url);
 
 		// 解析取得几何体数据
 		const message = {
 			demData: buffer,
 			z,
-			clipBounds: bounds,
+			clipBounds,
 		};
 		// const transferList = [buffer];
 		const geoData = (await this._workerPool.postMessage(message)).data;

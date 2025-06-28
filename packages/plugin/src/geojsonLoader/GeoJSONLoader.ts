@@ -8,6 +8,7 @@ import geojsonvt from "geojson-vt";
 import { CanvasTexture, FileLoader, Texture } from "three";
 import {
 	LoaderFactory,
+	TileLoadClipParamsType,
 	TileMaterialLoader,
 	TileSourceLoadParamsType,
 	VectorFeature,
@@ -51,7 +52,7 @@ export class GeoJSONLoader extends TileMaterialLoader {
 	 * @param params 加载参数，包括数据源、瓦片坐标等
 	 * @returns 瓦片纹理
 	 */
-	protected async doLoad(url: string, params: TileSourceLoadParamsType<GeoJSONSource>): Promise<Texture> {
+	protected async doLoad(url: string, params: TileLoadClipParamsType<GeoJSONSource>): Promise<Texture> {
 		const { x, y, z, source } = params;
 
 		// 判断数据是否加载完成，如果已完成则直接绘制瓦片纹理
