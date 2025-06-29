@@ -4,12 +4,13 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial } from "three";
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Texture } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
 import { TileLoadingManager } from "./TileLoadingManager";
+import { tileBoundsClip } from "./util";
 
 /**
  * Tile loader
@@ -212,8 +213,17 @@ export class TileLoader implements ITileLoader {
 				});
 
 			if (material !== this._errorMaterial && material !== this.backgroundMaterial) {
+				// 剪裁地图bounds范围外的影像
+				if ("map" in material && material.map instanceof Texture) {
+					const texture = material.map;
+					if (texture.image) {
+						texture.image = tileBoundsClip(texture.image, source._projectionBounds, params.bounds);
+						texture.needsUpdate = true;
+					}
+				}
 				material.opacity = source.opacity;
 				material.transparent = source.transparent;
+
 				const dispose = (evt: { target: Material }) => {
 					loader.unload && loader.unload(evt.target);
 					evt.target.removeEventListener("dispose", dispose);

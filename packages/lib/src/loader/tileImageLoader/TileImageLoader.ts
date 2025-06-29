@@ -33,13 +33,11 @@ export class TileImageLoader extends TileMaterialLoader {
 		const texture = new Texture();
 		texture.colorSpace = SRGBColorSpace;
 		const { clipBounds } = params;
-		// 是否需要剪裁
+		texture.image = img;
+		// 是否需要从父瓦片中剪裁
 		if (clipBounds[2] - clipBounds[0] < 1) {
 			texture.image = getSubImage(img, clipBounds);
-		} else {
-			texture.image = img;
 		}
-		// todo: 根据params.bounds和source._projectionBounds对图像进行过滤
 		texture.needsUpdate = true;
 		return texture;
 	}

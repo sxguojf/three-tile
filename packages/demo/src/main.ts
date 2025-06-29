@@ -1,4 +1,4 @@
-import { REVISION } from "three";
+import { Box3, Box3Helper, REVISION, Vector3 } from "three";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
@@ -64,7 +64,7 @@ function registerLoader() {
 // 创建地图
 function createMap() {
 	// 影像数据源
-	const imgSource = [source.arcGisImgSource, source.arcGisImgSource];
+	const imgSource = [source.arcGisImgSource, source.arcGisCiaSource];
 	// 地形数据源
 	const demSource = source.arcGisDemSource;
 
@@ -81,7 +81,7 @@ function createMap() {
 		// 最大缩放级别
 		maxLevel: 20,
 		// 地图经纬度范围
-		bounds: [60, 0, 140, 60],
+		bounds: [60, 0, 150, 60],
 		// 调试标志
 		debug: 1,
 	});
@@ -154,6 +154,16 @@ function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
 // 	});
 // }
 
+function addBounds(map: tt.TileMap) {
+	const bounds = map.bounds;
+	if (bounds) {
+		const projBounds = map.projection.getProjBoundsFromLonLat(bounds);
+		const box = new Box3(new Vector3(projBounds[0], projBounds[1], 0), new Vector3(projBounds[2], projBounds[3], 3000));
+		const boxHelper = new Box3Helper(box);
+		map.add(boxHelper);
+	}
+}
+
 function main() {
 	// 注册加载器
 	registerLoader();
@@ -180,6 +190,8 @@ function main() {
 	// createGroundGroup(map);
 	// testShader();
 	// testDEMShader();
+
+	addBounds(map);
 }
 
 main();

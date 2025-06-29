@@ -145,9 +145,9 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			viewer.camera.position.copy(map.geo2world(new Vector3(108.627139, 30.64138, 3.309163)));
 		},
 		setSingleImage() {
-			map.imgSource = [ms.bingSource, ms.singleImage, ms.wrieframe];
+			map.imgSource = [ms.singleImage, ms.debugSource];
 			map.demSource = ms.singleTif;
-			const [minX, minY, maxX, maxY] = ms.singleImage.bounds;
+			const [minX, minY, maxX, maxY] = ms.singleImage.bounds!;
 			const center = [(minX + maxX) / 2, (minY + maxY) / 2];
 			viewer.flyTo(
 				map.geo2world(new Vector3(center[0], center[1], 0)),
@@ -187,7 +187,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			map.imgSource = [ms.arcGisImgSource];
 			map.demSource = ms.tiffDEM;
 
-			const bounds = ms.tiffDEM.bounds;
+			const bounds = ms.tiffDEM.bounds!;
 			const sw = map.geo2world(new Vector3(bounds[0], bounds[1]));
 			const ne = map.geo2world(new Vector3(bounds[2], bounds[3]));
 

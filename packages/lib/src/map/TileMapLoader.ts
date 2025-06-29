@@ -8,6 +8,8 @@ import { Mesh } from "three";
 import { ITileLoader, TileLoader, TileLoadParamsType } from "../loader";
 import { IProjection } from "./projection";
 
+const defaultBounds = [-180, -85, 180, 85] as [number, number, number, number];
+
 /** 地图瓦片加载器 */
 export class TileMapLoader extends TileLoader {
 	private _projection: IProjection | undefined;
@@ -19,10 +21,12 @@ export class TileMapLoader extends TileLoader {
 		const demSource = loader.demSource;
 		// 计算数据源投影范围
 		imgSource.forEach(source => {
-			source._projectionBounds = projection.getProjBoundsFromLonLat(loader.bounds || source.bounds);
+			source._projectionBounds = projection.getProjBoundsFromLonLat(source.bounds || loader.bounds || defaultBounds);
 		});
 		if (demSource) {
-			demSource._projectionBounds = projection.getProjBoundsFromLonLat(loader.bounds || demSource.bounds);
+			demSource._projectionBounds = projection.getProjBoundsFromLonLat(
+				demSource.bounds || loader.bounds || defaultBounds
+			);
 		}
 	}
 
