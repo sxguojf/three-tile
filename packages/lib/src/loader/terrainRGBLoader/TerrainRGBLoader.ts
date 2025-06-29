@@ -6,16 +6,10 @@
 
 import { ImageLoader, MathUtils } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
-import {
-	getBoundsCoord,
-	LoaderFactory,
-	TileGeometryLoader,
-	TileLoadClipParamsType,
-	TileSourceLoadParamsType,
-} from "..";
+import { getBoundsCoord, LoaderFactory, TileGeometryLoader, TileLoadClipParamsType } from "..";
+import { version } from "../..";
 import { TileGeometry } from "../../geometry/TileGeometry";
 import ParseWorker from "./parse.worker?worker&inline";
-import { version } from "../..";
 
 const THREADSNUM = 10;
 

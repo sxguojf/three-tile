@@ -8,7 +8,7 @@ import { BufferGeometry, Color, Material, Mesh } from "three";
 import { ISource } from "../source";
 import { TileLoadingManager } from "./TileLoadingManager";
 
-type BoundsType = [number, number, number, number];
+export type BoundsType = [number, number, number, number];
 
 /**
  * 瓦片坐标类型

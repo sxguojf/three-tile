@@ -22,7 +22,7 @@ export class TileImageLoader extends TileMaterialLoader {
 	private loader = new ImageLoader(LoaderFactory.manager);
 
 	/**
-	 * 加载图像资源的方法
+	 * 加载瓦片图像作为纹理
 	 *
 	 * @param url 图像资源的URL
 	 * @param params 加载参数，包括x, y, z坐标、投影范围，裁剪边界clipBounds
@@ -32,13 +32,12 @@ export class TileImageLoader extends TileMaterialLoader {
 		const img = await this.loader.loadAsync(url);
 		const texture = new Texture();
 		texture.colorSpace = SRGBColorSpace;
-		const { clipBounds } = params;
 		texture.image = img;
-		// 是否需要从父瓦片中剪裁
+		const clipBounds = params.clipBounds;
+		// 从父瓦片中剪裁
 		if (clipBounds[2] - clipBounds[0] < 1) {
 			texture.image = getSubImage(img, clipBounds);
 		}
-		texture.needsUpdate = true;
 		return texture;
 	}
 }

@@ -170,7 +170,10 @@ export const tencentSource = new TXSource();
 export const googleSource = new GoogleSource();
 
 // 测试瓦片
-export const debugSource = new tt.TileSource({ dataType: "debug" });
+export const debugSource = new tt.TileSource({
+	dataType: "debug",
+	// bounds: [108.68808746337891, 33.92199531197548, 108.88240814208984, 34.05727051198483],
+});
 
 export const wrieframe = tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 });
 

@@ -7,7 +7,7 @@
 import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Texture } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
-import { ITileLoader, TileLoadParamsType } from "./ITileLoaders";
+import { BoundsType, ITileLoader, TileLoadParamsType } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
 import { TileLoadingManager } from "./TileLoadingManager";
 import { tileBoundsClip } from "./util";
@@ -18,7 +18,7 @@ import { tileBoundsClip } from "./util";
 export class TileLoader implements ITileLoader {
 	private static _downloadingThreads = 0;
 
-	private _bounds: [number, number, number, number] = [-180, -85, 180, 85];
+	private _bounds: BoundsType = [-180, -85, 180, 85];
 	public get bounds() {
 		return this._bounds;
 	}
@@ -76,11 +76,8 @@ export class TileLoader implements ITileLoader {
 	/** Debug single */
 	public debug = 0;
 
-	// public constructor() {}
-
 	/**
 	 * Load getmetry and materail of tile from x, y and z coordinate.
-	 *
 	 * @returns Promise<MeshDateType> tile data
 	 */
 	public async load(params: TileLoadParamsType): Promise<Mesh> {
@@ -150,7 +147,7 @@ export class TileLoader implements ITileLoader {
 	protected async loadGeometry(params: TileLoadParamsType): Promise<BufferGeometry> {
 		let geometry: BufferGeometry;
 		const { bounds, z } = params;
-		if (this.demSource && z >= this.demSource.minLevel && this._isBoundsInSourceBounds(this.demSource, bounds)) {
+		if (this.demSource && z >= this.demSource.minLevel && this._intersectsBounds(this.demSource, bounds)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			const source = this.demSource;
 			TileLoader._downloadingThreads++;
@@ -188,13 +185,9 @@ export class TileLoader implements ITileLoader {
 	 * @returns Material[]
 	 */
 	protected async loadMaterial(params: TileLoadParamsType): Promise<Material[]> {
-		// this.backgroundMaterial.depthWrite = false;
 		const materials: Material[] = [this.backgroundMaterial];
-		// const materials: Material[] = [];
 		const { bounds, z } = params;
-		const sources = this.imgSource.filter(
-			source => z >= source.minLevel && this._isBoundsInSourceBounds(source, bounds)
-		);
+		const sources = this.imgSource.filter(source => z >= source.minLevel && this._intersectsBounds(source, bounds));
 
 		for (let i = 0; i < sources.length; i++) {
 			const source = sources[i];
@@ -213,7 +206,7 @@ export class TileLoader implements ITileLoader {
 				});
 
 			if (material !== this._errorMaterial && material !== this.backgroundMaterial) {
-				// 剪裁地图bounds范围外的影像
+				// Clip the texture from mapBounds
 				if ("map" in material && material.map instanceof Texture) {
 					const texture = material.map;
 					if (texture.image) {
@@ -239,14 +232,16 @@ export class TileLoader implements ITileLoader {
 	 * Check the tile is in the source bounds. (projection coordinate)
 	 * @returns true in the bounds,else false
 	 */
-	private _isBoundsInSourceBounds(source: ISource, bounds: [number, number, number, number]): boolean {
-		const sourceBounds = source._projectionBounds;
-		const inBounds = !(
-			bounds[2] < sourceBounds[0] ||
-			bounds[3] < sourceBounds[1] ||
-			bounds[0] > sourceBounds[2] ||
-			bounds[1] > sourceBounds[3]
-		); //[minx, miny, maxx, maxy]
-		return inBounds;
+	private _intersectsBounds(source: ISource, tileBounds: BoundsType): boolean {
+		const mapBounds = source._projectionBounds;
+		return (
+			tileBounds[2] >= mapBounds[0] &&
+			tileBounds[3] >= mapBounds[1] &&
+			tileBounds[0] <= mapBounds[2] &&
+			tileBounds[1] <= mapBounds[3]
+		);
+		// const mapBox = new Box2(new Vector2(mapBounds[0], mapBounds[1]), new Vector2(mapBounds[2], mapBounds[3]));
+		// const tileBox = new Box2(new Vector2(tileBounds[0], tileBounds[1]), new Vector2(tileBounds[2], tileBounds[3]));
+		// return mapBox.intersectsBox(tileBox);
 	}
 }

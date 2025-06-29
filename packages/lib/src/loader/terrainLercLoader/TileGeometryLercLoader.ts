@@ -6,11 +6,11 @@
 
 import { FileLoader } from "three";
 import { WorkerPool } from "three/examples/jsm/utils/WorkerPool.js";
+import { LoaderFactory, TileGeometryLoader, TileLoadClipParamsType } from "..";
 import { TileGeometry } from "../../geometry/TileGeometry";
-import { LoaderFactory, TileGeometryLoader, TileLoadClipParamsType, TileSourceLoadParamsType } from "..";
 
-import ParseWorker from "./parse.worker?worker&inline";
 import { version } from "../..";
+import ParseWorker from "./parse.worker?worker&inline";
 
 const THREADSNUM = 5;
 

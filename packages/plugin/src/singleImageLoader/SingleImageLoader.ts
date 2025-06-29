@@ -79,32 +79,30 @@ export class SingleImageLoader implements ITileMaterialLoader<ITileMaterial> {
 		source: ISource,
 		tileBounds: [number, number, number, number]
 	) {
-		const texture = this._getTileTexture(image, source, tileBounds);
+		const texture = this._getTileTexture(image, source._projectionBounds, tileBounds);
 		material.map = texture;
 		texture.needsUpdate = true;
 	}
 
 	private _getTileTexture(
 		image: HTMLImageElement,
-		source: ISource,
+		mapBounds: [number, number, number, number],
 		tileBounds: [number, number, number, number]
 	): Texture {
-		const sourceProj = source;
 		const tileSize = 256;
 		const canvas = new OffscreenCanvas(tileSize, tileSize);
 
 		if (image) {
 			const ctx = canvas.getContext("2d")!;
-			const imageBounds = sourceProj._projectionBounds; // 图像投影坐标范围
 
 			const width = image.width;
 			const height = image.height;
 
-			const scaleX = (imageBounds[2] - imageBounds[0]) / width;
-			const scaleY = (imageBounds[3] - imageBounds[1]) / height;
+			const scaleX = (mapBounds[2] - mapBounds[0]) / width;
+			const scaleY = (mapBounds[3] - mapBounds[1]) / height;
 
-			const sx = (tileBounds[0] - imageBounds[0]) / scaleX;
-			const sy = (imageBounds[3] - tileBounds[3]) / scaleY;
+			const sx = (tileBounds[0] - mapBounds[0]) / scaleX;
+			const sy = (mapBounds[3] - tileBounds[3]) / scaleY;
 
 			const swidth = (tileBounds[2] - tileBounds[0]) / scaleX;
 			const sheight = (tileBounds[3] - tileBounds[1]) / scaleY;

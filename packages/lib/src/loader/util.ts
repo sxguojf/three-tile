@@ -98,55 +98,68 @@ function getMaxLevelTileAndBounds(x: number, y: number, z: number, maxLevel: num
 
 /**
  * 将瓦片影像超出mapBounds范围的部分设为透明
- * @param image 原始瓦片Canvas
- * @param mapBounds 地图范围
- * @param tileBounds 瓦片范围
- * @returns 处理后的图片
+ * @param image 原始瓦片图像，类型可以是 OffscreenCanvas 或 HTMLImageElement
+ * @param mapBounds 地图范围，格式为 [minX, minY, maxX, maxY]
+ * @param tileBounds 瓦片范围，格式为 [minX, minY, maxX, maxY]
+ * @returns 处理后的图像，可能是原始图像或处理后的 OffscreenCanvas
  */
 export function tileBoundsClip(
 	image: OffscreenCanvas | HTMLImageElement,
 	mapBounds: [number, number, number, number],
 	tileBounds: [number, number, number, number]
 ) {
-	// 1. 计算交集矩形（世界坐标系）
-	const intersectLeft = Math.max(mapBounds[0], tileBounds[0]);
-	const intersectTop = Math.max(mapBounds[1], tileBounds[1]);
-	const intersectRight = Math.min(mapBounds[2], tileBounds[2]);
-	const intersectBottom = Math.min(mapBounds[3], tileBounds[3]);
-
-	// bounds1是否完全包含bounds2
-	const isBounds1ContainingBounds2 =
+	// 瓦片完全在地图范围内，直接返回原始图像
+	if (
 		mapBounds[0] <= tileBounds[0] &&
 		mapBounds[1] <= tileBounds[1] &&
 		mapBounds[2] >= tileBounds[2] &&
-		mapBounds[3] >= tileBounds[3];
+		mapBounds[3] >= tileBounds[3]
+	) {
+		return image;
+	}
 
-	// 检查是否有交集
-	if (isBounds1ContainingBounds2 || intersectLeft >= intersectRight || intersectTop >= intersectBottom) {
+	// 1. 计算交集矩形（世界坐标系）
+	const [mapMinX, mapMinY, mapMaxX, mapMaxY] = mapBounds;
+	const [tileMinX, tileMinY, tileMaxX, tileMaxY] = tileBounds;
+	const intersectLeft = Math.max(mapMinX, tileMinX);
+	const intersectTop = Math.max(mapMinY, tileMinY);
+	const intersectRight = Math.min(mapMaxX, tileMaxX);
+	const intersectBottom = Math.min(mapMaxY, tileMaxY);
+
+	// 瓦片完全在地图范围之外，直接返回原始图像
+	if (intersectLeft >= intersectRight || intersectTop >= intersectBottom) {
 		return image;
 	}
 
 	// 2. 创建结果Canvas,绘制原始瓦片
-	const resultCanvas = new OffscreenCanvas(image.width, image.height);
-	const ctx = resultCanvas.getContext("2d")!;
+	const canvas = new OffscreenCanvas(image.width, image.height);
+	const ctx = canvas.getContext("2d")!;
 	ctx.drawImage(image, 0, 0);
 
-	// 3. 计算世界坐标到像素坐标的转换
-	const worldWidth = tileBounds[2] - tileBounds[0];
-	const worldHeight = tileBounds[3] - tileBounds[1];
+	// 计算瓦片与地图的交集（地理坐标系，Y轴向上）
+	const intersectMinX = Math.max(tileMinX, mapMinX);
+	const intersectMaxX = Math.min(tileMaxX, mapMaxX);
+	const intersectMinY = Math.max(tileMinY, mapMinY); // 地图坐标系中的最小值（南边）
+	const intersectMaxY = Math.min(tileMaxY, mapMaxY); // 地图坐标系中的最大值（北边）
 
-	// 计算交集区域在Canvas上的位置和尺寸
-	const pixelWidth = ((intersectRight - intersectLeft) / worldWidth) * image.width;
-	const pixelHeight = ((intersectBottom - intersectTop) / worldHeight) * image.height;
-	const pixelTop = image.height - pixelHeight;
-	const pixelLeft = ((intersectLeft - tileBounds[0]) / worldWidth) * image.width;
-
-	// 4. 将区域外填充为透明
-	ctx.save();
+	// 将交集外的区域设为透明
 	ctx.globalCompositeOperation = "destination-in";
-	ctx.fillStyle = "white";
-	ctx.fillRect(pixelLeft, pixelTop, pixelWidth, pixelHeight);
-	ctx.restore();
 
-	return resultCanvas;
+	// 计算在瓦片图像上的相对位置和尺寸
+	const tileWidth = tileMaxX - tileMinX;
+	const tileHeight = tileMaxY - tileMinY;
+
+	// 坐标转换
+	const x1 = ((intersectMinX - tileMinX) / tileWidth) * canvas.width;
+	const x2 = ((intersectMaxX - tileMinX) / tileWidth) * canvas.width;
+	const y1 = canvas.height - ((intersectMaxY - tileMinY) / tileHeight) * canvas.height;
+	const y2 = canvas.height - ((intersectMinY - tileMinY) / tileHeight) * canvas.height;
+
+	// 绘制矩形保留交集区域
+	ctx.beginPath();
+	ctx.rect(x1, y1, x2 - x1, y2 - y1);
+	ctx.fill();
+
+	// 返回处理后的 Canvas
+	return canvas;
 }
