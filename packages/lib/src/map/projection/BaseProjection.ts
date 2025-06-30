@@ -54,13 +54,13 @@ export abstract class Projection implements IProjection {
 	 * @param z
 	 * @returns
 	 */
-	public getTileXYZproj(x: number, y: number, z: number) {
-		const w = this.mapWidth;
-		const h = this.mapHeight / 2;
-		const px = (x / Math.pow(2, z)) * w - w / 2;
-		const py = h - (y / Math.pow(2, z)) * h * 2;
-		return { x: px, y: py };
-	}
+	// private getTileXYZproj(x: number, y: number, z: number) {
+	// 	const w = this.mapWidth;
+	// 	const h = this.mapHeight / 2;
+	// 	const px = (x / Math.pow(2, z)) * w - w / 2;
+	// 	const py = h - (y / Math.pow(2, z)) * h * 2;
+	// 	return { x: px, y: py };
+	// }
 
 	/**
 	 * 取得经纬度范围的投影坐标
@@ -87,9 +87,17 @@ export abstract class Projection implements IProjection {
 	 * @returns 
 	 */
 	public getProjBoundsFromXYZ(x: number, y: number, z: number): [number, number, number, number] {
-		const p1 = this.getTileXYZproj(x, y, z);
-		const p2 = this.getTileXYZproj(x + 1, y + 1, z);
-		return [Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.max(p1.x, p2.x), Math.max(p1.y, p2.y)];
+		// const p1 = this.getTileXYZproj(x, y, z);
+		// const p2 = this.getTileXYZproj(x + 1, y + 1, z);
+		// return [Math.min(p1.x, p2.x), Math.min(p1.y, p2.y), Math.max(p1.x, p2.x), Math.max(p1.y, p2.y)];
+		// todo: 改为抽象方法，3857和4326需要分别在子类实现
+		const worldSize = Math.PI * 6378137;
+		const tileSize = (2 * worldSize) / Math.pow(2, z);
+		const minX = -worldSize + x * tileSize;
+		const minY = worldSize - (y + 1) * tileSize;
+		const maxX = -worldSize + (x + 1) * tileSize;
+		const maxY = worldSize - y * tileSize;
+		return [minX, minY, maxX, maxY];
 	}
 
 	public getLonLatBoundsFromXYZ(x: number, y: number, z: number): [number, number, number, number] {

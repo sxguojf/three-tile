@@ -10,8 +10,6 @@ import { IProjection, ProjMCT } from "./projection";
 import { ISource } from "../source";
 import { ITileMapLoader } from "./ITileMapLoader";
 
-const defaultBounds = [-180, -85, 180, 85] as [number, number, number, number];
-
 /** 地图瓦片加载器，ITileLoader基础上增加地图投影属性 */
 export class TileMapLoader extends TileLoader implements ITileMapLoader {
 	private _projection: IProjection = new ProjMCT(0);
@@ -23,7 +21,7 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 	public override set imgSource(source: ISource[]) {
 		super.imgSource = source;
 		// 计算source的投影范围
-		this.updateImgProjBounds();
+		this._updateImgProjBounds();
 	}
 
 	public override get demSource() {
@@ -33,24 +31,22 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 	public override set demSource(source: ISource | undefined) {
 		super.demSource = source;
 		// 计算source的投影范围
-		this.updateDemPrjBounds();
+		this._updateDemPrjBounds();
 	}
 
-	public updateImgProjBounds() {
+	private _updateImgProjBounds() {
 		const proj = this._projection;
 		// 计算数据源投影范围，todo：计算交集
 		this.imgSource.forEach(source => {
-			source._projectionBounds = proj.getProjBoundsFromLonLat(source.bounds || this.bounds || defaultBounds);
+			source._projectionBounds = proj.getProjBoundsFromLonLat(source.bounds || this.bounds);
 		});
 	}
 
-	public updateDemPrjBounds() {
+	private _updateDemPrjBounds() {
 		const proj = this._projection;
 		if (this.demSource) {
 			// 计算数据源投影范围，todo：计算交集
-			this.demSource._projectionBounds = proj.getProjBoundsFromLonLat(
-				this.demSource.bounds || this.bounds || defaultBounds
-			);
+			this.demSource._projectionBounds = proj.getProjBoundsFromLonLat(this.demSource.bounds || this.bounds);
 		}
 	}
 
@@ -61,8 +57,8 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 	public set projection(projection: IProjection) {
 		this._projection = projection;
 		// 更新source的投影范围
-		this.updateImgProjBounds();
-		this.updateDemPrjBounds();
+		this._updateImgProjBounds();
+		this._updateDemPrjBounds();
 	}
 
 	public override async load(params: TileLoadParamsType): Promise<Mesh> {

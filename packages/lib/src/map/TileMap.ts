@@ -110,11 +110,12 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	private set projection(proj: IProjection) {
 		if (proj.ID != this.projection.ID || proj.lon0 != this.lon0) {
 			this.loader.projection = proj;
+			// 拉伸地图到投影大小
 			this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
 			// 模型矩阵更新
 			this.rootTile.updateMatrix();
 			this.rootTile.updateMatrixWorld();
-
+			// 重新加载模型
 			this.reload();
 			// console.log("Map Projection Changed:", proj.ID, proj.lon0);
 			this.dispatchEvent({
@@ -211,21 +212,19 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			debug = 0,
 		} = params;
 
-		this.loader = loader;
-		backgroundColor && this.loader.backgroundMaterial.color.set(backgroundColor);
-		bounds && (this.loader.bounds = bounds);
-		this.debug = this.loader.debug = debug;
-
-		rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
-		this.rootTile = rootTile;
-
 		this._minLevel = minLevel;
 		this._maxLevel = maxLevel;
 
+		this.loader = loader;
+		this.rootTile = rootTile;
+
+		backgroundColor && this.loader.backgroundMaterial.color.set(backgroundColor);
+		bounds && (this.loader.bounds = bounds);
+		this.debug = this.loader.debug = debug;
+		this.lon0 = lon0;
+
 		this.loader.imgSource = Array.isArray(imgSource) ? imgSource : [imgSource];
 		this.loader.demSource = demSource;
-
-		this.lon0 = lon0;
 
 		// 模型加入地图
 		this.add(rootTile);
@@ -253,7 +252,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		const elapseTime = this._mapClock.getElapsedTime();
 		// 控制瓦片树更新速率
 		if (elapseTime > this.updateInterval / 1000) {
-			this.loader.projection = this.projection;
+			// this.loader.projection = this.projection;
 			try {
 				this.rootTile.update({
 					camera,
