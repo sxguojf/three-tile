@@ -44,16 +44,22 @@ export class EarthMaskMaterial extends ShaderMaterial {
                     float d = distance(vUv, vec2(0.5f)); 
                     d = d * d * 100.0f;
                     
-                    if(d<0.98f){
+                    if(d<0.94f){
                         // 球体颜色
                         float a = smoothstep(0.0f,1.0f,d);     
                         gl_FragColor = vec4(vec3(0.0f), a);               
+                    } else if(d<=0.98f){
+                        // 白边
+                        float c = (d-0.94f)/(0.98f-0.94f);
+                        gl_FragColor = vec4(mix(vec3(0.0f),vec3(1.0f),pow(c,5.0f)),1.0f);
                     } else if(d<=1.0f){
+                        // 泛光
                         float c = (d-0.98f)/(1.0f-0.98f);        
-                        gl_FragColor =vec4(mix(vec3(0.0f),airColor,c),1.0f);        
-                    } else if(d<=1.08f){        
-                        float c = (d-1.0f)/(1.08f-1.0f);
-                        gl_FragColor = vec4(mix(airColor,bkColor,sqrt(c)),1.0f);
+                        gl_FragColor =vec4(mix(vec3(1.0f),airColor,c),1.0f);        
+                    } else if(d<=1.2f){        
+                        // 外圈
+                        float c = (d-1.0f)/(1.2f-1.0f);
+                        gl_FragColor = vec4(mix(airColor,bkColor,pow(c,0.1f)),1.0f);
                     } else{
                         // 球体外颜色
                         gl_FragColor = vec4(bkColor,1.0f);
