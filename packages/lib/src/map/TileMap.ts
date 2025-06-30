@@ -5,10 +5,10 @@
  */
 
 import { Camera, Clock, ColorRepresentation, Intersection, Object3D, Vector2, Vector3 } from "three";
-import { ITileLoader, TileLoader } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
-import { IProjection, ProjMCT, ProjectFactory } from "./projection";
+import { ITileMapLoader } from "./ITileMapLoader";
+import { IProjection, ProjectFactory } from "./projection";
 import { TileMapEventMap } from "./TileMapEventMap";
 import { TileMapLoader } from "./TileMapLoader";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
@@ -26,7 +26,7 @@ type ProjectCenterLongitude = 0 | 90 | -90;
 /** 地图创建参数 */
 export type MapParams = {
 	debug?: number; //是否开启调试模式, debug mode: 0: off, 1: on, 2: show tile box
-	loader?: ITileLoader; //地图加载器, map data loader
+	loader?: TileMapLoader; //地图加载器, map data loader
 	rootTile?: Tile; //根瓦片, root Tile
 	imgSource: ISource[] | ISource; //影像数据源, image source
 	demSource?: ISource; //高程数据源, terrain source
@@ -63,49 +63,34 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	public readonly rootTile: Tile;
 
 	/** 瓦片数据加载器 */
-	public readonly loader: ITileLoader;
-
-	/** 瓦片数据加载器代理 */
-	public readonly _loader = new TileMapLoader();
+	public readonly loader: ITileMapLoader;
 
 	private _minLevel = 2;
-	/**
-	 * 地图最小缩放级别，小于这个级别瓦片树不再更新
-	 */
+	/** 取得地图最小缩放级别，小于这个级别瓦片树不再加载数据 */
 	public get minLevel() {
 		return this._minLevel;
 	}
-	/**
-	 * 设置地图最小缩放级别，小于这个级别瓦片树不再更新
-	 */
+	/** 设置地图最小缩放级别，小于这个级别瓦片树不再加载数据 */
 	public set minLevel(value: number) {
 		this._minLevel = value;
 	}
 
 	private _maxLevel = 19;
-	/**
-	 * 地图最大缩放级别，大于这个级别瓦片树不再更新
-	 */
+	/** 地图最大缩放级别，大于这个级别瓦片树不再更新 */
 	public get maxLevel() {
 		return this._maxLevel;
 	}
-	/**
-	 * 设置地图最大缩放级别，大于这个级别瓦片树不再更新
-	 */
+	/** 设置地图最大缩放级别，大于这个级别瓦片树不再更新 */
 	public set maxLevel(value: number) {
 		this._maxLevel = value;
 	}
 
-	/**
-	 * 取得中央子午线经度
-	 */
+	/** 取得中央子午线经度 */
 	public get lon0() {
 		return this.projection.lon0;
 	}
 
-	/**
-	 * 设置中央子午线经度，中央子午线决定了地图的投影中心经度，可设置为-90，0，90，默认为0
-	 */
+	/** 设置中央子午线经度，中央子午线决定了地图的投影中心经度，可设置为-90，0，90，默认为0 */
 	public set lon0(value) {
 		if (this.projection.lon0 !== value) {
 			if (value != 0 && this.minLevel < 1) {
@@ -116,21 +101,16 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		}
 	}
 
-	private _projection: IProjection = new ProjMCT(0);
-	/**
-	 * 取得地图投影对象
-	 */
+	/** 取得地图投影对象 */
 	public get projection(): IProjection {
-		return this._projection;
+		return this.loader.projection;
 	}
 
-	/**
-	 * 设置地图投影对象
-	 */
+	/** 设置地图投影对象 */
 	private set projection(proj: IProjection) {
 		if (proj.ID != this.projection.ID || proj.lon0 != this.lon0) {
+			this.loader.projection = proj;
 			this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
-			this._projection = proj;
 			// 模型矩阵更新
 			this.rootTile.updateMatrix();
 			this.rootTile.updateMatrixWorld();
@@ -144,15 +124,11 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		}
 	}
 
-	/**
-	 * 取得影像数据源
-	 */
+	/** 取得影像数据源 */
 	public get imgSource(): ISource[] {
 		return this.loader.imgSource;
 	}
-	/**
-	 * 设置影像数据源
-	 */
+	/** 设置影像数据源 */
 	public set imgSource(value: ISource | ISource[]) {
 		const sources = Array.isArray(value) ? value : [value];
 		if (sources.length === 0) {
@@ -165,16 +141,12 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
-	/**
-	 * 设置地形数据源
-	 */
+	/** 设置地形数据源 */
 	public get demSource(): ISource | undefined {
 		return this.loader.demSource;
 	}
 
-	/**
-	 * 取得地形数据源
-	 */
+	/** 取得地形数据源 */
 	public set demSource(value: ISource | undefined) {
 		this.loader.demSource = value;
 		this.updateSource(false, true);
@@ -182,34 +154,24 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	}
 
 	private _LODThreshold = 1;
-	/**
-	 * 取得LOD阈值
-	 */
+	/** 取得LOD阈值	 */
 	public get LODThreshold() {
 		return this._LODThreshold;
 	}
-	/**
-	 * 设置LOD阈值，LOD阈值越大，瓦片细化，但耗费资源越高，建议取1-2之间，默认为1
-	 */
+	/** 设置LOD阈值，LOD阈值越大，瓦片细化，但耗费资源越高，建议取1-2之间，默认为1 */
 	public set LODThreshold(value) {
 		this._LODThreshold = value;
 	}
 
-	/**
-	 * 取得背景色
-	 */
+	/** 取得背景色 */
 	public get backgroundColor() {
 		return this.loader.backgroundMaterial.color;
 	}
-
-	/**
-	 * 设置背景色
-	 */
+	/** 设置背景色 */
 	public set backgroundColor(value: ColorRepresentation) {
 		this.loader.backgroundMaterial.color.set(value);
 	}
 
-	// private _bounds: [number, number, number, number] = [-180, -85, 180, 85];
 	/** 取得地图经纬度范围 */
 	public get bounds() {
 		return this.loader.bounds;
@@ -223,20 +185,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
      * 地图创建工厂函数
        @param params 地图参数 {@link MapParams}
        @returns map mesh 地图模型
-       @example
-       ``` typescript
-        TileMap.create({
-            // 影像数据源
-            imgSource: [Source.mapBoxImgSource, new TestSource()],
-            // 高程数据源
-            demSource: source.mapBoxDemSource,
-            // 地图投影中心经度
-            lon0: 90,
-            // 最小缩放级别
-            minLevel: 1,
-            // 最大缩放级别
-            maxLevel: 18,
-        });
        ```
      */
 	public static create(params: MapParams) {
@@ -246,28 +194,12 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	/**
 	 * 地图模型构造函数
 	 * @param params 地图参数 {@link MapParams}
-	 * @example
-	 * ``` typescript
-	
-	  const map = new TileMap({
-            // 影像数据源
-            imgSource: [Source.mapBoxImgSource, new TestSource()],
-            // 高程数据源
-            demSource: source.mapBoxDemSource,
-            // 地图投影中心经度
-            lon0: 90,
-            // 最小缩放级别
-            minLevel: 1,
-            // 最大缩放级别
-            maxLevel: 18,
-        });;
-	 * ```
 	 */
 	public constructor(params: MapParams) {
 		super();
 		this.up.set(0, 0, 1);
 		const {
-			loader = new TileLoader(),
+			loader = new TileMapLoader(),
 			rootTile = new Tile(),
 			minLevel = 2,
 			maxLevel = 20,
@@ -287,11 +219,11 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
 		this.rootTile = rootTile;
 
-		this.minLevel = minLevel;
-		this.maxLevel = maxLevel;
+		this._minLevel = minLevel;
+		this._maxLevel = maxLevel;
 
-		this.imgSource = imgSource;
-		this.demSource = demSource;
+		this.loader.imgSource = Array.isArray(imgSource) ? imgSource : [imgSource];
+		this.loader.demSource = demSource;
 
 		this.lon0 = lon0;
 
@@ -321,11 +253,11 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		const elapseTime = this._mapClock.getElapsedTime();
 		// 控制瓦片树更新速率
 		if (elapseTime > this.updateInterval / 1000) {
-			this._loader.attcth(this.loader, this.projection);
+			this.loader.projection = this.projection;
 			try {
 				this.rootTile.update({
 					camera,
-					loader: this._loader,
+					loader: this.loader,
 					minLevel: this.minLevel,
 					maxLevel: this.maxLevel,
 					LODThreshold: this.LODThreshold,
@@ -457,7 +389,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 * 取得当前正在下载的瓦片数量
 	 */
 	public get downloading() {
-		return this._loader.downloadingThreads;
+		return this.loader.downloadingThreads;
 	}
 
 	/**
@@ -481,7 +413,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 				tile.inFrustum && inFrustum++;
 			}
 			maxLevel = Math.max(maxLevel, tile.z);
-			downloading = this._loader.downloadingThreads;
+			downloading = this.loader.downloadingThreads;
 		});
 		return { total, leaf, visible, inFrustum, maxLevel, downloading };
 	}
