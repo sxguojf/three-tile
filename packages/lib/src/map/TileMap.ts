@@ -144,12 +144,11 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		}
 	}
 
-	private _imgSource: ISource[] = [];
 	/**
 	 * 取得影像数据源
 	 */
 	public get imgSource(): ISource[] {
-		return this._imgSource;
+		return this.loader.imgSource;
 	}
 	/**
 	 * 设置影像数据源
@@ -161,26 +160,23 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		}
 		// 将第一个影像层的投影设置为地图投影
 		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
-		this._imgSource = sources;
 		this.loader.imgSource = sources;
 		this.updateSource(true, false);
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
-	private _demSource: ISource | undefined;
 	/**
 	 * 设置地形数据源
 	 */
 	public get demSource(): ISource | undefined {
-		return this._demSource;
+		return this.loader.demSource;
 	}
 
 	/**
 	 * 取得地形数据源
 	 */
 	public set demSource(value: ISource | undefined) {
-		this._demSource = value;
-		this.loader.demSource = this._demSource;
+		this.loader.demSource = value;
 		this.updateSource(false, true);
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
