@@ -5,7 +5,6 @@ import {
 	LoaderFactory,
 	TileLoadClipParamsType,
 	TileMaterialLoader,
-	TileSourceLoadParamsType,
 	VectorFeature,
 	VectorFeatureTypes,
 	VectorStyle,
@@ -51,15 +50,12 @@ export class MVTLoader extends TileMaterialLoader {
 	 * @returns 绘制完成的图像位图
 	 * @throws 如果画布上下文不可用，则抛出错误
 	 */
-	private drawTile(vectorTile: VectorTile, style: StyleType, z: number): ImageBitmap {
+	private drawTile(vectorTile: VectorTile, style: StyleType, z: number) {
 		const width = 256;
 		const height = 256;
 		const canvas = new OffscreenCanvas(width, height);
 		const ctx = canvas.getContext("2d");
 		if (ctx) {
-			// 翻转画布
-			ctx.scale(1, -1);
-			ctx.translate(0, -height);
 			if (style) {
 				// 有style时，遍历styles绘制
 				for (const layerName in style.layer) {
@@ -82,7 +78,7 @@ export class MVTLoader extends TileMaterialLoader {
 				}
 			}
 
-			return ctx.canvas.transferToImageBitmap();
+			return ctx.canvas;
 		} else {
 			throw new Error("Canvas context is not available");
 		}

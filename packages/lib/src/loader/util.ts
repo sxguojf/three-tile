@@ -49,7 +49,7 @@ export function getSafeTileUrlAndBounds(
 	}
 	// 请数据级别<最大级别返回图片uil已经全部图片范围
 	if (z <= source.maxLevel) {
-		const url = source._getUrl(x, y, z);
+		const url = source.getUrl(x, y, z);
 		// const box = new Box2(new Vector2(-0.5, -0.5), new Vector2(0.5, 0.5));
 		const clipBounds: [number, number, number, number] = [0, 0, 1, 1];
 		return {
@@ -61,7 +61,7 @@ export function getSafeTileUrlAndBounds(
 	// 取出数据源最大级别瓦片和当前瓦片在最大瓦片中的位置
 	const maxLevelTileAndBox = getMaxLevelTileAndBounds(x, y, z, source.maxLevel);
 	const pxyz = maxLevelTileAndBox.parentCoord;
-	const url = source._getUrl(pxyz.x, pxyz.y, pxyz.z);
+	const url = source.getUrl(pxyz.x, pxyz.y, pxyz.z);
 
 	return { url, clipBounds: maxLevelTileAndBox.bounds };
 }

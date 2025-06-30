@@ -54,8 +54,6 @@ export class TileSource implements ISource {
 	public url = "";
 	/** List of URL subdomains for load balancing. Can be an array of strings or a single string */
 	public subdomains: string[] | string = [];
-	/** Currently used subdomain. Randomly selected from subdomains when requesting tiles */
-	public s: string = "";
 	/** material opacity. Range 0-1, default is 1.0 (completely opaque) */
 	public opacity: number = 1.0;
 	/** Whether the material is transparent. Default is true (transparent) */
@@ -76,6 +74,15 @@ export class TileSource implements ISource {
 		Object.assign(this, options);
 	}
 
+	private _getBBox(x: number, y: number, z: number) {
+		const worldSize = Math.PI * 6378137;
+		const tileSize = (2 * worldSize) / Math.pow(2, z);
+		const minX = -worldSize + x * tileSize;
+		const minY = worldSize - (y + 1) * tileSize;
+		const maxX = -worldSize + (x + 1) * tileSize;
+		const maxY = worldSize - y * tileSize;
+		return `${minX},${minY},${maxX},${maxY}`;
+	}
 	/**
 	 * Get url from tile coordinate, public, overwrite to custom generation tile url from xyz
 	 * @param x tile x coordinate
@@ -83,9 +90,19 @@ export class TileSource implements ISource {
 	 * @param z tile z coordinate
 	 * @returns url tile url
 	 */
-	public getUrl(x: number, y: number, z: number): string | undefined {
-		const obj = { ...this, ...{ x, y, z } };
-		return strTemplate(this.url, obj);
+	public getUrl(x: number, y: number, z: number, obj?: { [name: string]: any }): string | undefined {
+		// get subdomains random
+		const subLen = this.subdomains.length;
+		let s: string | undefined;
+		if (subLen > 0) {
+			const index = Math.floor(Math.random() * subLen);
+			s = this.subdomains[index];
+		}
+		const bbox = this._getBBox(x, y, z);
+		// reverse y coordinate if TMS scheme
+		y = this.isTMS ? Math.pow(2, z) - 1 - y : y;
+		const data = { ...this, ...{ x, y, z, s, bbox }, ...obj };
+		return strTemplate(this.url, data);
 	}
 
 	/**
@@ -95,17 +112,11 @@ export class TileSource implements ISource {
 	 * @param z tile z coordinate
 	 * @returns url tile url
 	 */
-	public _getUrl(x: number, y: number, z: number): string | undefined {
-		// get subdomains random
-		const subLen = this.subdomains.length;
-		if (subLen > 0) {
-			const index = Math.floor(Math.random() * subLen);
-			this.s = this.subdomains[index];
-		}
-		// reverse y coordinate if TMS scheme
-		const reverseY = this.isTMS ? Math.pow(2, z) - 1 - y : y;
-		return this.getUrl(x, reverseY, z);
-	}
+	// public _getUrl(x: number, y: number, z: number): string | undefined {
+	// 	// reverse y coordinate if TMS scheme
+	// 	const reverseY = this.isTMS ? Math.pow(2, z) - 1 - y : y;
+	// 	return this.getUrl(x, reverseY, z);
+	// }
 
 	/**
 	 * Create source directly through factoy functions.

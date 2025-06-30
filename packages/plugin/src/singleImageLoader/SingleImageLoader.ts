@@ -45,7 +45,7 @@ export class SingleImageLoader implements ITileMaterialLoader<ITileMaterial> {
 			opacity: source.opacity,
 		});
 
-		const url = source._getUrl(0, 0, 0);
+		const url = source.getUrl(0, 0, 0);
 
 		// 请求的瓦片不在数据源范围内或没有url，直接返回材质
 		if (z < source.minLevel || z > source.maxLevel || !url) {

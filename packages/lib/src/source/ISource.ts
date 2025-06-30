@@ -35,7 +35,7 @@ export interface ISource {
 	/** Data bounds in Proejction, internal use */
 	_projectionBounds: [number, number, number, number];
 	/** Get url from xyz, internal use */
-	_getUrl(x: number, y: number, z: number): string | undefined;
+	getUrl(x: number, y: number, z: number, obj?: { [name: string]: any }): string | undefined;
 	/** Any data */
 	[key: string]: unknown;
 }

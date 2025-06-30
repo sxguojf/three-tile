@@ -10,7 +10,6 @@ import {
 	LoaderFactory,
 	TileLoadClipParamsType,
 	TileMaterialLoader,
-	TileSourceLoadParamsType,
 	VectorFeature,
 	VectorFeatureTypes,
 	VectorStyle,
@@ -101,9 +100,6 @@ export class GeoJSONLoader extends TileMaterialLoader {
 		const canvas = new OffscreenCanvas(width, height);
 		const ctx = canvas.getContext("2d");
 		if (ctx) {
-			// 翻转画布
-			ctx.scale(1, -1);
-			ctx.translate(0, -height);
 			ctx.save();
 			const features = tile.features;
 			for (let i = 0; i < features.length; i++) {
@@ -111,7 +107,7 @@ export class GeoJSONLoader extends TileMaterialLoader {
 			}
 			ctx.restore();
 		}
-		return canvas.transferToImageBitmap();
+		return canvas;
 	}
 
 	// 渲染单个要素

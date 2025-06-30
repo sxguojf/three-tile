@@ -22,18 +22,17 @@ export class BingSource extends TileSource {
 	public style: string = "A";
 	public mkt: string = "zh-CN";
 	public subdomains = "123";
+	public url = "https://t{s}.dynamic.tiles.ditu.live.com/comp/ch/{key}?mkt={mkt}&ur=CN&it={style}&n=z&og=804&cstl=vb";
 
 	public constructor(options?: BingSourceOptions) {
 		super(options);
 		Object.assign(this, options);
 	}
 
-	public getUrl(x: number, y: number, z: number): string {
+	public getUrl(x: number, y: number, z: number) {
 		const key = quadKey(z, x, y);
-		return (
-			`https://t${this.s}.dynamic.tiles.ditu.live.com/comp/ch/${key}?` +
-			`mkt=${this.mkt}&ur=CN&it=${this.style}&n=z&og=804&cstl=vb`
-		);
+		const obj = { key };
+		return super.getUrl(x, y, z, obj);
 	}
 }
 
