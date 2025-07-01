@@ -51,15 +51,15 @@ export class EarthMaskMaterial extends ShaderMaterial {
                     } else if(d<=0.98f){
                         // 内发光
                         float c = (d-0.86f)/(0.98f-0.86f);
-                        gl_FragColor = vec4(mix(vec3(0.0f),airColor,pow(c,5.0f)),1.0f);
+                        gl_FragColor = vec4(mix(vec3(0.0f),airColor,pow(c,8.0f)),1.0f);
                     } else if(d<=1.0f){
                         // 白边
                         float c = (d-0.98f)/(1.0f-0.98f); 
-                        gl_FragColor =vec4(mix(vec3(1.0f),airColor,c),1.0f);        
-                    } else if(d<=1.3f){        
+                        gl_FragColor =vec4(mix(airColor, vec3(0.6f),pow(c,2.0f)),1.0f);        
+                    } else if(d<=1.5f){        
                         // 外泛光
-                        float c = (d-1.0f)/(1.3f-1.0f);
-                        gl_FragColor = vec4(mix(airColor,bkColor,pow(c,0.1f)),1.0f);
+                        float c = (d-1.0f)/(1.5f-1.0f);
+                        gl_FragColor = vec4(mix(airColor,bkColor,pow(c,0.04f)),1.0f);
                     } else{
                         // 球体外颜色
                         gl_FragColor = vec4(bkColor,1.0f);
