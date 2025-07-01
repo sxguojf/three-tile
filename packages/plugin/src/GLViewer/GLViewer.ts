@@ -101,7 +101,14 @@ export class GLViewer extends BaseViewer {
 	}
 
 	/**
-	 * Fly to a object
+	 * 飞行到指定对象的位置
+	 * @param object - 目标对象，相机将飞向该对象
+	 * @param offset - 相机位置的偏移参数
+	 * @param offset.azimuthDeg - 方位角，单位为度，默认值为 0
+	 * @param offset.pitchDeg - 俯仰角，单位为度，默认值为 30
+	 * @param offset.distanceMultiplier - 距离乘数，用于调整相机与对象的距离，默认值为 1.2
+	 * @param offset.animate - 是否使用动画效果飞行，默认值为 true
+	 * @returns 一个 Promise，在飞行完成时 resolve
 	 */
 	public flyToObject(
 		object: Object3D,
@@ -112,50 +119,51 @@ export class GLViewer extends BaseViewer {
 			animate?: boolean; // 是否动画
 		} = { azimuthDeg: 0, pitchDeg: 30, distanceMultiplier: 1.2, animate: true }
 	): Promise<void> {
+		//获取对象的包围球
 		const getShpere = (object: Object3D) => {
 			const box = new Box3().setFromObject(object); // 计算模型的包围盒
 			const sphere = box.getBoundingSphere(new Sphere()); // 转换为包围球
 			sphere.center.setY(box.min.y);
 			return sphere;
 		};
-
 		const { center, radius } = getShpere(object);
-
-		// 计算相机距离
+		// 计算相机距离，确保对象能完整显示在视野中
 		const distance = radius / Math.sin(MathUtils.degToRad(this.camera.fov / 2));
-
 		const { azimuthDeg = 0, pitchDeg = 30, distanceMultiplier = 1.5, animate = true } = offset;
 
-		// 计算相机位置
+		// 计算相机新位置
 		const cameraPostion = new Vector3()
 			.setFromSphericalCoords(
 				distance * distanceMultiplier,
 				MathUtils.degToRad(90 - pitchDeg),
-				// MathUtils.degToRad(90),
 				MathUtils.degToRad(azimuthDeg)
 			)
 			.add(center.clone().setY(0));
 
+		// 设置目标位置为模型中心
 		this.controls.target.copy(center);
 		if (animate) {
 			const start = this.camera.position;
 			return new Promise(resolve => {
 				new Tween(start)
-					// to taget
-					.chain(
-						new Tween(start)
-							.to(cameraPostion, 2000)
-							.easing(Easing.Quintic.Out)
-							.onUpdate(() => {
-								this.controls.dispatchEvent({ type: "change" });
-								const shpere = getShpere(object);
-								this.controls.target.copy(shpere.center);
-							})
-							.onComplete(() => resolve())
-					)
-					.start();
+					// 动画飞行到目标位置，时长 2000 毫秒
+					.to(cameraPostion, 2000)
+					// 使用 Quintic.Out 缓动函数
+					.easing(Easing.Quintic.Out)
+					.onUpdate(() => {
+						// 触发控制变化事件
+						this.controls.dispatchEvent({ type: "change" });
+						// 重新计算对象的包围球
+						const shpere = getShpere(object);
+						// 更新控制器的目标位置
+						this.controls.target.copy(shpere.center);
+					})
+					.start()
+					// 动画完成时 resolve Promise
+					.onComplete(() => resolve());
 			});
 		} else {
+			// 不使用动画，直接设置相机位置
 			this.camera.position.copy(cameraPostion);
 			return Promise.resolve();
 		}
