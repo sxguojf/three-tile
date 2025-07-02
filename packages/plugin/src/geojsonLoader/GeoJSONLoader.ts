@@ -51,7 +51,7 @@ export class GeoJSONLoader extends TileMaterialLoader {
 	 * @param params 加载参数，包括数据源、瓦片坐标等
 	 * @returns 瓦片纹理
 	 */
-	protected async doLoad(url: string, params: TileLoadClipParamsType<GeoJSONSource>): Promise<Texture> {
+	protected async doLoad(url: string, params: TileLoadClipParamsType<GeoJSONSource>): Promise<Texture | undefined> {
 		const { x, y, z, source } = params;
 
 		// 判断数据是否加载完成，如果已完成则直接绘制瓦片纹理
@@ -158,7 +158,7 @@ export class GeoJSONLoader extends TileMaterialLoader {
 		const tile = gv.getTile(z, x, y);
 		// 读取失败或不显示返回空纹理
 		if (!tile) {
-			return new Texture(new Image());
+			return undefined;
 		}
 		// 绘制瓦片
 		const img = this.drawTile(tile, style);

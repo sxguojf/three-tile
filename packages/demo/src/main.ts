@@ -5,6 +5,7 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
+import * as ms from "./mapSource";
 
 // 注册加载器
 function registerLoader() {
@@ -65,6 +66,7 @@ function registerLoader() {
 function createMap() {
 	// 影像数据源
 	const imgSource = [source.arcGisImgSource, source.arcGisCiaSource];
+	// const imgSource = [ms.geojsonProvince, ms.geojsonCountry, ms.geojsonCity, ms.geojsonCityPoint];
 	// 地形数据源
 	const demSource = source.arcGisDemSource;
 
@@ -81,7 +83,7 @@ function createMap() {
 		// 最大缩放级别
 		maxLevel: 20,
 		// 地图经纬度范围
-		// bounds: [60, 0, 145, 60],
+		bounds: [60, 0, 145, 60],
 		// 调试标志
 		debug: 1,
 	});

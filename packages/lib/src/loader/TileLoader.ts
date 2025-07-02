@@ -57,6 +57,7 @@ export class TileLoader implements ITileLoader {
 
 	/** Error material */
 	private readonly _errorMaterial = new MeshBasicMaterial({
+		color: 0xff0000,
 		transparent: true,
 		opacity: 0,
 		name: "error-material",

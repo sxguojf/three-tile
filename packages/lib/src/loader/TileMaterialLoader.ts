@@ -44,7 +44,11 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
 			const texture = await this.doLoad(url, { ...params, clipBounds });
-			material.map = texture;
+			if (texture) {
+				material.map = texture;
+			} else {
+				material.map = new Texture();
+			}
 		}
 		return material;
 	}
