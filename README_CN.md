@@ -8,7 +8,7 @@
 
 ## 文档、示例：
 
-[![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/){:target="\_blank"}
+[![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/)
 
 ## 1 简介
 
@@ -21,6 +21,8 @@ three-tile 是一个基于 [threejs](https://threejs.org/)开发的轻量级三�
 Source: https://github.com/sxguojf/three-tile
 
 demo: https://sxguojf.github.io/mydemo/three-tile/index.html
+
+Document: https://sxguojf.github.io/three-tile-doc/
 
 提供一些开发示例：
 

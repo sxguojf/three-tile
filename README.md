@@ -8,7 +8,7 @@
 
 ## Home（Document、Example...）:
 
-[![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/){:target="\_blank"}
+[![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/)
 
 ## 1 Introduction
 
@@ -21,6 +21,8 @@ Note: This is neither Cesium nor Mapbox-gl, and it has no relationship with thes
 Source: [https://github.com/sxguojf/three-tile](https://github.com/sxguojf/three-tile)
 
 Demo: [https://sxguojf.github.io/mydemo/three-tile/index.html](https://sxguojf.github.io/mydemo/three-tile/index.html)
+
+Document: [https://sxguojf.github.io/three-tile-doc/](https://sxguojf.github.io/three-tile-doc/)
 
 Some development examples are provided:
 
