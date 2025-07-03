@@ -262,22 +262,17 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		const elapseTime = this._mapClock.getElapsedTime();
 		// 控制瓦片树更新速率
 		if (elapseTime > this.updateInterval / 1000) {
-			// this.loader.projection = this.projection;
-			try {
-				this.rootTile.update({
-					camera,
-					loader: this.loader,
-					minLevel: this.minLevel,
-					maxLevel: this.maxLevel,
-					LODThreshold: this.LODThreshold,
-				});
-				// shadow
-				this.rootTile.castShadow = this.castShadow;
-				this.rootTile.receiveShadow = this.receiveShadow;
-				this.dispatchEvent({ type: "update", delta: elapseTime });
-			} catch (err) {
-				console.error("Error on loading tile data.", err);
-			}
+			this.rootTile.update({
+				camera,
+				loader: this.loader,
+				minLevel: this.minLevel,
+				maxLevel: this.maxLevel,
+				LODThreshold: this.LODThreshold,
+			});
+			// shadow
+			this.rootTile.castShadow = this.castShadow;
+			this.rootTile.receiveShadow = this.receiveShadow;
+			this.dispatchEvent({ type: "update", delta: elapseTime });
 			this._mapClock.start();
 		}
 	}
