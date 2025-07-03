@@ -43,12 +43,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		// get max level tile and bounds
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
-			const texture = await this.doLoad(url, { ...params, clipBounds });
-			if (texture) {
-				material.map = texture;
-			} else {
-				material.map = new Texture();
-			}
+			material.map = await this.doLoad(url, { ...params, clipBounds });
 		}
 		return material;
 	}

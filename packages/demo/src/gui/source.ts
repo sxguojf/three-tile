@@ -282,7 +282,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	testFolder.add(vm, "setTif").name("单TIFF地形测试");
 	testFolder.add(vm, "setGeoJSONMask").name("GeoJSON遮罩-延安");
 	testFolder.add(vm, "setGDRoad").name("高德路网");
-	testFolder.add(vm, "setElevation").name("Eleator测试");
+	testFolder.add(vm, "setElevation").name("Elevator测试");
 	// testFolder.add(vm, "setQm").name("quantized-mesh test");
 
 	return gui;

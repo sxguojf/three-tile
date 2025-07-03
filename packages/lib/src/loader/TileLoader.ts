@@ -212,8 +212,8 @@ export class TileLoader implements ITileLoader {
 					const texture = material.map;
 					if (texture.image) {
 						texture.image = tileBoundsClip(texture.image, source._projectionBounds, params.bounds);
-						texture.needsUpdate = true;
 					}
+					texture.needsUpdate = true;
 				}
 				material.opacity = source.opacity;
 				material.transparent = source.transparent;
