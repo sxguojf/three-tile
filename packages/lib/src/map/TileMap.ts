@@ -110,14 +110,12 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	private set projection(proj: IProjection) {
 		if (proj.ID != this.projection.ID || proj.lon0 != this.lon0) {
 			this.loader.projection = proj;
-			// 拉伸地图到投影大小
-			this.rootTile.scale.set(proj.mapWidth, proj.mapHeight, proj.mapDepth);
-			// 模型矩阵更新
-			this.rootTile.updateMatrix();
-			this.rootTile.updateMatrixWorld();
+			this._resize();
 			// 重新加载模型
 			this.reload();
-			// console.log("Map Projection Changed:", proj.ID, proj.lon0);
+			if (this.debug > 0) {
+				console.log("Map Projection Changed:", proj.ID, proj.lon0);
+			}
 			this.dispatchEvent({
 				type: "projection-changed",
 				projection: proj,
@@ -139,6 +137,9 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
 		this.loader.imgSource = sources;
 		this.updateSource(true, false);
+		if (this.debug > 0) {
+			console.log("Img Source Changed:", sources);
+		}
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -151,6 +152,9 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	public set demSource(value: ISource | undefined) {
 		this.loader.demSource = value;
 		this.updateSource(false, true);
+		if (this.debug > 0) {
+			console.log("DEM Source Changed:", this.demSource);
+		}
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -223,15 +227,13 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.debug = this.loader.debug = debug;
 		this.lon0 = lon0;
 
-		this.loader.imgSource = Array.isArray(imgSource) ? imgSource : [imgSource];
-		this.loader.demSource = demSource;
+		this.imgSource = Array.isArray(imgSource) ? imgSource : [imgSource];
+		this.demSource = demSource;
 
 		// 模型加入地图
 		this.add(rootTile);
-
-		// 模型矩阵更新
-		rootTile.updateMatrix();
-		rootTile.updateMatrixWorld();
+		// 调整地图大小
+		this._resize();
 
 		// 绑定事件
 		attachEvent(this);
@@ -242,6 +244,14 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			this.removeEventListener("loading-complete", onLoadingComplete);
 		};
 		this.addEventListener("loading-complete", onLoadingComplete);
+	}
+
+	private _resize() {
+		// 拉伸地图到投影大小
+		this.rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
+		// 模型矩阵更新
+		this.rootTile.updateMatrix();
+		this.rootTile.updateMatrixWorld();
 	}
 
 	/**

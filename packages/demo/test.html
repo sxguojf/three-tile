@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-cn">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+		<title>three-tile最小化应用</title>
+	</head>
+	<style>
+		html,
+		body {
+			background-color: #333;
+			height: 100%;
+			width: 100%;
+			padding: 0;
+			margin: 0;
+			display: flex;
+			overflow: hidden;
+		}
+		#map {
+			flex: 1;
+		}
+	</style>
+
+	<script type="importmap">
+		{
+			"imports": {
+				"three": "https://unpkg.com/three@0.171.0/build/three.module.js",
+				"three-tile": "https://unpkg.com/three-tile@0.11.5/dist",
+				"three-tile-plugin": "https://unpkg.com/three-tile@0.11.5/dist/plugin"
+			}
+		}
+	</script>
+
+	<body>
+		<div id="map"></div>
+		<script type="module">
+			import * as THREE from "three";
+			import * as tt from "three-tile";
+			import * as plugin from "three-tile-plugin";
+
+			console.log(`three-tile v${tt.version} start!`);
+
+			// 创建地图
+			const map = tt.TileMap.create({
+				// 影像数据源
+				imgSource: new plugin.ArcGisSource(),
+				// 地形数据源
+				demSource: new plugin.ArcGisDemSource(),
+				// 地图经纬度范围
+				bounds: [60, 0, 145, 60],
+				// 中央经度
+				// lon0: 90,
+			});
+			// 地图旋转到xz平面
+			map.rotateX(-Math.PI / 2);
+
+			// 初始化场景
+			const viewer = new plugin.GLViewer("#map");
+
+			// 地图添加到场景
+			viewer.scene.add(map);
+
+			// 地图中心经纬度高度（m）转为世界坐标
+			const centerPostion = map.geo2world(new THREE.Vector3(116.39180280130437, 39.915285657622775, 0));
+			// 摄像机经纬度高度（m）转为世界坐标
+			const cameraPosition = map.geo2world(new THREE.Vector3(116.39199596764485, 39.91047669278009, 900));
+			viewer.flyTo(centerPostion, cameraPosition);
+		</script>
+	</body>
+</html>
