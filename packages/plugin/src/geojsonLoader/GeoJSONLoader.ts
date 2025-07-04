@@ -5,7 +5,7 @@
  * @date 2025-03-15
  */
 import geojsonvt from "geojson-vt";
-import { CanvasTexture, FileLoader, Texture } from "three";
+import { CanvasTexture, FileLoader, Texture, TextureLoader } from "three";
 import {
 	LoaderFactory,
 	TileLoadClipParamsType,
@@ -18,6 +18,10 @@ import {
 	waitFor,
 } from "three-tile";
 import { GeoJSONSource } from "./GeoJSONSource";
+
+const EmptyTexture = new TextureLoader().load(
+	"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+);
 
 /** GeoJSON 加载器 */
 export class GeoJSONLoader extends TileMaterialLoader {
@@ -150,14 +154,11 @@ export class GeoJSONLoader extends TileMaterialLoader {
 	 * @returns 返回瓦片的纹理对象，如果瓦片不存在则返回空纹理对象
 	 */
 	private _getTileTexture(gv: any, x: number, y: number, z: number, style: VectorStyle) {
-		// if (z < (style.minLevel ?? 1) || z > (style.maxLevel ?? 20)) {
-		//     return new Texture();
-		// }
 		// 读取xyz坐标的瓦片数据
 		const tile = gv.getTile(z, x, y);
 		// 读取失败或不显示返回空纹理
 		if (!tile) {
-			return new Texture();
+			return EmptyTexture;
 		}
 		// 绘制瓦片
 		const img = this.drawTile(tile, style);
