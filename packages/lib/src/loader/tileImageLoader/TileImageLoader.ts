@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { ImageLoader, SRGBColorSpace, Texture } from "three";
+import { ImageLoader, LinearFilter, SRGBColorSpace, Texture } from "three";
 import { LoaderFactory, TileLoadClipParamsType, TileMaterialLoader, getSubImage } from "..";
 import { version } from "../..";
 
@@ -38,6 +38,9 @@ export class TileImageLoader extends TileMaterialLoader {
 		if (clipBounds[2] - clipBounds[0] < 1) {
 			texture.image = getSubImage(img, clipBounds);
 		}
+		texture.generateMipmaps = false;
+		texture.minFilter = LinearFilter;
+		texture.anisotropy = 1;
 		return texture;
 	}
 }
