@@ -14,6 +14,7 @@ export function showDebug(map: tt.TileMap, viewer: plugin.GLViewer) {
 					targetX: viewer.controls.target.x.toFixed(0),
 					targetY: viewer.controls.target.y.toFixed(0),
 					targetZ: viewer.controls.target.z.toFixed(0),
+					zoomSpeed: viewer.controls.zoomSpeed.toFixed(2),
 				},
 				null,
 				2

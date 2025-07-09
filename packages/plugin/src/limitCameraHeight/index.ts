@@ -1,13 +1,18 @@
 import {
 	BufferGeometry,
+	Camera,
+	Controls,
 	MathUtils,
 	Mesh,
 	MeshLambertMaterial,
+	Object3D,
 	PerspectiveCamera,
+	Raycaster,
 	SphereGeometry,
 	Vector3,
 } from "three";
 import { TileMap } from "three-tile";
+import { OrbitControls } from "three/examples/jsm/Addons.js";
 
 /**
  * 防止摄像机碰撞或穿过地面
@@ -72,4 +77,42 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 	}
 
 	return hit;
+}
+
+/**
+ * 根据观察者距模型（地面）距离调整缩放速度
+ * @param model 模型，传入TileMap，根据TileMap及其子模型距离调整缩放速度，传入TileMap.root，根据地面距离调整缩放速度
+ * @param camera 摄像机
+ * @param controls 控制器
+ * @param speed {
+ *          factor 缩放系数，值越大缩放越快，默认1.0
+ *          minSpeed 最小速度，默认0.2
+ *          maxSpeed 最大速度，默认10
+ *       }
+ */
+export function adjustZoomSpeedFromDist(
+	model: Object3D,
+	camera: Camera,
+	controls: OrbitControls,
+	speed: {
+		factor?: number;
+		minSpeed?: number;
+		maxSpeed?: number;
+	} = {
+		factor: 1.0,
+		minSpeed: 0.1,
+		maxSpeed: 10,
+	}
+) {
+	const { factor = 1.0, minSpeed = 0.1, maxSpeed = 10 } = speed;
+
+	// 视线方向射线
+	const ray = new Raycaster(camera.position, camera.getWorldDirection(new Vector3()));
+	// 取得视线与地面交点
+	const intersects = ray.intersectObject<Mesh>(model, true);
+	if (intersects.length > 0) {
+		// 根据摄像机与地面距离调整缩放速度
+		const speed = Math.log((intersects[0].distance / 300) * factor);
+		controls.zoomSpeed = MathUtils.clamp(speed, minSpeed, maxSpeed);
+	}
 }

@@ -117,6 +117,12 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 防止摄像机进入地下
 	viewer.controls.addEventListener("change", () => plugin.limitCameraHeight(map, viewer.camera));
 	map.addEventListener("tile-loaded", () => plugin.limitCameraHeight(map, viewer.camera));
+
+	// viewer.controls.dymamicZoomSpeed = false;
+	viewer.controls.addEventListener("change", () => {
+		plugin.adjustZoomSpeedFromDist(map, viewer.camera, viewer.controls);
+	});
+
 	return viewer;
 }
 

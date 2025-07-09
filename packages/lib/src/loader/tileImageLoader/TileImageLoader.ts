@@ -38,9 +38,9 @@ export class TileImageLoader extends TileMaterialLoader {
 		if (clipBounds[2] - clipBounds[0] < 1) {
 			texture.image = getSubImage(img, clipBounds);
 		}
-		texture.generateMipmaps = false;
-		texture.minFilter = LinearFilter;
-		texture.anisotropy = 1;
+		// texture.generateMipmaps = false;
+		// texture.minFilter = LinearFilter;
+		// texture.anisotropy = 1;
 		return texture;
 	}
 }
