@@ -11,9 +11,10 @@ import {
 	SphereGeometry,
 	Vector3,
 } from "three";
-import { TileMap } from "three-tile";
+import { TileMap, findFirstIntersect } from "three-tile";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 
+const tempRay = new Raycaster();
 /**
  * 防止摄像机碰撞或穿过地面
  * @param map - 地图实例
@@ -105,14 +106,20 @@ export function adjustZoomSpeedFromDist(
 	}
 ) {
 	const { factor = 1.0, minSpeed = 0.1, maxSpeed = 10 } = speed;
-
 	// 视线方向射线
-	const ray = new Raycaster(camera.position, camera.getWorldDirection(new Vector3()));
-	// 取得视线与地面交点
-	const intersects = ray.intersectObject<Mesh>(model, true);
-	if (intersects.length > 0) {
-		// 根据摄像机与地面距离调整缩放速度
-		const speed = Math.log((intersects[0].distance / 300) * factor);
+	tempRay.set(camera.position, camera.getWorldDirection(new Vector3()));
+	const intersect = findFirstIntersect(tempRay, model);
+	if (intersect) {
+		// / 根据摄像机与地面距离调整缩放速度
+		const speed = Math.log((intersect.distance / 300) * factor);
 		controls.zoomSpeed = MathUtils.clamp(speed, minSpeed, maxSpeed);
 	}
+
+	// // 取得视线与地面交点
+	// const intersects = ray.intersectObject<Mesh>(model, true);
+	// if (intersects.length > 0) {
+	// 	// 根据摄像机与地面距离调整缩放速度
+	// 	const speed = Math.log((intersects[0].distance / 300) * factor);
+	// 	controls.zoomSpeed = MathUtils.clamp(speed, minSpeed, maxSpeed);
+	// }
 }
