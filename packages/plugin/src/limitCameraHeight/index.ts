@@ -110,15 +110,8 @@ export function adjustZoomSpeedFromDist(
 	const intersect = findFirstIntersect(tempRay, model);
 	if (intersect) {
 		// / 根据摄像机与地面距离调整缩放速度
-		const speed = Math.log((intersect.distance / 300) * factor);
+		// const speed = (Math.sqrt(intersect.distance + 1) * factor) / 80;
+		const speed = Math.log(intersect.distance / 1000 + 0.5) * factor;
 		controls.zoomSpeed = MathUtils.clamp(speed, minSpeed, maxSpeed);
 	}
-
-	// // 取得视线与地面交点
-	// const intersects = ray.intersectObject<Mesh>(model, true);
-	// if (intersects.length > 0) {
-	// 	// 根据摄像机与地面距离调整缩放速度
-	// 	const speed = Math.log((intersects[0].distance / 300) * factor);
-	// 	controls.zoomSpeed = MathUtils.clamp(speed, minSpeed, maxSpeed);
-	// }
 }
