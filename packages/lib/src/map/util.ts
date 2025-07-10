@@ -4,37 +4,13 @@
  *@date: 2024-04-08
  */
 
-import { Camera, Intersection, Object3D, Raycaster, Vector2, Vector3 } from "three";
+import { Camera, Mesh, Raycaster, Vector2, Vector3 } from "three";
 import { LocationInfo, TileMap } from "./TileMap";
 // import { GLViewer } from "../../tt";
 
 const tempRay = new Raycaster();
 const downVec3 = new Vector3(0, -1, 0);
 const orginVec3 = new Vector3();
-
-/**
- * 检测射线与模型的第一个交点
- * @param raycaster THREE.Raycaster 实例
- * @param object 要检测的 3D 对象（包括子对象）
- * @returns 第一个交点信息（THREE.Intersection）或 null
- */
-export function findFirstIntersect(raycaster: Raycaster, object: Object3D): Intersection<Object3D> | undefined {
-	// 1. 检测当前对象（不递归子对象）
-	const intersects = raycaster.intersectObject(object, false);
-	if (intersects.length > 0) {
-		return intersects[0]; // 返回第一个交点
-	}
-
-	// 2. 递归检测子对象
-	if (object.children && object.children.length > 0) {
-		for (const child of object.children) {
-			const result = findFirstIntersect(raycaster, child);
-			if (result) return result; // 遇到交点立即返回
-		}
-	}
-
-	return undefined; // 无交点
-}
 
 /**
  * get ground info from an ary
@@ -44,8 +20,11 @@ export function findFirstIntersect(raycaster: Raycaster, object: Object3D): Inte
  */
 export function getLocalInfoFromRay(map: TileMap, ray: Raycaster): LocationInfo | undefined {
 	// threejs R114 射线法会检测不可视对象相交： https://github.com/mrdoob/three.js/issues/14700
-	const intersect = findFirstIntersect(ray, map.rootTile);
-	if (intersect) {
+	const intersects = ray.intersectObject<Mesh>(map.rootTile, true);
+	if (intersects.length > 0) {
+		const intersect = intersects[0];
+		console.assert(intersect.object.visible);
+		// intersect point to local point
 		const point = map.worldToLocal(intersect.point.clone());
 		const lonlat = map.map2geo(point);
 		return Object.assign(intersect, {
