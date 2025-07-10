@@ -1,7 +1,6 @@
 import {
 	BufferGeometry,
 	Camera,
-	Controls,
 	MathUtils,
 	Mesh,
 	MeshLambertMaterial,

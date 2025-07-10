@@ -4,7 +4,7 @@
  *@date: 2024-04-08
  */
 
-import { Camera, Intersection, Mesh, Object3D, Raycaster, Vector2, Vector3 } from "three";
+import { Camera, Intersection, Object3D, Raycaster, Vector2, Vector3 } from "three";
 import { LocationInfo, TileMap } from "./TileMap";
 // import { GLViewer } from "../../tt";
 
