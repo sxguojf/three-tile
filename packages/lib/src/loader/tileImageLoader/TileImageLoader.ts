@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { ImageLoader, LinearFilter, SRGBColorSpace, Texture } from "three";
+import { ImageLoader, SRGBColorSpace, Texture } from "three";
 import { LoaderFactory, TileLoadClipParamsType, TileMaterialLoader, getSubImage } from "..";
 import { version } from "../..";
 

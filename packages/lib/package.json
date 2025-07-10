@@ -1,6 +1,6 @@
 {
 	"name": "@three-tile/lib",
-	"version": "0.11.7",
+	"version": "0.11.8",
 	"type": "module",
 	"files": [
 		"dist"
