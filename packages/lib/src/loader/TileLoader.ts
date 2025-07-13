@@ -87,6 +87,9 @@ export class TileLoader implements ITileLoader {
 		console.assert(!!materials && !!geometry);
 		geometry.clearGroups();
 		for (let i = 0; i < materials.length; i++) {
+			if (i === 0) {
+				console.assert(materials[i] === this.backgroundMaterial);
+			}
 			geometry.addGroup(0, Infinity, i);
 		}
 		console.assert(materials.length === geometry.groups.length);

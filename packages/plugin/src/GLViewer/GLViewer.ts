@@ -14,7 +14,7 @@ import { TileMapControls } from "./TileMapControls";
  * Threejs scene initialize class
  */
 export class GLViewer extends BaseViewer {
-	public controls: TileMapControls;
+	public controls: TileMapControls = this._createControls();
 
 	private _fogFactor = 1.0;
 
@@ -37,21 +37,11 @@ export class GLViewer extends BaseViewer {
 	}
 
 	/**
-	 * Constructor
-	 * @param container container element or selector string
-	 * @param options GLViewer options
-	 */
-	constructor(container?: HTMLElement | string, options: ViewerOptions = {}) {
-		super(container, options);
-		this.controls = this._createControls();
-	}
-
-	/**
 	 * Create map controls
 	 * @returns MapControls
 	 */
 	private _createControls() {
-		const controls = new TileMapControls(this.camera, this.renderer.domElement);
+		const controls = new TileMapControls(this.camera, this.container || this.renderer.domElement);
 		controls.addEventListener("change", () => {
 			if (this.scene.fog instanceof FogExp2) {
 				const polar = controls.getPolarAngle();
