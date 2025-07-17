@@ -7,7 +7,7 @@
 import { Projection } from "./BaseProjection";
 import { IProjection } from "./IProjection";
 
-const EarthRad = 6378000; //Earth's radius(m)
+const EarthRad = 6378137; //Earth's radius(m)
 
 /**
  * Mercator projection
