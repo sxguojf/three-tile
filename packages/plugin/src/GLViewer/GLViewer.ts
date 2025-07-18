@@ -7,7 +7,7 @@
 import { Box3, FogExp2, MathUtils, Object3D, Sphere, Vector3 } from "three";
 
 import { Easing, Tween } from "three/examples/jsm/libs/tween.module.js";
-import { BaseViewer, ViewerOptions } from "./BaseViewer";
+import { BaseViewer } from "./BaseViewer";
 import { TileMapControls } from "./TileMapControls";
 
 /**
