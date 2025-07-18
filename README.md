@@ -10,6 +10,8 @@
 
 [![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/)
 
+Document：https://sxguojf.github.io/three-tile-doc/
+
 ## 1 Introduction
 
 three-tile is a lightweight 3D tile map library developed based on [threejs](https://threejs.org/). It offers advantages such as ease of use and low resource consumption, and provides a lightweight 3D terrain model suitable for adding 3D maps to applications developed with threejs.
