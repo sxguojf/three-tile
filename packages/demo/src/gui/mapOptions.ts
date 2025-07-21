@@ -25,5 +25,23 @@ export const createMapOptionsGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.T
 	folder.add(map.rootTile, "visible").name("地图显示/隐藏").listen();
 	folder.add(map, "dispose").name("地图销毁");
 
+	const vm = {
+		getDepth() {
+			const depth = viewer.getDethBuffer();
+			console.log(depth);
+			if (depth) {
+				let maxDepth = 0;
+				for (let i = 0; i < depth.length; i++) {
+					if (depth[i] > maxDepth) {
+						maxDepth = depth[i];
+					}
+				}
+				console.log(maxDepth); // 输出: 500
+			}
+		},
+	};
+
+	folder.add(vm, "getDepth");
+
 	return gui;
 };
