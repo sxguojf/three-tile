@@ -29,15 +29,6 @@ export const createMapOptionsGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.T
 		getDepth() {
 			const depth = viewer.getDethBuffer();
 			console.log(depth);
-			if (depth) {
-				let maxDepth = 0;
-				for (let i = 0; i < depth.length; i++) {
-					if (depth[i] > maxDepth) {
-						maxDepth = depth[i];
-					}
-				}
-				console.log(maxDepth); // 输出: 500
-			}
 		},
 	};
 
