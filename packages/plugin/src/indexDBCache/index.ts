@@ -1,5 +1,7 @@
 /**
- * IndexDB 缓存
+ * IndexDB 缓存插件
+ *
+ * 使用：IndexDBCacheEable()
  */
 
 import { Cache } from "three";
@@ -10,33 +12,52 @@ const STORE_NAME = "files";
 let db: IDBDatabase | null = null;
 
 /**
+ * 等待某个条件成立后继续执行
+ * @param {() => boolean} conditionFn - 返回 boolean 的条件函数
+ * @param {number} [checkInterval=100] - 检查间隔（毫秒）
+ * @returns {Promise<void>} - 当条件成立时 resolve
+ */
+function waitFor(conditionFn: () => boolean, checkInterval: number = 100): Promise<void> {
+	return new Promise(resolve => {
+		const checkCondition = () => {
+			if (conditionFn()) {
+				resolve(); // 条件成立，结束等待
+			} else {
+				setTimeout(checkCondition, checkInterval); // 继续轮询
+			}
+		};
+		checkCondition(); // 开始检查
+	});
+}
+
+/**
  * 开启 IndexDB 缓存
  * @returns db实例
  */
 export async function IndexDBCacheEable() {
+	const initDB = (): Promise<IDBDatabase> => {
+		return new Promise((resolve, reject) => {
+			const request = indexedDB.open(DB_NAME, 1);
+
+			request.onupgradeneeded = event => {
+				const db = (event.target as IDBOpenDBRequest).result;
+				if (!db.objectStoreNames.contains(STORE_NAME)) {
+					db.createObjectStore(STORE_NAME);
+				}
+			};
+
+			request.onsuccess = () => resolve(request.result);
+			request.onerror = () => reject(request.error);
+		});
+	};
+
 	db = await initDB();
 	Cache.enabled = true;
 	return db;
 }
 
-const initDB = (): Promise<IDBDatabase> => {
-	return new Promise((resolve, reject) => {
-		const request = indexedDB.open(DB_NAME, 1);
-
-		request.onupgradeneeded = event => {
-			const db = (event.target as IDBOpenDBRequest).result;
-			if (!db.objectStoreNames.contains(STORE_NAME)) {
-				db.createObjectStore(STORE_NAME, { keyPath: "key" });
-			}
-		};
-
-		request.onsuccess = () => resolve(request.result);
-		request.onerror = () => reject(request.error);
-	});
-};
-
 Cache.add = async function (key: string, file: any): Promise<void> {
-	if (!Cache.enabled || db === null) return;
+	if (!Cache.enabled || db === null || !key.startsWith("http")) return;
 
 	// Convert HTMLImageElement to dataURL
 	let data = file;
@@ -56,31 +77,32 @@ Cache.add = async function (key: string, file: any): Promise<void> {
 	const store = tx.objectStore(STORE_NAME);
 
 	return new Promise<void>((resolve, reject) => {
-		const request = store.put({ key, file: data });
+		// console.log("Write indexDB:", data);
+		const request = store.put({ id: key, file: data });
 		request.onsuccess = () => resolve();
 		request.onerror = () => reject(request.error);
 	});
 };
 
 Cache.get = function (key: string): any {
-	if (!Cache.enabled || db === null) return;
+	if (!Cache.enabled || db === null || !key.startsWith("http")) return;
 
 	const tx = db.transaction(STORE_NAME, "readonly");
 	const store = tx.objectStore(STORE_NAME);
 	const request = store.get(key);
 
-	// todo：IndexDB 是异步操作，读取完成前可能返回undefined
-
-	// let done = false;
 	let result: any;
+	let done = false;
 	request.onsuccess = () => {
 		result = request.result;
-		// done = true;
-		// console.log("IndexDB data:", result);
+		done = true;
+		if (result) {
+			// console.log("Hit indexDB:", result);
+		}
 	};
 	request.onerror = event => {
 		result = undefined;
-		// done = true;
+		done = true;
 		console.error("Error retrieving data:", event);
 	};
 
@@ -89,30 +111,33 @@ Cache.get = function (key: string): any {
 		img.src = result.dataURL;
 		return img;
 	}
-	return result;
-};
 
-Cache.remove = async function (key: string): Promise<void> {
-	if (!Cache.enabled || db === null) return;
-	const tx = db.transaction(STORE_NAME, "readwrite");
-	const store = tx.objectStore(STORE_NAME);
-
-	return new Promise<void>((resolve, reject) => {
-		const request = store.delete(key);
-		request.onsuccess = () => resolve();
-		request.onerror = () => reject(request.error);
+	waitFor(() => done).then(() => {
+		return result;
 	});
 };
 
-Cache.clear = async function (): Promise<void> {
-	if (!Cache.enabled || db === null) return;
+// Cache.remove = async function (key: string): Promise<void> {
+// 	if (!Cache.enabled || db === null) return;
+// 	const tx = db.transaction(STORE_NAME, "readwrite");
+// 	const store = tx.objectStore(STORE_NAME);
 
-	const tx = db.transaction(STORE_NAME, "readwrite");
-	const store = tx.objectStore(STORE_NAME);
+// 	return new Promise<void>((resolve, reject) => {
+// 		const request = store.delete(key);
+// 		request.onsuccess = () => resolve();
+// 		request.onerror = () => reject(request.error);
+// 	});
+// };
 
-	return new Promise<void>((resolve, reject) => {
-		const request = store.clear();
-		request.onsuccess = () => resolve();
-		request.onerror = () => reject(request.error);
-	});
-};
+// Cache.clear = async function (): Promise<void> {
+// 	if (!Cache.enabled || db === null) return;
+
+// 	const tx = db.transaction(STORE_NAME, "readwrite");
+// 	const store = tx.objectStore(STORE_NAME);
+
+// 	return new Promise<void>((resolve, reject) => {
+// 		const request = store.clear();
+// 		request.onsuccess = () => resolve();
+// 		request.onerror = () => reject(request.error);
+// 	});
+// };
