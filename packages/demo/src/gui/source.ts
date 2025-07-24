@@ -232,6 +232,41 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 				dataType: "elevation",
 			});
 		},
+
+		jl1: () => {
+			// function getCgUrlOrSignBySk(e, n = CG_URL_SK, o = !1) {
+			// 	const s = /\/getMap.*/,
+			// 		l = e.match(s);
+			// 	if (l) {
+			// 		const c = l[0].replace("&sign={sign}", "") + n,
+			// 			d = md5$1(c);
+			// 		return o === !0 ? d : e + `&sign=${d}`;
+			// 	}
+			// 	return "";
+			// }
+			// const CG_URL_SK = "f75cf053ef6d5f004d3dad04163e9acd",
+			// 	CG_URL_SK_GLOBAL = "7dd95af8f44f1a8a41dcb9e3c0cdd3e1",
+			// 	CG_URL_2D_GLOBAL =
+			// 		"https://api.jl1mall.com/getMap/{z}/{x}/{-y}?mk=2d9bf902749f1630bc25fc720ba7c29f&tk=6a1976c931d388deb9980e6aa81fb842",
+			// 	CG_URL_2D_ZH =
+			// 		"https://api.jl1mall.com/getMap/{z}/{x}/{-y}?mk=73ad26c4aa6957eef051ecc5a15308b4&tk=09e672492698b3feb0efefc2b8fd0d66",
+			// 	CG_URL_3D_GLOBAL =
+			// 		"https://api.jl1mall.com/getMap/{z}/{x}/{reverseY}?mk=2d9bf902749f1630bc25fc720ba7c29f&tk=6a1976c931d388deb9980e6aa81fb842&sign={sign}",
+			// 	CG_URL_3D_Zh =
+			// 		"https://api.jl1mall.com/getMap/{z}/{x}/{reverseY}?mk=73ad26c4aa6957eef051ecc5a15308b4&tk=09e672492698b3feb0efefc2b8fd0d66&sign={sign}",
+			// 	GEOVISE_TOKEN = "fa74f216c7265ac713a224dcd0a4d0f20e27b61051ed729b587111b4c410528b",
+			// 	GEOVISE_IPS = "https://tiles{s}.geovisearth.com/",
+			// 	GEOVISE_IP = "https://tiles{1-3}.geovisearth.com/";
+
+			const source = tt.TileSource.create({
+				// url: "https://api.jl1mall.com/getMap/{z}/{x}/{y}?mk=73ad26c4aa6957eef051ecc5a15308b4&tk=09e672492698b3feb0efefc2b8fd0d66&sign=8d14d52660218b1b6be5309630217d37",
+				url: "https://api.jl1mall.com/getMap/{z}/{x}/{y}?mk=73ad26c4aa6957eef051ecc5a15308b4&tk=09e672492698b3feb0efefc2b8fd0d66",
+				// url: "https://api.jl1mall.com/getMap/{z}/{x}/{y}?mk=2d9bf902749f1630bc25fc720ba7c29f&tk=173a80ec1ccd6213bfe9710202e6cb84",
+				isTMS: true,
+				maxLevel: 21,
+			});
+			map.imgSource = [source];
+		},
 	};
 
 	// 数据源
@@ -259,6 +294,8 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 
 	imgFolder.add(vm, "setWms1").name("WMS服务测试1");
 	imgFolder.add(vm, "setWms2").name("WMS服务测试2");
+
+	imgFolder.add(vm, "jl1").name("吉林一号影像");
 
 	// 地形数据源
 	const demFolder = folder.addFolder("地形数据");
