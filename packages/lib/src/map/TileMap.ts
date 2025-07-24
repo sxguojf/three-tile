@@ -33,6 +33,7 @@ export type MapParams = {
 	backgroundColor?: ColorRepresentation; //背景色, background color
 	bounds?: [number, number, number, number]; // 地图经纬度范围
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
+	/** @deprecated Do not set maxLevel,  It will set to sources maxLevel */
 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
 	lon0?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
 };
@@ -75,12 +76,14 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this._minLevel = value;
 	}
 
-	private _maxLevel = 19;
+	private _maxLevel = 20;
 	/** 地图最大缩放级别，大于这个级别瓦片树不再更新 */
 	public get maxLevel() {
 		return this._maxLevel;
 	}
-	/** 设置地图最大缩放级别，大于这个级别瓦片树不再更新 */
+	/** 设置地图最大缩放级别，大于这个级别瓦片树不再更新
+	 * @deprecated MaxLevel has deprecated, it set to sources maxLevel
+	 */
 	public set maxLevel(value: number) {
 		this._maxLevel = value;
 	}
@@ -133,6 +136,9 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		if (sources.length === 0) {
 			throw new Error("imgSource can not be empty");
 		}
+
+		this.maxLevel = this._getMaxLevel();
+
 		// 将第一个影像层的投影设置为地图投影
 		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
 		this.loader.imgSource = sources;
@@ -151,6 +157,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	/** 取得地形数据源 */
 	public set demSource(value: ISource | undefined) {
 		this.loader.demSource = value;
+		this.maxLevel = this._getMaxLevel();
 		this.updateSource(false, true);
 		if (this.debug > 0) {
 			console.log("DEM Source Changed:", this.demSource);
@@ -207,7 +214,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			loader = new TileMapLoader(),
 			rootTile = new Tile(),
 			minLevel = 2,
-			maxLevel = 20,
 			imgSource,
 			demSource,
 			backgroundColor,
@@ -217,7 +223,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		} = params;
 
 		this._minLevel = minLevel;
-		this._maxLevel = maxLevel;
+		// this._maxLevel = maxLevel;
 
 		this.loader = loader;
 		this.rootTile = rootTile;
@@ -252,6 +258,15 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		// 模型矩阵更新
 		this.rootTile.updateMatrix();
 		this.rootTile.updateMatrixWorld();
+	}
+
+	private _getMaxLevel() {
+		let maxLevel = 0;
+		this.imgSource.forEach(source => (maxLevel = Math.max(maxLevel, source.maxLevel)));
+		if (this.demSource) {
+			maxLevel = Math.max(maxLevel, this.demSource.maxLevel);
+		}
+		return maxLevel;
 	}
 
 	/**
