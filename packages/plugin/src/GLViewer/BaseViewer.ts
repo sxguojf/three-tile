@@ -7,27 +7,14 @@
 import {
 	AmbientLight,
 	BaseEvent,
-	Camera,
 	Clock,
 	Color,
-	DepthTexture,
 	DirectionalLight,
 	EventDispatcher,
-	FloatType,
 	FogExp2,
-	Mesh,
-	MeshBasicMaterial,
-	MeshDepthMaterial,
-	NearestFilter,
-	OrthographicCamera,
 	PerspectiveCamera,
-	PlaneGeometry,
-	RedFormat,
-	RGBAFormat,
 	Scene,
-	ShaderMaterial,
 	WebGLRenderer,
-	WebGLRenderTarget,
 } from "three";
 
 import { update as teweenUpdate } from "three/examples/jsm/libs/tween.module.js";
@@ -62,7 +49,7 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 
 	public readonly renderer: WebGLRenderer;
 
-	public readonly depthRenderTarget?: WebGLRenderTarget;
+	// public readonly depthRenderTarget?: WebGLRenderTarget;
 
 	public readonly camera: PerspectiveCamera;
 
@@ -97,7 +84,7 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 		if (container) {
 			this.addTo(container);
 		}
-		this.depthRenderTarget = this.createDepthRenderTarget();
+		// this.depthRenderTarget = this.createDepthRenderTarget();
 		this.ambLight = this.createAmbLight();
 		this.dirLight = this.createDirLight();
 		this.scene.add(this.ambLight);
@@ -155,14 +142,14 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 		return renderer;
 	}
 
-	protected createDepthRenderTarget() {
-		const depthRenderTarget = new WebGLRenderTarget(this.width, this.height, {
-			depthBuffer: true,
-			// depthTexture: new DepthTexture(this.width, this.height),
-			type: FloatType,
-		});
-		return depthRenderTarget;
-	}
+	// protected createDepthRenderTarget() {
+	// 	const depthRenderTarget = new WebGLRenderTarget(this.width, this.height, {
+	// 		depthBuffer: true,
+	// 		// depthTexture: new DepthTexture(this.width, this.height),
+	// 		type: FloatType,
+	// 	});
+	// 	return depthRenderTarget;
+	// }
 
 	/**
 	 * Create camera
@@ -205,7 +192,7 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
 
-		this.depthRenderTarget?.setSize(this.width, this.height);
+		// this.depthRenderTarget?.setSize(this.width, this.height);
 
 		// 防止resize过程中黑屏
 		this.update();
@@ -222,30 +209,30 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 		});
 		this.renderer.autoClear = true;
 
-		if (this.depthRenderTarget) {
-			this.renderer.setRenderTarget(this.depthRenderTarget);
-			this.renderer.render(this.scene, this.camera);
-			this.renderer.setRenderTarget(null);
-		}
+		// if (this.depthRenderTarget) {
+		// 	this.renderer.setRenderTarget(this.depthRenderTarget);
+		// 	this.renderer.render(this.scene, this.camera);
+		// 	this.renderer.setRenderTarget(null);
+		// }
 	}
 
-	public getDethBuffer() {
-		if (this.depthRenderTarget) {
-			const buffer = new Float32Array(this.depthRenderTarget.width * this.depthRenderTarget.height);
-			// 深度像素信息写入数组
-			this.renderer.readRenderTargetPixels(
-				this.depthRenderTarget,
-				0,
-				0,
-				this.depthRenderTarget.width,
-				this.depthRenderTarget.height,
-				buffer
-			);
-			return buffer;
-		} else {
-			return null;
-		}
-	}
+	// public getDethBuffer() {
+	// 	if (this.depthRenderTarget) {
+	// 		const buffer = new Float32Array(this.depthRenderTarget.width * this.depthRenderTarget.height);
+	// 		// 深度像素信息写入数组
+	// 		this.renderer.readRenderTargetPixels(
+	// 			this.depthRenderTarget,
+	// 			0,
+	// 			0,
+	// 			this.depthRenderTarget.width,
+	// 			this.depthRenderTarget.height,
+	// 			buffer
+	// 		);
+	// 		return buffer;
+	// 	} else {
+	// 		return null;
+	// 	}
+	// }
 
 	/**
 	 * Threejs animation loop

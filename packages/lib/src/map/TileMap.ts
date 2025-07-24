@@ -137,12 +137,11 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			throw new Error("imgSource can not be empty");
 		}
 
-		this.maxLevel = this._getMaxLevel();
-
 		// 将第一个影像层的投影设置为地图投影
 		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
 		this.loader.imgSource = sources;
 		this.updateSource(true, false);
+		this.maxLevel = this._getMaxLevel();
 		if (this.debug > 0) {
 			console.log("Img Source Changed:", sources);
 		}
@@ -157,11 +156,12 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	/** 取得地形数据源 */
 	public set demSource(value: ISource | undefined) {
 		this.loader.demSource = value;
-		this.maxLevel = this._getMaxLevel();
+
 		this.updateSource(false, true);
 		if (this.debug > 0) {
 			console.log("DEM Source Changed:", this.demSource);
 		}
+		this.maxLevel = this._getMaxLevel();
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -265,6 +265,9 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.imgSource.forEach(source => (maxLevel = Math.max(maxLevel, source.maxLevel)));
 		if (this.demSource) {
 			maxLevel = Math.max(maxLevel, this.demSource.maxLevel);
+		}
+		if (this.debug) {
+			console.log("Max Level:", maxLevel);
 		}
 		return maxLevel;
 	}

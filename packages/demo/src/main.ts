@@ -26,14 +26,14 @@ function registerLoader() {
 	// 注册单影像TIF-DEM加载器
 	tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
 	// 注册高程加载器
-	const eleLoader = new plugin.ElevationLoader();
-	tt.registerImgLoader(eleLoader);
-	setInterval(() => {
-		eleLoader.maxHeight += 10;
-		if (eleLoader.maxHeight > 3500) {
-			eleLoader.maxHeight = 10;
-		}
-	}, 10);
+	// const eleLoader = new plugin.ElevationLoader();
+	// tt.registerImgLoader(eleLoader);
+	// setInterval(() => {
+	// 	eleLoader.maxHeight += 10;
+	// 	if (eleLoader.maxHeight > 3500) {
+	// 		eleLoader.maxHeight = 10;
+	// 	}
+	// }, 10);
 
 	//===============================================================================
 
