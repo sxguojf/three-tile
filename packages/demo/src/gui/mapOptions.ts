@@ -24,15 +24,5 @@ export const createMapOptionsGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.T
 	folder.add(viewer.controls, "autoRotate").name("自动旋转");
 	folder.add(map.rootTile, "visible").name("地图显示/隐藏").listen();
 	folder.add(map, "dispose").name("地图销毁");
-
-	const vm = {
-		getDepth() {
-			const depth = viewer.getDethBuffer();
-			console.log(depth);
-		},
-	};
-
-	folder.add(vm, "getDepth");
-
 	return gui;
 };

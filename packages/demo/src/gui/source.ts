@@ -236,9 +236,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 
 		jl1: () => {
 			const source = new JL1Source({
-				// url: "https://api.jl1mall.com/getMap/{z}/{x}/{y}?mk=2d9bf902749f1630bc25fc720ba7c29f&tk=173a80ec1ccd6213bfe9710202e6cb84",
-				url: "https://api.jl1mall.com/getMap/{z}/{x}/{y}?mk=2d9bf902749f1630bc25fc720ba7c29f&tk=6a1976c931d388deb9980e6aa81fb842",
-				// url: "https://api.jl1mall.com/getMap/14/13488/10181?mk=2d9bf902749f1630bc25fc720ba7c29f&tk=6a1976c931d388deb9980e6aa81fb842",
+				url: "https://api.jl1mall.com/getMap/{z}/{x}/{y}",
 			});
 			map.imgSource = [source];
 		},
