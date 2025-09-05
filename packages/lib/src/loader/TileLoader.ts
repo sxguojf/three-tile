@@ -136,6 +136,7 @@ export class TileLoader implements ITileLoader {
 	 * @param tileMesh tile mesh
 	 */
 	public unload(tileMesh: Mesh): void {
+		tileMesh.removeFromParent();
 		const materials = Array.isArray(tileMesh.material) ? tileMesh.material : [tileMesh.material];
 		for (let i = 0; i < materials.length; i++) {
 			materials[i].dispose();
