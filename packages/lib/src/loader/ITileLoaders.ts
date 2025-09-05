@@ -47,10 +47,6 @@ export type TileLoadClipParamsType<TSource extends ISource = ISource> = TileSour
 	clipBounds: [number, number, number, number];
 };
 
-interface TileBackgroundMaterial extends Material {
-	color: Color;
-}
-
 /**
  * 瓦片加载器接口
  */
@@ -67,8 +63,6 @@ export interface ITileLoader {
 	demSource: ISource | undefined;
 	/** 投影ID */
 	projectionID: string;
-	/** 地图背景材质 */
-	backgroundMaterial: TileBackgroundMaterial;
 	/** 经纬度范围 */
 	bounds: BoundsType;
 	/** 加载瓦片数据 */

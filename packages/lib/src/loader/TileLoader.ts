@@ -67,7 +67,7 @@ export class TileLoader implements ITileLoader {
 	private readonly _errorGeometry = new TileGeometry();
 
 	/** Background material */
-	public readonly backgroundMaterial = new MeshBasicMaterial({ color: 0x112233 });
+	// public readonly backgroundMaterial = new MeshBasicMaterial({ color: 0x112233 });
 
 	/** Loader manager */
 	public get manager(): TileLoadingManager {
@@ -87,9 +87,6 @@ export class TileLoader implements ITileLoader {
 		console.assert(!!materials && !!geometry);
 		geometry.clearGroups();
 		for (let i = 0; i < materials.length; i++) {
-			if (i === 0) {
-				console.assert(materials[i] === this.backgroundMaterial);
-			}
 			geometry.addGroup(0, Infinity, i);
 		}
 		console.assert(materials.length === geometry.groups.length);
@@ -190,7 +187,7 @@ export class TileLoader implements ITileLoader {
 	 * @returns Material[]
 	 */
 	protected async loadMaterial(params: TileLoadParamsType): Promise<Material[]> {
-		const materials: Material[] = [this.backgroundMaterial];
+		const materials: Material[] = [];
 		const { bounds, z } = params;
 		const sources = this.imgSource.filter(source => z >= source.minLevel && this._intersectsBounds(source, bounds));
 
@@ -210,7 +207,7 @@ export class TileLoader implements ITileLoader {
 					TileLoader._downloadingThreads--;
 				});
 
-			if (material !== this._errorMaterial && material !== this.backgroundMaterial) {
+			if (material !== this._errorMaterial) {
 				// Clip the texture from mapBounds
 				if ("map" in material && material.map instanceof Texture) {
 					const texture = material.map;
@@ -245,8 +242,5 @@ export class TileLoader implements ITileLoader {
 			tileBounds[0] <= mapBounds[2] &&
 			tileBounds[1] <= mapBounds[3]
 		);
-		// const mapBox = new Box2(new Vector2(mapBounds[0], mapBounds[1]), new Vector2(mapBounds[2], mapBounds[3]));
-		// const tileBox = new Box2(new Vector2(tileBounds[0], tileBounds[1]), new Vector2(tileBounds[2], tileBounds[3]));
-		// return mapBox.intersectsBox(tileBox);
 	}
 }

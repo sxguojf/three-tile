@@ -30,7 +30,6 @@ export type MapParams = {
 	rootTile?: Tile; //根瓦片, root Tile
 	imgSource: ISource[] | ISource; //影像数据源, image source
 	demSource?: ISource; //高程数据源, terrain source
-	backgroundColor?: ColorRepresentation; //背景色, background color
 	bounds?: [number, number, number, number]; // 地图经纬度范围
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
 	/** @deprecated Do not set maxLevel,  It will set to sources maxLevel */
@@ -176,13 +175,13 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	}
 
 	/** 取得背景色 */
-	public get backgroundColor() {
-		return this.loader.backgroundMaterial.color;
-	}
-	/** 设置背景色 */
-	public set backgroundColor(value: ColorRepresentation) {
-		this.loader.backgroundMaterial.color.set(value);
-	}
+	// public get backgroundColor() {
+	// 	return this.loader.backgroundMaterial.color;
+	// }
+	// /** 设置背景色 */
+	// public set backgroundColor(value: ColorRepresentation) {
+	// 	this.loader.backgroundMaterial.color.set(value);
+	// }
 
 	/** 取得地图经纬度范围 */
 	public get bounds() {
@@ -216,7 +215,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			minLevel = 2,
 			imgSource,
 			demSource,
-			backgroundColor,
 			bounds,
 			lon0 = 0,
 			debug = 0,
@@ -228,7 +226,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.loader = loader;
 		this.rootTile = rootTile;
 
-		backgroundColor && this.loader.backgroundMaterial.color.set(backgroundColor);
+		// backgroundColor && this.loader.backgroundMaterial.color.set(backgroundColor);
 		bounds && (this.loader.bounds = bounds);
 		this.debug = this.loader.debug = debug;
 		this.lon0 = lon0;
