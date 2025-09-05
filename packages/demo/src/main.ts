@@ -25,6 +25,9 @@ function registerLoader() {
 	tt.registerImgLoader(new plugin.SingleImageLoader());
 	// 注册单影像TIF-DEM加载器
 	tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
+	// 注册背景加载器
+	tt.registerImgLoader(new plugin.BackgroundLoader());
+
 	// 注册高程加载器
 	// const eleLoader = new plugin.ElevationLoader();
 	// tt.registerImgLoader(eleLoader);

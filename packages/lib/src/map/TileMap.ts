@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Camera, Clock, ColorRepresentation, Intersection, Object3D, Vector2, Vector3 } from "three";
+import { Camera, Clock, Intersection, Object3D, Vector2, Vector3 } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ITileMapLoader } from "./ITileMapLoader";

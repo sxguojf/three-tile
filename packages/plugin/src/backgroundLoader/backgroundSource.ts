@@ -1,0 +1,14 @@
+import { ColorRepresentation } from "three";
+import { SourceOptions, TileSource } from "three-tile";
+
+export type BackgroundSourceOptions = SourceOptions & { color: ColorRepresentation };
+
+export class BackgroundSource extends TileSource {
+	public dataType = "background";
+	public color: ColorRepresentation = 0xff0000;
+
+	public constructor(options: BackgroundSourceOptions) {
+		super(options);
+		Object.assign(this, options);
+	}
+}

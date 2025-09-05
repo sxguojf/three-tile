@@ -4,7 +4,7 @@
  * @date: 2023-04-06
  */
 
-import { BufferGeometry, Color, Material, Mesh } from "three";
+import { BufferGeometry, Material, Mesh } from "three";
 import { ISource } from "../source";
 import { TileLoadingManager } from "./TileLoadingManager";
 

@@ -240,6 +240,15 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			});
 			map.imgSource = [source];
 		},
+		setBackground: () => {
+			map.imgSource = [
+				tt.TileSource.create({
+					dataType: "background",
+					color: 0x553322,
+				}),
+				ms.gdImgLabelSource,
+			];
+		},
 	};
 
 	// 数据源
@@ -294,6 +303,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	testFolder.add(vm, "setGDRoad").name("高德路网");
 	testFolder.add(vm, "setElevation").name("Elevator测试");
 	// testFolder.add(vm, "setQm").name("quantized-mesh test");
+	testFolder.add(vm, "setBackground").name("背景测试");
 
 	return gui;
 };
