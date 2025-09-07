@@ -1,4 +1,4 @@
-import { Mesh } from "three";
+import { BufferGeometry, Material, Mesh } from "three";
 
 /**
  * 瓦片坐标类型
@@ -23,9 +23,9 @@ export interface ITileLoader {
 	/** 投影ID */
 	projectionID: string;
 	/** 加载瓦片数据 */
-	load(params: TileCoords): Promise<Mesh>;
+	load(tileMesh: Mesh<BufferGeometry, Material[]>, params: TileCoords): Promise<boolean>;
 	/** 释放瓦片模型 */
-	unload(tileMesh: Mesh): void;
+	unload(tileMesh: Mesh<BufferGeometry, Material[]>): void;
 	/**  更新瓦片数据 */
-	update(tileMesh: Mesh, params: TileCoords, updateMaterial: boolean, updateGeometry: boolean): Promise<Mesh>;
+	// update(tileMesh: Mesh, params: TileCoords, updateMaterial: boolean, updateGeometry: boolean): Promise<Mesh>;
 }

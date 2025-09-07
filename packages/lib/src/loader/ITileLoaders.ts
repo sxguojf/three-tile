@@ -66,9 +66,13 @@ export interface ITileLoader {
 	/** 经纬度范围 */
 	bounds: BoundsType;
 	/** 加载瓦片数据 */
-	load(params: TileCoords): Promise<Mesh>;
+	// load(tileMesh: Mesh, params: TileCoords): Promise<Mesh>;
+	// /** 释放瓦片模型 */
+	// unload(tileMesh: Mesh): void;
+	/** 加载瓦片数据 */
+	load(tileMesh: Mesh<BufferGeometry, Material[]>, params: TileCoords): Promise<boolean>;
 	/** 释放瓦片模型 */
-	unload(tileMesh: Mesh): void;
+	unload(tileMesh: Mesh<BufferGeometry, Material[]>): void;
 	/**  更新瓦片数据 */
 	update(tileMesh: Mesh, params: TileCoords, updateMaterial: boolean, updateGeometry: boolean): Promise<Mesh>;
 }

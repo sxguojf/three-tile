@@ -78,10 +78,10 @@ export class TileLoader implements ITileLoader {
 	public debug = 0;
 
 	/**
-	 * Load getmetry and materail of tile from x, y and z coordinate.
-	 * @returns Promise<MeshDateType> tile data
+	 * Load getmetry and materail of tile from x, y and z coordinate to the tile mesh.
+	 * @returns Promise<boolean> tile has loaded?
 	 */
-	public async load(params: TileLoadParamsType): Promise<Mesh> {
+	public async load(tileMesh: Mesh<BufferGeometry, Material[]>, params: TileLoadParamsType): Promise<boolean> {
 		const geometry = await this.loadGeometry(params);
 		const materials = await this.loadMaterial(params);
 		console.assert(!!materials && !!geometry);
@@ -90,8 +90,10 @@ export class TileLoader implements ITileLoader {
 			geometry.addGroup(0, Infinity, i);
 		}
 		console.assert(materials.length === geometry.groups.length);
-		const mesh = new Mesh(geometry, materials);
-		return mesh;
+		this.unload(tileMesh);
+		tileMesh.geometry = geometry;
+		tileMesh.material = materials;
+		return true;
 	}
 
 	private async updateGeometry(tileMesh: Mesh, params: TileLoadParamsType) {
@@ -118,7 +120,12 @@ export class TileLoader implements ITileLoader {
 	 * Update tile mesh data
 	 * @param tileMesh tile mesh
 	 */
-	public async update(tileMesh: Mesh, params: TileLoadParamsType, updateMaterial: boolean, updateGeometry: boolean) {
+	public async update(
+		tileMesh: Mesh<BufferGeometry, Material[]>,
+		params: TileLoadParamsType,
+		updateMaterial: boolean,
+		updateGeometry: boolean
+	) {
 		if (updateGeometry) {
 			await this.updateGeometry(tileMesh, params);
 		}
@@ -133,13 +140,13 @@ export class TileLoader implements ITileLoader {
 	 * @param tileMesh tile mesh
 	 */
 	public unload(tileMesh: Mesh): void {
-		tileMesh.removeFromParent();
 		const materials = Array.isArray(tileMesh.material) ? tileMesh.material : [tileMesh.material];
 		for (let i = 0; i < materials.length; i++) {
 			materials[i].dispose();
 			tileMesh.geometry.groups.pop();
 		}
 		tileMesh.geometry.dispose();
+		tileMesh.material = [];
 	}
 
 	/**

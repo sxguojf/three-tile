@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Mesh } from "three";
+import { BufferGeometry, Material, Mesh } from "three";
 import { TileLoader, TileLoadParamsType } from "../loader";
 import { IProjection, ProjMCT } from "./projection";
 import { ISource } from "../source";
@@ -61,17 +61,17 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 		this._updateDemPrjBounds();
 	}
 
-	public override async load(params: TileLoadParamsType): Promise<Mesh> {
+	public override async load(tileMesh: Mesh<BufferGeometry, Material[]>, params: TileLoadParamsType): Promise<boolean> {
 		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
-		return super.load({ x, y, z, bounds, lonLatBounds });
+		return super.load(tileMesh, { x, y, z, bounds, lonLatBounds });
 	}
 
 	public override async update(
-		tileMesh: Mesh,
+		tileMesh: Mesh<BufferGeometry, Material[]>,
 		params: TileLoadParamsType,
 		updateMaterial: boolean,
 		updateGeometry: boolean
-	): Promise<Mesh> {
+	): Promise<Mesh<BufferGeometry, Material[]>> {
 		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
 		return await super.update(tileMesh, { x, y, z, bounds, lonLatBounds }, updateMaterial, updateGeometry);
 	}

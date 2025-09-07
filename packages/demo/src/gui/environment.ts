@@ -50,34 +50,6 @@ export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.
 		.name("HDR效果");
 	folder.add(viewer.renderer, "toneMappingExposure", 0, 5).name("HDR系数");
 
-	folder
-		.add(vm, "skyVisible")
-		.name("天空")
-		.onChange((value: boolean) => {
-			if (value) {
-				viewer.scene.background = vm.skybox;
-				viewer.scene.fog!.color.set(0xdbf0ff);
-			} else {
-				viewer.scene.background = vm.skyColor;
-				viewer.scene.fog!.color.set(vm.skyColor);
-			}
-		})
-		.listen();
-
-	folder
-		.addColor(vm, "skyColor")
-		.name("天空和雾颜色")
-		.listen()
-		.onChange((value: Color) => {
-			viewer.scene.background = value;
-			viewer.scene.fog!.color.set(value);
-			const fakeEarth = viewer.scene.getObjectByName("fakeearth");
-			if (fakeEarth instanceof plugin.FakeEarth) {
-				fakeEarth.bkColor.set(value);
-			}
-			vm.skyVisible = false;
-		});
-
 	folder.add(viewer, "fogFactor", 0, 10, 0.001).listen().name("雾浓度");
 
 	const fakeEarth = viewer.scene.getObjectByName("fakeearth") as plugin.FakeEarth;
