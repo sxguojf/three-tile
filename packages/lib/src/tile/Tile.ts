@@ -8,19 +8,16 @@ import {
 	BaseEvent,
 	Box3,
 	Box3Helper,
-	BufferGeometry,
 	Camera,
-	Material,
 	Matrix4,
 	Mesh,
 	Object3D,
 	Object3DEventMap,
-	PlaneGeometry,
 	Raycaster,
 	Vector3,
 } from "three";
 import { FrustumEx } from "./FrustumEx";
-import { ITileLoader } from "./ITileLoader";
+import { ITileLoader, TileMesh } from "./ITileLoader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
 /** 最大下载线程数 */
@@ -32,11 +29,6 @@ const frustum = new FrustumEx();
 /** 临时变量 */
 const tempMat4 = new Matrix4();
 const tempVec3 = new Vector3();
-
-// 默认几何体
-const defaultGeometry = new PlaneGeometry();
-// 默认材质
-const defaultMaterial: Material[] = [];
 
 /** 瓦片更新参数类型 */
 export type TileUpdateParames = {
@@ -96,7 +88,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	private _bbox: Box3 | null = null;
 
 	/** 瓦片模型 */
-	private _model = new Mesh<BufferGeometry, Material[]>(defaultGeometry, defaultMaterial);
+	private _model?: TileMesh;
 	public get model() {
 		return this._model;
 	}
@@ -125,12 +117,12 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 取得瓦片是否显示 */
 	public get showing(): boolean {
-		return this._loaded && this.model.visible;
+		return !!this.model && this.model.visible;
 	}
 
 	/** 设置瓦片是否显示 */
 	public set showing(value) {
-		if (this._loaded) {
+		if (this.model) {
 			if (value) {
 				this._updateShadow();
 			}
@@ -147,11 +139,6 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 是否为脏瓦片 */
 	private _isDirty = false;
 
-	/** 瓦片是否已加载 */
-	private get _loaded() {
-		return this.model.material.length > 0;
-	}
-
 	/**
 	 * 构造函数
 	 * @param x - 瓦片X坐标，默认：0
@@ -166,7 +153,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
 		this.matrixAutoUpdate = false;
-		this.add(this._model);
+		// this.add(this._model);
 	}
 
 	/**
@@ -235,7 +222,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载或更新瓦片
 		if (this.z >= minLevel && loader.downloadingThreads < MAXTHREADS) {
 			// 下载瓦片
-			if (!this._loaded) {
+			if (!this.model) {
 				this._startLoad(loader);
 				return;
 			}
@@ -263,7 +250,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 更新瓦片阴影 */
 	private _updateShadow() {
-		if (this._loaded) {
+		if (this.model) {
 			this.model.castShadow = this._root.castShadow;
 			this.model.receiveShadow = this._root.receiveShadow;
 		}
@@ -288,7 +275,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			});
 		} else if (action === LODAction.remove) {
 			// console.log("remove", this.name);
-			if (this._loaded) {
+			if (this.model) {
 				this.showing = true;
 				this.unLoad(loader, false);
 			}
@@ -302,10 +289,10 @@ export class Tile extends Object3D<TTileEventMap> {
 	private _checkVisible() {
 		const parent = this.parent;
 		if (parent instanceof Tile) {
-			if (parent._loaded) {
+			if (parent.model) {
 				const subTiles = parent.subTiles;
 				if (subTiles) {
-					const allLoaded = !subTiles.some(child => !child._loaded);
+					const allLoaded = !subTiles.some(child => !child.model);
 					subTiles.forEach(child => (child.showing = allLoaded));
 					parent.showing = !allLoaded;
 				}
@@ -324,9 +311,9 @@ export class Tile extends Object3D<TTileEventMap> {
 		const oldDirty = this._isDirty;
 		this._isDirty = false;
 		this._isLoading = true;
-		await loader.load(this.model, this);
-		this.model.geometry.computeBoundingBox();
-		this._checkPoint.y = this.model.geometry.boundingBox?.max.z || 0;
+		const model = await loader.load(this, this.model);
+		model.geometry.computeBoundingBox();
+		this._checkPoint.y = model.geometry.boundingBox?.max.z || 0;
 
 		if (oldDirty) {
 			this._isDirty = false;
@@ -335,6 +322,8 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 
 		this._isLoading = false;
+		this._model = model;
+		this.add(model);
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 	}
 
@@ -349,7 +338,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			return this.unLoad(loader, true);
 		} else {
 			this.traverse(child => {
-				if (child instanceof Tile && (child._loaded || child._isLoading)) {
+				if (child instanceof Tile && (child.model || child._isLoading)) {
 					child._isDirty = true;
 				}
 			});
@@ -373,12 +362,10 @@ export class Tile extends Object3D<TTileEventMap> {
 			this._subTiles = undefined;
 		}
 		// 卸载自己
-		if (unLoadSelf) {
+		if (unLoadSelf && this.model) {
 			this.model.removeFromParent();
-			if (this._loaded) {
-				loader.unload(this.model);
-				this._root.dispatchEvent({ type: "tile-unload", tile: this });
-			}
+			loader.unload(this.model);
+			this._root.dispatchEvent({ type: "tile-unload", tile: this });
 		}
 		// 卸载调试包围盒
 		if (loader.debug > 1) {

@@ -12,6 +12,8 @@ type TileCoords = {
 	z: number;
 };
 
+export type TileMesh = Mesh<BufferGeometry, Material[]>;
+
 /**
  * 瓦片加载器接口
  */
@@ -23,7 +25,7 @@ export interface ITileLoader {
 	/** 投影ID */
 	projectionID: string;
 	/** 加载瓦片数据 */
-	load(tileMesh: Mesh<BufferGeometry, Material[]>, params: TileCoords): Promise<boolean>;
+	load(params: TileCoords, tileMesh?: TileMesh): Promise<TileMesh>;
 	/** 释放瓦片模型 */
 	unload(tileMesh: Mesh<BufferGeometry, Material[]>): void;
 	/**  更新瓦片数据 */
