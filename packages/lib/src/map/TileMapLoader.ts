@@ -66,15 +66,15 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 		return super.load(tileMesh, { x, y, z, bounds, lonLatBounds });
 	}
 
-	public override async update(
-		tileMesh: Mesh<BufferGeometry, Material[]>,
-		params: TileLoadParamsType,
-		updateMaterial: boolean,
-		updateGeometry: boolean
-	): Promise<Mesh<BufferGeometry, Material[]>> {
-		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
-		return await super.update(tileMesh, { x, y, z, bounds, lonLatBounds }, updateMaterial, updateGeometry);
-	}
+	// public override async update(
+	// 	tileMesh: Mesh<BufferGeometry, Material[]>,
+	// 	params: TileLoadParamsType,
+	// 	updateMaterial: boolean,
+	// 	updateGeometry: boolean
+	// ): Promise<Mesh<BufferGeometry, Material[]>> {
+	// 	const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
+	// 	return await super.update(tileMesh, { x, y, z, bounds, lonLatBounds }, updateMaterial, updateGeometry);
+	// }
 
 	private getTileCoords(params: TileLoadParamsType) {
 		if (!this._projection) {

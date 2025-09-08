@@ -299,14 +299,14 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 * @param updateGeometry 是否重新加载几何体, 默认为true
 	 */
 	public updateSource(updateMaterial = true, updateGeometry = true) {
-		this.rootTile.updateData(updateMaterial, updateGeometry);
+		this.rootTile.reload(this.loader, false);
 	}
 
 	/**
 	 * 销毁全部瓦片并重新加载
 	 */
-	public reload() {
-		this.rootTile.reload(this.loader);
+	public reload(dispose = true) {
+		this.rootTile.reload(this.loader, dispose);
 	}
 
 	/**

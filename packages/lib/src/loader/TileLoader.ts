@@ -82,58 +82,73 @@ export class TileLoader implements ITileLoader {
 	 * @returns Promise<boolean> tile has loaded?
 	 */
 	public async load(tileMesh: Mesh<BufferGeometry, Material[]>, params: TileLoadParamsType): Promise<boolean> {
-		const geometry = await this.loadGeometry(params);
-		const materials = await this.loadMaterial(params);
-		console.assert(!!materials && !!geometry);
-		geometry.clearGroups();
-		for (let i = 0; i < materials.length; i++) {
-			geometry.addGroup(0, Infinity, i);
+		const imgchanged = tileMesh.userData.imgSource !== this.imgSource;
+		const demChanged = tileMesh.userData.demSource !== this.demSource;
+
+		tileMesh.userData.demSource = this.demSource;
+		tileMesh.userData.imgSource = this.imgSource;
+
+		let geometry = tileMesh.geometry;
+		if (demChanged) {
+			tileMesh.geometry = await this.loadGeometry(params);
+			geometry.dispose();
 		}
-		console.assert(materials.length === geometry.groups.length);
-		this.unload(tileMesh);
-		tileMesh.geometry = geometry;
-		tileMesh.material = materials;
-		return true;
+
+		let material = tileMesh.material;
+		if (imgchanged) {
+			tileMesh.material = await this.loadMaterial(params);
+			material.forEach(mat => mat.dispose());
+		}
+
+		if (demChanged || imgchanged) {
+			tileMesh.geometry.clearGroups();
+			for (let i = 0; i < tileMesh.material.length; i++) {
+				tileMesh.geometry.addGroup(0, Infinity, i);
+			}
+			console.assert(tileMesh.material.length === tileMesh.geometry.groups.length);
+			return true;
+		}
+		return false;
 	}
 
-	private async updateGeometry(tileMesh: Mesh, params: TileLoadParamsType) {
-		const oldGeometry = tileMesh.geometry;
-		tileMesh.geometry = await this.loadGeometry(params);
-		tileMesh.geometry.groups = oldGeometry.groups;
-		oldGeometry.dispose();
-	}
+	// private async updateGeometry(tileMesh: Mesh, params: TileLoadParamsType) {
+	// 	const oldGeometry = tileMesh.geometry;
+	// 	tileMesh.geometry = await this.loadGeometry(params);
+	// 	tileMesh.geometry.groups = oldGeometry.groups;
+	// 	oldGeometry.dispose();
+	// }
 
-	private async updateMaterial(tileMesh: Mesh, params: TileLoadParamsType) {
-		const oldMaterial = Array.isArray(tileMesh.material) ? tileMesh.material : [tileMesh.material];
-		const material = await this.loadMaterial(params);
-		tileMesh.material = material;
-		tileMesh.geometry.clearGroups();
-		for (let i = 0; i < material.length; i++) {
-			tileMesh.geometry.addGroup(0, Infinity, i);
-		}
-		for (let i = 0; i < oldMaterial.length; i++) {
-			oldMaterial[i].dispose();
-		}
-	}
+	// private async updateMaterial(tileMesh: Mesh, params: TileLoadParamsType) {
+	// 	const oldMaterial = Array.isArray(tileMesh.material) ? tileMesh.material : [tileMesh.material];
+	// 	const material = await this.loadMaterial(params);
+	// 	tileMesh.material = material;
+	// 	tileMesh.geometry.clearGroups();
+	// 	for (let i = 0; i < material.length; i++) {
+	// 		tileMesh.geometry.addGroup(0, Infinity, i);
+	// 	}
+	// 	for (let i = 0; i < oldMaterial.length; i++) {
+	// 		oldMaterial[i].dispose();
+	// 	}
+	// }
 
-	/**
-	 * Update tile mesh data
-	 * @param tileMesh tile mesh
-	 */
-	public async update(
-		tileMesh: Mesh<BufferGeometry, Material[]>,
-		params: TileLoadParamsType,
-		updateMaterial: boolean,
-		updateGeometry: boolean
-	) {
-		if (updateGeometry) {
-			await this.updateGeometry(tileMesh, params);
-		}
-		if (updateMaterial) {
-			await this.updateMaterial(tileMesh, params);
-		}
-		return tileMesh;
-	}
+	// /**
+	//  * Update tile mesh data
+	//  * @param tileMesh tile mesh
+	//  */
+	// public async update(
+	// 	tileMesh: Mesh<BufferGeometry, Material[]>,
+	// 	params: TileLoadParamsType,
+	// 	updateMaterial: boolean,
+	// 	updateGeometry: boolean
+	// ) {
+	// 	if (updateGeometry) {
+	// 		await this.updateGeometry(tileMesh, params);
+	// 	}
+	// 	if (updateMaterial) {
+	// 		await this.updateMaterial(tileMesh, params);
+	// 	}
+	// 	return tileMesh;
+	// }
 
 	/**
 	 * Unload tile mesh data
@@ -147,6 +162,9 @@ export class TileLoader implements ITileLoader {
 		}
 		tileMesh.geometry.dispose();
 		tileMesh.material = [];
+
+		delete tileMesh.userData.demSource;
+		delete tileMesh.userData.imgSource;
 	}
 
 	/**

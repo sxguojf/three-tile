@@ -140,7 +140,7 @@ export class Tile extends Object3D<TTileEventMap> {
 				this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
 			}
 		} else {
-			console.assert(!value);
+			// console.assert(!value);
 		}
 	}
 
@@ -234,6 +234,12 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载或更新瓦片
 		if (this.z >= minLevel && loader.downloadingThreads < MAXTHREADS) {
+			// 下载瓦片
+			if (!this._loaded) {
+				this._startLoad(loader);
+				return;
+			}
+
 			// 更新脏瓦片
 			if (this._isDirty && this.inFrustum) {
 				// 先更新子瓦片再更新父瓦片，以加快显示
@@ -242,12 +248,6 @@ export class Tile extends Object3D<TTileEventMap> {
 					this._startLoad(loader);
 					return;
 				}
-			}
-
-			// 下载瓦片
-			if (!this._loaded) {
-				this._startLoad(loader);
-				return;
 			}
 		}
 
@@ -261,6 +261,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.subTiles?.forEach(child => child.update(params));
 	}
 
+	/** 更新瓦片阴影 */
 	private _updateShadow() {
 		if (this._loaded) {
 			this.model.castShadow = this._root.castShadow;
@@ -320,41 +321,40 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * @param loader  - 瓦片加载器
 	 */
 	private async _startLoad(loader: ITileLoader) {
+		const oldDirty = this._isDirty;
+		this._isDirty = false;
 		this._isLoading = true;
 		await loader.load(this.model, this);
 		this.model.geometry.computeBoundingBox();
 		this._checkPoint.y = this.model.geometry.boundingBox?.max.z || 0;
-		this._isLoading = false;
-		if (this._isDirty) {
+
+		if (oldDirty) {
 			this._isDirty = false;
 		} else {
 			this.isLeaf && this._checkVisible();
 		}
+
+		this._isLoading = false;
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 	}
 
 	/**
-	 * 更新瓦片数据
-	 * @param updateMaterial - 是否更新材质
-	 * @param updateGeometry - 是否更新几何体
-	 * @returns this
-	 */
-	public updateData(updateMaterial: boolean, updateGeometry: boolean) {
-		this.traverse(child => {
-			if (child instanceof Tile && (child._loaded || child._isLoading)) {
-				child._isDirty = true;
-			}
-		});
-		return this;
-	}
-
-	/**
-	 * 销毁瓦片树重新创建，并加载数据，改变地图投影时必须调用它以生效
+	 * 重新加载瓦片数据
 	 * @param loader - 瓦片加载器
+	 * @param dispose - 是否销毁瓦片树
 	 * @returns this
 	 */
-	public reload(loader: ITileLoader) {
-		return this.unLoad(loader, true);
+	public reload(loader: ITileLoader, dispose = true) {
+		if (dispose) {
+			return this.unLoad(loader, true);
+		} else {
+			this.traverse(child => {
+				if (child instanceof Tile && (child._loaded || child._isLoading)) {
+					child._isDirty = true;
+				}
+			});
+		}
+		return this;
 	}
 
 	/**
