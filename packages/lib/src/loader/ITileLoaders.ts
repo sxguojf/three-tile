@@ -22,6 +22,8 @@ export type TileCoords = {
 	z: number;
 };
 
+export type TileMesh = Mesh<BufferGeometry, Material[]>;
+
 /**
  * 瓦片加载参数类型，包括瓦片投影范围和经纬度范围
  */
@@ -53,6 +55,8 @@ export type TileLoadClipParamsType<TSource extends ISource = ISource> = TileSour
 export interface ITileLoader {
 	/** 正在进行的下载线程数量 */
 	downloadingThreads: number;
+	/** 最大线程数量 */
+	maxThreads: number;
 	/** 调试级别 */
 	debug: number;
 	/** 瓦片加载管理器 */
@@ -70,7 +74,7 @@ export interface ITileLoader {
 	// /** 释放瓦片模型 */
 	// unload(tileMesh: Mesh): void;
 	/** 加载瓦片数据 */
-	load(tileMesh: Mesh<BufferGeometry, Material[]>, params: TileCoords): Promise<boolean>;
+	load(params: TileCoords, tileMesh?: TileMesh): Promise<TileMesh>;
 	/** 释放瓦片模型 */
 	unload(tileMesh: Mesh<BufferGeometry, Material[]>): void;
 	/**  更新瓦片数据 */

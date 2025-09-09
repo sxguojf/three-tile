@@ -108,7 +108,6 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 					opacity: 0.8,
 				}),
 			];
-			map.updateSource(true, false);
 		},
 		setTileWire: () => {
 			map.imgSource = [ms.arcGisImgSource, tt.TileSource.create({ dataType: "wireframe", opacity: 0.3 })];

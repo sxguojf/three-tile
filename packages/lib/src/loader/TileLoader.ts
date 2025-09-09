@@ -7,7 +7,7 @@
 import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Texture } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
-import { BoundsType, ITileLoader, TileLoadParamsType } from "./ITileLoaders";
+import { BoundsType, ITileLoader, TileLoadParamsType, TileMesh } from "./ITileLoaders";
 import { LoaderFactory } from "./LoaderFactory";
 import { TileLoadingManager } from "./TileLoadingManager";
 import { tileBoundsClip } from "./util";
@@ -16,7 +16,7 @@ import { tileBoundsClip } from "./util";
  * Tile loader
  */
 export class TileLoader implements ITileLoader {
-	private static _downloadingThreads = 0;
+	private _downloadingThreads = 0;
 
 	private _bounds: BoundsType = [-180, -85, 180, 85];
 	public get bounds() {
@@ -26,9 +26,19 @@ export class TileLoader implements ITileLoader {
 		this._bounds = value;
 	}
 
-	/** Get downloading threads */
+	private _maxThreads = 10;
+	/** Get the max downloading threads count*/
+	public get maxThreads() {
+		return this._maxThreads;
+	}
+	/** Set the max downloading threads count*/
+	public set maxThreads(value) {
+		this._maxThreads = value;
+	}
+
+	/** Get downloading threads count*/
 	public get downloadingThreads(): number {
-		return TileLoader._downloadingThreads;
+		return this._downloadingThreads;
 	}
 
 	private _imgSource: ISource[] = [];
@@ -66,9 +76,6 @@ export class TileLoader implements ITileLoader {
 	/** Error geometry */
 	private readonly _errorGeometry = new TileGeometry();
 
-	/** Background material */
-	// public readonly backgroundMaterial = new MeshBasicMaterial({ color: 0x112233 });
-
 	/** Loader manager */
 	public get manager(): TileLoadingManager {
 		return LoaderFactory.manager;
@@ -78,84 +85,79 @@ export class TileLoader implements ITileLoader {
 	public debug = 0;
 
 	/**
-	 * Load getmetry and materail of tile from x, y and z coordinate to the tile mesh.
-	 * @returns Promise<boolean> tile has loaded?
+	 * Load getmetry and materail of tile from x, y and z coordinate.
+	 * @param params load params(x,y,z,bounds etc.)
+	 * @param tileMesh tile mesh
+	 * @returns Promise<TileMesh> tile mesh
 	 */
-	public async load(tileMesh: Mesh<BufferGeometry, Material[]>, params: TileLoadParamsType): Promise<boolean> {
-		const imgchanged = tileMesh.userData.imgSource !== this.imgSource;
-		const demChanged = tileMesh.userData.demSource !== this.demSource;
+	public async load(params: TileLoadParamsType, tileMesh?: TileMesh): Promise<TileMesh> {
+		this._downloadingThreads++;
+		let mesh: TileMesh;
+		// no tileMesh, create tile mesh
+		if (!tileMesh) {
+			mesh = await this._createTileMesh(params);
+		} else {
+			// has tileMesh, update tile mesh
+			mesh = await this._updateTileMesh(params, tileMesh);
+		}
+		this._downloadingThreads--;
+		return mesh;
+	}
 
-		tileMesh.userData.demSource = this.demSource;
-		tileMesh.userData.imgSource = this.imgSource;
+	private async _createTileMesh(params: TileLoadParamsType) {
+		const demSource = this.demSource;
+		const imgSource = this.imgSource;
+		const geometry = await this.loadGeometry(params);
+		const material = await this.loadMaterial(params);
+		geometry.clearGroups();
+		for (let i = 0; i < material.length; i++) {
+			geometry.addGroup(0, Infinity, i);
+		}
+		const mesh: TileMesh = new Mesh(geometry, material);
+		mesh.userData.demSource = demSource;
+		mesh.userData.imgSource = imgSource;
 
-		let geometry = tileMesh.geometry;
+		return mesh;
+	}
+
+	private async _updateTileMesh(params: TileLoadParamsType, tileMesh: TileMesh) {
+		// source not change, return
+		const imgchanged = tileMesh.userData.imgSource != this.imgSource;
+		const demChanged = tileMesh.userData.demSource != this.demSource;
+		if (!imgchanged && !demChanged) {
+			return tileMesh;
+		}
+
+		// update dem
 		if (demChanged) {
+			let geometry = tileMesh.geometry;
+			tileMesh.userData.demSource = this.demSource;
 			tileMesh.geometry = await this.loadGeometry(params);
 			geometry.dispose();
 		}
 
-		let material = tileMesh.material;
+		// update img
 		if (imgchanged) {
+			let material = tileMesh.material;
+			tileMesh.userData.imgSource = this.imgSource;
 			tileMesh.material = await this.loadMaterial(params);
 			material.forEach(mat => mat.dispose());
 		}
 
-		if (demChanged || imgchanged) {
-			tileMesh.geometry.clearGroups();
-			for (let i = 0; i < tileMesh.material.length; i++) {
-				tileMesh.geometry.addGroup(0, Infinity, i);
-			}
-			console.assert(tileMesh.material.length === tileMesh.geometry.groups.length);
-			return true;
+		tileMesh.geometry.clearGroups();
+		for (let i = 0; i < tileMesh.material.length; i++) {
+			tileMesh.geometry.addGroup(0, Infinity, i);
 		}
-		return false;
+
+		return tileMesh;
 	}
-
-	// private async updateGeometry(tileMesh: Mesh, params: TileLoadParamsType) {
-	// 	const oldGeometry = tileMesh.geometry;
-	// 	tileMesh.geometry = await this.loadGeometry(params);
-	// 	tileMesh.geometry.groups = oldGeometry.groups;
-	// 	oldGeometry.dispose();
-	// }
-
-	// private async updateMaterial(tileMesh: Mesh, params: TileLoadParamsType) {
-	// 	const oldMaterial = Array.isArray(tileMesh.material) ? tileMesh.material : [tileMesh.material];
-	// 	const material = await this.loadMaterial(params);
-	// 	tileMesh.material = material;
-	// 	tileMesh.geometry.clearGroups();
-	// 	for (let i = 0; i < material.length; i++) {
-	// 		tileMesh.geometry.addGroup(0, Infinity, i);
-	// 	}
-	// 	for (let i = 0; i < oldMaterial.length; i++) {
-	// 		oldMaterial[i].dispose();
-	// 	}
-	// }
-
-	// /**
-	//  * Update tile mesh data
-	//  * @param tileMesh tile mesh
-	//  */
-	// public async update(
-	// 	tileMesh: Mesh<BufferGeometry, Material[]>,
-	// 	params: TileLoadParamsType,
-	// 	updateMaterial: boolean,
-	// 	updateGeometry: boolean
-	// ) {
-	// 	if (updateGeometry) {
-	// 		await this.updateGeometry(tileMesh, params);
-	// 	}
-	// 	if (updateMaterial) {
-	// 		await this.updateMaterial(tileMesh, params);
-	// 	}
-	// 	return tileMesh;
-	// }
 
 	/**
 	 * Unload tile mesh data
 	 * @param tileMesh tile mesh
 	 */
-	public unload(tileMesh: Mesh): void {
-		const materials = Array.isArray(tileMesh.material) ? tileMesh.material : [tileMesh.material];
+	public unload(tileMesh: TileMesh): void {
+		const materials = tileMesh.material;
 		for (let i = 0; i < materials.length; i++) {
 			materials[i].dispose();
 			tileMesh.geometry.groups.pop();
@@ -177,7 +179,6 @@ export class TileLoader implements ITileLoader {
 		if (this.demSource && z >= this.demSource.minLevel && this._intersectsBounds(this.demSource, bounds)) {
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 			const source = this.demSource;
-			TileLoader._downloadingThreads++;
 			geometry = await loader
 				.load({ source, ...params })
 				.catch(e => {
@@ -186,9 +187,7 @@ export class TileLoader implements ITileLoader {
 					}
 					return this._errorGeometry;
 				})
-				.finally(() => {
-					TileLoader._downloadingThreads--;
-				});
+				.finally(() => {});
 
 			if (geometry != this._errorGeometry) {
 				const dispose = (evt: { target: BufferGeometry }) => {
@@ -219,7 +218,6 @@ export class TileLoader implements ITileLoader {
 		for (let i = 0; i < sources.length; i++) {
 			const source = sources[i];
 			const loader = LoaderFactory.getMaterialLoader(source);
-			TileLoader._downloadingThreads++;
 			const material: Material = await loader
 				.load({ source, ...params })
 				.catch(e => {
@@ -228,19 +226,10 @@ export class TileLoader implements ITileLoader {
 					}
 					return this._errorMaterial;
 				})
-				.finally(() => {
-					TileLoader._downloadingThreads--;
-				});
+				.finally(() => {});
 
 			if (material !== this._errorMaterial) {
-				// Clip the texture from mapBounds
-				if ("map" in material && material.map instanceof Texture) {
-					const texture = material.map;
-					if (texture.image) {
-						texture.image = tileBoundsClip(texture.image, source._projectionBounds, params.bounds);
-					}
-					texture.needsUpdate = true;
-				}
+				this._materialClip(material, source, params);
 				material.opacity = source.opacity;
 				material.transparent = source.transparent;
 
@@ -253,6 +242,18 @@ export class TileLoader implements ITileLoader {
 			}
 		}
 		return materials;
+	}
+
+	/** Clip the material texture from mapBounds */
+	private _materialClip(material: Material, source: ISource, params: TileLoadParamsType) {
+		if ("map" in material && material.map instanceof Texture) {
+			const texture = material.map;
+			if (texture.image) {
+				texture.image = tileBoundsClip(texture.image, source._projectionBounds, params.bounds);
+			}
+			texture.needsUpdate = true;
+		}
+		return this;
 	}
 
 	/**

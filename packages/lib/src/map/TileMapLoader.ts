@@ -4,11 +4,10 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh } from "three";
-import { TileLoader, TileLoadParamsType } from "../loader";
-import { IProjection, ProjMCT } from "./projection";
+import { TileLoader, TileLoadParamsType, TileMesh } from "../loader";
 import { ISource } from "../source";
 import { ITileMapLoader } from "./ITileMapLoader";
+import { IProjection, ProjMCT } from "./projection";
 
 /** 地图瓦片加载器，ITileLoader基础上增加地图投影属性 */
 export class TileMapLoader extends TileLoader implements ITileMapLoader {
@@ -61,9 +60,9 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 		this._updateDemPrjBounds();
 	}
 
-	public override async load(tileMesh: Mesh<BufferGeometry, Material[]>, params: TileLoadParamsType): Promise<boolean> {
+	public override async load(params: TileLoadParamsType, tileMesh: TileMesh): Promise<TileMesh> {
 		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
-		return super.load(tileMesh, { x, y, z, bounds, lonLatBounds });
+		return super.load({ x, y, z, bounds, lonLatBounds }, tileMesh);
 	}
 
 	// public override async update(

@@ -20,6 +20,8 @@ export type TileMesh = Mesh<BufferGeometry, Material[]>;
 export interface ITileLoader {
 	/** 正在进行的下载线程数量 */
 	downloadingThreads: number;
+	/** 最大线程数量 */
+	maxThreads: number;
 	/** 调试级别 */
 	debug: number;
 	/** 投影ID */

@@ -20,8 +20,6 @@ import { FrustumEx } from "./FrustumEx";
 import { ITileLoader, TileMesh } from "./ITileLoader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
 
-/** 最大下载线程数 */
-const MAXTHREADS = 10;
 /** 相机世界坐标 */
 const cameraWorldPosition = new Vector3();
 /** 场景视锥体 */
@@ -87,13 +85,14 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 瓦片包围盒（世界坐标） */
 	private _bbox: Box3 | null = null;
 
-	/** 瓦片模型 */
 	private _model?: TileMesh;
+	/** 瓦片模型 */
 	public get model() {
 		return this._model;
 	}
-	/** 子瓦片 */
+
 	private _subTiles: Tile[] | undefined;
+	/** 子瓦片 */
 	public get subTiles() {
 		return this._subTiles;
 	}
@@ -165,6 +164,8 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/**
 	 * 计算瓦片checkpoint、bbox、size
+	 * @param debug 调试级别
+	 * @returns 瓦片大小
 	 */
 	private computeTileSize(debug: number) {
 		// 瓦片包围盒-世界坐标
@@ -192,7 +193,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/**
 	 * 瓦片更新，该函数在每帧渲染中被调用
-	 * @param params 瓦片加载参数
+	 * @param params 瓦片更新参数
 	 */
 	public update(params: TileUpdateParames) {
 		// （没有父瓦片||模型正在加载）时不进行更新
@@ -219,23 +220,13 @@ export class Tile extends Object3D<TTileEventMap> {
 			this.computeTileSize(loader.debug);
 		}
 
-		// （当前层级>地图最小层级 && 下载线程数<最大下载线程数）时下载或更新瓦片
-		if (this.z >= minLevel && loader.downloadingThreads < MAXTHREADS) {
-			// 下载瓦片
-			if (!this.model) {
-				this._startLoad(loader);
-				return;
-			}
-
-			// 更新脏瓦片
-			if (this._isDirty && this.inFrustum) {
-				// 先更新子瓦片再更新父瓦片，以加快显示
-				const childrenUpdated = !this.subTiles?.some(child => child._isDirty);
-				if (childrenUpdated) {
-					this._startLoad(loader);
-					return;
-				}
-			}
+		if (
+			this.z >= minLevel && //当前层级>地图最小层级
+			loader.downloadingThreads < loader.maxThreads && //下载线程数<最大下载线程数
+			(!this.model || (this._isDirty && this.inFrustum && this.isLeaf)) // 没有加载模型||(已标记为脏瓦片&&视野范围的子瓦片)
+		) {
+			this._startLoad(loader);
+			return;
 		}
 
 		// 更新瓦片阴影
@@ -259,7 +250,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	/**
 	 * LOD (Level of Detail).
 	 * @param threshold - LOD 阈值
-	 * @returns newTiles - 新创建的子瓦片数组
+	 * @returns add or remove
 	 */
 	protected LOD(params: TileUpdateParames) {
 		const { loader, minLevel, maxLevel, LODThreshold } = params;
@@ -309,9 +300,9 @@ export class Tile extends Object3D<TTileEventMap> {
 	 */
 	private async _startLoad(loader: ITileLoader) {
 		const oldDirty = this._isDirty;
-		this._isDirty = false;
 		this._isLoading = true;
 		const model = await loader.load(this, this.model);
+		this._model = model;
 		model.geometry.computeBoundingBox();
 		this._checkPoint.y = model.geometry.boundingBox?.max.z || 0;
 
@@ -322,7 +313,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 
 		this._isLoading = false;
-		this._model = model;
+
 		this.add(model);
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 	}
@@ -365,6 +356,8 @@ export class Tile extends Object3D<TTileEventMap> {
 		if (unLoadSelf && this.model) {
 			this.model.removeFromParent();
 			loader.unload(this.model);
+			this._model = undefined;
+			this._isDirty = false;
 			this._root.dispatchEvent({ type: "tile-unload", tile: this });
 		}
 		// 卸载调试包围盒

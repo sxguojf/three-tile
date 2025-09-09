@@ -32,7 +32,7 @@ export type MapParams = {
 	demSource?: ISource; //高程数据源, terrain source
 	bounds?: [number, number, number, number]; // 地图经纬度范围
 	minLevel?: number; //最小缩放级别, maximum zoom level of the map
-	/** @deprecated Do not set maxLevel,  It will set to sources maxLevel */
+	/** @deprecated  It will set to maxLevel of all sources auto*/
 	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
 	lon0?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
 };
@@ -99,7 +99,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 				console.warn(`Map centralMeridian is ${this.lon0}, minLevel must > 0`);
 			}
 			this.projection = ProjectFactory.createFromID(this.projection.ID, value);
-			this.updateSource();
+			this._updateSource();
 		}
 	}
 
@@ -132,18 +132,20 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	/** 设置影像数据源 */
 	public set imgSource(value: ISource | ISource[]) {
 		const sources = Array.isArray(value) ? value : [value];
+
 		if (sources.length === 0) {
 			throw new Error("imgSource can not be empty");
 		}
 
+		this.loader.imgSource = sources;
+
 		// 将第一个影像层的投影设置为地图投影
 		this.projection = ProjectFactory.createFromID(sources[0].projectionID, this.projection.lon0);
-		this.loader.imgSource = sources;
-		this.updateSource(true, false);
-		this.maxLevel = this._getMaxLevel();
+
 		if (this.debug > 0) {
 			console.log("Img Source Changed:", sources);
 		}
+		this._updateSource();
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -154,13 +156,16 @@ export class TileMap extends Object3D<TileMapEventMap> {
 
 	/** 取得地形数据源 */
 	public set demSource(value: ISource | undefined) {
+		if (this.loader.demSource === value) {
+			return;
+		}
+
 		this.loader.demSource = value;
 
-		this.updateSource(false, true);
 		if (this.debug > 0) {
 			console.log("DEM Source Changed:", this.demSource);
 		}
-		this.maxLevel = this._getMaxLevel();
+		this._updateSource();
 		this.dispatchEvent({ type: "source-changed", source: value });
 	}
 
@@ -174,15 +179,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this._LODThreshold = value;
 	}
 
-	/** 取得背景色 */
-	// public get backgroundColor() {
-	// 	return this.loader.backgroundMaterial.color;
-	// }
-	// /** 设置背景色 */
-	// public set backgroundColor(value: ColorRepresentation) {
-	// 	this.loader.backgroundMaterial.color.set(value);
-	// }
-
 	/** 取得地图经纬度范围 */
 	public get bounds() {
 		return this.loader.bounds;
@@ -192,11 +188,20 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.loader.bounds = value;
 	}
 
+	/** 取得最大线下载程数 */
+	public get maxThreads() {
+		return this.loader.maxThreads;
+	}
+
+	/** 设置最大线下载程数 */
+	public set maxThreads(value: number) {
+		this.loader.maxThreads = value;
+	}
+
 	/**
      * 地图创建工厂函数
        @param params 地图参数 {@link MapParams}
        @returns map mesh 地图模型
-       ```
      */
 	public static create(params: MapParams) {
 		return new TileMap(params);
@@ -294,11 +299,10 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	}
 
 	/**
-	 * 重新加载地图数据
-	 * @param updateMaterial 是否重新加载材质，默认为true
-	 * @param updateGeometry 是否重新加载几何体, 默认为true
+	 * 更新地图数据
 	 */
-	public updateSource(updateMaterial = true, updateGeometry = true) {
+	private _updateSource() {
+		this.maxLevel = this._getMaxLevel();
 		this.rootTile.reload(this.loader, false);
 	}
 
