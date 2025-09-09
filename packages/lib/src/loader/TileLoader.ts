@@ -100,19 +100,27 @@ export class TileLoader implements ITileLoader {
 			// has tileMesh, update tile mesh
 			mesh = await this._updateTileMesh(params, tileMesh);
 		}
+
+		//set multiple material
+		mesh.geometry.clearGroups();
+		for (let i = 0; i < mesh.material.length; i++) {
+			mesh.geometry.addGroup(0, Infinity, i);
+		}
+
 		this._downloadingThreads--;
 		return mesh;
 	}
 
+	/**
+	 * Create tile mesh
+	 * @param params load params(x,y,z,bounds etc.)
+	 * @returns Promise<TileMesh> tile mesh
+	 */
 	private async _createTileMesh(params: TileLoadParamsType) {
 		const demSource = this.demSource;
 		const imgSource = this.imgSource;
 		const geometry = await this.loadGeometry(params);
 		const material = await this.loadMaterial(params);
-		geometry.clearGroups();
-		for (let i = 0; i < material.length; i++) {
-			geometry.addGroup(0, Infinity, i);
-		}
 		const mesh: TileMesh = new Mesh(geometry, material);
 		mesh.userData.demSource = demSource;
 		mesh.userData.imgSource = imgSource;
@@ -120,6 +128,12 @@ export class TileLoader implements ITileLoader {
 		return mesh;
 	}
 
+	/**
+	 * Update tile mesh
+	 * @param params load params(x,y,z,bounds etc.)
+	 * @param tileMesh tile mesh
+	 * @returns Promise<TileMesh> tile mesh
+	 */
 	private async _updateTileMesh(params: TileLoadParamsType, tileMesh: TileMesh) {
 		// source not change, return
 		const imgchanged = tileMesh.userData.imgSource != this.imgSource;
@@ -142,11 +156,6 @@ export class TileLoader implements ITileLoader {
 			tileMesh.userData.imgSource = this.imgSource;
 			tileMesh.material = await this.loadMaterial(params);
 			material.forEach(mat => mat.dispose());
-		}
-
-		tileMesh.geometry.clearGroups();
-		for (let i = 0; i < tileMesh.material.length; i++) {
-			tileMesh.geometry.addGroup(0, Infinity, i);
 		}
 
 		return tileMesh;
