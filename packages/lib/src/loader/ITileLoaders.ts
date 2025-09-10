@@ -97,7 +97,7 @@ export type ITileLoaderInfo = {
  * 瓦片材质加载器接口, 用于加载瓦片影像
  */
 export interface ITileMaterialLoader<TMaterial extends Material = Material> {
-	isMaterialLoader?: true;
+	// isMaterialLoader: true;
 	/** 加载器信息 */
 	info: ITileLoaderInfo;
 	/** 数据类型标记 */
@@ -112,7 +112,7 @@ export interface ITileMaterialLoader<TMaterial extends Material = Material> {
  * 瓦片几何体加载器接口, 用于加载瓦片地形
  */
 export interface ITileGeometryLoader<TGeometry extends BufferGeometry = BufferGeometry> {
-	isMaterialLoader?: false;
+	// isGeometryLoader: true;
 	/** 加载器信息 */
 	info: ITileLoaderInfo;
 	/** 数据类型标记 */

@@ -15,7 +15,10 @@ export const createMapOptionsGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.T
 
 	folder.add(map.scale, "z", 1, 50, 0.1).name("地形夸张").listen();
 	// folder.add(viewer.controls.target, "y", -1, 1, 0.01).name("Controls").listen();
-	folder.add(map.position, "y", -5000, 1000, 1).name("地图偏移").listen();
+
+	folder.add(map.position, "x", -5e6, 5e6, 1).name("地图x偏移").listen();
+	folder.add(map.position, "y", -5000, 1000, 1).name("地图y偏移").listen();
+	folder.add(map.position, "z", -5e6, 5e6, 1).name("地图z偏移").listen();
 	// folder.add(map, "autoPosition");
 	folder
 		.add(viewer.controls, "maxPolarAngle", 0, Math.PI / 2, 0.1)

@@ -5,7 +5,7 @@ export type BackgroundSourceOptions = SourceOptions & { color: ColorRepresentati
 
 export class BackgroundSource extends TileSource {
 	public dataType = "background";
-	public color: ColorRepresentation = 0xff0000;
+	public color: ColorRepresentation = 0x112233;
 
 	public constructor(options: BackgroundSourceOptions) {
 		super(options);

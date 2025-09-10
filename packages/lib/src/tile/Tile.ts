@@ -76,9 +76,6 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 根瓦片 */
 	private _root: Tile = this;
 
-	/** 瓦片距离检测点世界坐标 */
-	private _checkPoint: Vector3 = new Vector3();
-
 	/* 瓦片在世界坐标系中的大小*/
 	private _sizeInWorld = -1;
 
@@ -99,7 +96,9 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 瓦片到相机的距离比例，用于 LOD 评估，值越小瓦片越密集 */
 	public get distRatio() {
-		const distToCamera = cameraWorldPosition.distanceTo(this._checkPoint);
+		const checkPoint = new Vector3().applyMatrix4(this.matrixWorld);
+		checkPoint.setY(this.model?.geometry.boundingBox?.max.z || 0);
+		const distToCamera = cameraWorldPosition.distanceTo(checkPoint);
 		const ratio = distToCamera / this._sizeInWorld;
 		return this.inFrustum ? ratio * 0.8 : ratio * 2;
 	}
@@ -138,6 +137,13 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 是否为脏瓦片 */
 	private _isDirty = false;
 
+	private get _needsLoad() {
+		// 没有加载模型 || (已标记为脏瓦片 && 在视野访问 && 子瓦片已下载完成)
+		// return !this.model || (this._isDirty && this.inFrustum && !this.subTiles?.some(tile => tile._isDirty));
+		// 没有加载模型 || (已标记为脏瓦片 && 视野范围 && 子瓦片)
+		return !this.model || (this._isDirty && this.inFrustum && this.isLeaf);
+	}
+
 	/**
 	 * 构造函数
 	 * @param x - 瓦片X坐标，默认：0
@@ -151,8 +157,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.z = z;
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
-		this.matrixAutoUpdate = false;
-		// this.add(this._model);
+		// this.matrixAutoUpdate = false;
 	}
 
 	/**
@@ -163,15 +168,13 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 计算瓦片checkpoint、bbox、size
+	 * 计算瓦片bbox、size
 	 * @param debug 调试级别
 	 * @returns 瓦片大小
 	 */
 	private computeTileSize(debug: number) {
 		// 瓦片包围盒-世界坐标
 		this._bbox = new Box3(new Vector3(-0.5, -0.5), new Vector3(0.5, 0.5)).applyMatrix4(this.matrixWorld);
-		// 距离检测点-瓦片中心世界坐标
-		this._checkPoint = new Vector3().applyMatrix4(this.matrixWorld);
 		// 瓦片大小-对角线长度
 		this._sizeInWorld = this._bbox.getSize(tempVec3).length();
 		console.assert(this._sizeInWorld > 10);
@@ -220,10 +223,11 @@ export class Tile extends Object3D<TTileEventMap> {
 			this.computeTileSize(loader.debug);
 		}
 
+		// 下载
 		if (
 			this.z >= minLevel && //当前层级>地图最小层级
 			loader.downloadingThreads < loader.maxThreads && //下载线程数<最大下载线程数
-			(!this.model || (this._isDirty && this.inFrustum && this.isLeaf)) // 没有加载模型||(已标记为脏瓦片&&视野范围的子瓦片)
+			this._needsLoad
 		) {
 			this._startLoad(loader);
 			return;
@@ -283,7 +287,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			if (parent.model) {
 				const subTiles = parent.subTiles;
 				if (subTiles) {
-					const allLoaded = !subTiles.some(child => !child.model);
+					const allLoaded = !subTiles.some(tile => !tile.model);
 					subTiles.forEach(child => (child.showing = allLoaded));
 					parent.showing = !allLoaded;
 				}
@@ -301,10 +305,11 @@ export class Tile extends Object3D<TTileEventMap> {
 	private async _startLoad(loader: ITileLoader) {
 		const oldDirty = this._isDirty;
 		this._isLoading = true;
+
+		// load
 		const model = await loader.load(this, this.model);
-		this._model = model;
 		model.geometry.computeBoundingBox();
-		this._checkPoint.y = model.geometry.boundingBox?.max.z || 0;
+		this._model = model;
 
 		if (oldDirty) {
 			this._isDirty = false;
@@ -312,9 +317,11 @@ export class Tile extends Object3D<TTileEventMap> {
 			this.isLeaf && this._checkVisible();
 		}
 
-		this._isLoading = false;
-
+		// remove old model and add new model
+		this.model && this.model.removeFromParent();
 		this.add(model);
+
+		this._isLoading = false;
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 	}
 

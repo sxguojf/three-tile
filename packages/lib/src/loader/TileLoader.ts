@@ -91,102 +91,74 @@ export class TileLoader implements ITileLoader {
 	 * @returns Promise<TileMesh> tile mesh
 	 */
 	public async load(params: TileLoadParamsType, tileMesh?: TileMesh): Promise<TileMesh> {
-		this._downloadingThreads++;
+		const count = this.demSource ? 1 : 0 + this.imgSource.length;
+		this._downloadingThreads += count;
+
 		let mesh: TileMesh;
-		// no tileMesh, create tile mesh
-		if (!tileMesh) {
-			mesh = await this._createTileMesh(params);
-		} else {
-			// has tileMesh, update tile mesh
-			mesh = await this._updateTileMesh(params, tileMesh);
+		try {
+			const geometry = await this.loadGeometry(params, tileMesh?.geometry);
+			const material = await this.loadMaterial(params, tileMesh?.material);
+
+			if (tileMesh) {
+				const oldGeometry = tileMesh.geometry;
+				const oldMaterial = tileMesh.material;
+				mesh = tileMesh;
+				mesh.geometry = geometry;
+				mesh.material = material;
+
+				// dispose old geometry
+				if (oldGeometry.userData.toDispose) {
+					oldGeometry.dispose();
+					delete oldGeometry.userData.source;
+					delete oldGeometry.userData.toDispose;
+				}
+				// dispose old material
+				oldMaterial.forEach(mat => {
+					if (mat.userData.toDispose) {
+						mat.dispose();
+						delete mat.userData.source;
+						delete mat.userData.toDispose;
+					}
+				});
+			} else {
+				mesh = new Mesh(geometry, material);
+			}
+
+			//set multiple material
+			mesh.geometry.clearGroups();
+			for (let i = 0; i < mesh.material.length; i++) {
+				mesh.geometry.addGroup(0, Infinity, i);
+			}
+		} finally {
+			this._downloadingThreads -= count;
 		}
 
-		//set multiple material
-		mesh.geometry.clearGroups();
-		for (let i = 0; i < mesh.material.length; i++) {
-			mesh.geometry.addGroup(0, Infinity, i);
-		}
-
-		this._downloadingThreads--;
 		return mesh;
-	}
-
-	/**
-	 * Create tile mesh
-	 * @param params load params(x,y,z,bounds etc.)
-	 * @returns Promise<TileMesh> tile mesh
-	 */
-	private async _createTileMesh(params: TileLoadParamsType) {
-		const demSource = this.demSource;
-		const imgSource = this.imgSource;
-		const geometry = await this.loadGeometry(params);
-		const material = await this.loadMaterial(params);
-		const mesh: TileMesh = new Mesh(geometry, material);
-		mesh.userData.demSource = demSource;
-		mesh.userData.imgSource = imgSource;
-
-		return mesh;
-	}
-
-	/**
-	 * Update tile mesh
-	 * @param params load params(x,y,z,bounds etc.)
-	 * @param tileMesh tile mesh
-	 * @returns Promise<TileMesh> tile mesh
-	 */
-	private async _updateTileMesh(params: TileLoadParamsType, tileMesh: TileMesh) {
-		// source not change, return
-		const imgchanged = tileMesh.userData.imgSource != this.imgSource;
-		const demChanged = tileMesh.userData.demSource != this.demSource;
-		if (!imgchanged && !demChanged) {
-			return tileMesh;
-		}
-
-		// update dem
-		if (demChanged) {
-			let geometry = tileMesh.geometry;
-			tileMesh.userData.demSource = this.demSource;
-			tileMesh.geometry = await this.loadGeometry(params);
-			geometry.dispose();
-		}
-
-		// update img
-		if (imgchanged) {
-			let material = tileMesh.material;
-			tileMesh.userData.imgSource = this.imgSource;
-			tileMesh.material = await this.loadMaterial(params);
-			material.forEach(mat => mat.dispose());
-		}
-
-		return tileMesh;
-	}
-
-	/**
-	 * Unload tile mesh data
-	 * @param tileMesh tile mesh
-	 */
-	public unload(tileMesh: TileMesh): void {
-		const materials = tileMesh.material;
-		for (let i = 0; i < materials.length; i++) {
-			materials[i].dispose();
-			tileMesh.geometry.groups.pop();
-		}
-		tileMesh.geometry.dispose();
-		tileMesh.material = [];
-
-		delete tileMesh.userData.demSource;
-		delete tileMesh.userData.imgSource;
 	}
 
 	/**
 	 * Load geometry
 	 * @returns BufferGeometry
 	 */
-	protected async loadGeometry(params: TileLoadParamsType): Promise<BufferGeometry> {
-		let geometry: BufferGeometry;
+	protected async loadGeometry(params: TileLoadParamsType, tileGeometry?: BufferGeometry): Promise<BufferGeometry> {
+		if (tileGeometry) {
+			// source not changed
+			if (this.demSource === tileGeometry.userData.source) {
+				tileGeometry.userData.toDispose = false;
+				return tileGeometry;
+			} else {
+				tileGeometry.userData.toDispose = true;
+			}
+		}
+
 		const { bounds, z } = params;
+		let geometry: BufferGeometry;
+
 		if (this.demSource && z >= this.demSource.minLevel && this._intersectsBounds(this.demSource, bounds)) {
+			// get loader
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
+
+			// load geometry
 			const source = this.demSource;
 			geometry = await loader
 				.load({ source, ...params })
@@ -198,7 +170,9 @@ export class TileLoader implements ITileLoader {
 				})
 				.finally(() => {});
 
+			// dispose
 			if (geometry != this._errorGeometry) {
+				geometry.userData.source = source;
 				const dispose = (evt: { target: BufferGeometry }) => {
 					loader.unload && loader.unload(evt.target);
 					evt.target.removeEventListener("dispose", dispose);
@@ -219,13 +193,30 @@ export class TileLoader implements ITileLoader {
 	 * @param z z coordinate of tile
 	 * @returns Material[]
 	 */
-	protected async loadMaterial(params: TileLoadParamsType): Promise<Material[]> {
+	protected async loadMaterial(params: TileLoadParamsType, tileMaterial?: Material[]): Promise<Material[]> {
+		// set old material to dispose
+		if (tileMaterial) {
+			tileMaterial.forEach(mat => (mat.userData.toDispose = true));
+		}
+
 		const materials: Material[] = [];
 		const { bounds, z } = params;
 		const sources = this.imgSource.filter(source => z >= source.minLevel && this._intersectsBounds(source, bounds));
 
 		for (let i = 0; i < sources.length; i++) {
 			const source = sources[i];
+
+			// no change
+			if (tileMaterial) {
+				const oldMaterial = tileMaterial[i];
+				if (oldMaterial && source === oldMaterial.userData.source) {
+					oldMaterial.userData.toDispose = false;
+					materials.push(oldMaterial);
+					continue;
+				}
+			}
+
+			// load
 			const loader = LoaderFactory.getMaterialLoader(source);
 			const material: Material = await loader
 				.load({ source, ...params })
@@ -237,11 +228,12 @@ export class TileLoader implements ITileLoader {
 				})
 				.finally(() => {});
 
+			// set material property and dispose
 			if (material !== this._errorMaterial) {
+				material.userData.source = source;
 				this._materialClip(material, source, params);
 				material.opacity = source.opacity;
 				material.transparent = source.transparent;
-
 				const dispose = (evt: { target: Material }) => {
 					loader.unload && loader.unload(evt.target);
 					evt.target.removeEventListener("dispose", dispose);
@@ -251,6 +243,23 @@ export class TileLoader implements ITileLoader {
 			}
 		}
 		return materials;
+	}
+
+	/**
+	 * Unload tile mesh data
+	 * @param tileMesh tile mesh
+	 */
+	public unload(tileMesh: TileMesh): void {
+		const materials = tileMesh.material;
+		for (let i = 0; i < materials.length; i++) {
+			materials[i].dispose();
+			tileMesh.geometry.groups.pop();
+		}
+		tileMesh.geometry.dispose();
+		tileMesh.material = [];
+
+		delete tileMesh.userData.demSource;
+		delete tileMesh.userData.imgSource;
 	}
 
 	/** Clip the material texture from mapBounds */

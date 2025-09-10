@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Color, ColorRepresentation, Material, MeshLambertMaterial } from "three";
+import { MeshLambertMaterial } from "three";
 import { ITileMaterial, ITileMaterialLoader, TileSourceLoadParamsType, version } from "three-tile";
 import { BackgroundSource } from "./backgroundSource";
 
@@ -18,7 +18,8 @@ export class BackgroundLoader implements ITileMaterialLoader<ITileMaterial> {
 	};
 
 	public dataType = "background";
-	private _material: Material;
+	private _material: MeshLambertMaterial = new MeshLambertMaterial();
+
 	/** 取得默认材质 */
 	public get material() {
 		return this._material;
@@ -29,21 +30,23 @@ export class BackgroundLoader implements ITileMaterialLoader<ITileMaterial> {
 		this._material = value;
 	}
 
-	constructor(backgroundColor: ColorRepresentation = 0x112233) {
-		this._material = new MeshLambertMaterial({ color: backgroundColor, transparent: false });
+	/** 取得背景颜色 */
+	public get backgroundColor() {
+		return this.material.color;
+	}
+
+	/** 设置背景颜色 */
+	public set backgroundColor(value) {
+		this.material.color.set(value);
 	}
 
 	/**
 	 * Load tile material from source
-	 * @param source
-	 * @param tile
-	 * @returns
+	 * @params params backgournd setting
+	 * @retrun background material
 	 */
 	public async load(params: TileSourceLoadParamsType<BackgroundSource>): Promise<ITileMaterial> {
-		const material = this.material;
-		if ("color" in material && material.color instanceof Color) {
-			material.color.set(params.source.color);
-		}
+		this.material.color.set(params.source.color);
 		return this.material;
 	}
 }
