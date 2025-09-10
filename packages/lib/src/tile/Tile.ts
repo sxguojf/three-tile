@@ -138,10 +138,16 @@ export class Tile extends Object3D<TTileEventMap> {
 	private _isDirty = false;
 
 	private get _needsLoad() {
-		// 没有加载模型 || (已标记为脏瓦片 && 在视野访问 && 子瓦片已下载完成)
-		// return !this.model || (this._isDirty && this.inFrustum && !this.subTiles?.some(tile => tile._isDirty));
-		// 没有加载模型 || (已标记为脏瓦片 && 视野范围 && 子瓦片)
-		return !this.model || (this._isDirty && this.inFrustum && this.isLeaf);
+		// 全量加载： 没有加载模型 || (已标记为脏瓦片 && 在视野访问 && 子瓦片已下载完成)
+		return !this.model || (this._isDirty && this.inFrustum && !this.subTiles?.some(tile => !tile.model));
+
+		// 仅加载子瓦片： 没有加载模型 || (已标记为脏瓦片 && 视野范围 && 子瓦片)
+		// return !this.model || (this._isDirty && this.inFrustum && this.isLeaf);
+
+		// 仅加载子瓦片和其父瓦片
+		// return (
+		// 	!this.model || (this._isDirty && this.inFrustum && (!this.subTiles || this.subTiles?.some(tile => tile.isLeaf)))
+		// );
 	}
 
 	/**

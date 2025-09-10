@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Texture } from "three";
+import { BufferGeometry, Material, Mesh, Texture } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { BoundsType, ITileLoader, TileLoadParamsType, TileMesh } from "./ITileLoaders";
@@ -19,9 +19,11 @@ export class TileLoader implements ITileLoader {
 	private _downloadingThreads = 0;
 
 	private _bounds: BoundsType = [-180, -85, 180, 85];
+	/** Get the map bounds */
 	public get bounds() {
 		return this._bounds;
 	}
+	/** Set the map bounds */
 	public set bounds(value) {
 		this._bounds = value;
 	}
@@ -52,29 +54,19 @@ export class TileLoader implements ITileLoader {
 	}
 
 	private _demSource: ISource | undefined;
-	/** Get DEM source */
+	/** Get terrain source */
 	public get demSource(): ISource | undefined {
 		return this._demSource;
 	}
-	/** Set DEM source */
+	/** Set terrain source */
 	public set demSource(value: ISource | undefined) {
 		this._demSource = value;
 	}
 
+	/** Get map prjection ID */
 	public get projectionID() {
 		return this.imgSource[0].projectionID;
 	}
-
-	/** Error material */
-	private readonly _errorMaterial = new MeshBasicMaterial({
-		color: 0xff0000,
-		transparent: true,
-		opacity: 0,
-		name: "error-material",
-	});
-
-	/** Error geometry */
-	private readonly _errorGeometry = new TileGeometry();
 
 	/** Loader manager */
 	public get manager(): TileLoadingManager {
@@ -96,10 +88,12 @@ export class TileLoader implements ITileLoader {
 
 		let mesh: TileMesh;
 		try {
+			// load
 			const geometry = await this.loadGeometry(params, tileMesh?.geometry);
 			const material = await this.loadMaterial(params, tileMesh?.material);
 
 			if (tileMesh) {
+				// use tileMesh
 				const oldGeometry = tileMesh.geometry;
 				const oldMaterial = tileMesh.material;
 				mesh = tileMesh;
@@ -121,10 +115,11 @@ export class TileLoader implements ITileLoader {
 					}
 				});
 			} else {
+				// new mesh
 				mesh = new Mesh(geometry, material);
 			}
 
-			//set multiple material
+			//set material array
 			mesh.geometry.clearGroups();
 			for (let i = 0; i < mesh.material.length; i++) {
 				mesh.geometry.addGroup(0, Infinity, i);
@@ -160,25 +155,20 @@ export class TileLoader implements ITileLoader {
 
 			// load geometry
 			const source = this.demSource;
-			geometry = await loader
-				.load({ source, ...params })
-				.catch(e => {
-					if (this.debug > 0) {
-						console.error("Load Geometry Error:", e);
-					}
-					return this._errorGeometry;
-				})
-				.finally(() => {});
+			geometry = await loader.load({ source, ...params }).catch(e => {
+				if (this.debug > 0) {
+					console.error("Load Geometry Error:", e);
+				}
+				return new TileGeometry();
+			});
 
 			// dispose
-			if (geometry != this._errorGeometry) {
-				geometry.userData.source = source;
-				const dispose = (evt: { target: BufferGeometry }) => {
-					loader.unload && loader.unload(evt.target);
-					evt.target.removeEventListener("dispose", dispose);
-				};
-				geometry.addEventListener("dispose", dispose);
-			}
+			geometry.userData.source = source;
+			const dispose = (evt: { target: BufferGeometry }) => {
+				loader.unload && loader.unload(evt.target);
+				evt.target.removeEventListener("dispose", dispose);
+			};
+			geometry.addEventListener("dispose", dispose);
 		} else {
 			geometry = new TileGeometry();
 		}
@@ -218,22 +208,23 @@ export class TileLoader implements ITileLoader {
 
 			// load
 			const loader = LoaderFactory.getMaterialLoader(source);
-			const material: Material = await loader
-				.load({ source, ...params })
-				.catch(e => {
-					if (this.debug > 0) {
-						console.error("Load Material Error:", e);
-					}
-					return this._errorMaterial;
-				})
-				.finally(() => {});
+			const material: Material | null = await loader.load({ source, ...params }).catch(e => {
+				if (this.debug > 0) {
+					console.error("Load Material Error:", e);
+				}
+				return null;
+			});
 
 			// set material property and dispose
-			if (material !== this._errorMaterial) {
-				material.userData.source = source;
+			if (material) {
+				// clip the materilal to map bounds
 				this._materialClip(material, source, params);
+
+				material.userData.source = source;
 				material.opacity = source.opacity;
 				material.transparent = source.transparent;
+
+				// dispose
 				const dispose = (evt: { target: Material }) => {
 					loader.unload && loader.unload(evt.target);
 					evt.target.removeEventListener("dispose", dispose);
@@ -256,10 +247,6 @@ export class TileLoader implements ITileLoader {
 			tileMesh.geometry.groups.pop();
 		}
 		tileMesh.geometry.dispose();
-		tileMesh.material = [];
-
-		delete tileMesh.userData.demSource;
-		delete tileMesh.userData.imgSource;
 	}
 
 	/** Clip the material texture from mapBounds */

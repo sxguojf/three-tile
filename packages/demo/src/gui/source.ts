@@ -33,7 +33,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 		setGoogle: () => {
 			// map.imgSource = [new GoogleSource({ style: "y" })];
-			map.imgSource = [new plugin.GoogleSource()];
+			map.imgSource = [new plugin.GoogleSource(), ms.tdtCiaSource_w];
 		},
 		setGoogleP: () => {
 			map.imgSource = [new plugin.GoogleSource({ style: "p", maxLevel: 15 })];
