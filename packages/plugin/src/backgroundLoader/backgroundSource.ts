@@ -9,6 +9,6 @@ export class BackgroundSource extends TileSource {
 
 	public constructor(options: BackgroundSourceOptions) {
 		super(options);
-		Object.assign(this, options);
+		this.color = options.color;
 	}
 }

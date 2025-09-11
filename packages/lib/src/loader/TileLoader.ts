@@ -156,7 +156,7 @@ export class TileLoader implements ITileLoader {
 	 * @param params
 	 * @param tileMesh
 	 */
-	public update(params: TileLoadParamsType, tileMesh: TileMesh): void {
+	public update(params: TileLoadParamsType, _tileMesh: TileMesh): void {
 		// visible sources
 		const sources = this.imgSource.filter(source => this._checkVisible(source, params));
 

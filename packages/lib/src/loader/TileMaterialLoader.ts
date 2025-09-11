@@ -39,7 +39,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 */
 	public async load(params: TileSourceLoadParamsType): Promise<ITileMaterial> {
 		const { source, x, y, z } = params;
-		const material = this.createMaterial();
+		const material = this.createMaterial(params);
 		material.transparent = params.source.transparent;
 		material.opacity = params.source.opacity;
 
@@ -57,7 +57,7 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	 * Create material
 	 * @returns {ITileMaterial} the material of tile
 	 */
-	public createMaterial(): ITileMaterial {
+	public createMaterial(_params: TileSourceLoadParamsType): ITileMaterial {
 		return this.material.clone();
 	}
 
