@@ -162,8 +162,8 @@ export class TileLoader implements ITileLoader {
 
 		for (let i = 0; i < sources.length; i++) {
 			if (sources[i].dynamic) {
-				const loader = LoaderFactory.getMaterialLoader(sources[i]);
-				tileMesh.material[i] && loader.update && loader.update(tileMesh.material[i]);
+				// const loader = LoaderFactory.getMaterialLoader(sources[i]);
+				// tileMesh.material[i] && loader.update && loader.update(tileMesh.material[i]);
 			}
 		}
 	}
@@ -195,14 +195,6 @@ export class TileLoader implements ITileLoader {
 				}
 				return new TileGeometry();
 			});
-
-			// dispose
-			geometry.userData.source = source;
-			const dispose = (evt: { target: BufferGeometry }) => {
-				loader.unload && loader.unload(evt.target);
-				evt.target.removeEventListener("dispose", dispose);
-			};
-			geometry.addEventListener("dispose", dispose);
 
 			return geometry;
 		} else {
@@ -246,26 +238,13 @@ export class TileLoader implements ITileLoader {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			const material: Material = await loader.load({ source, ...params }).catch(e => {
 				if (this.debug > 0) {
-					console.error("Load Material Error:", e);
+					console.error("Load Material Error:", e.message);
 				}
 				return this._errorMaterial.clone();
 			});
 
 			// clip the materilal to map bounds
 			this._materialClip(material, source, params);
-
-			if (material.name != "error-material") {
-				// set material property
-				material.opacity = source.opacity;
-				material.transparent = source.transparent;
-
-				// dispose
-				const dispose = (evt: { target: Material }) => {
-					loader.unload && loader.unload(evt.target);
-					evt.target.removeEventListener("dispose", dispose);
-				};
-				material.addEventListener("dispose", dispose);
-			}
 
 			materials.push(material);
 		}

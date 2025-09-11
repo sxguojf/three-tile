@@ -100,10 +100,8 @@ export interface ITileMaterialLoader<TMaterial extends Material = Material> {
 	dataType: string;
 	/**加载影像数据 */
 	load(params: TileSourceLoadParamsType): Promise<TMaterial>;
-	/** 卸载材质数据 */
-	unload?(material: Material): void;
 	/** 更新瓦片材质 */
-	update?(material: Material): void;
+	// update?(material: Material): void;
 }
 
 /**
@@ -117,6 +115,4 @@ export interface ITileGeometryLoader<TGeometry extends BufferGeometry = BufferGe
 	dataType: string;
 	/** 加载地形数据 */
 	load(params: TileSourceLoadParamsType): Promise<TGeometry>;
-	/** 卸载几何体数据 */
-	unload?(geometry: TGeometry): void;
 }

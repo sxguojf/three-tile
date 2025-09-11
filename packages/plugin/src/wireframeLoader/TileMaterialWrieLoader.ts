@@ -21,12 +21,13 @@ export class TileMaterialWrieLoader implements ITileMaterialLoader {
 	public async load(params: TileSourceLoadParamsType): Promise<Material> {
 		const color = new Color(`hsl(${params.z * 14}, 100%, 50%)`);
 		const material = new MeshBasicMaterial({
-			transparent: true,
+			transparent: params.source.transparent,
 			wireframe: true,
 			color,
 			opacity: params.source.opacity,
 			depthTest: false,
 		});
+
 		return material;
 	}
 }

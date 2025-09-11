@@ -45,6 +45,12 @@ export class SingleImageLoader implements ITileMaterialLoader<ITileMaterial> {
 			opacity: source.opacity,
 		});
 
+		const dispose = (evt: { target: ITileMaterial }) => {
+			evt.target.map?.dispose();
+			material.removeEventListener("dispose", dispose);
+		};
+		material.addEventListener("dispose", dispose);
+
 		const url = source.getUrl(0, 0, 0);
 
 		// 请求的瓦片不在数据源范围内或没有url，直接返回材质
@@ -63,14 +69,11 @@ export class SingleImageLoader implements ITileMaterialLoader<ITileMaterial> {
 		// 加载纹理
 		source.image = await this._imageLoader.loadAsync(url);
 		this._setTexture(material, source.image, source, bounds);
-		return material;
-	}
 
-	public unload(material: ITileMaterial): void {
-		const texture = material.map;
-		if (texture) {
-			texture.dispose();
-		}
+		// dispose
+		material.addEventListener("dispose", evt => evt.target.map?.dispose());
+
+		return material;
 	}
 
 	private _setTexture(

@@ -40,26 +40,17 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 	public async load(params: TileSourceLoadParamsType): Promise<ITileMaterial> {
 		const { source, x, y, z } = params;
 		const material = this.createMaterial();
+		material.transparent = params.source.transparent;
+		material.opacity = params.source.opacity;
+
 		// get max level tile and bounds
 		const { url, clipBounds } = getSafeTileUrlAndBounds(source, x, y, z);
 		if (url) {
 			material.map = await this.doLoad(url, { ...params, clipBounds });
+			material.addEventListener("dispose", dispose);
 		}
-		return material;
-	}
 
-	/**
-	 * Dispose material
-	 * @param material material
-	 */
-	public unload(material: ITileMaterial): void {
-		const texture = material.map;
-		if (texture) {
-			if (texture.image instanceof ImageBitmap) {
-				texture.image.close();
-			}
-			texture.dispose();
-		}
+		return material;
 	}
 
 	/**
@@ -79,3 +70,14 @@ export abstract class TileMaterialLoader implements ITileMaterialLoader<ITileMat
 		return Promise.resolve(undefined);
 	}
 }
+
+const dispose = (evt: { target: ITileMaterial }) => {
+	const texture = evt.target.map;
+	if (texture) {
+		if (texture.image instanceof ImageBitmap) {
+			texture.image.close();
+		}
+		texture.dispose();
+	}
+	evt.target.removeEventListener("dispose", dispose);
+};

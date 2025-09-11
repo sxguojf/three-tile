@@ -10,7 +10,7 @@ import { ITileMaterial, TileMaterial } from "../material";
 import { version } from "..";
 
 /**
- * Canvas material laoder abstract base class
+ * Canvas material loader abstract base class
  */
 export abstract class TileCanvasLoader implements ITileMaterialLoader<ITileMaterial> {
 	public readonly info = {
@@ -28,12 +28,18 @@ export abstract class TileCanvasLoader implements ITileMaterialLoader<ITileMater
 	public async load(params: TileSourceLoadParamsType): Promise<TileMaterial> {
 		const ctx = this._creatCanvasContext(256, 256);
 		this.drawTile(ctx, params);
-		const texture = new CanvasTexture(ctx.canvas);
 		const material = new TileMaterial({
-			transparent: true,
-			map: texture,
+			transparent: params.source.transparent,
+			map: new CanvasTexture(ctx.canvas),
 			opacity: params.source.opacity,
 		});
+
+		const dispose = (evt: { target: ITileMaterial }) => {
+			evt.target.map?.dispose();
+			material.removeEventListener("dispose", dispose);
+		};
+		material.addEventListener("dispose", dispose);
+
 		return material;
 	}
 
@@ -44,16 +50,6 @@ export abstract class TileCanvasLoader implements ITileMaterialLoader<ITileMater
 			throw new Error("create canvas context failed");
 		}
 		return ctx;
-	}
-
-	public unload(material: ITileMaterial): void {
-		const texture = material.map;
-		if (texture) {
-			if (texture.image instanceof ImageBitmap) {
-				texture.image.close();
-			}
-			texture.dispose();
-		}
 	}
 
 	/**

@@ -47,6 +47,8 @@ export class BackgroundLoader implements ITileMaterialLoader<ITileMaterial> {
 	 */
 	public async load(params: TileSourceLoadParamsType<BackgroundSource>): Promise<ITileMaterial> {
 		this.material.color.set(params.source.color);
+		this.material.transparent = params.source.transparent;
+		this.material.opacity = params.source.opacity;
 		return this.material;
 	}
 }

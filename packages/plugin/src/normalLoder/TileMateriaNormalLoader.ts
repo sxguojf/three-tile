@@ -4,7 +4,7 @@
  *@date: 2023-04-05
  */
 
-import { ITileMaterialLoader, TileSourceLoadParamsType, version } from "three-tile";
+import { ITileMaterial, ITileMaterialLoader, TileSourceLoadParamsType, version } from "three-tile";
 import { Material, MeshNormalMaterial } from "three";
 
 /**
@@ -19,10 +19,19 @@ export class TileMateriaNormalLoader implements ITileMaterialLoader {
 
 	public async load(params: TileSourceLoadParamsType): Promise<Material> {
 		const material = new MeshNormalMaterial({
-			// transparent: true,
+			transparent: params.source.transparent,
 			opacity: params.source.opacity,
 			flatShading: true,
 		});
+
+		const dispose = (evt: { target: ITileMaterial }) => {
+			evt.target.map?.dispose();
+			material.removeEventListener("dispose", dispose);
+		};
+		material.addEventListener("dispose", dispose);
+
+		material.addEventListener("dispose", dispose);
+
 		return material;
 	}
 }

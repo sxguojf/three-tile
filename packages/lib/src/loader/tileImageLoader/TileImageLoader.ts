@@ -29,18 +29,17 @@ export class TileImageLoader extends TileMaterialLoader {
 	 * @returns 返回一个Promise对象，解析为HTMLImageElement类型。
 	 */
 	protected async doLoad(url: string, params: TileLoadClipParamsType): Promise<Texture> {
-		const img = await this.loader.loadAsync(url);
-		const texture = new Texture();
-		texture.colorSpace = SRGBColorSpace;
-		texture.image = img;
-		const clipBounds = params.clipBounds;
+		let img: HTMLImageElement | OffscreenCanvas = await this.loader.loadAsync(url);
+
 		// 从父瓦片中剪裁
+		const clipBounds = params.clipBounds;
 		if (clipBounds[2] - clipBounds[0] < 1) {
-			texture.image = getSubImage(img, clipBounds);
+			img = getSubImage(img, clipBounds);
 		}
-		// texture.generateMipmaps = false;
-		// texture.minFilter = LinearFilter;
-		// texture.anisotropy = 1;
+
+		const texture = new Texture(img);
+		texture.colorSpace = SRGBColorSpace;
+
 		return texture;
 	}
 }
