@@ -70,15 +70,11 @@ export interface ITileLoader {
 	/** 经纬度范围 */
 	bounds: BoundsType;
 	/** 加载瓦片数据 */
-	// load(tileMesh: Mesh, params: TileCoords): Promise<Mesh>;
-	// /** 释放瓦片模型 */
-	// unload(tileMesh: Mesh): void;
-	/** 加载瓦片数据 */
-	load(params: TileCoords, tileMesh?: TileMesh): Promise<TileMesh>;
+	load(coord: TileLoadParamsType, tileMesh?: TileMesh): Promise<TileMesh>;
 	/** 释放瓦片模型 */
-	unload(tileMesh: Mesh<BufferGeometry, Material[]>): void;
-	/**  更新瓦片数据 */
-	// update(tileMesh: Mesh, params: TileCoords, updateMaterial: boolean, updateGeometry: boolean): Promise<Mesh>;
+	unload(tileMesh: TileMesh): void;
+	/** 瓦片更新 */
+	update(coord: TileLoadParamsType, tileMesh: TileMesh): void;
 }
 
 /**
@@ -105,7 +101,9 @@ export interface ITileMaterialLoader<TMaterial extends Material = Material> {
 	/**加载影像数据 */
 	load(params: TileSourceLoadParamsType): Promise<TMaterial>;
 	/** 卸载材质数据 */
-	unload?(material: TMaterial): void;
+	unload?(material: Material): void;
+	/** 更新瓦片材质 */
+	update?(material: Material): void;
 }
 
 /**

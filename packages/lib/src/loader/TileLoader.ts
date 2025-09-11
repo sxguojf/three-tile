@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh, Texture } from "three";
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Texture } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { BoundsType, ITileLoader, TileLoadParamsType, TileMesh } from "./ITileLoaders";
@@ -76,6 +76,14 @@ export class TileLoader implements ITileLoader {
 	/** Debug single */
 	public debug = 0;
 
+	/** Error material */
+	private readonly _errorMaterial = new MeshBasicMaterial({
+		color: 0xff0000,
+		transparent: true,
+		opacity: 0,
+		name: "error-material",
+	});
+
 	/**
 	 * Load getmetry and materail of tile from x, y and z coordinate.
 	 * @param params load params(x,y,z,bounds etc.)
@@ -93,7 +101,6 @@ export class TileLoader implements ITileLoader {
 			const material = await this.loadMaterial(params, tileMesh?.material);
 
 			if (tileMesh) {
-				// use tileMesh
 				const oldGeometry = tileMesh.geometry;
 				const oldMaterial = tileMesh.material;
 				mesh = tileMesh;
@@ -132,6 +139,36 @@ export class TileLoader implements ITileLoader {
 	}
 
 	/**
+	 * Unload tile mesh data
+	 * @param tileMesh tile mesh
+	 */
+	public unload(tileMesh: TileMesh): void {
+		const materials = tileMesh.material;
+		for (let i = 0; i < materials.length; i++) {
+			materials[i].dispose();
+			tileMesh.geometry.groups.pop();
+		}
+		tileMesh.geometry.dispose();
+	}
+
+	/**
+	 * Update material of tile mesh
+	 * @param params
+	 * @param tileMesh
+	 */
+	public update(params: TileLoadParamsType, tileMesh: TileMesh): void {
+		// visible sources
+		const sources = this.imgSource.filter(source => this._checkVisible(source, params));
+
+		for (let i = 0; i < sources.length; i++) {
+			if (sources[i].dynamic) {
+				const loader = LoaderFactory.getMaterialLoader(sources[i]);
+				tileMesh.material[i] && loader.update && loader.update(tileMesh.material[i]);
+			}
+		}
+	}
+
+	/**
 	 * Load geometry
 	 * @returns BufferGeometry
 	 */
@@ -146,16 +183,13 @@ export class TileLoader implements ITileLoader {
 			}
 		}
 
-		const { bounds, z } = params;
-		let geometry: BufferGeometry;
-
-		if (this.demSource && z >= this.demSource.minLevel && this._intersectsBounds(this.demSource, bounds)) {
+		if (this.demSource && this._checkVisible(this.demSource, params)) {
 			// get loader
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 
 			// load geometry
 			const source = this.demSource;
-			geometry = await loader.load({ source, ...params }).catch(e => {
+			const geometry = await loader.load({ source, ...params }).catch(e => {
 				if (this.debug > 0) {
 					console.error("Load Geometry Error:", e);
 				}
@@ -169,11 +203,11 @@ export class TileLoader implements ITileLoader {
 				evt.target.removeEventListener("dispose", dispose);
 			};
 			geometry.addEventListener("dispose", dispose);
-		} else {
-			geometry = new TileGeometry();
-		}
 
-		return geometry;
+			return geometry;
+		} else {
+			return new TileGeometry();
+		}
 	}
 
 	/**
@@ -189,9 +223,11 @@ export class TileLoader implements ITileLoader {
 			tileMaterial.forEach(mat => (mat.userData.toDispose = true));
 		}
 
+		// result
 		const materials: Material[] = [];
-		const { bounds, z } = params;
-		const sources = this.imgSource.filter(source => z >= source.minLevel && this._intersectsBounds(source, bounds));
+
+		// visible sources
+		const sources = this.imgSource.filter(source => this._checkVisible(source, params));
 
 		for (let i = 0; i < sources.length; i++) {
 			const source = sources[i];
@@ -208,19 +244,18 @@ export class TileLoader implements ITileLoader {
 
 			// load
 			const loader = LoaderFactory.getMaterialLoader(source);
-			const material: Material | null = await loader.load({ source, ...params }).catch(e => {
+			const material: Material = await loader.load({ source, ...params }).catch(e => {
 				if (this.debug > 0) {
 					console.error("Load Material Error:", e);
 				}
-				return null;
+				return this._errorMaterial.clone();
 			});
 
-			// set material property and dispose
-			if (material) {
-				// clip the materilal to map bounds
-				this._materialClip(material, source, params);
+			// clip the materilal to map bounds
+			this._materialClip(material, source, params);
 
-				material.userData.source = source;
+			if (material.name != "error-material") {
+				// set material property
 				material.opacity = source.opacity;
 				material.transparent = source.transparent;
 
@@ -230,23 +265,11 @@ export class TileLoader implements ITileLoader {
 					evt.target.removeEventListener("dispose", dispose);
 				};
 				material.addEventListener("dispose", dispose);
-				materials.push(material);
 			}
+
+			materials.push(material);
 		}
 		return materials;
-	}
-
-	/**
-	 * Unload tile mesh data
-	 * @param tileMesh tile mesh
-	 */
-	public unload(tileMesh: TileMesh): void {
-		const materials = tileMesh.material;
-		for (let i = 0; i < materials.length; i++) {
-			materials[i].dispose();
-			tileMesh.geometry.groups.pop();
-		}
-		tileMesh.geometry.dispose();
 	}
 
 	/** Clip the material texture from mapBounds */
@@ -261,17 +284,18 @@ export class TileLoader implements ITileLoader {
 		return this;
 	}
 
-	/**
-	 * Check the tile is in the source bounds. (projection coordinate)
-	 * @returns true in the bounds,else false
-	 */
-	private _intersectsBounds(source: ISource, tileBounds: BoundsType): boolean {
-		const mapBounds = source._projectionBounds;
-		return (
-			tileBounds[2] >= mapBounds[0] &&
-			tileBounds[3] >= mapBounds[1] &&
-			tileBounds[0] <= mapBounds[2] &&
-			tileBounds[1] <= mapBounds[3]
-		);
+	/** Check the tile is in the source bounds. */
+	private _checkVisible(source: ISource, params: TileLoadParamsType) {
+		const intersectsBounds = (source: ISource, tileBounds: BoundsType): boolean => {
+			const sourceBounds = source._projectionBounds;
+			return (
+				tileBounds[2] >= sourceBounds[0] &&
+				tileBounds[3] >= sourceBounds[1] &&
+				tileBounds[0] <= sourceBounds[2] &&
+				tileBounds[1] <= sourceBounds[3]
+			);
+		};
+
+		return params.z >= source.minLevel && intersectsBounds(source, params.bounds);
 	}
 }

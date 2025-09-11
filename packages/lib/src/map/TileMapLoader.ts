@@ -65,6 +65,11 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 		return super.load({ x, y, z, bounds, lonLatBounds }, tileMesh);
 	}
 
+	public override update(coord: TileLoadParamsType, tileMesh: TileMesh): void {
+		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(coord);
+		super.update({ x, y, z, bounds, lonLatBounds }, tileMesh);
+	}
+
 	// public override async update(
 	// 	tileMesh: Mesh<BufferGeometry, Material[]>,
 	// 	params: TileLoadParamsType,
