@@ -80,7 +80,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	private _sizeInWorld = -1;
 
 	/** 瓦片包围盒（世界坐标） */
-	private _bbox: Box3 | null = null;
+	// private _bbox: Box3 | null = null;
 
 	private _model?: TileMesh;
 	/** 瓦片模型 */
@@ -105,7 +105,9 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 瓦片是否在视锥体内 */
 	public get inFrustum(): boolean {
-		return !!this._bbox && frustum.intersectsBox(this._bbox);
+		// 瓦片包围盒世界坐标
+		const bbox = this.getBBox();
+		return frustum.intersectsBox(bbox);
 	}
 
 	/** 是否为叶子瓦片 */
@@ -130,7 +132,7 @@ export class Tile extends Object3D<TTileEventMap> {
 				this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: value });
 			}
 		} else {
-			// console.assert(!value);
+			console.assert(!value);
 		}
 	}
 
@@ -173,31 +175,42 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this.inFrustum;
 	}
 
+	/** 计算瓦片包围盒（世界坐标） */
+	public getBBox() {
+		const bbox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 0)).applyMatrix4(this.matrixWorld);
+		if (this.model) {
+			bbox.max.setY(this.model.geometry.boundingBox?.max.z || 0);
+		} else {
+			bbox.min.setY(-300);
+			bbox.max.setY(9000);
+		}
+		return bbox;
+	}
+
 	/**
-	 * 计算瓦片bbox、size
-	 * @param debug 调试级别
+	 * 计算瓦片size
 	 * @returns 瓦片大小
 	 */
-	private computeTileSize(debug: number) {
-		// 瓦片包围盒-世界坐标
-		this._bbox = new Box3(new Vector3(-0.5, -0.5), new Vector3(0.5, 0.5)).applyMatrix4(this.matrixWorld);
+	public getTileSize() {
 		// 瓦片大小-对角线长度
-		this._sizeInWorld = this._bbox.getSize(tempVec3).length();
-		console.assert(this._sizeInWorld > 10);
-		// 增大包围盒高度（-300到90000米）
-		this._bbox.min.setY(-300);
-		this._bbox.max.setY(9000);
-
-		// 添加瓦片调试瓦围盒
-		if (debug > 1) {
-			// 包围盒局地坐标
-			const box = this._bbox.clone().applyMatrix4(this.matrixWorld.clone().invert());
-			const boxMesh = new Box3Helper(box, 0xff000);
-			boxMesh.name = "tilebox";
-			this.add(boxMesh);
+		if (this._sizeInWorld < 0) {
+			const bbox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 0)).applyMatrix4(this.matrixWorld);
+			this._sizeInWorld = bbox.getSize(tempVec3).length();
+			console.assert(this._sizeInWorld > 10);
 		}
 
 		return this._sizeInWorld;
+	}
+
+	private _addBBox() {
+		// 包围盒局地坐标
+		const bbox = this.getBBox();
+		// bbox.min.setY(-300);
+		// bbox.max.setY(9000);
+		const box = bbox.clone().applyMatrix4(this.matrixWorld.clone().invert());
+		const boxMesh = new Box3Helper(box, 0xff000);
+		boxMesh.name = "tilebox";
+		this.add(boxMesh);
 	}
 
 	/**
@@ -224,12 +237,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 		}
 
-		// 计算瓦片大小、包围盒等
-		if (this._sizeInWorld < 0) {
-			this.computeTileSize(loader.debug);
-		}
-
-		// 下载
+		// 下载瓦片
 		if (
 			this.z >= minLevel && //当前层级>地图最小层级
 			loader.downloadingThreads < loader.maxThreads && //下载线程数<最大下载线程数
@@ -237,6 +245,11 @@ export class Tile extends Object3D<TTileEventMap> {
 		) {
 			this._startLoad(loader);
 			return;
+		}
+
+		// 更新瓦片
+		if (this.model) {
+			loader.update(this, this.model);
 		}
 
 		// 更新瓦片阴影
@@ -272,6 +285,8 @@ export class Tile extends Object3D<TTileEventMap> {
 			this._subTiles = newTiles;
 			this._subTiles.forEach(child => {
 				child.updateMatrixWorld();
+				child.updateMatrix();
+				child.getTileSize();
 				this._root.dispatchEvent({ type: "tile-created", tile: child });
 			});
 		} else if (action === LODAction.remove) {
@@ -326,6 +341,10 @@ export class Tile extends Object3D<TTileEventMap> {
 		// remove old model and add new model
 		this.model && this.model.removeFromParent();
 		this.add(model);
+
+		if (loader.debug > 1) {
+			this._addBBox();
+		}
 
 		this._isLoading = false;
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
