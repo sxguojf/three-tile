@@ -238,7 +238,7 @@ export class TileLoader implements ITileLoader {
 			const loader = LoaderFactory.getMaterialLoader(source);
 			const material: Material = await loader.load({ source, ...params }).catch(e => {
 				if (this.debug > 0) {
-					console.error("Load Material Error:", e.message);
+					console.error("Load Material Error:", e.target.src);
 				}
 				return this._errorMaterial.clone();
 			});
