@@ -43,15 +43,10 @@ export function limitCameraHeight(map: TileMap, camera: PerspectiveCamera, limit
 
 	if (info) {
 		// 计算检测点与地面的高度差
-		const dh = checkPoint.y - info.point.y;
+		const dh = limitHeight - (checkPoint.y - info.point.y);
 		// 当高度差小于限制高度时，抬高摄像机
-		if (dh < limitHeight) {
-			// 计算需要抬高的偏移量，乘以 1.01 是为了留出一定的安全余量
-			const offset = (limitHeight - dh) * 1.01;
-			// 将偏移量转换为世界坐标系下的向量
-			const dv = map.localToWorld(map.up.clone().multiplyScalar(offset));
-			// 抬高摄像机的位置
-			camera.position.add(dv);
+		if (dh > 0) {
+			camera.position.y += dh + 0.01;
 			hit = true;
 		}
 	}

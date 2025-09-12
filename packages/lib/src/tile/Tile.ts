@@ -329,18 +329,16 @@ export class Tile extends Object3D<TTileEventMap> {
 
 		// load
 		const model = await loader.load(this, this.model);
-		model.geometry.computeBoundingBox();
+		this.model && this.model.removeFromParent();
 		this._model = model;
+		model.geometry.computeBoundingBox();
+		this.add(model);
 
 		if (oldDirty) {
 			this._isDirty = false;
 		} else {
 			this.isLeaf && this._checkVisible();
 		}
-
-		// remove old model and add new model
-		this.model && this.model.removeFromParent();
-		this.add(model);
 
 		if (loader.debug > 1) {
 			this._addBBox();
