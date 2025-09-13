@@ -18,7 +18,7 @@ const THREADSNUM = 5;
  * ArcGis-lerc格式瓦片几何体加载器
  * @link https://github.com/Esri/lerc
  */
-export class TileGeometryLercLoader extends TileGeometryLoader {
+export class TerrainLercLoader extends TileGeometryLoader {
 	public readonly info = {
 		version,
 		description: "Tile LERC terrain loader. It can load ArcGis-lerc format terrain data.",

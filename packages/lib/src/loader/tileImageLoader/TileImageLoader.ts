@@ -31,8 +31,9 @@ export class TileImageLoader extends TileMaterialLoader {
 	protected async doLoad(url: string, params: TileLoadClipParamsType): Promise<Texture> {
 		let img: HTMLImageElement | OffscreenCanvas = await this.loader.loadAsync(url);
 
-		// 从父瓦片中剪裁
+		// 当瓦片级别大于数据源的最大级别时，从父瓦片中剪裁图像
 		const clipBounds = params.clipBounds;
+		// 剪裁宽度<1
 		if (clipBounds[2] - clipBounds[0] < 1) {
 			img = getSubImage(img, clipBounds);
 		}

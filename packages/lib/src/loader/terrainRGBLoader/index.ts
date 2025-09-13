@@ -4,7 +4,4 @@
  *@date: 2023-04-05
  */
 
-import { registerDEMLoader } from "../..";
-import { TerrainRGBLoader } from "./TerrainRGBLoader";
-
-registerDEMLoader(new TerrainRGBLoader());
+export * from "./TerrainRGBLoader";

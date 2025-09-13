@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { Camera, Clock, Intersection, Object3D, Vector2, Vector3 } from "three";
+import { Camera, Clock, ColorRepresentation, Intersection, Object3D, Vector2, Vector3 } from "three";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ITileMapLoader } from "./ITileMapLoader";
@@ -12,29 +12,39 @@ import { IProjection, ProjectFactory } from "./projection";
 import { TileMapEventMap } from "./TileMapEventMap";
 import { TileMapLoader } from "./TileMapLoader";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
+import { BoundsType } from "../loader";
 
-/**
- * 地面信息类型
- */
+/** 地面信息类型(经度、纬度、高度) */
 export interface LocationInfo extends Intersection {
 	location: Vector3;
 }
 
-/** 地图投影中心经度类型 */
+/** 地图中央子午线经度类型 */
 type ProjectCenterLongitude = 0 | 90 | -90;
 
 /** 地图创建参数 */
 export type MapParams = {
-	debug?: number; //是否开启调试模式, debug mode: 0: off, 1: on, 2: show tile box
-	loader?: TileMapLoader; //地图加载器, map data loader
-	rootTile?: Tile; //根瓦片, root Tile
-	imgSource: ISource[] | ISource; //影像数据源, image source
-	demSource?: ISource; //高程数据源, terrain source
-	bounds?: [number, number, number, number]; // 地图经纬度范围
-	minLevel?: number; //最小缩放级别, maximum zoom level of the map
-	/** @deprecated  It will set to maxLevel of all sources auto*/
-	maxLevel?: number; //最大缩放级别, minimum zoom level for the map
-	lon0?: ProjectCenterLongitude; //投影中心经度, map centralMeridian longitude
+	/** 开启调试模式, debug mode: 0: off, 1... */
+	debug?: number;
+	/* 地图加载器, map data loader */
+	loader?: TileMapLoader;
+	/** 跟瓦片 root tile */
+	rootTile?: Tile;
+	/** 影像数据源, image source */
+	imgSource: ISource[] | ISource;
+	/** 高程数据源, terrain source */
+	demSource?: ISource;
+	/**  地图经纬度范围  */
+	bounds?: BoundsType;
+	/** 地图最小缩放级别, maximum zoom level of the map */
+	minLevel?: number;
+	/** 中央子午线经度, map centralMeridian longitude */
+	lon0?: ProjectCenterLongitude;
+
+	/** @deprecated  背景色，已废弃，使用background插件 */
+	backgroundColor?: ColorRepresentation;
+	/** @deprecated  地图最大缩放级别，已废弃，自动根据数据源基本设定 */
+	maxLevel?: number;
 };
 
 /**
@@ -44,6 +54,9 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	/** 名称 */
 	public readonly name = "map";
 
+	/** 调试标志，0：不调试 */
+	public debug = 0;
+
 	/** 瓦片树更新时钟 */
 	private readonly _mapClock = new Clock();
 
@@ -52,9 +65,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 
 	/** 地图是否在每帧渲染时自动更新，默认为真 */
 	public autoUpdate = true;
-
-	/** 调试标志，0：不调试 */
-	public debug = 0;
 
 	/** 瓦片树更新间隔，单位毫秒（默认100ms） */
 	public updateInterval = 100;
@@ -76,13 +86,11 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	}
 
 	private _maxLevel = 20;
-	/** 地图最大缩放级别，大于这个级别瓦片树不再更新 */
+	/**  地图最大缩放级别，大于这个级别瓦片树不再更新 */
 	public get maxLevel() {
 		return this._maxLevel;
 	}
-	/** 设置地图最大缩放级别，大于这个级别瓦片树不再更新
-	 * @deprecated MaxLevel has deprecated, it set to sources maxLevel
-	 */
+	/** @deprecated 废弃，它会自动根据数据源的最大缩放级别设置 */
 	public set maxLevel(value: number) {
 		this._maxLevel = value;
 	}
@@ -198,6 +206,15 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.loader.maxThreads = value;
 	}
 
+	/** @deprecated 取得背景色 */
+	public get backgroundColor() {
+		return 0;
+	}
+	/** @deprecated 设置背景色 */
+	public set backgroundColor(value: ColorRepresentation) {
+		value;
+	}
+
 	/**
      * 地图创建工厂函数
        @param params 地图参数 {@link MapParams}
@@ -214,6 +231,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	public constructor(params: MapParams) {
 		super();
 		this.up.set(0, 0, 1);
+
 		const {
 			loader = new TileMapLoader(),
 			rootTile = new Tile(),
@@ -225,18 +243,17 @@ export class TileMap extends Object3D<TileMapEventMap> {
 			debug = 0,
 		} = params;
 
-		this._minLevel = minLevel;
-		// this._maxLevel = maxLevel;
-
+		this.minLevel = minLevel;
 		this.loader = loader;
 		this.rootTile = rootTile;
 
-		// backgroundColor && this.loader.backgroundMaterial.color.set(backgroundColor);
+		// 地图范围
 		bounds && (this.loader.bounds = bounds);
 		this.debug = this.loader.debug = debug;
 		this.lon0 = lon0;
 
-		this.imgSource = Array.isArray(imgSource) ? imgSource : [imgSource];
+		// 数据源
+		this.imgSource = imgSource;
 		this.demSource = demSource;
 
 		// 模型加入地图
@@ -255,14 +272,22 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.addEventListener("loading-complete", onLoadingComplete);
 	}
 
+	/**
+	 * 地图改变大小
+	 */
 	private _resize() {
 		// 拉伸地图到投影大小
 		this.rootTile.scale.set(this.projection.mapWidth, this.projection.mapHeight, this.projection.mapDepth);
 		// 模型矩阵更新
 		this.rootTile.updateMatrix();
 		this.rootTile.updateMatrixWorld();
+		return this;
 	}
 
+	/**
+	 * 取得最大缩放级别
+	 * @returns 最大缩放级别
+	 */
 	private _getMaxLevel() {
 		let maxLevel = 0;
 		this.imgSource.forEach(source => (maxLevel = Math.max(maxLevel, source.maxLevel)));
@@ -277,7 +302,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 
 	/**
 	 * 模型更新回调函数，地图加入场景后会在每帧更新时被调用，该函数调用根瓦片实现瓦片树更新和数据加载
-	 * @param camera
+	 * @param camera 摄像机
 	 */
 	public update(camera: Camera) {
 		const elapseTime = this._mapClock.getElapsedTime();
@@ -302,7 +327,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 * 更新地图数据
 	 */
 	private _updateSource() {
-		this.maxLevel = this._getMaxLevel();
+		this._maxLevel = this._getMaxLevel();
 		this.rootTile.reload(this.loader, false);
 	}
 
@@ -325,7 +350,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 * 地理坐标转换为地图模型坐标(与geo2map同功能)
 	 * @param geo 地理坐标（经纬度）
 	 * @returns 模型坐标
-	 * @deprecated This method is not recommended. Use geo2map() instead.
+	 * @deprecated 废弃. 请使用 geo2map()
 	 */
 	public geo2pos(geo: Vector3) {
 		return this.geo2map(geo);
@@ -355,7 +380,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 * 地图模型坐标转换为地理坐标(与map2geo同功能)
 	 * @param pos 模型坐标
 	 * @returns 地理坐标（经纬度）
-	 *  @deprecated This method is not recommended. Use map2geo() instead.
+	 * @deprecated 废弃. 请使用 map2geo()
 	 */
 	public pos2geo(pos: Vector3) {
 		return this.map2geo(pos);
@@ -372,7 +397,6 @@ export class TileMap extends Object3D<TileMapEventMap> {
 
 	/**
 	 * 世界坐标转换为地理坐标
-	 *
 	 * @param world 世界坐标
 	 * @returns 地理坐标（经纬度）
 	 */

@@ -4,7 +4,4 @@
  *@date: 2023-04-05
  */
 
-import { registerDEMLoader } from "../..";
-import { TileGeometryLercLoader } from "./TileGeometryLercLoader";
-
-registerDEMLoader(new TileGeometryLercLoader());
+export * from "./TerrainLercLoader";

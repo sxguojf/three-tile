@@ -20,7 +20,14 @@ export * from "./source";
 export * from "./map";
 
 import { BufferGeometry, Material } from "three";
-import { ITileGeometryLoader, ITileMaterialLoader, LoaderFactory } from "./loader";
+import {
+	ITileGeometryLoader,
+	ITileMaterialLoader,
+	LoaderFactory,
+	TileImageLoader,
+	TerrainRGBLoader,
+	TerrainLercLoader,
+} from "./loader";
 
 /**
  * 等待某个条件成立后继续执行
@@ -86,3 +93,16 @@ export function getDEMLoader<T extends ITileGeometryLoader<BufferGeometry>>(date
 export function getTileLoaders() {
 	return LoaderFactory.getLoaders();
 }
+
+// 注册加载器
+function registerLoader() {
+	// 注册影像加载器
+	registerImgLoader(new TileImageLoader());
+	// 注册Terrain-RGB地形加载器
+	registerDEMLoader(new TerrainRGBLoader());
+	// 注册Arcgis-Lerc地形加载器
+	registerDEMLoader(new TerrainLercLoader());
+}
+
+// 注册内置加载器
+registerLoader();

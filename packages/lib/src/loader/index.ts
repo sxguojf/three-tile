@@ -38,4 +38,4 @@ export * from "./tileImageLoader";
 export * from "./terrainLercLoader";
 
 // Mapbox terrain-rgb loader. Mapbox terrain-rgb格式地形瓦片加载器
-import "./terrainRGBLoader";
+export * from "./terrainRGBLoader";
