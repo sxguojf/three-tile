@@ -8,7 +8,7 @@ import { Texture } from "three";
 import { ITileMaterialLoader, TileLoadClipParamsType, TileSourceLoadParamsType } from ".";
 import { version } from "..";
 import { ITileMaterial, TileMaterial } from "../material";
-import { getSafeTileUrlAndBounds, getSubImage } from "./util";
+import { getSafeTileUrlAndBounds } from "./util";
 
 /**
  * Image loader base calss

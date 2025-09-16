@@ -5,7 +5,6 @@ import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
 
 import * as ms from "../mapSource";
-import { JL1Source } from "../JL1Source";
 
 export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileMap) => {
 	const vm = {
@@ -233,12 +232,6 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			});
 		},
 
-		jl1: () => {
-			const source = new JL1Source({
-				url: "https://api.jl1mall.com/getMap/{z}/{x}/{y}",
-			});
-			map.imgSource = [source];
-		},
 		setBackground: () => {
 			map.imgSource = [
 				tt.TileSource.create({
@@ -275,8 +268,6 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 
 	imgFolder.add(vm, "setWms1").name("WMS服务测试1");
 	imgFolder.add(vm, "setWms2").name("WMS服务测试2");
-
-	imgFolder.add(vm, "jl1").name("吉林一号影像");
 
 	// 地形数据源
 	const demFolder = folder.addFolder("地形数据");
