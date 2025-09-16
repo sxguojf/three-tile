@@ -257,7 +257,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	imgFolder.add(vm, "setMapBox").name("MapBox+天地图");
 	imgFolder.add(vm, "setZkxt").name("中科星图");
 	imgFolder.add(vm, "setBing").name("Bing+天地图");
-	imgFolder.add(vm, "setGoogle").name("google影像");
+	imgFolder.add(vm, "setGoogle").name("google+天地图");
 	imgFolder.add(vm, "setGoogleP").name("google地形渲染");
 	imgFolder.add(vm, "setArcGis").name("ArcGis+天地图");
 	imgFolder.add(vm, "setArcGisHillShader").name("ArcGis山影+bing交通");
