@@ -25,7 +25,7 @@ export class ArcGisDemSource extends TileSource {
 	public minLevel = 5;
 	public maxLevel = 13;
 	public url =
-		"https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer/tile/{z}/{y}/{x}";
+		"https://server.arcgisonline.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer/tile/{z}/{y}/{x}";
 	constructor(options?: SourceOptions) {
 		super(options);
 		Object.assign(this, options);
