@@ -139,17 +139,30 @@ export class Tile extends Object3D<TTileEventMap> {
 	/** 是否为脏瓦片 */
 	private _isDirty = false;
 
-	private get _needsLoad() {
-		// 全量加载： 没有加载模型 || (已标记为脏瓦片 && 在视野访问 && 子瓦片已下载完成)
-		return !this.model || (this._isDirty && this.inFrustum && !this.subTiles?.some(tile => !tile.model));
+	private _needsLoad(loader: ITileLoader) {
+		// 下载线程数>最大下载线程数不下载
+		if (loader.downloadingThreads > loader.maxThreads) {
+			return false;
+		}
 
-		// 仅加载子瓦片： 没有加载模型 || (已标记为脏瓦片 && 视野范围 && 子瓦片)
-		// return !this.model || (this._isDirty && this.inFrustum && this.isLeaf);
+		// 没有模型下载
+		if (!this.model) {
+			return true;
+		}
 
-		// 仅加载子瓦片和其父瓦片
-		// return (
-		// 	!this.model || (this._isDirty && this.inFrustum && (!this.subTiles || this.subTiles?.some(tile => tile.isLeaf)))
-		// );
+		// 不是脏瓦片或者不在视野范围内不下载
+		if (!this._isDirty || !this.inFrustum) {
+			return false;
+		}
+
+		// 父瓦片等子瓦片已下载完成后再下载
+		return !this.subTiles?.some(tile => !tile._isDirty);
+
+		// 仅下载叶子瓦片
+		// return  this.isLeaf;
+
+		// 仅加载叶子瓦片和其父瓦片
+		// return !this.subTiles || this.subTiles?.some(tile => tile.isLeaf);
 	}
 
 	/**
@@ -240,8 +253,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		// 下载瓦片
 		if (
 			this.z >= minLevel && //当前层级>地图最小层级
-			loader.downloadingThreads < loader.maxThreads && //下载线程数<最大下载线程数
-			this._needsLoad
+			this._needsLoad(loader)
 		) {
 			this._startLoad(loader);
 			return;

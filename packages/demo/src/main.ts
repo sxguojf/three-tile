@@ -82,10 +82,10 @@ function createMap() {
 		lon0: 90,
 		// 最小缩放级别
 		minLevel: 2,
-		// 最大缩放级别
+		// 最大缩放级别，废弃
 		//maxLevel: 20,
 		// 地图经纬度范围
-		bounds: [60, 0, 145, 60],
+		// bounds: [60, 0, 145, 60],
 		// 调试标志
 		debug: 1,
 	});

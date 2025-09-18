@@ -158,7 +158,7 @@ export class TileLoader implements ITileLoader {
 	 */
 	public update(params: TileLoadParamsType, _tileMesh: TileMesh): void {
 		// visible sources
-		const sources = this.imgSource.filter(source => this._checkVisible(source, params));
+		const sources = this.imgSource.filter(source => this._checkBounds(source, params));
 
 		for (let i = 0; i < sources.length; i++) {
 			if (sources[i].dynamic) {
@@ -173,28 +173,34 @@ export class TileLoader implements ITileLoader {
 	 * @returns BufferGeometry
 	 */
 	protected async loadGeometry(params: TileLoadParamsType, tileGeometry?: BufferGeometry): Promise<BufferGeometry> {
-		if (tileGeometry) {
-			// source not changed
-			if (this.demSource === tileGeometry.userData.source) {
-				tileGeometry.userData.toDispose = false;
-				return tileGeometry;
-			} else {
-				tileGeometry.userData.toDispose = true;
+		if (this.demSource && this._checkBounds(this.demSource, params)) {
+			if (tileGeometry) {
+				// source not changed
+				if (this.demSource === tileGeometry.userData.source) {
+					tileGeometry.userData.toDispose = false;
+					return tileGeometry;
+				} else {
+					tileGeometry.userData.toDispose = true;
+				}
 			}
-		}
 
-		if (this.demSource && this._checkVisible(this.demSource, params)) {
 			// get loader
 			const loader = LoaderFactory.getGeometryLoader(this.demSource);
 
 			// load geometry
 			const source = this.demSource;
-			const geometry = await loader.load({ source, ...params }).catch(e => {
-				if (this.debug > 0) {
-					console.error("Load Geometry Error:", e);
-				}
-				return new TileGeometry();
-			});
+			const geometry = await loader
+				.load({ source, ...params })
+				.then(geo => {
+					geo.userData.source = source;
+					return geo;
+				})
+				.catch(e => {
+					if (this.debug > 0) {
+						console.error("Load Geometry Error:", e);
+					}
+					return new TileGeometry();
+				});
 
 			return geometry;
 		} else {
@@ -219,7 +225,7 @@ export class TileLoader implements ITileLoader {
 		const materials: Material[] = [];
 
 		// visible sources
-		const sources = this.imgSource.filter(source => this._checkVisible(source, params));
+		const sources = this.imgSource.filter(source => this._checkBounds(source, params));
 
 		for (let i = 0; i < sources.length; i++) {
 			const source = sources[i];
@@ -236,12 +242,18 @@ export class TileLoader implements ITileLoader {
 
 			// load
 			const loader = LoaderFactory.getMaterialLoader(source);
-			const material: Material = await loader.load({ source, ...params }).catch(e => {
-				if (this.debug > 0) {
-					console.error("Load Material Error:", e.target.src);
-				}
-				return this._errorMaterial.clone();
-			});
+			const material: Material = await loader
+				.load({ source, ...params })
+				.then(mat => {
+					mat.userData.source = source;
+					return mat;
+				})
+				.catch(e => {
+					if (this.debug > 0) {
+						console.error("Load Material Error:", e.target.src);
+					}
+					return this._errorMaterial.clone();
+				});
 
 			// clip the materilal to map bounds
 			this._materialClip(material, source, params);
@@ -264,7 +276,7 @@ export class TileLoader implements ITileLoader {
 	}
 
 	/** Check the tile is in the source bounds. */
-	private _checkVisible(source: ISource, params: TileLoadParamsType) {
+	private _checkBounds(source: ISource, params: TileLoadParamsType) {
 		const intersectsBounds = (source: ISource, tileBounds: BoundsType): boolean => {
 			const sourceBounds = source._projectionBounds;
 			return (
