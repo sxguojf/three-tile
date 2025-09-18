@@ -141,7 +141,7 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	private _needsLoad(loader: ITileLoader) {
 		// 下载线程数>最大下载线程数不下载
-		if (loader.downloadingThreads > loader.maxThreads) {
+		if (loader.downloadingThreads >= loader.maxThreads) {
 			return false;
 		}
 
