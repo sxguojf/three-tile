@@ -49,8 +49,6 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 
 	public readonly renderer: WebGLRenderer;
 
-	// public readonly depthRenderTarget?: WebGLRenderTarget;
-
 	public readonly camera: PerspectiveCamera;
 
 	public readonly ambLight: AmbientLight;
@@ -142,15 +140,6 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 		return renderer;
 	}
 
-	// protected createDepthRenderTarget() {
-	// 	const depthRenderTarget = new WebGLRenderTarget(this.width, this.height, {
-	// 		depthBuffer: true,
-	// 		// depthTexture: new DepthTexture(this.width, this.height),
-	// 		type: FloatType,
-	// 	});
-	// 	return depthRenderTarget;
-	// }
-
 	/**
 	 * Create camera
 	 * @returns camera
@@ -191,9 +180,6 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 		this.renderer.setSize(width, height);
 		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
-
-		// this.depthRenderTarget?.setSize(this.width, this.height);
-
 		// 防止resize过程中黑屏
 		this.update();
 		this.dispatchEvent({ type: "resize", size: { width, height } });
@@ -208,31 +194,7 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 			this.renderer.render(scene, this.camera);
 		});
 		this.renderer.autoClear = true;
-
-		// if (this.depthRenderTarget) {
-		// 	this.renderer.setRenderTarget(this.depthRenderTarget);
-		// 	this.renderer.render(this.scene, this.camera);
-		// 	this.renderer.setRenderTarget(null);
-		// }
 	}
-
-	// public getDethBuffer() {
-	// 	if (this.depthRenderTarget) {
-	// 		const buffer = new Float32Array(this.depthRenderTarget.width * this.depthRenderTarget.height);
-	// 		// 深度像素信息写入数组
-	// 		this.renderer.readRenderTargetPixels(
-	// 			this.depthRenderTarget,
-	// 			0,
-	// 			0,
-	// 			this.depthRenderTarget.width,
-	// 			this.depthRenderTarget.height,
-	// 			buffer
-	// 		);
-	// 		return buffer;
-	// 	} else {
-	// 		return null;
-	// 	}
-	// }
 
 	/**
 	 * Threejs animation loop
