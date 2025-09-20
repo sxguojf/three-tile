@@ -18,7 +18,9 @@ export class TileMapControls extends OrbitControls {
 	/**
 	 * Whether to use dynamic zoom speed whit distance, default is true
 	 */
-	public dymamicZoomSpeed = true;
+	public dynamicZoomSpeed = true;
+
+	public dynamicMaxPolarAngle = true;
 
 	private _controlsMode: "MAP" | "ORBIT" = "MAP";
 	public get controlsMode(): "MAP" | "ORBIT" {
@@ -60,7 +62,7 @@ export class TileMapControls extends OrbitControls {
 		const dist = Math.max(this.getDistance(), 1);
 
 		// Set ther zoom speed based on distance
-		if (this.dymamicZoomSpeed) {
+		if (this.dynamicZoomSpeed) {
 			this.zoomSpeed = Math.max(Math.log(dist / 1e3), 1);
 			// this.panSpeed = Math.max(Math.log(dist) / 9, 0.1);
 		}
@@ -71,7 +73,9 @@ export class TileMapControls extends OrbitControls {
 		this.maxAzimuthAngle = isDistAboveThreshold ? 0 : Infinity;
 
 		// Set the polar angle based on distance
-		this.maxPolarAngle = Math.min(Math.pow(1e7 / dist, 2), this.mapMaxPolarAngle);
+		if (this.dynamicMaxPolarAngle) {
+			this.maxPolarAngle = Math.min(Math.pow(1e7 / dist, 2), this.mapMaxPolarAngle);
+		}
 
 		const camera = this.object;
 		if (camera instanceof PerspectiveCamera) {
