@@ -20,6 +20,6 @@ export class BackgroundLoader extends TileMaterialLoader {
 	public dataType = "background";
 
 	public createMaterial(params: TileSourceLoadParamsType<BackgroundSource>): ITileMaterial {
-		return new MeshBasicMaterial(params.source);
+		return new MeshBasicMaterial({ color: params.source.color });
 	}
 }
