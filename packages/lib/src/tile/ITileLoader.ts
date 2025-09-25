@@ -27,9 +27,9 @@ export interface ITileLoader {
 	/** 投影ID */
 	projectionID: string;
 	/** 加载瓦片数据 */
-	load(coord: TileCoords, tileMesh?: TileMesh): Promise<TileMesh>;
+	load(coord: TileCoords): Promise<TileMesh>;
 	/** 释放瓦片模型 */
 	unload(tileMesh: Mesh<BufferGeometry, Material[]>): void;
 	/** 更新瓦片 */
-	update(coord: TileCoords, tileMesh: TileMesh): void;
+	modify(coord: TileCoords, tileMesh: TileMesh): void;
 }

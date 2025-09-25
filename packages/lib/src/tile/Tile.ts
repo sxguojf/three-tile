@@ -215,16 +215,16 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this._sizeInWorld;
 	}
 
-	private _addBBox() {
-		// 包围盒局地坐标
-		const bbox = this.getBBox();
-		// bbox.min.setY(-300);
-		// bbox.max.setY(9000);
-		const box = bbox.clone().applyMatrix4(this.matrixWorld.clone().invert());
-		const boxMesh = new Box3Helper(box, 0xff000);
-		boxMesh.name = "tilebox";
-		this.add(boxMesh);
-	}
+	// private _addBBox() {
+	// 	// 包围盒局地坐标
+	// 	const bbox = this.getBBox();
+	// 	// bbox.min.setY(-300);
+	// 	// bbox.max.setY(9000);
+	// 	const box = bbox.clone().applyMatrix4(this.matrixWorld.clone().invert());
+	// 	const boxMesh = new Box3Helper(box, 0xff000);
+	// 	boxMesh.name = "tilebox";
+	// 	this.add(boxMesh);
+	// }
 
 	/**
 	 * 瓦片更新，该函数在每帧渲染中被调用
@@ -251,17 +251,13 @@ export class Tile extends Object3D<TTileEventMap> {
 		}
 
 		// 下载瓦片
-		if (
-			this.z >= minLevel && //当前层级>地图最小层级
-			this._needsLoad(loader)
-		) {
-			this._startLoad(loader);
+		if (this.z >= minLevel && this._needsLoad(loader)) {
+			if (this.model) {
+				this._startModify(loader);
+			} else {
+				this._startLoad(loader);
+			}
 			return;
-		}
-
-		// 更新瓦片
-		if (this.model) {
-			loader.update(this, this.model);
 		}
 
 		// 更新瓦片阴影
@@ -336,29 +332,36 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * @param loader  - 瓦片加载器
 	 */
 	private async _startLoad(loader: ITileLoader) {
-		const oldDirty = this._isDirty;
-		this._isLoading = true;
+		console.assert(!this.model);
 
+		this._isLoading = true;
 		// load
-		const model = await loader.load(this, this.model);
-		this.model && this.model.removeFromParent();
+		const model = await loader.load(this);
 		this._model = model;
 		model.geometry.computeBoundingBox();
 		this.add(model);
 		this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: true });
-
-		if (oldDirty) {
-			this._isDirty = false;
-		} else {
-			this.isLeaf && this._checkVisible();
-		}
-
-		if (loader.debug > 1) {
-			this._addBBox();
-		}
-
+		this.isLeaf && this._checkVisible();
 		this._isLoading = false;
 		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
+	}
+
+	/**
+	 * 修改瓦片数据
+	 * @param loader  - 瓦片加载器
+	 */
+	private async _startModify(loader: ITileLoader) {
+		console.assert(!!this.model);
+		this._isLoading = true;
+		if (this.model) {
+			// load
+			await loader.modify(this, this.model);
+			this.model.geometry.computeBoundingBox();
+			this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: true });
+			this._isDirty = false;
+			this._isLoading = false;
+			this._root.dispatchEvent({ type: "tile-loaded", tile: this });
+		}
 	}
 
 	/**

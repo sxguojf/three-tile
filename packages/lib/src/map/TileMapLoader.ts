@@ -60,14 +60,14 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 		this._updateDemPrjBounds();
 	}
 
-	public override async load(params: TileLoadParamsType, tileMesh: TileMesh): Promise<TileMesh> {
+	public override async load(params: TileLoadParamsType): Promise<TileMesh> {
 		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
-		return super.load({ x, y, z, bounds, lonLatBounds }, tileMesh);
+		return super.load({ x, y, z, bounds, lonLatBounds });
 	}
 
-	public override update(coord: TileLoadParamsType, tileMesh: TileMesh): void {
+	public override async modify(coord: TileLoadParamsType, tileMesh: TileMesh) {
 		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(coord);
-		super.update({ x, y, z, bounds, lonLatBounds }, tileMesh);
+		super.modify({ x, y, z, bounds, lonLatBounds }, tileMesh);
 	}
 
 	// public override async update(

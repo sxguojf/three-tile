@@ -145,7 +145,7 @@ export class BaseViewer extends EventDispatcher<ViewerEventMap> {
 	 * @returns camera
 	 */
 	protected createCamera() {
-		const camera = new PerspectiveCamera(70, 1, 100, 5e7);
+		const camera = new PerspectiveCamera(70, 1, 0.1, 5e7);
 		camera.position.set(0, 2.8e7, 0);
 		return camera;
 	}

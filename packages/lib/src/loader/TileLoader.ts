@@ -90,41 +90,18 @@ export class TileLoader implements ITileLoader {
 	 * @param tileMesh tile mesh
 	 * @returns Promise<TileMesh> tile mesh
 	 */
-	public async load(params: TileLoadParamsType, tileMesh?: TileMesh): Promise<TileMesh> {
+	public async load(params: TileLoadParamsType): Promise<TileMesh> {
 		const count = this.demSource ? 1 : 0 + this.imgSource.length;
 		this._downloadingThreads += count;
 
 		let mesh: TileMesh;
 		try {
 			// load
-			const geometry = await this.loadGeometry(params, tileMesh?.geometry);
-			const material = await this.loadMaterial(params, tileMesh?.material);
+			const geometry = await this.loadGeometry(params);
+			const material = await this.loadMaterial(params);
 
-			if (tileMesh) {
-				const oldGeometry = tileMesh.geometry;
-				const oldMaterial = tileMesh.material;
-				mesh = tileMesh;
-				mesh.geometry = geometry;
-				mesh.material = material;
-
-				// dispose old geometry
-				if (oldGeometry.userData.toDispose) {
-					oldGeometry.dispose();
-					delete oldGeometry.userData.source;
-					delete oldGeometry.userData.toDispose;
-				}
-				// dispose old material
-				oldMaterial.forEach(mat => {
-					if (mat.userData.toDispose) {
-						mat.dispose();
-						delete mat.userData.source;
-						delete mat.userData.toDispose;
-					}
-				});
-			} else {
-				// new mesh
-				mesh = new Mesh(geometry, material);
-			}
+			// new mesh
+			mesh = new Mesh(geometry, material);
 
 			//set material array
 			mesh.geometry.clearGroups();
@@ -139,6 +116,53 @@ export class TileLoader implements ITileLoader {
 	}
 
 	/**
+	 * modify tile
+	 * @param params
+	 * @param tileMesh
+	 */
+	public async modify(params: TileLoadParamsType, tileMesh: TileMesh) {
+		const count = this.demSource ? 1 : 0 + this.imgSource.length;
+		this._downloadingThreads += count;
+
+		const mesh = tileMesh;
+
+		try {
+			// load
+			const geometry = await this.loadGeometry(params, tileMesh?.geometry);
+			const material = await this.loadMaterial(params, tileMesh?.material);
+
+			const oldGeometry = tileMesh.geometry;
+			const oldMaterial = tileMesh.material;
+
+			mesh.geometry = geometry;
+			mesh.material = material;
+
+			// dispose old geometry
+			if (oldGeometry.userData.toDispose) {
+				oldGeometry.dispose();
+				delete oldGeometry.userData.source;
+				delete oldGeometry.userData.toDispose;
+			}
+			// dispose old material
+			oldMaterial.forEach(mat => {
+				if (mat.userData.toDispose) {
+					mat.dispose();
+					delete mat.userData.source;
+					delete mat.userData.toDispose;
+				}
+			});
+		} finally {
+			this._downloadingThreads -= count;
+		}
+
+		//set material array
+		mesh.geometry.clearGroups();
+		for (let i = 0; i < mesh.material.length; i++) {
+			mesh.geometry.addGroup(0, Infinity, i);
+		}
+	}
+
+	/**
 	 * Unload tile mesh data
 	 * @param tileMesh tile mesh
 	 */
@@ -149,23 +173,6 @@ export class TileLoader implements ITileLoader {
 			tileMesh.geometry.groups.pop();
 		}
 		tileMesh.geometry.dispose();
-	}
-
-	/**
-	 * Update material of tile mesh
-	 * @param params
-	 * @param tileMesh
-	 */
-	public update(params: TileLoadParamsType, _tileMesh: TileMesh): void {
-		// visible sources
-		const sources = this.imgSource.filter(source => this._checkBounds(source, params));
-
-		for (let i = 0; i < sources.length; i++) {
-			if (sources[i].dynamic) {
-				// const loader = LoaderFactory.getMaterialLoader(sources[i]);
-				// tileMesh.material[i] && loader.update && loader.update(tileMesh.material[i]);
-			}
-		}
 	}
 
 	/**

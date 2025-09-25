@@ -77,12 +77,12 @@ export class TileMapControls extends OrbitControls {
 			this.maxPolarAngle = Math.min(Math.pow(1e7 / dist, 2), this.mapMaxPolarAngle);
 		}
 
-		const camera = this.object;
-		if (camera instanceof PerspectiveCamera) {
-			// todo 精确推导far/near计算公式
-			camera.far = MathUtils.clamp((dist / (polar / 1.5)) * 7, 2e4, this.maxDistance * 2);
-			camera.near = Math.max(camera.far / 5e4, this.minDistance);
-			camera.updateProjectionMatrix();
-		}
+		// const camera = this.object;
+		// if (camera instanceof PerspectiveCamera) {
+		// 	// todo 精确推导far/near计算公式
+		// 	camera.far = MathUtils.clamp((dist / (polar / 1.5)) * 7, 2e4, this.maxDistance * 2);
+		// 	camera.near = Math.max(camera.far / 5e4, this.minDistance);
+		// 	camera.updateProjectionMatrix();
+		// }
 	}
 }
