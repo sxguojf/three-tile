@@ -80,7 +80,7 @@ export class TileLoader implements ITileLoader {
 	private readonly _errorMaterial = new MeshBasicMaterial({
 		color: 0xff0000,
 		transparent: true,
-		opacity: 0,
+		opacity: 0.1,
 		name: "error-material",
 	});
 
@@ -127,12 +127,12 @@ export class TileLoader implements ITileLoader {
 		const mesh = tileMesh;
 
 		try {
+			const oldGeometry = tileMesh.geometry;
+			const oldMaterial = tileMesh.material;
+
 			// load
 			const geometry = await this.loadGeometry(params, tileMesh?.geometry);
 			const material = await this.loadMaterial(params, tileMesh?.material);
-
-			const oldGeometry = tileMesh.geometry;
-			const oldMaterial = tileMesh.material;
 
 			mesh.geometry = geometry;
 			mesh.material = material;
@@ -168,10 +168,8 @@ export class TileLoader implements ITileLoader {
 	 */
 	public unload(tileMesh: TileMesh): void {
 		const materials = tileMesh.material;
-		for (let i = 0; i < materials.length; i++) {
-			materials[i].dispose();
-			tileMesh.geometry.groups.pop();
-		}
+		materials.forEach(mat => mat.dispose());
+		tileMesh.geometry.clearGroups();
 		tileMesh.geometry.dispose();
 	}
 
@@ -206,11 +204,13 @@ export class TileLoader implements ITileLoader {
 					if (this.debug > 0) {
 						console.error("Load Geometry Error:", e);
 					}
+					tileGeometry && (tileGeometry.userData.toDispose = true);
 					return new TileGeometry();
 				});
 
 			return geometry;
 		} else {
+			tileGeometry && (tileGeometry.userData.toDispose = true);
 			return new TileGeometry();
 		}
 	}
@@ -259,6 +259,7 @@ export class TileLoader implements ITileLoader {
 					if (this.debug > 0) {
 						console.error("Load Material Error:", e.target.src);
 					}
+					tileMaterial && (tileMaterial[i].userData.toDispose = true);
 					return this._errorMaterial.clone();
 				});
 
