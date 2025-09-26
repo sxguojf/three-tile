@@ -124,26 +124,21 @@ export class TileLoader implements ITileLoader {
 		const count = this.demSource ? 1 : 0 + this.imgSource.length;
 		this._downloadingThreads += count;
 
-		const mesh = tileMesh;
-
 		try {
+			// old geometry and material
 			const oldGeometry = tileMesh.geometry;
 			const oldMaterial = tileMesh.material;
 
 			// load
-			const geometry = await this.loadGeometry(params, tileMesh?.geometry);
-			const material = await this.loadMaterial(params, tileMesh?.material);
+			tileMesh.geometry = await this.loadGeometry(params, tileMesh.geometry);
+			tileMesh.material = await this.loadMaterial(params, tileMesh.material);
 
-			mesh.geometry = geometry;
-			mesh.material = material;
-
-			// dispose old geometry
+			// dispose old geometry and material
 			if (oldGeometry.userData.toDispose) {
 				oldGeometry.dispose();
 				delete oldGeometry.userData.source;
 				delete oldGeometry.userData.toDispose;
 			}
-			// dispose old material
 			oldMaterial.forEach(mat => {
 				if (mat.userData.toDispose) {
 					mat.dispose();
@@ -156,9 +151,9 @@ export class TileLoader implements ITileLoader {
 		}
 
 		//set material array
-		mesh.geometry.clearGroups();
-		for (let i = 0; i < mesh.material.length; i++) {
-			mesh.geometry.addGroup(0, Infinity, i);
+		tileMesh.geometry.clearGroups();
+		for (let i = 0; i < tileMesh.material.length; i++) {
+			tileMesh.geometry.addGroup(0, Infinity, i);
 		}
 	}
 
@@ -210,8 +205,12 @@ export class TileLoader implements ITileLoader {
 
 			return geometry;
 		} else {
-			tileGeometry && (tileGeometry.userData.toDispose = true);
-			return new TileGeometry();
+			if (tileGeometry) {
+				return tileGeometry;
+			} else {
+				// tileGeometry && (tileGeometry.userData.toDispose = true);
+				return new TileGeometry();
+			}
 		}
 	}
 
@@ -237,7 +236,6 @@ export class TileLoader implements ITileLoader {
 		for (let i = 0; i < sources.length; i++) {
 			const source = sources[i];
 
-			// no change
 			if (tileMaterial) {
 				const oldMaterial = tileMaterial[i];
 				if (oldMaterial && source === oldMaterial.userData.source) {

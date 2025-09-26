@@ -31,5 +31,5 @@ export interface ITileLoader {
 	/** 释放瓦片模型 */
 	unload(tileMesh: Mesh<BufferGeometry, Material[]>): void;
 	/** 更新瓦片 */
-	modify(coord: TileCoords, tileMesh: TileMesh): void;
+	modify(coord: TileCoords, tileMesh: TileMesh): Promise<void>;
 }

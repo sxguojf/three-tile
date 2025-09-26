@@ -18,15 +18,16 @@ export type BingSourceOptions = SourceOptions & { style?: string };
  */
 export class BingSource extends TileSource {
 	public dataType: string = "image";
-	public attribution = "Bing[GS(2021)1731号]";
+	public attribution = "Bing[GS(2024)0999号]";
 	public style: string = "A";
 	public mkt: string = "zh-CN";
 	public subdomains = "123";
 	public url = "https://t{s}.dynamic.tiles.ditu.live.com/comp/ch/{key}?mkt={mkt}&ur=CN&it={style}&n=z&og=804&cstl=vb";
+	public maxLevel = 20;
 
 	public constructor(options?: BingSourceOptions) {
 		super(options);
-		Object.assign(this, options);
+		this.style = options?.style || "A";
 	}
 
 	public getUrl(x: number, y: number, z: number) {

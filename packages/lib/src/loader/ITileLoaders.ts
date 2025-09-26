@@ -74,7 +74,7 @@ export interface ITileLoader {
 	/** 释放瓦片模型 */
 	unload(tileMesh: TileMesh): void;
 	/** 瓦片更新 */
-	modify(coord: TileLoadParamsType, tileMesh: TileMesh): void;
+	modify(coord: TileLoadParamsType, tileMesh: TileMesh): Promise<void>;
 }
 
 /**
