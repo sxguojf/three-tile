@@ -23,7 +23,7 @@ export class BingSource extends TileSource {
 	public mkt: string = "zh-CN";
 	public subdomains = "123";
 	public url = "https://t{s}.dynamic.tiles.ditu.live.com/comp/ch/{key}?mkt={mkt}&ur=CN&it={style}&n=z&og=804&cstl=vb";
-	public maxLevel = 20;
+	public maxLevel = 19;
 
 	public constructor(options?: BingSourceOptions) {
 		super(options);

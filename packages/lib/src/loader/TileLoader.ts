@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Texture } from "three";
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { BoundsType, ITileLoader, TileLoadParamsType, TileMesh } from "./ITileLoaders";
@@ -18,15 +18,8 @@ import { tileBoundsClip } from "./util";
 export class TileLoader implements ITileLoader {
 	private _downloadingThreads = 0;
 
-	private _bounds: BoundsType = [-180, -85, 180, 85];
-	/** Get the map bounds */
-	public get bounds() {
-		return this._bounds;
-	}
-	/** Set the map bounds */
-	public set bounds(value) {
-		this._bounds = value;
-	}
+	/** Map bounds in lonlat, default is world */
+	public bounds: BoundsType = [-180, -85, 180, 85];
 
 	private _maxThreads = 10;
 	/** Get the max downloading threads count*/
@@ -197,7 +190,7 @@ export class TileLoader implements ITileLoader {
 				})
 				.catch(e => {
 					if (this.debug > 0) {
-						console.error("Load Geometry Error:", e);
+						console.error("Load Geometry Error:", e.message);
 					}
 					tileGeometry && (tileGeometry.userData.toDispose = true);
 					return new TileGeometry();
@@ -209,7 +202,7 @@ export class TileLoader implements ITileLoader {
 				return tileGeometry;
 			} else {
 				// tileGeometry && (tileGeometry.userData.toDispose = true);
-				return new TileGeometry();
+				return new PlaneGeometry();
 			}
 		}
 	}

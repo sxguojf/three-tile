@@ -61,16 +61,16 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 	}
 
 	public override async load(params: TileLoadParamsType): Promise<TileMesh> {
-		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(params);
+		const { x, y, z, bounds, lonLatBounds } = this._getTileCoords(params);
 		return super.load({ x, y, z, bounds, lonLatBounds });
 	}
 
 	public override async modify(coord: TileLoadParamsType, tileMesh: TileMesh) {
-		const { x, y, z, bounds, lonLatBounds } = this.getTileCoords(coord);
+		const { x, y, z, bounds, lonLatBounds } = this._getTileCoords(coord);
 		super.modify({ x, y, z, bounds, lonLatBounds }, tileMesh);
 	}
 
-	private getTileCoords(params: TileLoadParamsType) {
+	private _getTileCoords(params: TileLoadParamsType) {
 		if (!this._projection) {
 			throw new Error("projection is undefined");
 		}
