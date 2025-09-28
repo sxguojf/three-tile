@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { TileLoader, TileLoadParamsType, TileMesh } from "../loader";
+import { BoundsType, TileLoader, TileLoadParamsType, TileMesh } from "../loader";
 import { ISource } from "../source";
 import { ITileMapLoader } from "./ITileMapLoader";
 import { IProjection, ProjMCT } from "./projection";
@@ -33,9 +33,19 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 		this._updateDemPrjBounds();
 	}
 
+	public override set bounds(value: BoundsType) {
+		super.bounds = value;
+		this._updateImgProjBounds();
+		this._updateDemPrjBounds();
+	}
+
+	public override get bounds(): BoundsType {
+		return super.bounds;
+	}
+
 	private _updateImgProjBounds() {
 		const proj = this._projection;
-		// 计算数据源投影范围，todo：计算交集
+		// 计算数据源投影范围
 		this.imgSource.forEach(source => {
 			source._projectionBounds = proj.getProjBoundsFromLonLat(source.bounds || this.bounds);
 		});
@@ -44,7 +54,7 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 	private _updateDemPrjBounds() {
 		const proj = this._projection;
 		if (this.demSource) {
-			// 计算数据源投影范围，todo：计算交集
+			// 计算数据源投影范围
 			this.demSource._projectionBounds = proj.getProjBoundsFromLonLat(this.demSource.bounds || this.bounds);
 		}
 	}

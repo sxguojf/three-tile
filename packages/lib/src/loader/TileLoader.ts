@@ -19,7 +19,13 @@ export class TileLoader implements ITileLoader {
 	private _downloadingThreads = 0;
 
 	/** Map bounds in lonlat, default is world */
-	public bounds: BoundsType = [-180, -85, 180, 85];
+	private _bounds: BoundsType = [-180, -85, 180, 85];
+	public get bounds(): BoundsType {
+		return this._bounds;
+	}
+	public set bounds(value: BoundsType) {
+		this._bounds = value;
+	}
 
 	private _maxThreads = 10;
 	/** Get the max downloading threads count*/
