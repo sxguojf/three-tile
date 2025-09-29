@@ -13,6 +13,7 @@ import { TileMapEventMap } from "./TileMapEventMap";
 import { TileMapLoader } from "./TileMapLoader";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
 import { BoundsType } from "../loader";
+// import { LayerLoader } from "../layers/LayerLoader";
 
 /** 地面信息类型(经度、纬度、高度) */
 export interface LocationInfo extends Intersection {
@@ -233,6 +234,7 @@ export class TileMap extends Object3D<TileMapEventMap> {
 		this.up.set(0, 0, 1);
 
 		const {
+			// loader = new LayerLoader(this),
 			loader = new TileMapLoader(),
 			rootTile = new Tile(),
 			minLevel = 2,
