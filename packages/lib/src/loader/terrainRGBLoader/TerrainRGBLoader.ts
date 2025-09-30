@@ -58,7 +58,7 @@ export class TerrainRGBLoader extends TileGeometryLoader {
 		dem = (await this._workerPool.postMessage({ imgData }, [imgData.data.buffer])).data;
 
 		const geometry = new TileGeometry();
-		geometry.setData(dem);
+		geometry.setData(dem, 5e3 / params.z);
 
 		return geometry;
 	}

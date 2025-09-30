@@ -62,6 +62,6 @@ export class TerrainLercLoader extends TileGeometryLoader {
 		// const geoData = parse(buffer, z, bounds);
 
 		// 创建瓦片几何体对象
-		return new TileGeometry().setData(geoData);
+		return new TileGeometry().setData(geoData, 5e3 / params.z);
 	}
 }
