@@ -196,7 +196,7 @@ export class TileLoader implements ITileLoader {
 				})
 				.catch(e => {
 					if (this.debug > 0) {
-						console.error("Load Geometry Error:", e.message);
+						console.error("Load Geometry Error:", e);
 					}
 					tileGeometry && (tileGeometry.userData.toDispose = true);
 					return new TileGeometry();

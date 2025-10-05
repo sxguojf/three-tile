@@ -39,3 +39,6 @@ export * from "./terrainLercLoader";
 
 // Mapbox terrain-rgb loader. Mapbox terrain-rgb格式地形瓦片加载器
 export * from "./terrainRGBLoader";
+
+// Mapbox terrain-dem loader. Mapbox terrain-dem格式地形瓦片加载器
+export * from "./terrainDEMLoader";

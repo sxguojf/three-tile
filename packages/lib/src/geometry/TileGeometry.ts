@@ -33,10 +33,10 @@ export class TileGeometry extends BufferGeometry {
 		this.setAttribute("uv", new BufferAttribute(attributes.texcoord.value, attributes.texcoord.size));
 		this.setAttribute("normal", new BufferAttribute(attributes.normal.value, attributes.normal.size));
 
-		this.index && (this.index.needsUpdate = true);
-		this.attributes.position.needsUpdate = true;
-		this.attributes.uv.needsUpdate = true;
-		this.attributes.normal.needsUpdate = true;
+		// this.index && (this.index.needsUpdate = true);
+		// this.attributes.position.needsUpdate = true;
+		// this.attributes.uv.needsUpdate = true;
+		// this.attributes.normal.needsUpdate = true;
 		// this.computeBoundingBox();
 		// this.computeBoundingSphere();
 
@@ -52,8 +52,6 @@ export class TileGeometry extends BufferGeometry {
 			this.setAttribes(geometryData, z);
 		} else {
 			const geometryData = getGeometryDataFromDem(data);
-			// const geoDataWithSkirt = addSkirt(geometryData.attributes, geometryData.indices, skirtHeight);
-			// this.setAttribes(geoDataWithSkirt);
 			this.setAttribes(geometryData, z);
 		}
 

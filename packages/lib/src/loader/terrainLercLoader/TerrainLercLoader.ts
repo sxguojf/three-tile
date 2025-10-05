@@ -49,7 +49,7 @@ export class TerrainLercLoader extends TileGeometryLoader {
 
 		// 取得瓦片层级和剪裁范围
 		const { z, clipBounds } = params;
-		const buffer = await this.fileLoader.loadAsync(url);
+		const buffer = (await this.fileLoader.loadAsync(url)) as ArrayBuffer;
 
 		// 解析取得几何体数据
 		const message = {
@@ -59,7 +59,7 @@ export class TerrainLercLoader extends TileGeometryLoader {
 		};
 		// const transferList = [buffer];
 		const geoData = (await this._workerPool.postMessage(message)).data;
-		// const geoData = parse(buffer, z, bounds);
+		// const geoData = parse(buffer, z, clipBounds);
 
 		// 创建瓦片几何体对象
 		return new TileGeometry().setAttribes(geoData, z);

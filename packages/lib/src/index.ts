@@ -27,6 +27,7 @@ import {
 	TileImageLoader,
 	TerrainRGBLoader,
 	TerrainLercLoader,
+	TerrainDEMLoader,
 } from "./loader";
 
 /**
@@ -102,6 +103,8 @@ function registerLoader() {
 	registerDEMLoader(new TerrainRGBLoader());
 	// 注册Arcgis-Lerc地形加载器
 	registerDEMLoader(new TerrainLercLoader());
+
+	registerDEMLoader(new TerrainDEMLoader());
 }
 
 // 注册内置加载器

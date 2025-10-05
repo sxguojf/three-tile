@@ -199,7 +199,6 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * @returns 瓦片对角线长度
 	 */
 	public getTileSize() {
-		// 瓦片大小-对角线长度
 		if (this._sizeInWorld < 0) {
 			const bbox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 0)).applyMatrix4(this.matrixWorld);
 			this._sizeInWorld = bbox.getSize(tempVec3).length();
