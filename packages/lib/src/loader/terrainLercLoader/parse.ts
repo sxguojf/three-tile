@@ -9,8 +9,8 @@ import { GeometryDataType } from "../../geometry/GeometryDataTypes";
 //@ts-ignore
 import Lerc from "./lercDecode.js";
 
-export type DEMType = {
-	array: Float32Array;
+type DEMType = {
+	dem: Float32Array;
 	width: number;
 	height: number;
 };
@@ -33,10 +33,10 @@ const maxErrors: { [key: number]: number } = {
 	14: 5,
 	15: 2,
 	16: 1,
-	17: 0.5,
-	18: 0.2,
-	19: 0.1,
-	20: 0.01,
+	17: 0,
+	18: 0,
+	19: 0,
+	20: 0,
 };
 
 /**
@@ -46,95 +46,65 @@ const maxErrors: { [key: number]: number } = {
  * @returns 解码后的高度图数据、宽度和高度的对象
  */
 function decode(buffer: ArrayBuffer): DEMType {
-	const { height, width, pixels } = Lerc.decode(buffer);
-	const demArray = new Float32Array(height * width);
-	for (let i = 0; i < demArray.length; i++) {
-		demArray[i] = pixels[0][i];
-	}
-	return { array: demArray, width, height };
+	const data = Lerc.decode(buffer);
+	return { dem: data.pixels[0], width: data.width, height: data.height };
 }
 
+/**
+ * 解析Lerc编码数据，根据层级和裁剪边界返回martini几何体数据
+ * @param buffer Lerc编码数据的ArrayBuffer
+ * @param z 瓦片层级
+ * @param clipBounds 裁剪边界，格式为 [xmin, ymin, xmax, ymax]
+ * @returns 解析后的GeometryDataType对象
+ */
 export function parse(buffer: ArrayBuffer, z: number, clipBounds: [number, number, number, number]): GeometryDataType {
+	// 解码Lerc数据
 	let demData = decode(buffer);
-	// 地形从父瓦片取需要剪裁
+
+	// 剪裁数据
 	if (clipBounds[2] - clipBounds[0] < 1) {
-		// 从父瓦片取地形数据
 		demData = getSubDEM(demData, clipBounds);
 	}
 
-	const { array: terrain, width: gridSize } = demData;
-
-	// 构建Martin
-	const martini = new Martini(gridSize);
-	// 简化
-	const tile = martini.createTile(terrain);
-	// 几何误差
-	const maxError = maxErrors[z] || 0;
+	// 构建Martini地形
+	const martini = new Martini(demData.width);
+	const tile = martini.createTile(demData.dem);
 	// 返回Geometry数据
-	return tile.getGeometryData(maxError);
+	return tile.getGeometryData(maxErrors[z] || 0);
 }
 
+/**
+ * 根据给定的坐标范围剪裁高度图数据
+ * @param demData 原始高度图数据
+ * @param bounds 裁剪边界，格式为 [xmin, ymin, xmax, ymax]
+ * @returns 剪裁后的高度图数据
+ */
 function getSubDEM(demData: DEMType, bounds: [number, number, number, number]): DEMType {
-	// 数组剪裁并缩放
-	function arrayclipAndResize(
-		buffer: Float32Array,
-		width: number,
-		sx: number,
-		sy: number,
-		sw: number,
-		sh: number,
-		dw: number,
-		dh: number
-	) {
-		// clip
-		const clippedData = new Float32Array(sw * sh);
-		for (let row = 0; row < sh; row++) {
-			for (let col = 0; col < sw; col++) {
+	// 取得需要截取的数据起始索引坐标和宽度高度
+	const getClipCoord = (clipBounds: [number, number, number, number], dw: number, dh: number) => {
+		// 左上角坐标
+		const x = Math.floor(clipBounds[0] * dw);
+		const y = Math.floor(clipBounds[1] * dh);
+		// 宽度和高度（必须为2^n+1）
+		const w = Math.floor((clipBounds[2] - clipBounds[0]) * dw) + 1;
+		const h = Math.floor((clipBounds[3] - clipBounds[1]) * dh) + 1;
+		return { x, y, w, h };
+	};
+
+	// 根据给定的坐标范围剪裁数据
+	const clip = (buffer: Float32Array, width: number, sx: number, sy: number, w: number, h: number) => {
+		const clippedData = new Float32Array(w * h);
+		for (let row = 0; row < h; row++) {
+			for (let col = 0; col < w; col++) {
 				const sourceIndex = (row + sy) * width + (col + sx);
-				const destIndex = row * sw + col;
+				const destIndex = row * w + col;
 				clippedData[destIndex] = buffer[sourceIndex];
 			}
 		}
+		return clippedData;
+	};
 
-		// resize
-		const resizedData = new Float32Array(dh * dw);
-		for (let row = 0; row < dh; row++) {
-			for (let col = 0; col < dw; col++) {
-				const destIndex = row * dh + col;
-				const sourceX = Math.round((col * sh) / dh);
-				const sourceY = Math.round((row * sw) / dw);
-				const sourceIndex = sourceY * sw + sourceX;
-				resizedData[destIndex] = clippedData[sourceIndex];
-			}
-		}
-
-		return resizedData;
-	}
-
-	const piexlRect = getBoundsCoord(bounds, demData.width);
-	// Martini需要瓦片大小为n*2+1
-	const width = piexlRect.sw + 1;
-	const height = piexlRect.sh + 1;
-	// 瓦片剪裁并缩放
-	const demArray = arrayclipAndResize(
-		demData.array,
-		demData.width,
-		piexlRect.sx,
-		piexlRect.sy,
-		piexlRect.sw,
-		piexlRect.sh,
-		width,
-		height
-	);
-	return { array: demArray, width, height };
-}
-
-function getBoundsCoord(clipBounds: [number, number, number, number], targetSize: number) {
-	// left-top coordinate
-	const sx = Math.floor(clipBounds[0] * targetSize);
-	const sy = Math.floor(clipBounds[1] * targetSize);
-	// width and height of the clipped image
-	const sw = Math.floor((clipBounds[2] - clipBounds[0]) * targetSize);
-	const sh = Math.floor((clipBounds[3] - clipBounds[1]) * targetSize);
-	return { sx, sy, sw, sh };
+	const piexlRect = getClipCoord(bounds, demData.width, demData.height);
+	const dem = clip(demData.dem, demData.width, piexlRect.x, piexlRect.y, piexlRect.w, piexlRect.h);
+	return { dem, width: piexlRect.w, height: piexlRect.h };
 }

@@ -19,7 +19,7 @@ type TypedArray =
 	| Float64Array;
 type TypedArrayConstructor = new (length: number) => TypedArray;
 
-export function concatenateTypedArrays<T extends TypedArray>(...typedArrays: T[]): T {
+function concatenateTypedArrays<T extends TypedArray>(...typedArrays: T[]): T {
 	const arrays = typedArrays;
 	const TypedArrayConstructor =
 		((arrays && arrays.length > 1 && arrays[0].constructor) as TypedArrayConstructor) || null;
@@ -39,7 +39,7 @@ export function concatenateTypedArrays<T extends TypedArray>(...typedArrays: T[]
 	return result;
 }
 
-export type EdgeIndices = {
+type EdgeIndices = {
 	westIndices: Uint16Array | Uint32Array;
 	southIndices: Uint16Array | Uint32Array;
 	eastIndices: Uint16Array | Uint32Array;
@@ -47,7 +47,7 @@ export type EdgeIndices = {
 };
 
 /**
- * Add skirt to existing mesh
+ * 给模型加裙边
  * @param attributes - POSITION and TEXCOOD_0 attributes data
  * @param  triangles - indices array of the mesh geometry
  * @param  skirtHeight - height of the skirt geometry

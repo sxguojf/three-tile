@@ -15,19 +15,26 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			map.imgSource = [ms.xtImgSource, ms.xtCiaSource];
 		},
 		setBing: () => {
-			map.imgSource = [ms.bingSource, ms.tdtCiaSource_w];
+			map.imgSource = [
+				ms.bingSource,
+				new plugin.ArcGisSource({
+					style: "Elevation/World_HillShade_Dark",
+					maxLevel: 13,
+					opacity: 0.2,
+				}),
+			];
 		},
 		setArcGis: () => {
 			map.imgSource = [ms.arcGisImgSource, ms.tdtCiaSource_w];
 		},
 		setArcGisHillShader: () => {
 			map.imgSource = [
-				new plugin.BingSource({ style: "G", maxLevel: 18 }),
 				new plugin.ArcGisSource({
 					style: "Elevation/World_HillShade_Dark",
 					maxLevel: 13,
-					opacity: 0.6,
+					opacity: 1,
 				}),
+				// new plugin.BingSource({ style: "G", maxLevel: 18 }),
 			];
 		},
 		setGoogle: () => {
@@ -249,7 +256,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	const imgFolder = folder.addFolder("影像数据");
 	imgFolder.add(vm, "setMapBox").name("MapBox+天地图");
 	imgFolder.add(vm, "setZkxt").name("中科星图");
-	imgFolder.add(vm, "setBing").name("Bing+天地图");
+	imgFolder.add(vm, "setBing").name("Bing");
 	imgFolder.add(vm, "setGoogle").name("google+天地图");
 	imgFolder.add(vm, "setGoogleP").name("google地形渲染");
 	imgFolder.add(vm, "setArcGis").name("ArcGis+天地图");

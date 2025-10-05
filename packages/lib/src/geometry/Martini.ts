@@ -4,7 +4,8 @@
  *@date: 2023-04-06
  */
 
-import { AttributesType, GeometryDataType, getNormals } from ".";
+import { AttributesType, GeometryDataType } from "./GeometryDataTypes";
+import { getNormals } from "./utils";
 
 /**
  * Martini mesh tile generator (Mapbox's Awesome Right-Triangulated Irregular Networks, Improved).

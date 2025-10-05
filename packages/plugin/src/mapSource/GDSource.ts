@@ -13,7 +13,7 @@ export class GDSource extends TileSource {
 	public style: Style = "8";
 	public subdomains = "1234";
 	public maxLevel: number = 18;
-	public url = "https://webst0{s}.is.autonavi.com/appmaptile?style={style}&x={x}&y={y}&z={z}";
+	public url = "https://webst0{s}.is.autonavi.com/appmaptile?style={style}&x={x}&y={y}&z={z}&scl=2";
 	constructor(options?: GDSourceOptions) {
 		super(options);
 		Object.assign(this, options);

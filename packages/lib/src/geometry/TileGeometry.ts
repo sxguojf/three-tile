@@ -8,6 +8,8 @@ import { BufferAttribute, BufferGeometry } from "three";
 import { GeometryDataType } from "./GeometryDataTypes";
 import { addSkirt } from "./skirt";
 import { getGeometryDataFromDem } from "./utils";
+import { Martini } from "./Martini";
+import { maxErrors } from "./sse";
 
 /**
  * Tile geometry
@@ -17,29 +19,44 @@ export class TileGeometry extends BufferGeometry {
 
 	public constructor() {
 		super();
-		const data = new Float32Array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0]);
-		this.setData(data);
+		const dem = new Float32Array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0]);
+		this.setData(dem, 1);
 	}
-	/**
-	 * set attribute data to geometry
-	 * @param data geometry or DEM data
-	 * @returns this
-	 */
-	public setData(data: GeometryDataType | Float32Array, skirtHeight: number = 1000) {
-		let geoData = data instanceof Float32Array ? getGeometryDataFromDem(data) : data;
 
-		// Add a skirt(1000m) to the geometry
-		geoData = addSkirt(geoData.attributes, geoData.indices, skirtHeight);
+	public setAttribes(geometryData: GeometryDataType, z = 1) {
+		const skirtHeight = 5e3 / z;
+		const geoDataWithSkirt = addSkirt(geometryData.attributes, geometryData.indices, skirtHeight);
+		const { attributes, indices } = geoDataWithSkirt;
 
-		const { attributes, indices } = geoData;
 		this.setIndex(new BufferAttribute(indices, 1));
 		this.setAttribute("position", new BufferAttribute(attributes.position.value, attributes.position.size));
 		this.setAttribute("uv", new BufferAttribute(attributes.texcoord.value, attributes.texcoord.size));
 		this.setAttribute("normal", new BufferAttribute(attributes.normal.value, attributes.normal.size));
 
-		// 感觉加上这两句速度会快一点, 幻觉?
-		this.computeBoundingBox();
-		this.computeBoundingSphere();
+		this.index && (this.index.needsUpdate = true);
+		this.attributes.position.needsUpdate = true;
+		this.attributes.uv.needsUpdate = true;
+		this.attributes.normal.needsUpdate = true;
+		// this.computeBoundingBox();
+		// this.computeBoundingSphere();
+
+		return this;
+	}
+
+	public setData(data: Float32Array, z: number, martini = false) {
+		if (martini) {
+			const gridSize = Math.sqrt(data.length);
+			const martini = new Martini(gridSize);
+			const tile = martini.createTile(data);
+			const geometryData = tile.getGeometryData(maxErrors[z] || 0);
+			this.setAttribes(geometryData, z);
+		} else {
+			const geometryData = getGeometryDataFromDem(data);
+			// const geoDataWithSkirt = addSkirt(geometryData.attributes, geometryData.indices, skirtHeight);
+			// this.setAttribes(geoDataWithSkirt);
+			this.setAttribes(geometryData, z);
+		}
+
 		return this;
 	}
 }

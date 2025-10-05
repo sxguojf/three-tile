@@ -50,18 +50,17 @@ export class SingleTifDEMLoader implements ITileGeometryLoader {
 		// 获取 TIF 文件的 URL
 		const url = source.getUrl(0, 0, 0);
 		// 请求的瓦片不在数据源范围内或没有url，直接返回几何体
-		// if (z < source.minLevel || z > source.maxLevel || !url) {
 		if (z < source.minLevel || !url) {
 			return geometry;
 		}
 
-		// 抽稀像素点，根据瓦片层级计算目标像素大小，并使用 MathUtils.clamp 方法将其限制在 2 到 128 之间
+		// 目标点阵数据大小；根据瓦片层级计算目标像素大小，并使用 MathUtils.clamp 方法将其限制在 2 到 256 之间
 		const targetSize = MathUtils.clamp((params.z + 2) * 3, 2, 256);
 
 		// 如果数据未加载，加载数据
 		if (!source.data) {
 			// 打印加载信息
-			console.log("load image...", url);
+			// console.log("load image...", url);
 			// 加载tif文件，使用 _loader.loadAsync 方法异步加载 TIF 文件，并将结果转换为 ArrayBuffer 类型
 			const buffer = (await this._loader.loadAsync(url)) as ArrayBuffer;
 			// 调用 getTIFFRaster 方法将 ArrayBuffer 解析为包含栅格数据的对象，并将其存储在 source.data 中
@@ -90,19 +89,4 @@ export class SingleTifDEMLoader implements ITileGeometryLoader {
 			height: ifds[0].t257[0],
 		};
 	}
-	// private async getTIFFRaster1(buffer: ArrayBuffer): Promise<DEMType> {
-	// 	// 从 ArrayBuffer 中解析出 GeoTIFF 对象
-	// 	const tiff = await fromArrayBuffer(buffer);
-	// 	// 获取 GeoTIFF 中的第一个图像，并读取其栅格数据
-	// 	const rasters = await (await tiff.getImage(0)).readRasters();
-	// 	// 返回包含栅格数据的对象
-	// 	return {
-	// 		// 第一个波段的栅格数据，强制转换为 Float32Array 类型
-	// 		buffer: rasters[0] as Float32Array,
-	// 		// 栅格数据的宽度
-	// 		width: rasters.width,
-	// 		// 栅格数据的高度
-	// 		height: rasters.height,
-	// 	};
-	// }
 }

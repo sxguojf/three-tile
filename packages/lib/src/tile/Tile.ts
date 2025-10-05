@@ -18,7 +18,7 @@ const tempMat4 = new Matrix4();
 const tempVec3 = new Vector3();
 
 /** 瓦片更新参数类型 */
-export type TileUpdateParames = {
+type TileUpdateParames = {
 	/** 相机 */
 	camera: Camera;
 	/** 瓦片加载器 */
@@ -51,8 +51,10 @@ interface TTileEventMap extends Object3DEventMap {
 export class Tile extends Object3D<TTileEventMap> {
 	/** 瓦片x坐标 */
 	public readonly x: number;
+
 	/** 瓦片y坐标 */
 	public readonly y: number;
+
 	/** 瓦片层级 */
 	public readonly z: number;
 
@@ -134,7 +136,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			return false;
 		}
 
-		// 没有模型下载
+		// 没有模型则下载
 		if (!this.model) {
 			return true;
 		}
@@ -167,7 +169,6 @@ export class Tile extends Object3D<TTileEventMap> {
 		this.z = z;
 		this.name = `Tile ${z}-${x}-${y}`;
 		this.up.set(0, 0, 1);
-		// this.matrixAutoUpdate = false;
 	}
 
 	/**
@@ -179,7 +180,11 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 计算瓦片包围盒（世界坐标） */
 	public getBBox() {
-		const bbox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 0)).applyMatrix4(this.matrixWorld);
+		const bbox = new Box3(
+			new Vector3(-this.scale.x, -this.scale.y, 0),
+			new Vector3(this.scale.x, this.scale.y, 0)
+		).applyMatrix4(this.matrixWorld);
+
 		if (this.model) {
 			bbox.max.setY(this.model.geometry.boundingBox?.max.z || 0);
 		} else {
@@ -190,8 +195,8 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 计算瓦片size
-	 * @returns 瓦片大小
+	 * 计算瓦片大小
+	 * @returns 瓦片对角线长度
 	 */
 	public getTileSize() {
 		// 瓦片大小-对角线长度
@@ -204,20 +209,9 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this._sizeInWorld;
 	}
 
-	// private _addBBox() {
-	// 	// 包围盒局地坐标
-	// 	const bbox = this.getBBox();
-	// 	// bbox.min.setY(-300);
-	// 	// bbox.max.setY(9000);
-	// 	const box = bbox.clone().applyMatrix4(this.matrixWorld.clone().invert());
-	// 	const boxMesh = new Box3Helper(box, 0xff000);
-	// 	boxMesh.name = "tilebox";
-	// 	this.add(boxMesh);
-	// }
-
 	/**
 	 * 瓦片更新，该函数在每帧渲染中被调用
-	 * @param params 瓦片更新参数
+	 * @param params 瓦片更新参数，包括相机、加载器、最小层级、最大层级和LOD阈值
 	 */
 	public update(params: TileUpdateParames) {
 		// （没有父瓦片||模型正在加载）时不进行更新
@@ -269,7 +263,6 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/**
 	 * LOD (Level of Detail).
-	 * @param threshold - LOD 阈值
 	 * @returns add or remove
 	 */
 	protected LOD(params: TileUpdateParames) {
@@ -341,8 +334,9 @@ export class Tile extends Object3D<TTileEventMap> {
 	 */
 	private async _startModify(loader: ITileLoader) {
 		console.assert(!!this.model);
-		this._isLoading = true;
+
 		if (this.model) {
+			this._isLoading = true;
 			// load
 			await loader.modify(this, this.model);
 			this.model.geometry.computeBoundingBox();
