@@ -71,13 +71,11 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 	}
 
 	public override async load(params: TileLoadParamsType): Promise<TileMesh> {
-		const { x, y, z, bounds, lonLatBounds } = this._getTileCoords(params);
-		return super.load({ x, y, z, bounds, lonLatBounds });
+		return super.load(this._getTileCoords(params));
 	}
 
-	public override async modify(coord: TileLoadParamsType, tileMesh: TileMesh) {
-		const { x, y, z, bounds, lonLatBounds } = this._getTileCoords(coord);
-		super.modify({ x, y, z, bounds, lonLatBounds }, tileMesh);
+	public override async update(coord: TileLoadParamsType, tileMesh: TileMesh) {
+		super.update(this._getTileCoords(coord), tileMesh);
 	}
 
 	private _getTileCoords(params: TileLoadParamsType) {

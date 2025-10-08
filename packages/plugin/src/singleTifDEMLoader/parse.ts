@@ -1,5 +1,5 @@
 export type DEMType = {
-	buffer: Float32Array;
+	dem: Float32Array;
 	width: number;
 	height: number;
 };
@@ -44,7 +44,7 @@ export function parse(
 	const subBounds = [x1, y1, x2, y2] as [number, number, number, number];
 
 	// 调用 extractAndScaleFloat32Data 函数进行数据提取和缩放
-	return extractAndScaleFloat32Data(data.buffer, data.width, data.height, subBounds, targetWidth, targetHeight, 0);
+	return extractAndScaleFloat32Data(data.dem, data.width, data.height, subBounds, targetWidth, targetHeight, 0);
 }
 
 /**

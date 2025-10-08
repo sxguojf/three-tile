@@ -29,12 +29,12 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		},
 		setArcGisHillShader: () => {
 			map.imgSource = [
+				new plugin.GDSource({ style: "7" }),
 				new plugin.ArcGisSource({
 					style: "Elevation/World_HillShade_Dark",
 					maxLevel: 13,
-					opacity: 1,
+					opacity: 0.3,
 				}),
-				// new plugin.BingSource({ style: "G", maxLevel: 18 }),
 			];
 		},
 		setGoogle: () => {
@@ -260,7 +260,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	imgFolder.add(vm, "setGoogle").name("google+天地图");
 	imgFolder.add(vm, "setGoogleP").name("google地形渲染");
 	imgFolder.add(vm, "setArcGis").name("ArcGis+天地图");
-	imgFolder.add(vm, "setArcGisHillShader").name("ArcGis山影+bing交通");
+	imgFolder.add(vm, "setArcGisHillShader").name("高德+ArcGis山影");
 	imgFolder.add(vm, "setMapTiler").name("MapTiler+天地图");
 	imgFolder.add(vm, "setStadia").name("Stadis");
 	imgFolder.add(vm, "setGD").name("高德");

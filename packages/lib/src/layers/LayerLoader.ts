@@ -121,7 +121,7 @@ export class LayerLoader implements ITileMapLoader {
 		return mesh;
 	}
 
-	public async modify(coord: TileCoords, tileMesh: TileMesh) {
+	public async update(coord: TileCoords, tileMesh: TileMesh) {
 		const { x, y, z, bounds, lonLatBounds } = this._getTileCoords(coord);
 		const geometry = new PlaneGeometry(); //tileMesh.geometry;
 		const materials = []; // tileMesh.material;

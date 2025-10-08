@@ -337,7 +337,7 @@ export class Tile extends Object3D<TTileEventMap> {
 		if (this.model) {
 			this._isLoading = true;
 			// load
-			await loader.modify(this, this.model);
+			await loader.update(this, this.model);
 			this.model.geometry.computeBoundingBox();
 			this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: true });
 			this._isDirty = false;

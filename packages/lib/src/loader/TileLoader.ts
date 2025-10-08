@@ -119,7 +119,7 @@ export class TileLoader implements ITileLoader {
 	 * @param params
 	 * @param tileMesh
 	 */
-	public async modify(params: TileLoadParamsType, tileMesh: TileMesh) {
+	public async update(params: TileLoadParamsType, tileMesh: TileMesh) {
 		const count = this.demSource ? 1 : 0 + this.imgSource.length;
 		this._downloadingThreads += count;
 
@@ -132,17 +132,17 @@ export class TileLoader implements ITileLoader {
 			tileMesh.geometry = await this.loadGeometry(params, tileMesh.geometry);
 			tileMesh.material = await this.loadMaterial(params, tileMesh.material);
 
-			// dispose old geometry and material
-			if (oldGeometry.userData.toDispose) {
+			// dispose old geometry
+			if (oldGeometry !== tileMesh.geometry) {
 				oldGeometry.dispose();
 				delete oldGeometry.userData.source;
-				delete oldGeometry.userData.toDispose;
 			}
+
+			// dispose old material
 			oldMaterial.forEach(mat => {
-				if (mat.userData.toDispose) {
+				if (mat !== this._errorMaterial) {
 					mat.dispose();
 					delete mat.userData.source;
-					delete mat.userData.toDispose;
 				}
 			});
 		} finally {
@@ -172,45 +172,34 @@ export class TileLoader implements ITileLoader {
 	 * @returns BufferGeometry
 	 */
 	protected async loadGeometry(params: TileLoadParamsType, tileGeometry?: BufferGeometry): Promise<BufferGeometry> {
-		if (this.demSource && this._checkBounds(this.demSource, params)) {
-			if (tileGeometry) {
-				// source not changed
-				if (this.demSource === tileGeometry.userData.source) {
-					tileGeometry.userData.toDispose = false;
-					return tileGeometry;
-				} else {
-					tileGeometry.userData.toDispose = true;
-				}
-			}
-
-			// get loader
-			const loader = LoaderFactory.getGeometryLoader(this.demSource);
-
-			// load geometry
-			const source = this.demSource;
-			const geometry = await loader
-				.load({ source, ...params })
-				.then(geo => {
-					geo.userData.source = source;
-					return geo;
-				})
-				.catch(e => {
-					if (this.debug > 0) {
-						console.error("Load Geometry Error:", e);
-					}
-					tileGeometry && (tileGeometry.userData.toDispose = true);
-					return new TileGeometry();
-				});
-
-			return geometry;
-		} else {
-			if (tileGeometry) {
-				return tileGeometry;
-			} else {
-				// tileGeometry && (tileGeometry.userData.toDispose = true);
-				return new PlaneGeometry();
-			}
+		// no dem source or out of bounds
+		if (!this.demSource || !this._checkBounds(this.demSource, params)) {
+			return new PlaneGeometry();
 		}
+
+		// source not changed
+		if (tileGeometry && tileGeometry instanceof TileGeometry) {
+			return tileGeometry;
+		}
+
+		// get loader
+		const loader = LoaderFactory.getGeometryLoader(this.demSource);
+
+		// load geometry
+		const geometry = await loader
+			.load({ source: this.demSource, ...params })
+			.then(geo => {
+				geo.userData.source = this.demSource;
+				return geo;
+			})
+			.catch(e => {
+				if (this.debug > 0) {
+					console.error("Load Geometry Error:", e);
+				}
+				return new TileGeometry();
+			});
+
+		return geometry;
 	}
 
 	/**
@@ -221,11 +210,6 @@ export class TileLoader implements ITileLoader {
 	 * @returns Material[]
 	 */
 	protected async loadMaterial(params: TileLoadParamsType, tileMaterial?: Material[]): Promise<Material[]> {
-		// set old material to dispose
-		if (tileMaterial) {
-			tileMaterial.forEach(mat => (mat.userData.toDispose = true));
-		}
-
 		// result
 		const materials: Material[] = [];
 
@@ -234,14 +218,10 @@ export class TileLoader implements ITileLoader {
 
 		for (let i = 0; i < sources.length; i++) {
 			const source = sources[i];
-
-			if (tileMaterial) {
-				const oldMaterial = tileMaterial[i];
-				if (oldMaterial && source === oldMaterial.userData.source) {
-					oldMaterial.userData.toDispose = false;
-					materials.push(oldMaterial);
-					continue;
-				}
+			// source not changed
+			if (tileMaterial && source === tileMaterial[i].userData.source) {
+				materials.push(tileMaterial[i]);
+				continue;
 			}
 
 			// load
@@ -256,13 +236,11 @@ export class TileLoader implements ITileLoader {
 					if (this.debug > 0) {
 						console.error("Load Material Error:", e.target.src);
 					}
-					tileMaterial && (tileMaterial[i].userData.toDispose = true);
 					return this._errorMaterial.clone();
 				});
 
 			// clip the materilal to map bounds
 			this._materialClip(material, source, params);
-
 			materials.push(material);
 		}
 		return materials;

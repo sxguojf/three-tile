@@ -79,14 +79,13 @@ export class SingleTifDEMLoader implements ITileGeometryLoader {
 	 * @returns 包含栅格数据的对象，包含 buffer、width 和 height 属性
 	 */
 	private getTIFFRaster(buffer: ArrayBuffer): DEMType {
-		const ifds = UTIF.decode(buffer);
-		// console.log(ifds);
-		UTIF.decodeImage(buffer, ifds[0]);
-		const buf = new Float32Array(ifds[0].data.buffer);
+		const ifd = UTIF.decode(buffer)[0];
+		// console.log(ifd);
+		UTIF.decodeImage(buffer, ifd);
 		return {
-			buffer: buf,
-			width: ifds[0].t256[0],
-			height: ifds[0].t257[0],
+			dem: new Float32Array(ifd.data.buffer),
+			width: ifd.width,
+			height: ifd.height,
 		};
 	}
 }
