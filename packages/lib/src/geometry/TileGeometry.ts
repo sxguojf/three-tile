@@ -24,7 +24,7 @@ export class TileGeometry extends BufferGeometry {
 	}
 
 	public setAttribes(geometryData: GeometryDataType, z = 1) {
-		const skirtHeight = 5e3 / z;
+		const skirtHeight = 1e4 / z;
 		const geoDataWithSkirt = addSkirt(geometryData.attributes, geometryData.indices, skirtHeight);
 		const { attributes, indices } = geoDataWithSkirt;
 

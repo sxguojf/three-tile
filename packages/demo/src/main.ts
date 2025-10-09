@@ -85,7 +85,7 @@ function createMap() {
 		// 最大缩放级别，废弃
 		//maxLevel: 20,
 		// 地图经纬度范围
-		// bounds: [60, 0, 145, 60],
+		bounds: [60, 0, 145, 60],
 		// 调试标志
 		debug: 1,
 	});
@@ -125,6 +125,16 @@ function initViewer(id: string, map: tt.TileMap) {
 	viewer.controls.addEventListener("change", () => {
 		plugin.adjustZoomSpeedFromDist(map, viewer.camera, viewer.controls);
 	});
+
+	// viewer.controls.addEventListener("start", () => {
+	// 	console.log("start");
+	// 	map.autoUpdate = true;
+	// });
+
+	// viewer.controls.addEventListener("end", () => {
+	// 	console.log("end");
+	// 	map.autoUpdate = false;
+	// });
 
 	return viewer;
 }

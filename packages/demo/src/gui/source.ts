@@ -17,11 +17,11 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		setBing: () => {
 			map.imgSource = [
 				ms.bingSource,
-				new plugin.ArcGisSource({
-					style: "Elevation/World_HillShade_Dark",
-					maxLevel: 13,
-					opacity: 0.2,
-				}),
+				// new plugin.ArcGisSource({
+				// 	style: "Elevation/World_HillShade_Dark",
+				// 	maxLevel: 13,
+				// 	opacity: 0.2,
+				// }),
 			];
 		},
 		setArcGis: () => {

@@ -4,7 +4,7 @@
  *@date: 2023-04-06
  */
 
-import { BufferGeometry, Material, Mesh, MeshBasicMaterial, PlaneGeometry, Texture } from "three";
+import { BufferGeometry, Material, Mesh, MeshBasicMaterial, Texture } from "three";
 import { TileGeometry } from "../geometry";
 import { ISource } from "../source";
 import { BoundsType, ITileLoader, TileLoadParamsType, TileMesh } from "./ITileLoaders";
@@ -96,17 +96,17 @@ export class TileLoader implements ITileLoader {
 		let mesh: TileMesh;
 		try {
 			// load
-			const geometry = await this.loadGeometry(params);
 			const material = await this.loadMaterial(params);
+			const geometry = await this.loadGeometry(params);
 
 			// new mesh
 			mesh = new Mesh(geometry, material);
 
 			//set material array
 			mesh.geometry.clearGroups();
-			for (let i = 0; i < mesh.material.length; i++) {
+			mesh.material.forEach((_, i) => {
 				mesh.geometry.addGroup(0, Infinity, i);
-			}
+			});
 		} finally {
 			this._downloadingThreads -= count;
 		}
@@ -124,35 +124,36 @@ export class TileLoader implements ITileLoader {
 		this._downloadingThreads += count;
 
 		try {
-			// old geometry and material
-			const oldGeometry = tileMesh.geometry;
-			const oldMaterial = tileMesh.material;
-
 			// load
-			tileMesh.geometry = await this.loadGeometry(params, tileMesh.geometry);
-			tileMesh.material = await this.loadMaterial(params, tileMesh.material);
+			const material = await this.loadMaterial(params, tileMesh.material);
+			const geometry = await this.loadGeometry(params, tileMesh.geometry);
+
+			//set material array
+			geometry.clearGroups();
+			material.forEach((_, i) => {
+				geometry.addGroup(0, Infinity, i);
+			});
 
 			// dispose old geometry
-			if (oldGeometry !== tileMesh.geometry) {
-				oldGeometry.dispose();
-				delete oldGeometry.userData.source;
+			if (geometry != tileMesh.geometry) {
+				tileMesh.geometry.dispose();
+				delete tileMesh.geometry.userData.source;
 			}
 
 			// dispose old material
-			oldMaterial.forEach(mat => {
-				if (mat !== this._errorMaterial) {
+			tileMesh.material.forEach((mat, i) => {
+				if (mat !== this._errorMaterial && mat != material[i]) {
 					mat.dispose();
 					delete mat.userData.source;
 				}
 			});
+
+			tileMesh.geometry = geometry;
+			tileMesh.material = material;
+
+			console.assert(tileMesh.material.length === tileMesh.geometry.groups.length);
 		} finally {
 			this._downloadingThreads -= count;
-		}
-
-		//set material array
-		tileMesh.geometry.clearGroups();
-		for (let i = 0; i < tileMesh.material.length; i++) {
-			tileMesh.geometry.addGroup(0, Infinity, i);
 		}
 	}
 
@@ -174,11 +175,11 @@ export class TileLoader implements ITileLoader {
 	protected async loadGeometry(params: TileLoadParamsType, tileGeometry?: BufferGeometry): Promise<BufferGeometry> {
 		// no dem source or out of bounds
 		if (!this.demSource || !this._checkBounds(this.demSource, params)) {
-			return new PlaneGeometry();
+			return new TileGeometry();
 		}
 
 		// source not changed
-		if (tileGeometry && tileGeometry instanceof TileGeometry) {
+		if (tileGeometry && tileGeometry.userData.source === this.demSource) {
 			return tileGeometry;
 		}
 
@@ -200,6 +201,7 @@ export class TileLoader implements ITileLoader {
 			});
 
 		return geometry;
+		// return new PlaneGeometry();
 	}
 
 	/**
@@ -219,9 +221,12 @@ export class TileLoader implements ITileLoader {
 		for (let i = 0; i < sources.length; i++) {
 			const source = sources[i];
 			// source not changed
-			if (tileMaterial && source === tileMaterial[i].userData.source) {
-				materials.push(tileMaterial[i]);
-				continue;
+			if (tileMaterial) {
+				const oldMaterial = tileMaterial[i];
+				if (oldMaterial && source === oldMaterial.userData.source) {
+					materials.push(oldMaterial);
+					continue;
+				}
 			}
 
 			// load
