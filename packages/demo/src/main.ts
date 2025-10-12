@@ -136,6 +136,8 @@ function initViewer(id: string, map: tt.TileMap) {
 	// 	map.autoUpdate = false;
 	// });
 
+	plugin.limitPan(viewer.camera, viewer.controls, map);
+
 	return viewer;
 }
 
