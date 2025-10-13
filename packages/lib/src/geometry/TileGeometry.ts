@@ -20,11 +20,11 @@ export class TileGeometry extends BufferGeometry {
 	public constructor() {
 		super();
 		const dem = new Float32Array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0]);
-		this.setData(dem, 1);
+		this.setData(dem, 0);
 	}
 
-	public setAttribes(geometryData: GeometryDataType, z = 1) {
-		const skirtHeight = 1e4 / z;
+	public setAttribes(geometryData: GeometryDataType, z = 0) {
+		const skirtHeight = z === 0 ? 1 : 2e5 / z / z;
 		const geoDataWithSkirt = addSkirt(geometryData.attributes, geometryData.indices, skirtHeight);
 		const { attributes, indices } = geoDataWithSkirt;
 
@@ -32,13 +32,6 @@ export class TileGeometry extends BufferGeometry {
 		this.setAttribute("position", new BufferAttribute(attributes.position.value, attributes.position.size));
 		this.setAttribute("uv", new BufferAttribute(attributes.texcoord.value, attributes.texcoord.size));
 		this.setAttribute("normal", new BufferAttribute(attributes.normal.value, attributes.normal.size));
-
-		// this.index && (this.index.needsUpdate = true);
-		// this.attributes.position.needsUpdate = true;
-		// this.attributes.uv.needsUpdate = true;
-		// this.attributes.normal.needsUpdate = true;
-		// this.computeBoundingBox();
-		// this.computeBoundingSphere();
 
 		return this;
 	}

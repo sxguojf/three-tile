@@ -1,4 +1,7 @@
 import {
+	Box3,
+	Box3Helper,
+	BoxHelper,
 	BufferGeometry,
 	Camera,
 	MathUtils,
@@ -118,4 +121,21 @@ export function adjustZoomSpeedFromDist(
 		const speed = (Math.log(intersects[0].distance / 1000 + 1) / 2) * factor;
 		controls.zoomSpeed = MathUtils.clamp(speed, minSpeed, maxSpeed);
 	}
+}
+
+export function limitPan(camera: Camera, controls: OrbitControls, map: TileMap) {
+	const minPan = map.geo2world(new Vector3(map.bounds[0], map.bounds[3]));
+	const maxPan = map.geo2world(new Vector3(map.bounds[2], map.bounds[1]));
+
+	const box = new Box3(minPan, maxPan);
+	const boxHelper = new Box3Helper(box);
+	map.add(boxHelper);
+
+	const vec = new Vector3();
+	controls.addEventListener("change", function () {
+		vec.copy(controls.target);
+		controls.target.clamp(minPan, maxPan);
+		vec.sub(controls.target);
+		camera.position.sub(vec);
+	});
 }
