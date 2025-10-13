@@ -24,6 +24,9 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 				// }),
 			];
 		},
+		setVirtaulEarth: () => {
+			map.imgSource = ms.virtualEarthSource;
+		},
 		setArcGis: () => {
 			map.imgSource = [ms.arcGisImgSource, ms.tdtCiaSource_w];
 		},
@@ -257,6 +260,7 @@ export const createSourceGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	imgFolder.add(vm, "setMapBox").name("MapBox+天地图");
 	imgFolder.add(vm, "setZkxt").name("中科星图");
 	imgFolder.add(vm, "setBing").name("Bing");
+	imgFolder.add(vm, "setVirtaulEarth").name("VirtualEarth");
 	imgFolder.add(vm, "setGoogle").name("google+天地图");
 	imgFolder.add(vm, "setGoogleP").name("google地形渲染");
 	imgFolder.add(vm, "setArcGis").name("ArcGis+天地图");

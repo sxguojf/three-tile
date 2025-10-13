@@ -151,7 +151,7 @@ export const tdtQMSource = new TDTQMSource({
 
 // Bing
 export const bingSource = new BingSource({ style: "A" });
-
+export const virtualEarthSource = new plugin.VirtualEarthSource();
 // 高德
 export const gdImgSource = new GDSource({ style: "6" });
 export const gdImgLabelSource = new GDSource({ style: "8" });

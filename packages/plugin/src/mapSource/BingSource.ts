@@ -23,6 +23,7 @@ export class BingSource extends TileSource {
 	public mkt: string = "zh-CN";
 	public subdomains = "123";
 	public url = "https://t{s}.dynamic.tiles.ditu.live.com/comp/ch/{key}?mkt={mkt}&ur=CN&it={style}&n=z&og=804&cstl=vb";
+	// public url = "https://ecn.t{s}.tiles.virtualearth.net/tiles/a{key}.jpeg?n=z&g=15384";
 	public maxLevel = 19;
 
 	public constructor(options?: BingSourceOptions) {
@@ -35,6 +36,14 @@ export class BingSource extends TileSource {
 		const obj = { key };
 		return super.getUrl(x, y, z, obj);
 	}
+}
+
+export class VirtualEarthSource extends BingSource {
+	public mkt: string = "zh-CN";
+	public attribution = "VirtualEarth[GS(2024)0999号]";
+	public subdomains = "123";
+	public url = "https://ecn.t{s}.tiles.virtualearth.net/tiles/a{key}.jpeg?n=z&g=15384";
+	public maxLevel = 19;
 }
 
 function quadKey(z: number, x: number, y: number): string {
