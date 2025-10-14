@@ -70,7 +70,7 @@ export class SingleTifDEMLoader implements ITileGeometryLoader {
 		const dem = parse(source.data, source._projectionBounds, bounds, targetSize, targetSize);
 
 		// 将获取到的 DEM 数据设置到 geometry 中，并返回 geometry\
-		return geometry.setData(dem, source.skirtHeight);
+		return geometry.setData(dem, z);
 	}
 
 	/**
