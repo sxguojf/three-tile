@@ -27,11 +27,11 @@ export const createEnvironmentGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.
 
 	// viewer.scene.background = vm.skybox;
 
-	viewer.addEventListener("update", () => {
-		const dist = viewer.controls.getDistance();
-		viewer.scene.background = dist > 5e5 ? vm.skyColor : vm.skybox;
-	});
-
+	// viewer.addEventListener("update", () => {
+	// 	const dist = viewer.controls.getDistance();
+	// 	viewer.scene.background = dist > 5e5 ? vm.skyColor : vm.skybox;
+	// });
+	viewer.scene.background = vm.skyColor;
 	const folder = gui.addFolder("场景环境").close();
 	folder.add(viewer.ambLight, "intensity", 0, 5, 0.1).name("环境光");
 	folder.add(viewer.dirLight, "intensity", 0, 5, 0.1).name("直射光");

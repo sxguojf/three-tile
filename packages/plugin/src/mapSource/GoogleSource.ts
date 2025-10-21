@@ -20,7 +20,7 @@ export class GoogleSource extends TileSource {
 	public attribution = "Google";
 	public maxLevel = 21;
 	public style: Style = "s";
-	public subdomains = "0123";
+	public subdomains = "1";
 
 	// 已失效
 	// public url = "https://gac-geo.googlecnapps.cn/maps/vt?lyrs={style}&x={x}&y={y}&z={z}";

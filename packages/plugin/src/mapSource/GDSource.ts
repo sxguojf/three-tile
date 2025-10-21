@@ -11,7 +11,7 @@ export class GDSource extends TileSource {
 	public dataType = "image";
 	public attribution = "高德[GS(2021)6375号]";
 	public style: Style = "8";
-	public subdomains = "1234";
+	public subdomains = "1";
 	public maxLevel: number = 18;
 	public url = "https://webst0{s}.is.autonavi.com/appmaptile?style={style}&x={x}&y={y}&z={z}&scl=2";
 	constructor(options?: GDSourceOptions) {

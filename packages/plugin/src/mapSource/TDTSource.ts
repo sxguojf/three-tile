@@ -15,7 +15,7 @@ export class TDTSource extends TileSource {
 	public attribution = "天地图[GS(2023)336号]";
 	public token: string = "";
 	public style: Style = "img_w";
-	public subdomains = "01234";
+	public subdomains = "0";
 	public url = "https://t{s}.tianditu.gov.cn/DataServer?T={style}&x={x}&y={y}&l={z}&tk={token}";
 
 	constructor(options?: TDTSourceOptins) {
@@ -28,7 +28,7 @@ export class TDTQMSource extends TileSource {
 	public dataType: string = "quantized-mesh";
 	public attribution = "天地图[GS(2023)336号]";
 	public token: string = "";
-	public subdomains = "01234";
+	public subdomains = "0";
 	public url = "https://t{s}.tianditu.gov.cn/mapservice/swdx?T=elv_c&tk={token}&x={x}&y={y}&l={z}";
 
 	constructor(options?: TDTSourceOptins) {

@@ -127,6 +127,8 @@ function initViewer(id: string, map: tt.TileMap) {
 		plugin.adjustZoomSpeedFromDist(map, viewer.camera, viewer.controls);
 	});
 
+	viewer.renderer.localClippingEnabled = true;
+
 	// viewer.controls.addEventListener("start", () => {
 	// 	console.log("start");
 	// 	map.autoUpdate = true;

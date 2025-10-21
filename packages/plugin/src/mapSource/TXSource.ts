@@ -8,7 +8,7 @@ export class TXSource extends TileSource {
 	public dataType = "image";
 	public style: string = "sateTiles";
 	public attribution = "腾讯[GS(2023)1号]";
-	public subdomains = "0123";
+	public subdomains = "0";
 	public maxLevel: number = 18;
 	public isTMS: boolean = true;
 	// public url = "https://webst01.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}";

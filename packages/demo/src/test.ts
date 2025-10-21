@@ -27,21 +27,23 @@
 import {
 	AdditiveBlending,
 	AnimationMixer,
-	BackSide,
+	BoxGeometry,
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
 	Color,
 	ConeGeometry,
+	DoubleSide,
 	ExtrudeGeometry,
 	FrontSide,
+	LatheGeometry,
 	Mesh,
 	MeshBasicMaterial,
 	MeshBasicMaterialParameters,
 	MeshLambertMaterial,
-	MeshPhongMaterial,
 	MeshStandardMaterial,
-	NoColorSpace,
+	Plane,
+	PlaneHelper,
 	Scene,
 	ShaderMaterial,
 	Shape,
@@ -52,6 +54,7 @@ import {
 	SpriteMaterial,
 	TextureLoader,
 	TorusKnotGeometry,
+	Vector2,
 	Vector3,
 } from "three";
 import * as tt from "three-tile";
@@ -426,19 +429,33 @@ function createTerrainHeightMaterial(minHeight: number, maxHeight: number) {
 
 export function testPolyHole(map: tt.TileMap, viewer: plugin.GLViewer) {
 	const cityMaskSource = new plugin.GeoJSONSource({
-		url: "./cityBoundsMask.json",
+		url: "./延安市.json",
 		dataType: "geojson",
 		style: {
 			stroke: true,
 			color: "red",
 			fill: true,
-			fillColor: "#ffff00",
+			fillColor: "#ffffff",
 			fillOpacity: 1,
 		},
 		opacity: 0,
 		// bounds: [107.68, 35.35, 110.52, 37.52],
 	});
-	map.imgSource = [ms.arcGisImgSource, cityMaskSource];
+	const cityMaskSource1 = new plugin.GeoJSONSource({
+		url: "./延安市.json",
+		dataType: "geojson",
+		style: {
+			stroke: true,
+			color: "red",
+			weight: 3,
+			fill: false,
+			fillColor: "#ffffff",
+			fillOpacity: 1,
+		},
+		opacity: 1,
+		// bounds: [107.68, 35.35, 110.52, 37.52],
+	});
+	map.imgSource = [ms.arcGisImgSource, cityMaskSource, cityMaskSource1];
 
 	map.addEventListener("tile-loaded", evt => {
 		const model = evt.tile.model;
@@ -446,8 +463,6 @@ export function testPolyHole(map: tt.TileMap, viewer: plugin.GLViewer) {
 			const mat0 = model.material[0];
 			const mat1 = model.material[1];
 			if (mat0 instanceof MeshStandardMaterial && mat1 instanceof MeshStandardMaterial) {
-				mat0.transparent = true;
-				mat0.alphaTest = 0.5;
 				mat0.alphaMap = mat1.map;
 			}
 		}
@@ -458,22 +473,46 @@ export function testPolyHole(map: tt.TileMap, viewer: plugin.GLViewer) {
 			console.log(data);
 			const coordinates = data.features[0].geometry.coordinates;
 			const mesh = createExtrudedMesh(map, coordinates[0]);
-			mesh.renderOrder = 100000000;
+			mesh.renderOrder = 100;
 			mesh.translateZ(-10000);
 			map.add(mesh);
 		});
 	});
+
 	// const ball = new Mesh(
-	// 	new TorusKnotGeometry(80000, 30000),
+	// 	// new TorusKnotGeometry(80000, 30000),
+	// 	new BoxGeometry(200000, 200000, 50000),
 	// 	new MeshStandardMaterial({ color: "#049ef4", emissive: 0, roughness: 0.0 })
 	// );
-	// // ball.renderOrder = 100;
-	// ball.position.copy(map.geo2map(new Vector3(109.5, 36.6, -10000)));
+	const points = [];
+	for (let i = 0; i < 10; i++) {
+		points.push(new Vector2(Math.sin(i * 0.2) * 200000 + 5, (i - 5) * 12000));
+	}
+	const geometry = new LatheGeometry(points);
+	const material = new MeshStandardMaterial({
+		color: 0x049ef4,
+		side: DoubleSide,
+		flatShading: true,
+		emissive: 0,
+		roughness: 0.3,
+		metalness: 0.8,
+	});
+	const lathe = new Mesh(geometry, material);
+	lathe.rotation.x = Math.PI / 2;
+	lathe.position.copy(map.geo2map(new Vector3(109.05, 36.4, -20000)));
+	// map.add(lathe);
+
+	const ball = new Mesh(
+		new SphereGeometry(80000, 32, 32),
+		new MeshStandardMaterial({ color: "#049ef4", emissive: 0, roughness: 0.0 })
+	);
+	ball.renderOrder = 100;
+	ball.position.copy(lathe.position);
 	// map.add(ball);
 }
 
 // 创建挤压几何体
-function createExtrudedMesh(map: tt.TileMap, coordinates: any, depth = 50000) {
+function createExtrudedMesh(map: tt.TileMap, coordinates: any, depth = 10000) {
 	// 墨卡托投影函数
 	function lonLatToXY(lon: number, lat: number) {
 		const pos = map.geo2map(new Vector3(lon, lat));
@@ -493,9 +532,24 @@ function createExtrudedMesh(map: tt.TileMap, coordinates: any, depth = 50000) {
 
 	const geometry = new ExtrudeGeometry(shape, {
 		depth: depth,
-		bevelEnabled: false,
+		// bevelEnabled: true,
+		// bevelSize: 1000,
 	});
-	const material = new MeshStandardMaterial({ color: "#049ef4", emissive: 0, roughness: 0.0 });
-	// const material = new MeshBasicMaterial({ color: "#049ef4" });
+	const plane = new Plane(new Vector3(0, -1, 0), 1500);
+	const material = new MeshStandardMaterial({
+		color: 0x049ef4,
+		// color: 0x005522,
+		emissive: 0,
+		roughness: 0.5,
+		metalness: 0.5,
+		// transparent: true,
+		// opacity: 0.,
+		clipIntersection: false,
+		side: DoubleSide,
+		// map: new TextureLoader().load("./image/test.jpg"),
+	});
+	material.clippingPlanes = [plane];
+	// map.add(new PlaneHelper(plane, 10000000));
+	// const material = new MeshLambertMaterial({ color: "0x333333", transparent: true, opacity: 0.5 });
 	return new Mesh(geometry, material);
 }

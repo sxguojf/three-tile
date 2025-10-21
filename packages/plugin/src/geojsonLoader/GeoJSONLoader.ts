@@ -19,9 +19,9 @@ import {
 } from "three-tile";
 import { GeoJSONSource } from "./GeoJSONSource";
 
-const EmptyTexture = new TextureLoader().load(
-	"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-);
+// const EmptyTexture = new TextureLoader().load(
+// 	"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+// );
 
 /** GeoJSON 加载器 */
 export class GeoJSONLoader extends TileMaterialLoader {

@@ -21,7 +21,7 @@ export class BingSource extends TileSource {
 	public attribution = "Bing[GS(2024)0999号]";
 	public style: string = "A";
 	public mkt: string = "zh-CN";
-	public subdomains = "123";
+	public subdomains = "1";
 	public url = "https://t{s}.dynamic.tiles.ditu.live.com/comp/ch/{key}?mkt={mkt}&ur=CN&it={style}&n=z&og=804&cstl=vb";
 	// public url = "https://ecn.t{s}.tiles.virtualearth.net/tiles/a{key}.jpeg?n=z&g=15384";
 	public maxLevel = 19;

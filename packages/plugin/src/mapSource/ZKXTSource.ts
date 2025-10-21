@@ -20,7 +20,7 @@ export class ZKXTSource extends TileSource {
 	public token: string = "";
 	public style: Style = "img";
 	public format = "webp";
-	public subdomains = "12";
+	public subdomains = "1";
 	public url = "https://tiles{s}.geovisearth.com/base/v1/{style}/{z}/{x}/{y}?format={format}&tmsIds=w&token={token}";
 
 	constructor(options?: ZKXTSourceOptions) {
@@ -35,7 +35,7 @@ export class ZKXTQMSource extends TileSource {
 	public dataType: string = "quantized-mesh";
 	public attribution = "中科星图[GS(2022)3995号]";
 	public token: string = "";
-	public subdomains = "012";
+	public subdomains = "1";
 	public url = "https://tiles{s}.geovisearth.com/base/v1/terrain/{z}/{x}/{y}.terrain&token={token}";
 
 	constructor(options?: ZKXTSourceOptions) {
