@@ -142,9 +142,6 @@ export function tileBoundsClip(
 	const intersectMinY = Math.max(tileMinY, mapMinY); // 地图坐标系中的最小值（南边）
 	const intersectMaxY = Math.min(tileMaxY, mapMaxY); // 地图坐标系中的最大值（北边）
 
-	// 将交集外的区域设为透明
-	ctx.globalCompositeOperation = "destination-in";
-
 	// 计算在瓦片图像上的相对位置和尺寸
 	const tileWidth = tileMaxX - tileMinX;
 	const tileHeight = tileMaxY - tileMinY;
@@ -154,11 +151,10 @@ export function tileBoundsClip(
 	const x2 = ((intersectMaxX - tileMinX) / tileWidth) * canvas.width;
 	const y1 = canvas.height - ((intersectMaxY - tileMinY) / tileHeight) * canvas.height;
 	const y2 = canvas.height - ((intersectMinY - tileMinY) / tileHeight) * canvas.height;
-
-	// 绘制矩形保留交集区域
-	ctx.beginPath();
-	ctx.rect(x1, y1, x2 - x1, y2 - y1);
-	ctx.fill();
+	const rect = { x: x1, y: y1, w: x2 - x1, h: y2 - y1 };
+	// 将交集外的区域设为透明
+	ctx.globalCompositeOperation = "destination-in";
+	ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
 
 	// 返回处理后的 Canvas
 	return canvas;

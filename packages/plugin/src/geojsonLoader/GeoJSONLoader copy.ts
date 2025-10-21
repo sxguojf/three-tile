@@ -5,7 +5,7 @@
  * @date 2025-03-15
  */
 import geojsonvt from "geojson-vt";
-import { CanvasTexture, FileLoader, Texture, TextureLoader } from "three";
+import { CanvasTexture, FileLoader, Texture } from "three";
 import {
 	LoaderFactory,
 	TileLoadClipParamsType,
@@ -19,9 +19,12 @@ import {
 } from "three-tile";
 import { GeoJSONSource } from "./GeoJSONSource";
 
-const EmptyTexture = new TextureLoader().load(
-	"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-);
+// const EmptyTexture = new TextureLoader().load(
+// 	// "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+// 	// "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAD0lEQVR4AQEEAPv/AAAAAAAEAAFlScNgAAAAAElFTkSuQmCC" // 单像素黑色透明图像
+// 	"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAD0lEQVR4AQEEAPv/AP///wX+Av5JZm4rAAAAAElFTkSuQmCC" // 单像素白色透明图像
+// 	// "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAD0lEQVR4AQEEAPv/AAAAAAAEAAFlScNgAAAAAElFTkSuQmCC"
+// );
 
 /** GeoJSON 加载器 */
 export class GeoJSONLoader extends TileMaterialLoader {
@@ -103,14 +106,14 @@ export class GeoJSONLoader extends TileMaterialLoader {
 		const canvas = new OffscreenCanvas(width, height);
 		const ctx = canvas.getContext("2d");
 		if (ctx) {
+			ctx.save();
 			if (tile) {
-				ctx.save();
 				const features = tile.features;
 				for (let i = 0; i < features.length; i++) {
 					this._renderFeature(ctx, features[i], style);
 				}
-				ctx.restore();
 			}
+			ctx.restore();
 		}
 		return canvas;
 	}
@@ -160,7 +163,7 @@ export class GeoJSONLoader extends TileMaterialLoader {
 		const tile = gv.getTile(z, x, y);
 		// 读取失败或不显示返回空纹理
 		// if (!tile) {
-		// 	return EmptyTexture;
+		// 	return EmptyTexture.clone();
 		// }
 		// 绘制瓦片
 		const img = this.drawTile(tile, style);

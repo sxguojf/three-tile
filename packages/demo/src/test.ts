@@ -27,29 +27,37 @@
 import {
 	AdditiveBlending,
 	AnimationMixer,
+	BackSide,
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
 	Color,
 	ConeGeometry,
+	ExtrudeGeometry,
 	FrontSide,
 	Mesh,
 	MeshBasicMaterial,
 	MeshBasicMaterialParameters,
 	MeshLambertMaterial,
+	MeshPhongMaterial,
+	MeshStandardMaterial,
+	NoColorSpace,
 	Scene,
 	ShaderMaterial,
+	Shape,
+	SphereGeometry,
 	SpotLight,
 	SpotLightHelper,
 	Sprite,
 	SpriteMaterial,
 	TextureLoader,
+	TorusKnotGeometry,
 	Vector3,
 } from "three";
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
 import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
-
+import * as ms from "./mapSource";
 // shadowTest(viewer, map);
 
 export function testTopMesh(viewer: plugin.GLViewer, map: tt.TileMap) {
@@ -414,4 +422,80 @@ function createTerrainHeightMaterial(minHeight: number, maxHeight: number) {
 	});
 
 	return material;
+}
+
+export function testPolyHole(map: tt.TileMap, viewer: plugin.GLViewer) {
+	const cityMaskSource = new plugin.GeoJSONSource({
+		url: "./cityBoundsMask.json",
+		dataType: "geojson",
+		style: {
+			stroke: true,
+			color: "red",
+			fill: true,
+			fillColor: "#ffff00",
+			fillOpacity: 1,
+		},
+		opacity: 0,
+		// bounds: [107.68, 35.35, 110.52, 37.52],
+	});
+	map.imgSource = [ms.arcGisImgSource, cityMaskSource];
+
+	map.addEventListener("tile-loaded", evt => {
+		const model = evt.tile.model;
+		if (model && model.material.length > 1) {
+			const mat0 = model.material[0];
+			const mat1 = model.material[1];
+			if (mat0 instanceof MeshStandardMaterial && mat1 instanceof MeshStandardMaterial) {
+				mat0.transparent = true;
+				mat0.alphaTest = 0.5;
+				mat0.alphaMap = mat1.map;
+			}
+		}
+	});
+
+	fetch("./延安市.json").then(res => {
+		res.json().then(data => {
+			console.log(data);
+			const coordinates = data.features[0].geometry.coordinates;
+			const mesh = createExtrudedMesh(map, coordinates[0]);
+			mesh.renderOrder = 100000000;
+			mesh.translateZ(-10000);
+			map.add(mesh);
+		});
+	});
+	// const ball = new Mesh(
+	// 	new TorusKnotGeometry(80000, 30000),
+	// 	new MeshStandardMaterial({ color: "#049ef4", emissive: 0, roughness: 0.0 })
+	// );
+	// // ball.renderOrder = 100;
+	// ball.position.copy(map.geo2map(new Vector3(109.5, 36.6, -10000)));
+	// map.add(ball);
+}
+
+// 创建挤压几何体
+function createExtrudedMesh(map: tt.TileMap, coordinates: any, depth = 50000) {
+	// 墨卡托投影函数
+	function lonLatToXY(lon: number, lat: number) {
+		const pos = map.geo2map(new Vector3(lon, lat));
+		return [pos.x, pos.y];
+	}
+
+	const shape = new Shape();
+	const [firstPoint] = coordinates[0];
+	const p0 = lonLatToXY(firstPoint[0], firstPoint[1]);
+	shape.moveTo(p0[0], p0[1]);
+
+	for (let i = 1; i < coordinates[0].length; i++) {
+		const [lon, lat] = coordinates[0][i];
+		const p1 = lonLatToXY(lon, lat);
+		shape.lineTo(p1[0], p1[1]);
+	}
+
+	const geometry = new ExtrudeGeometry(shape, {
+		depth: depth,
+		bevelEnabled: false,
+	});
+	const material = new MeshStandardMaterial({ color: "#049ef4", emissive: 0, roughness: 0.0 });
+	// const material = new MeshBasicMaterial({ color: "#049ef4" });
+	return new Mesh(geometry, material);
 }

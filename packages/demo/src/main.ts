@@ -5,6 +5,7 @@ import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
+import { testPolyHole } from "./test";
 
 // 注册加载器
 function registerLoader() {
@@ -214,6 +215,8 @@ function main() {
 	// testDEMShader();
 
 	addBounds(map);
+
+	testPolyHole(map, viewer);
 }
 
 main();
