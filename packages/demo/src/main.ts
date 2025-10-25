@@ -218,7 +218,7 @@ function main() {
 
 	addBounds(map);
 
-	testPolyHole(map, viewer);
+	// testPolyHole(map, viewer);
 }
 
 main();

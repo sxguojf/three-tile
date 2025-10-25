@@ -4,29 +4,25 @@
  *@date: 2023-04-06
  */
 
-import { BufferAttribute, BufferGeometry } from "three";
+import { BufferAttribute, PlaneGeometry } from "three";
 import { GeometryDataType } from "./GeometryDataTypes";
-import { addSkirt } from "./skirt";
-import { getGeometryDataFromDem } from "./utils";
 import { Martini } from "./Martini";
+import { addSkirt } from "./skirt";
 import { maxErrors } from "./sse";
+import { getGeometryDataFromDem } from "./utils";
 
 /**
  * Tile geometry
  */
-export class TileGeometry extends BufferGeometry {
+export class TileGeometry extends PlaneGeometry {
 	public type = "TileGeometry";
 
-	public constructor() {
-		super();
-		const dem = new Float32Array([0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0]);
-		this.setData(dem, 0);
-	}
-
 	public setAttribes(geometryData: GeometryDataType, z = 0) {
-		const skirtHeight = z === 0 ? 1 : 2e5 / z / z;
-		const geoDataWithSkirt = addSkirt(geometryData.attributes, geometryData.indices, skirtHeight);
-		const { attributes, indices } = geoDataWithSkirt;
+		const skirtHeight = z === 0 ? 0 : 2e5 / z / z;
+		// if (skirtHeight > 0) {
+		geometryData = addSkirt(geometryData.attributes, geometryData.indices, skirtHeight);
+		// }
+		const { attributes, indices } = geometryData;
 
 		this.setIndex(new BufferAttribute(indices, 1));
 		this.setAttribute("position", new BufferAttribute(attributes.position.value, attributes.position.size));
