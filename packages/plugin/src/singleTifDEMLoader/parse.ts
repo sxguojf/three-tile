@@ -36,12 +36,12 @@ export function parse(
 	const y1 = (syMax - dyMax) * yScale;
 
 	// 投影坐标转图像坐标，计算结束点的 x 坐标
-	const x2 = (dxMax - sxMin) * xScale;
+	const x2 = (dxMax - sxMin + 1) * xScale;
 	// 投影坐标转图像坐标，计算结束点的 y 坐标
-	const y2 = (syMax - dyMin) * yScale;
+	const y2 = (syMax - dyMin + 1) * yScale;
 
 	// 定义提取区域的边界
-	const subBounds = [x1, y1, x2, y2] as [number, number, number, number];
+	const subBounds: [number, number, number, number] = [x1, y1, x2, y2];
 
 	// 调用 extractAndScaleFloat32Data 函数进行数据提取和缩放
 	return extractAndScaleFloat32Data(data.dem, data.width, data.height, subBounds, targetWidth, targetHeight, 0);
