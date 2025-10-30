@@ -426,8 +426,47 @@ function createTerrainHeightMaterial(minHeight: number, maxHeight: number) {
 
 	return material;
 }
-
 export function testPolyHole(map: tt.TileMap, viewer: plugin.GLViewer) {
+	const cityMaskSource = new plugin.GeoJSONSource({
+		url: "./cityBoundsMask.json",
+		dataType: "geojson",
+		style: {
+			stroke: true,
+			color: "red",
+			fill: true,
+			fillColor: "#ffffff",
+			fillOpacity: 1,
+		},
+		opacity: 0,
+		// bounds: [107.68, 35.35, 110.52, 37.52],
+	});
+	map.imgSource = [ms.arcGisImgSource, cityMaskSource];
+
+	map.addEventListener("tile-loaded", evt => {
+		const model = evt.tile.model;
+		if (model && model.material.length > 1) {
+			const mat0 = model.material[0];
+			const mat1 = model.material[1];
+			if (mat0 instanceof MeshStandardMaterial && mat1 instanceof MeshStandardMaterial) {
+				mat0.transparent = true;
+				mat0.alphaTest = 0.5;
+				mat0.alphaMap = mat1.map;
+			}
+		}
+	});
+
+	fetch("./延安市.json").then(res => {
+		res.json().then(data => {
+			console.log(data);
+			const coordinates = data.features[0].geometry.coordinates;
+			const mesh = createExtrudedMesh(map, coordinates[0]);
+			mesh.renderOrder = 100000000;
+			mesh.translateZ(-10000);
+			map.add(mesh);
+		});
+	});
+}
+export function testPolyHole1(map: tt.TileMap, viewer: plugin.GLViewer) {
 	const cityMaskSource = new plugin.GeoJSONSource({
 		url: "./延安市.json",
 		dataType: "geojson",
