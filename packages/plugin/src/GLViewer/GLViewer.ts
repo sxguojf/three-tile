@@ -26,7 +26,7 @@ export class GLViewer extends BaseViewer {
 	/** Set fog factor, default 1 */
 	public set fogFactor(value) {
 		this._fogFactor = value;
-		this.controls.dispatchEvent({ type: "change" });
+		this._changeFogFactor();
 	}
 
 	public get controlsMode() {
@@ -36,19 +36,21 @@ export class GLViewer extends BaseViewer {
 		this.controls.controlsMode = value;
 	}
 
+	private _changeFogFactor() {
+		if (this.scene.fog instanceof FogExp2) {
+			const polar = this.controls.getPolarAngle();
+			const dist = this.controls.getDistance();
+			this.scene.fog.density = (polar / (dist + 1)) * this.fogFactor * 0.2;
+		}
+	}
+
 	/**
 	 * Create map controls
 	 * @returns MapControls
 	 */
 	private _createControls() {
 		const controls = new TileMapControls(this.camera, this.container || this.renderer.domElement);
-		controls.addEventListener("change", () => {
-			if (this.scene.fog instanceof FogExp2) {
-				const polar = controls.getPolarAngle();
-				const dist = controls.getDistance();
-				this.scene.fog.density = (polar / (dist + 1)) * this.fogFactor * 0.2;
-			}
-		});
+		controls.addEventListener("change", this._changeFogFactor.bind(this));
 		return controls;
 	}
 
@@ -79,7 +81,7 @@ export class GLViewer extends BaseViewer {
 						new Tween(start)
 							.to(cameraPostion, 2000)
 							.easing(Easing.Quintic.Out)
-							.onUpdate(() => [this.controls.dispatchEvent({ type: "change" })])
+							// .onUpdate(() => [this.controls.dispatchEvent({ type: "change" })])
 							.onComplete(() => resolve())
 					)
 					.start();

@@ -61,7 +61,7 @@ export class TileMapControls extends OrbitControls {
 		const polar = Math.max(this.getPolarAngle(), 0.01);
 		const dist = Math.max(this.getDistance(), 1);
 
-		// Set ther zoom speed based on distance
+		// Set the zoom speed based on distance
 		if (this.dynamicZoomSpeed) {
 			this.zoomSpeed = Math.max(Math.log(dist / 1e3), 1);
 			// this.panSpeed = Math.max(Math.log(dist) / 9, 0.1);
