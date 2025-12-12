@@ -144,7 +144,7 @@ export class GLViewer extends BaseViewer {
 					.easing(Easing.Quintic.Out)
 					.onUpdate(() => {
 						// 触发控制变化事件
-						this.controls.dispatchEvent({ type: "change" });
+						// this.controls.dispatchEvent({ type: "change" });
 						// 重新计算对象的包围球
 						const shpere = getShpere(object);
 						// 更新控制器的目标位置
