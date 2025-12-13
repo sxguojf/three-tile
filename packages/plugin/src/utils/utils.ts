@@ -2,14 +2,6 @@ import { Camera, Vector2, Vector3 } from "three";
 import { TileMap } from "three-tile";
 
 export function getLocalFromMouse(mouseEvent: MouseEvent, map: TileMap, camera: Camera): Vector3 | undefined {
-	// const currentTarget = mouseEvent.currentTarget;
-	// let x = mouseEvent.offsetX;
-	// let y = mouseEvent.offsetY;
-	// if (x === undefined) {
-	// 	const { left, top } = (currentTarget as HTMLDivElement).getBoundingClientRect();
-	// 	x = mouseEvent.clientX - left;
-	// 	y = mouseEvent.clientY - top;
-	// }
 	const { currentTarget, offsetX, offsetY } = mouseEvent;
 	if (currentTarget instanceof HTMLElement) {
 		const width = currentTarget.clientWidth;

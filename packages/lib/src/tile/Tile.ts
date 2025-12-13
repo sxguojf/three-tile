@@ -268,16 +268,18 @@ export class Tile extends Object3D<TTileEventMap> {
 		const { loader, minLevel, maxLevel, LODThreshold } = params;
 		const action = LODEvaluate(this, minLevel, maxLevel, LODThreshold);
 		if (action === LODAction.create) {
-			// console.log("create", this.name);
-			const newTiles = createChildren(this, loader);
-			this.add(...newTiles);
-			this._subTiles = newTiles;
-			this._subTiles.forEach(child => {
-				child.updateMatrixWorld();
-				child.updateMatrix();
-				child.getTileSize();
-				this._root.dispatchEvent({ type: "tile-created", tile: child });
-			});
+			if (this.inFrustum && (this.showing || this.z <= minLevel)) {
+				// console.log("create", this.name);
+				const newTiles = createChildren(this, loader);
+				this.add(...newTiles);
+				this._subTiles = newTiles;
+				this._subTiles.forEach(child => {
+					child.updateMatrixWorld();
+					child.updateMatrix();
+					child.getTileSize();
+					this._root.dispatchEvent({ type: "tile-created", tile: child });
+				});
+			}
 		} else if (action === LODAction.remove) {
 			// console.log("remove", this.name);
 			if (this.model) {
@@ -387,10 +389,6 @@ export class Tile extends Object3D<TTileEventMap> {
 			this._model = undefined;
 			this._isDirty = false;
 			this._root.dispatchEvent({ type: "tile-unload", tile: this });
-		}
-		// 卸载调试包围盒
-		if (loader.debug > 1) {
-			(this.getObjectByName("tilebox") as Mesh)?.geometry.dispose();
 		}
 		return this;
 	}

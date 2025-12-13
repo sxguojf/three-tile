@@ -26,19 +26,16 @@ export function LODEvaluate(tile: Tile, minLevel: number, maxLevel: number, thre
 	if (!tile.isLeaf && tile.z > maxLevel) {
 		return LODAction.remove;
 	}
+
 	const distRatio = tile.distRatio;
-	if (
-		tile.isLeaf &&
-		tile.inFrustum &&
-		tile.z < maxLevel &&
-		distRatio < threshold &&
-		(tile.showing || tile.z <= minLevel)
-	) {
+	if (tile.isLeaf && tile.z < maxLevel && distRatio <= threshold) {
 		return LODAction.create;
 	}
+
 	if (!tile.isLeaf && tile.z >= minLevel && distRatio > threshold) {
 		return LODAction.remove;
 	}
+
 	return LODAction.none;
 }
 

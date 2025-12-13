@@ -188,8 +188,7 @@ export const singleImage = new tt.TileSource({
 export const singleTif = new tt.TileSource({
 	dataType: "single-tif",
 	url: "./image/qinling.tif",
-	// maxLevel: 20,
-	// skirtHeight: 1000,
+	maxLevel: 20,
 	bounds: singleImage.bounds, //[108.68808746337891, 33.92199531197548, 108.88240814208984, 34.05727051198483],
 });
 

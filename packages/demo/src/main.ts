@@ -1,11 +1,11 @@
-import { Box3, Box3Helper, REVISION, Vector3 } from "three";
+import { REVISION } from "three";
 
 import * as gui from "./gui";
 import * as source from "./mapSource";
 
 import * as tt from "three-tile";
 import * as plugin from "three-tile-plugin";
-import { testPolyHole } from "./test";
+// import { testPolyHole } from "./test";
 
 // 注册加载器
 function registerLoader() {
@@ -86,7 +86,7 @@ function createMap() {
 		// 最大缩放级别，废弃
 		//maxLevel: 20,
 		// 地图经纬度范围
-		bounds: [60, 0, 145, 60],
+		// bounds: [60, 0, 145, 60],
 		// 调试标志
 		debug: 1,
 	});
@@ -179,15 +179,15 @@ function initGui(viewer: plugin.GLViewer, map: tt.TileMap) {
 // 	});
 // }
 
-function addBounds(map: tt.TileMap) {
-	const bounds = map.bounds;
-	if (bounds) {
-		const projBounds = map.projection.getProjBoundsFromLonLat(bounds);
-		const box = new Box3(new Vector3(projBounds[0], projBounds[1], 0), new Vector3(projBounds[2], projBounds[3], 3000));
-		const boxHelper = new Box3Helper(box);
-		map.add(boxHelper);
-	}
-}
+// function addBounds(map: tt.TileMap) {
+// 	const bounds = map.bounds;
+// 	if (bounds) {
+// 		const projBounds = map.projection.getProjBoundsFromLonLat(bounds);
+// 		const box = new Box3(new Vector3(projBounds[0], projBounds[1], 0), new Vector3(projBounds[2], projBounds[3], 3000));
+// 		const boxHelper = new Box3Helper(box);
+// 		map.add(boxHelper);
+// 	}
+// }
 
 function main() {
 	// 注册加载器
@@ -216,9 +216,9 @@ function main() {
 	// testShader();
 	// testDEMShader();
 
-	addBounds(map);
+	// addBounds(map);
 
-	testPolyHole(map, viewer);
+	// testPolyHole(map, viewer);
 }
 
 main();
