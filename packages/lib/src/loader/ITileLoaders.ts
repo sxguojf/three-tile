@@ -71,8 +71,6 @@ export interface ITileLoader {
 	bounds: BoundsType;
 	/** 加载瓦片数据 */
 	load(coord: TileLoadParamsType): Promise<TileMesh>;
-	/** 释放瓦片模型 */
-	unload(tileMesh: TileMesh): void;
 	/** 瓦片更新 */
 	update(coord: TileLoadParamsType, tileMesh: TileMesh): Promise<void>;
 }

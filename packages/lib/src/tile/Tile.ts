@@ -4,7 +4,7 @@
  *@date: 2025-05-01
  */
 
-import { BaseEvent, Box3, Camera, Matrix4, Mesh, Object3D, Object3DEventMap, Raycaster, Vector3 } from "three";
+import { BaseEvent, Box3, Camera, Matrix4, Object3D, Object3DEventMap, Raycaster, Vector3 } from "three";
 import { FrustumEx } from "./FrustumEx";
 import { ITileLoader, TileMesh } from "./ITileLoader";
 import { createChildren, LODAction, LODEvaluate } from "./util";
@@ -15,7 +15,7 @@ const cameraWorldPosition = new Vector3();
 const frustum = new FrustumEx();
 /** 临时变量 */
 const tempMat4 = new Matrix4();
-const tempVec3 = new Vector3();
+// const tempVec3 = new Vector3();
 
 /** 瓦片更新参数类型 */
 type TileUpdateParames = {
@@ -180,17 +180,15 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/** 计算瓦片包围盒（世界坐标） */
 	public getBBox() {
+		let maxY = 9000;
+		if (this.model) {
+			maxY = this.model.geometry.boundingBox?.max.z || 0;
+		}
 		const bbox = new Box3(
-			new Vector3(-this.scale.x, -this.scale.y, 0),
-			new Vector3(this.scale.x, this.scale.y, 0)
+			new Vector3(-this.scale.x, -this.scale.y, -300),
+			new Vector3(this.scale.x, this.scale.y, maxY)
 		).applyMatrix4(this.matrixWorld);
 
-		if (this.model) {
-			bbox.max.setY(this.model.geometry.boundingBox?.max.z || 0);
-		} else {
-			bbox.min.setY(-300);
-			bbox.max.setY(9000);
-		}
 		return bbox;
 	}
 
@@ -200,8 +198,9 @@ export class Tile extends Object3D<TTileEventMap> {
 	 */
 	public getTileSize() {
 		if (this._sizeInWorld < 0) {
-			const bbox = new Box3(new Vector3(-0.5, -0.5, 0), new Vector3(0.5, 0.5, 0)).applyMatrix4(this.matrixWorld);
-			this._sizeInWorld = bbox.getSize(tempVec3).length();
+			const p1 = new Vector3(-this.scale.x, -this.scale.y).applyMatrix4(this.matrixWorld);
+			const p2 = new Vector3(this.scale.x, this.scale.y).applyMatrix4(this.matrixWorld);
+			this._sizeInWorld = p1.distanceTo(p2);
 			console.assert(this._sizeInWorld > 10);
 		}
 
@@ -284,7 +283,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			// console.log("remove", this.name);
 			if (this.model) {
 				this.showing = true;
-				this.unLoad(loader, false);
+				this.unLoadSubTiles();
 			}
 		}
 		return action;
@@ -302,6 +301,9 @@ export class Tile extends Object3D<TTileEventMap> {
 					const allLoaded = !subTiles.some(tile => !tile.model);
 					subTiles.forEach(child => (child.showing = allLoaded));
 					parent.showing = !allLoaded;
+					// if (allLoaded) {
+					// 	parent.unLoadModel(loader);
+					// }
 				}
 			} else {
 				this.showing = true;
@@ -350,13 +352,12 @@ export class Tile extends Object3D<TTileEventMap> {
 
 	/**
 	 * 重新加载瓦片数据
-	 * @param loader - 瓦片加载器
 	 * @param dispose - 是否销毁瓦片树
 	 * @returns this
 	 */
-	public reload(loader: ITileLoader, dispose = true) {
+	public reload(dispose = true) {
 		if (dispose) {
-			return this.unLoad(loader, true);
+			return this.unLoad();
 		} else {
 			this.traverse(child => {
 				if (child instanceof Tile && (child.model || child._isLoading)) {
@@ -368,28 +369,46 @@ export class Tile extends Object3D<TTileEventMap> {
 	}
 
 	/**
-	 * 卸载瓦片 (包括其子瓦片)，释放资源
-	 * @param loader - 瓦片加载器
-	 * @param unLoadSelf - 是否卸载自身
+	 * 卸载瓦片 (包括瓦片模型和其子瓦片)，释放资源
 	 * @returns this
 	 */
-	public unLoad(loader: ITileLoader, unLoadSelf = true) {
-		// 卸载子瓦片
-		if (this.subTiles) {
-			this.subTiles.forEach(child => {
-				child.unLoad(loader, true);
-			});
-			this.remove(...this.subTiles);
-			this._subTiles = undefined;
-		}
-		// 卸载自己
-		if (unLoadSelf && this.model) {
+	public unLoad() {
+		this.unLoadSubTiles();
+		this.unLoadModel();
+		return this;
+	}
+
+	public unLoadModel() {
+		// console.assert(!!this.model);
+
+		if (this.model) {
 			this.model.removeFromParent();
-			loader.unload(this.model);
+			// loader.unload(this.model);
+			this.model.material.forEach((material: any) => {
+				for (const key in material) {
+					const value = material[key];
+					if (value && value.isTexture) {
+						value.dispose();
+					}
+					material.dispose();
+				}
+			});
+			this.model.material = [];
+			this.model.geometry.dispose();
 			this._model = undefined;
 			this._isDirty = false;
 			this._root.dispatchEvent({ type: "tile-unload", tile: this });
 		}
+		return this;
+	}
+
+	public unLoadSubTiles() {
+		this.subTiles?.forEach(child => {
+			child.removeFromParent();
+			child.unLoadModel();
+			child.unLoadSubTiles();
+		});
+		this._subTiles = undefined;
 		return this;
 	}
 }

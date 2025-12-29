@@ -158,17 +158,6 @@ export class TileLoader implements ITileLoader {
 	}
 
 	/**
-	 * Unload tile mesh data
-	 * @param tileMesh tile mesh
-	 */
-	public unload(tileMesh: TileMesh): void {
-		const materials = tileMesh.material;
-		materials.forEach(mat => mat.dispose());
-		tileMesh.geometry.clearGroups();
-		tileMesh.geometry.dispose();
-	}
-
-	/**
 	 * Load geometry
 	 * @returns BufferGeometry
 	 */

@@ -5,6 +5,7 @@
  */
 
 import { Camera, Clock, ColorRepresentation, Intersection, Object3D, Vector2, Vector3 } from "three";
+import { BoundsType } from "../loader";
 import { ISource } from "../source";
 import { Tile } from "../tile";
 import { ITileMapLoader } from "./ITileMapLoader";
@@ -12,7 +13,6 @@ import { IProjection, ProjectFactory } from "./projection";
 import { TileMapEventMap } from "./TileMapEventMap";
 import { TileMapLoader } from "./TileMapLoader";
 import { attachEvent, getLocalInfoFromScreen, getLocalInfoFromWorld } from "./util";
-import { BoundsType } from "../loader";
 // import { LayerLoader } from "../layers/LayerLoader";
 
 /** 地面信息类型(经度、纬度、高度) */
@@ -330,14 +330,14 @@ export class TileMap extends Object3D<TileMapEventMap> {
 	 */
 	private _updateSource() {
 		this._maxLevel = this._getMaxLevel();
-		this.rootTile.reload(this.loader, false);
+		this.rootTile.reload(false);
 	}
 
 	/**
 	 * 销毁全部瓦片并重新加载
 	 */
 	public reload(dispose = true) {
-		this.rootTile.reload(this.loader, dispose);
+		this.rootTile.reload(dispose);
 	}
 
 	/**
