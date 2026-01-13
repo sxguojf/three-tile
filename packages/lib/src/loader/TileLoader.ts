@@ -90,7 +90,7 @@ export class TileLoader implements ITileLoader {
 	 * @returns Promise<TileMesh> tile mesh
 	 */
 	public async load(params: TileLoadParamsType): Promise<TileMesh> {
-		const count = this.demSource ? 1 : 0 + this.imgSource.length;
+		const count = (this.demSource ? 1 : 0) + this.imgSource.length;
 		this._downloadingThreads += count;
 
 		let mesh: TileMesh;
@@ -120,7 +120,7 @@ export class TileLoader implements ITileLoader {
 	 * @param tileMesh
 	 */
 	public async update(params: TileLoadParamsType, tileMesh: TileMesh) {
-		const count = this.demSource ? 1 : 0 + this.imgSource.length;
+		const count = (this.demSource ? 1 : 0) + this.imgSource.length;
 		this._downloadingThreads += count;
 
 		try {

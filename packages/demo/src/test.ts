@@ -27,7 +27,6 @@
 import {
 	AdditiveBlending,
 	AnimationMixer,
-	BoxGeometry,
 	BoxHelper,
 	CameraHelper,
 	CanvasTexture,
@@ -43,7 +42,6 @@ import {
 	MeshLambertMaterial,
 	MeshStandardMaterial,
 	Plane,
-	PlaneHelper,
 	Scene,
 	ShaderMaterial,
 	Shape,
@@ -53,7 +51,6 @@ import {
 	Sprite,
 	SpriteMaterial,
 	TextureLoader,
-	TorusKnotGeometry,
 	Vector2,
 	Vector3,
 } from "three";
@@ -426,7 +423,7 @@ function createTerrainHeightMaterial(minHeight: number, maxHeight: number) {
 
 	return material;
 }
-export function testPolyHole(map: tt.TileMap, viewer: plugin.GLViewer) {
+export function testPolyHole(map: tt.TileMap) {
 	const cityMaskSource = new plugin.GeoJSONSource({
 		url: "./cityBoundsMask.json",
 		dataType: "geojson",
@@ -466,7 +463,7 @@ export function testPolyHole(map: tt.TileMap, viewer: plugin.GLViewer) {
 		});
 	});
 }
-export function testPolyHole1(map: tt.TileMap, viewer: plugin.GLViewer) {
+export function testPolyHole1(map: tt.TileMap) {
 	const cityMaskSource = new plugin.GeoJSONSource({
 		url: "./延安市.json",
 		dataType: "geojson",

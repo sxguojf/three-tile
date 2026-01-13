@@ -94,11 +94,10 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this.inFrustum ? ratio * 0.8 : ratio * 2;
 	}
 
+	private _inFrustum = false;
 	/** 瓦片是否在视锥体内 */
 	public get inFrustum(): boolean {
-		// 瓦片包围盒世界坐标
-		const bbox = this.getBBox();
-		return frustum.intersectsBox(bbox);
+		return this._inFrustum;
 	}
 
 	/** 是否为叶子瓦片 */
@@ -230,6 +229,9 @@ export class Tile extends Object3D<TTileEventMap> {
 			camera.getWorldPosition(cameraWorldPosition);
 			frustum.setFromProjectionMatrix(tempMat4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 		}
+
+		// 计算是否在视椎体内
+		this._inFrustum = frustum.intersectsBox(this.getBBox());
 
 		// 下载瓦片
 		if (this.z >= minLevel && this._needsLoad(loader)) {

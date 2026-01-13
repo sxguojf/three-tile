@@ -1,68 +1,984 @@
-[English](README.md) | [简体中文](README_CN.md)
+# @three-tile/lib
 
-# **three-tile 54**
+[![npm version](https://badge.fury.io/js/%40three-tile%2Flib.svg)](https://badge.fury.io/js/%40three-tile%2Flib)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<p align='right'>hz_gjf@163.com</p>
+一个基于 [Three.js](https://threejs.org/) 开发的轻量级三维瓦片地图库，专为 Three.js 应用程序提供高性能的地图渲染能力。
 
-<img src="./images/wechat.jpg" width = 300 height = 400>
+## ✨ 特性
 
-## 文档、示例：
+- 🚀 **轻量级设计** - 仅依赖 Three.js，核显即可流畅运行 60FPS
+- 📦 **零侵入集成** - 以 Three.js 对象形式提供，不影响现有架构
+- 🎯 **TypeScript 原生支持** - 100% TypeScript 开发，完整类型定义
+- 🔧 **高度可扩展** - 模块化加载器系统，支持自定义数据源和渲染
+- ⚡ **Web Workers 优化** - 复杂计算异步处理，保持主线程流畅
+- 🌍 **多投影支持** - 支持 WGS84、Web Mercator 等常用投影系统
+- 📊 **多数据格式** - 内置 Terrain-RGB、LERC、DEM 等地形加载器
 
-[![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/){:target="\_blank"}
+## 📦 安装
 
-## 1 简介
+```bash
+npm install @three-tile/lib
+# 或
+yarn add @three-tile/lib
+```
 
-three-tile 是一个基于 [threejs](https://threejs.org/)开发的轻量级三维瓦片地图库，具有使用简单、资源占用少等优点，它提供了一个轻量级三维地形模型，适用于给基于 threejs 开发应用添加三维地图。
+### 依赖要求
 
-详细介绍：https://blog.csdn.net/HZGJF/article/details/140280844
+- **Three.js**: `>=0.171.0`
+- **TypeScript**: `>=4.5.0` (推荐)
 
-注意：这不是 Cesium，也不是 Mapbox-gl，跟这些三维 GIS 框架没有关系。
+## 🚀 快速开始
 
-Source: https://github.com/sxguojf/three-tile
+### 基础用法
 
-demo: https://sxguojf.github.io/mydemo/three-tile/index.html
+```typescript
+import * as THREE from "three";
+import { TileMap, TileSource } from "@three-tile/lib";
 
-提供一些开发示例：
+// 创建影像数据源
+const imgSource = new TileSource({
+	url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+	dataType: "image",
+	attribution: "© OpenStreetMap contributors",
+	minLevel: 0,
+	maxLevel: 18,
+	projectionID: "3857",
+});
 
-Examples Source： https://github.com/sxguojf/three-tile-example
+// 创建地形数据源（可选）
+const demSource = new TileSource({
+	url: "https://terrain.tiles.mapbox.com/v4/mapbox.terrain-rgb/{z}/{x}/{y}.pngraw",
+	dataType: "terrain-rgb",
+	attribution: "© Mapbox",
+	minLevel: 0,
+	maxLevel: 15,
+	projectionID: "3857",
+});
 
-Examples: https://sxguojf.github.io/three-tile-example
+// 创建地图
+const map = new TileMap({
+	imgSource: imgSource,
+	demSource: demSource,
+	lon0: 0, // 中央经线
+	minLevel: 2,
+	debug: 0,
+});
 
-使用 vue 开发：
+// 添加到场景
+scene.add(map);
 
-https://sxguojf.github.io/mydemo/three-tile-vue/index.html
+// 地图旋转到合适角度
+map.rotateX(-Math.PI / 2);
 
-免责声明：
+// 监听地图就绪事件
+map.addEventListener("ready", () => {
+	console.log("地图加载完成");
+});
+```
 
-- 本框架不含任何地图数据，Example 中使用的地图均为直接调用第三方数据，使用中请遵循法律法规要求。
+### 在 Vue/React 中使用
 
-### 1.1 特点
+```typescript
+// Vue 3 Composition API
+import { onMounted, ref } from "vue";
+import * as THREE from "three";
+import { TileMap, TileSource } from "@three-tile/lib";
 
-- 轻量级：地图以一个三维模型方式提供，不会对已有程序架构产生任何影响。
-- 依赖少：整个框架仅有 threejs（R165）一个依赖。
-- 速度快：对资源占少，核显也能轻松跑到 60FPS。
-- 使用简单：熟悉 threejs 基本上没有学习成本。
-- 扩展性强：数据、模型、纹理、材质、渲染过程均能根据自己需要扩展和替换。
+export function useTileMap(container: Ref<HTMLElement>) {
+	const scene = ref<THREE.Scene>();
+	const renderer = ref<THREE.WebGLRenderer>();
+	const map = ref<TileMap>();
 
-### 1.2 开发环境
+	onMounted(() => {
+		// 初始化 Three.js 场景
+		scene.value = new THREE.Scene();
+		renderer.value = new THREE.WebGLRenderer();
 
-- 语言：TypeScript 100%
-- IDE： VSCode
-- 打包：Vite 4.0
-- 依赖：three 0.171
+		// 创建地图
+		map.value = new TileMap({
+			imgSource: new TileSource({
+				url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+				dataType: "image",
+				attribution: "© OpenStreetMap",
+				minLevel: 0,
+				maxLevel: 18,
+				projectionID: "3857",
+			}),
+		});
+
+		scene.value.add(map.value);
+	});
+
+	return { scene, renderer, map };
+}
+```
+
+### 完整示例
+
+```typescript
+import * as THREE from "three";
+import { TileMap, TileSource } from "@three-tile/lib";
+
+// 1. 创建 Three.js 场景
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000000);
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// 2. 创建地图数据源
+const imgSource = new TileSource({
+	url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+	dataType: "image",
+	attribution: "© OpenStreetMap contributors",
+	minLevel: 0,
+	maxLevel: 18,
+	projectionID: "3857",
+});
+
+// 3. 创建地图
+const map = new TileMap({
+	imgSource: imgSource,
+	lon0: 0,
+	minLevel: 2,
+	debug: 1, // 开启调试模式
+});
+
+// 4. 设置地图和摄像机
+map.rotateX(-Math.PI / 2);
+scene.add(map);
+camera.position.set(0, 0, 10000);
+
+// 5. 渲染循环
+function animate() {
+	requestAnimationFrame(animate);
+	renderer.render(scene, camera);
+}
+animate();
+
+// 6. 监听鼠标事件获取位置信息
+window.addEventListener("mousemove", event => {
+	const pointer = new THREE.Vector2(
+		(event.clientX / window.innerWidth) * 2 - 1,
+		-(event.clientY / window.innerHeight) * 2 + 1
+	);
+
+	const groundInfo = map.getLocalInfoFromScreen(camera, pointer);
+	if (groundInfo) {
+		console.log(
+			`经度: ${groundInfo.location.x.toFixed(6)}, 纬度: ${groundInfo.location.y.toFixed(6)}, 高度: ${groundInfo.location.z.toFixed(2)}m`
+		);
+	}
+});
+```
+
+### 在 Vue/React 中使用
+
+```typescript
+// Vue 3 Composition API
+import { onMounted, ref } from "vue";
+import * as THREE from "three";
+import { TileMap, TileSource } from "@three-tile/lib";
+
+export function useTileMap(container: Ref<HTMLElement>) {
+	const scene = ref<THREE.Scene>();
+	const renderer = ref<THREE.WebGLRenderer>();
+	const map = ref<TileMap>();
+
+	onMounted(() => {
+		// 初始化 Three.js 场景
+		scene.value = new THREE.Scene();
+		renderer.value = new THREE.WebGLRenderer();
+
+		// 创建地图
+		map.value = new TileMap({
+			imgSource: new TileSource({
+				url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+				dataType: "image",
+				attribution: "© OpenStreetMap",
+				minLevel: 0,
+				maxLevel: 18,
+				projectionID: "3857",
+			}),
+		});
+
+		scene.value.add(map.value);
+	});
+
+	return { scene, renderer, map };
+}
+```
+
+## 🏗️ 核心概念
+
+### TileMap - 地图核心
+
+`TileMap` 是整个库的核心类，继承自 `THREE.Object3D`，负责瓦片的加载、渲染和管理。
+
+```typescript
+interface MapParams {
+	imgSource: ISource[] | ISource; // 影像数据源
+	demSource?: ISource; // 地形数据源（可选）
+	lon0?: 0 | 90 | -90; // 中央子午线经度
+	minLevel?: number; // 最小缩放级别
+	bounds?: [number, number, number, number]; // 地图范围
+	debug?: number; // 调试级别
+}
+```
+
+### 数据源 (ISource)
+
+数据源定义了瓦片数据的获取方式和元数据信息：
+
+```typescript
+interface ISource {
+	dataType: string; // 数据类型标识
+	url: string; // URL 模板
+	attribution: string; // 版权信息
+	minLevel: number; // 最小级别
+	maxLevel: number; // 最大级别
+	projectionID: "3857" | "4326"; // 投影系统
+	opacity?: number; // 透明度
+	transparent?: boolean; // 是否透明
+	bounds?: [number, number, number, number]; // 数据范围
+}
+```
+
+### 加载器系统
+
+库采用模块化的加载器架构，支持影像和地形数据的独立加载：
+
+```typescript
+// 注册自定义影像加载器
+import { registerImgLoader, ITileMaterialLoader } from "@three-tile/lib";
+
+class CustomImageLoader implements ITileMaterialLoader {
+	info = { version: "1.0.0", author: "Your Name" };
+	dataType = "custom-image";
+
+	async load(params) {
+		// 实现自定义影像加载逻辑
+		return material;
+	}
+}
+
+registerImgLoader(new CustomImageLoader());
+
+// 注册自定义地形加载器
+import { registerDEMLoader, ITileGeometryLoader } from "@three-tile/lib";
+
+class CustomTerrainLoader implements ITileGeometryLoader {
+	info = { version: "1.0.0", author: "Your Name" };
+	dataType = "custom-terrain";
+
+	async load(params) {
+		// 实现自定义地形加载逻辑
+		return geometry;
+	}
+}
+
+registerDEMLoader(new CustomTerrainLoader());
+```
+
+### 投影系统
+
+支持多种地图投影系统：
+
+```typescript
+import { ProjectFactory } from "@three-tile/lib";
+
+// 获取投影实例
+const wgs84 = ProjectFactory.getProjection("4326");
+const webMercator = ProjectFactory.getProjection("3857");
+
+// 坐标转换
+const worldPos = map.geo2world(new THREE.Vector3(lon, lat, height));
+const geoPos = map.world2geo(new THREE.Vector3(x, y, z));
+```
+
+## 📚 API 参考
+
+### 主要类和接口
+
+| 类/接口               | 描述                                | 主要方法                                                                       |
+| --------------------- | ----------------------------------- | ------------------------------------------------------------------------------ |
+| `TileMap`             | 地图核心类，继承自 `THREE.Object3D` | `geo2world()`, `world2geo()`, `getLocalInfoFromScreen()`, `addEventListener()` |
+| `TileSource`          | 数据源类，定义瓦片数据来源          | `getUrl()`, `getBounds()`                                                      |
+| `ITileMaterialLoader` | 影像加载器接口                      | `load()`, `update()`                                                           |
+| `ITileGeometryLoader` | 地形加载器接口                      | `load()`, `update()`                                                           |
+| `IProjection`         | 投影接口                            | `forward()`, `inverse()`                                                       |
+
+### TileMap 核心属性
+
+```typescript
+interface MapParams {
+	imgSource: ISource[] | ISource; // 影像数据源
+	demSource?: ISource; // 地形数据源（可选）
+	lon0?: 0 | 90 | -90; // 中央子午线经度
+	minLevel?: number; // 最小缩放级别
+	maxLevel?: number; // 最大缩放级别（废弃，自动计算）
+	bounds?: [number, number, number, number]; // 地图范围 [minLon, minLat, maxLon, maxLat]
+	debug?: number; // 调试级别 0:关闭, 1+:开启
+}
+```
+
+### TileMap 核心方法
+
+```typescript
+// 坐标转换
+geo2world(geo: Vector3): Vector3;           // 地理坐标转世界坐标
+world2geo(world: Vector3): Vector3;         // 世界坐标转地理坐标
+getLocalInfoFromScreen(camera: Camera, pointer: Vector2): LocationInfo | undefined;
+getLocalInfoFromGeo(geo: Vector3): LocationInfo | undefined;
+getLocalInfoFromWorld(pos: Vector3): LocationInfo | undefined;
+
+// 地图控制
+reload(): void;                             // 重新加载地图
+update(): void;                             // 手动更新地图
+addEventListener(type: string, listener: Function): void;
+removeEventListener(type: string, listener: Function): void;
+```
+
+### ISource 数据源接口
+
+```typescript
+interface ISource {
+	dataType: string; // 数据类型标识 ('image', 'terrain-rgb', 'lerc', 'dem' 等)
+	url: string; // URL 模板，支持 {x}, {y}, {z} 占位符
+	attribution: string; // 版权信息
+	minLevel: number; // 最小级别
+	maxLevel: number; // 最大级别
+	projectionID: "3857" | "4326"; // 投影系统
+	opacity?: number; // 透明度
+	transparent?: boolean; // 是否透明
+	isTMS?: boolean; // 是否为 TMS 服务
+	bounds?: [number, number, number, number]; // 数据范围 [minLon,minLat,maxLon,maxLat]
+	getUrl(x: number, y: number, z: number): string | undefined;
+}
+```
+
+### 事件系统
+
+```typescript
+// 地图事件类型
+type MapEventTypes = "ready" | "tile-loaded" | "tile-unloaded" | "update";
+
+// 监听地图事件
+map.addEventListener("ready", () => {
+	console.log("地图就绪");
+});
+
+map.addEventListener("tile-loaded", event => {
+	console.log("瓦片加载完成:", event.tile.x, event.tile.y, event.tile.z);
+});
+
+map.addEventListener("update", () => {
+	console.log("地图更新");
+});
+```
+
+### 实用工具函数
+
+```typescript
+import {
+	waitFor, // 等待条件成立
+	registerImgLoader, // 注册影像加载器
+	registerDEMLoader, // 注册地形加载器
+	getImgLoader, // 获取影像加载器
+	getDEMLoader, // 获取地形加载器
+	getTileLoaders, // 获取所有加载器
+} from "@three-tile/lib";
+
+// 等待地图就绪
+await waitFor(() => map.isReady);
+
+// 获取特定类型的加载器
+const imageLoader = getImgLoader<TileImageLoader>("image");
+const terrainLoader = getDEMLoader<TerrainRGBLoader>("terrain-rgb");
+
+// 获取所有加载器信息
+const loaders = getTileLoaders();
+console.log("影像加载器:", loaders.imgLoaders);
+console.log("地形加载器:", loaders.demLoaders);
+```
+
+### LocationInfo 地面信息接口
+
+```typescript
+interface LocationInfo extends Intersection {
+	location: Vector3; // 经纬度信息 (经度, 纬度, 高度米)
+	// 继承自 Intersection：
+	// - distance: 射线投射原点和相交部分之间的距离
+	// - point: 相交部分的点（世界坐标）
+	// - face: 相交的面
+	// - faceIndex: 相交的面的索引
+	// - object: 相交的物体
+	// - uv: 相交部分的点的 UV 坐标
+	// - normal: 交点处的内插法向量
+}
+```
+
+### 实用工具函数
+
+```typescript
+import {
+	waitFor, // 等待条件成立
+	getImgLoader, // 获取影像加载器
+	getDEMLoader, // 获取地形加载器
+	getTileLoaders, // 获取所有加载器
+} from "@three-tile/lib";
+
+// 等待地图就绪
+await waitFor(() => map.isReady);
+
+// 获取特定类型的加载器
+const imageLoader = getImgLoader<TileImageLoader>("image");
+const terrainLoader = getDEMLoader<TerrainRGBLoader>("terrain-rgb");
+```
+
+## 🎯 示例
+
+### 自定义材质
+
+```typescript
+import { getImgLoader, MeshLambertMaterial } from "@three-tile/lib";
+
+// 获取影像加载器并设置自定义材质
+const imgLoader = getImgLoader<TileImageLoader>("image");
+imgLoader.material = new MeshLambertMaterial({
+	color: 0x5555ff,
+	transparent: true,
+	opacity: 0.8,
+});
+```
+
+### 添加 GeoJSON 数据（需插件）
+
+```typescript
+import { registerImgLoader } from "@three-tile/lib";
+import { GeoJSONLoader, GeoJSONSource } from "three-tile-plugin";
+
+// 注册 GeoJSON 加载器
+registerImgLoader(new GeoJSONLoader());
+
+// 创建 GeoJSON 数据源
+const geojsonSource = new GeoJSONSource({
+	url: "https://geo.datav.aliyun.com/areas_v3/bound/100000.json",
+	style: {
+		stroke: true,
+		color: "red",
+		weight: 2,
+		fill: false,
+	},
+});
+
+// 添加到地图
+map.imgSource = [baseMapSource, geojsonSource];
+```
+
+### 地形夸张效果
+
+```typescript
+import { getDEMLoader } from "@three-tile/lib";
+
+// 获取地形加载器并设置夸张倍数
+const demLoader = getDEMLoader<TerrainRGBLoader>("terrain-rgb");
+
+// 动态调整地形夸张
+let scale = 1.0;
+function updateTerrainScale() {
+	demLoader.terrainScale = scale;
+	scale += 0.1;
+	if (scale > 10) scale = 1.0;
+}
+
+setInterval(updateTerrainScale, 1000);
+```
+
+### 设置地图边界
+
+```typescript
+// 限制地图显示范围（中国范围）
+const map = new TileMap({
+	imgSource: imgSource,
+	demSource: demSource,
+	bounds: [73.66, 3.86, 135.08, 53.55], // [minLon, minLat, maxLon, maxLat]
+	lon0: 90,
+});
+
+// 获取投影边界
+const projBounds = map.projection.getProjBoundsFromLonLat(map.bounds);
+console.log("投影边界:", projBounds);
+```
+
+### 地图阴影效果
+
+```typescript
+import { DirectionalLight } from "three";
+
+// 设置环境光
+const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+scene.add(ambientLight);
+
+// 设置方向光（产生阴影）
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(100000, 100000, 100000);
+directionalLight.castShadow = true;
+
+// 配置阴影渲染参数
+directionalLight.shadow.mapSize.width = 2048;
+directionalLight.shadow.mapSize.height = 2048;
+directionalLight.shadow.camera.near = 0.5;
+directionalLight.shadow.camera.far = 500000;
+
+scene.add(directionalLight);
+
+// 配置地图接收阴影
+map.castShadow = false; // 地图不投射阴影
+map.receiveShadow = true; // 地图接收阴影
+
+// 配置渲染器支持阴影
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+```
+
+### 地理坐标转换
+
+```typescript
+// 地理坐标转世界坐标
+const geoPos = new THREE.Vector3(116.3974, 39.9093, 0); // 北京天安门
+const worldPos = map.geo2world(geoPos);
+
+// 世界坐标转地理坐标
+const geoPos2 = map.world2geo(worldPos);
+console.log(`经度: ${geoPos2.x}, 纬度: ${geoPos2.y}`);
+
+// 投影坐标转换
+const projPos = map.projection.forward(geoPos); // 地理坐标转投影坐标
+const geoPos3 = map.projection.inverse(projPos); // 投影坐标转地理坐标
+```
+
+### 获取地面信息
+
+```typescript
+// 从屏幕坐标获取地面信息
+const mouse = new THREE.Vector2(
+	(event.clientX / window.innerWidth) * 2 - 1,
+	-(event.clientY / window.innerHeight) * 2 + 1
+);
+const groundInfo = map.getLocalInfoFromScreen(camera, mouse);
+
+if (groundInfo) {
+	console.log("地面位置:", groundInfo.location); // 经度、纬度、高度(米)
+	console.log("世界坐标:", groundInfo.point);
+	console.log("法向量:", groundInfo.normal); // 可计算坡向、坡度
+	console.log("UV坐标:", groundInfo.uv);
+}
+
+// 从经纬度获取地面信息
+const geoPos = new THREE.Vector3(116.3974, 39.9093, 0);
+const groundInfo2 = map.getLocalInfoFromGeo(geoPos);
+
+// 从世界坐标获取地面信息
+const worldPos = new THREE.Vector3(x, y, z);
+const groundInfo3 = map.getLocalInfoFromWorld(worldPos);
+```
+
+### 多数据源支持
+
+```typescript
+// 使用多个影像数据源
+const map = new TileMap({
+	imgSource: [
+		new TileSource({
+			url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+			dataType: "image",
+			attribution: "© OpenStreetMap",
+		}),
+		new TileSource({
+			url: "https://satellite.example.com/{z}/{x}/{y}.jpg",
+			dataType: "image",
+			attribution: "© Example Satellite",
+		}),
+	],
+	demSource: new TileSource({
+		url: "https://terrain.example.com/{z}/{x}/{y}.png",
+		dataType: "terrain-rgb",
+		attribution: "© Example Terrain",
+	}),
+});
+
+// 动态切换数据源
+map.imgSource = [newDataSource];
+map.reload(); // 重新加载地图
+```
+
+### 地图事件系统
+
+```typescript
+// 监听地图就绪事件
+map.addEventListener("ready", () => {
+	console.log("地图加载完成");
+});
+
+// 监听瓦片加载事件
+map.addEventListener("tile-loaded", event => {
+	console.log(`瓦片加载完成: ${event.tile.x},${event.tile.y},${event.tile.z}`);
+});
+
+// 监听地图更新事件
+map.addEventListener("update", () => {
+	// 更新UI状态
+});
+
+// 监听点击事件
+window.addEventListener("click", event => {
+	const mouse = new THREE.Vector2(
+		(event.clientX / window.innerWidth) * 2 - 1,
+		-(event.clientY / window.innerHeight) * 2 + 1
+	);
+
+	const groundInfo = map.getLocalInfoFromScreen(camera, mouse);
+	if (groundInfo) {
+		// 在点击位置放置模型
+		const marker = new THREE.Mesh(
+			new THREE.SphereGeometry(100, 32, 16),
+			new THREE.MeshBasicMaterial({ color: 0xff0000 })
+		);
+		marker.position.copy(groundInfo.point);
+		marker.position.y += 100; // 稍微抬高一点
+		scene.add(marker);
+	}
+});
+```
+
+### 获取地面信息
+
+```typescript
+// 从屏幕坐标获取地面信息
+const mouse = new THREE.Vector2(event.clientX, event.clientY);
+const groundInfo = map.getGroundInfoFromScreen(mouse, camera);
+
+if (groundInfo) {
+	console.log("地面位置:", groundInfo.location);
+	console.log("经纬度:", groundInfo.lonLat);
+	console.log("高度:", groundInfo.height);
+}
+```
+
+## 🏛️ 架构设计
+
+### 模块结构
+
+```
+src/
+├── tile/           # 瓦片核心
+├── map/            # 地图管理
+├── source/         # 数据源
+├── loader/         # 加载器系统
+├── geometry/       # 几何体处理
+├── material/       # 材质系统
+└── layers/         # 图层管理
+```
+
+### 扩展机制
+
+库采用插件化架构，支持以下扩展：
+
+- **数据加载器**: 实现新的数据格式支持（如 GeoJSON、MVT、WMS 等）
+- **投影系统**: 添加新的地图投影（如 UTM、兰伯特投影等）
+- **材质系统**: 自定义渲染效果和着色器
+- **图层系统**: 扩展图层类型和样式系统
+
+### 插件开发示例
+
+```typescript
+import { ITileMaterialLoader, TileSourceLoadParamsType } from "@three-tile/lib";
+
+// 自定义影像加载器
+class CustomImageLoader implements ITileMaterialLoader {
+	info = { version: "1.0.0", author: "Your Name" };
+	dataType = "custom-image";
+
+	async load(params: TileSourceLoadParamsType) {
+		// 实现自定义影像加载逻辑
+		const texture = await this.loadTexture(params.source.getUrl(params.x, params.y, params.z));
+
+		return new THREE.MeshStandardMaterial({
+			map: texture,
+			transparent: params.source.transparent || false,
+			opacity: params.source.opacity || 1,
+		});
+	}
+
+	private async loadTexture(url: string): Promise<THREE.Texture> {
+		return new Promise((resolve, reject) => {
+			new THREE.TextureLoader().load(url, resolve, undefined, reject);
+		});
+	}
+}
+
+// 注册自定义加载器
+registerImgLoader(new CustomImageLoader());
+
+// 使用自定义数据源
+const customSource = new TileSource({
+	url: "https://your-api.com/{z}/{x}/{y}?format=custom",
+	dataType: "custom-image",
+	attribution: "© Your Data Provider",
+	minLevel: 0,
+	maxLevel: 18,
+	projectionID: "3857",
+});
+```
+
+### 性能优化
+
+- **Web Workers**: 地形解析等复杂计算在 Worker 中执行，保持主线程流畅
+- **对象池**: 复用 Vector3、Matrix4 等临时对象，减少内存分配
+- **LOD 系统**: 根据距离动态调整瓦片精度，远距离使用低精度瓦片
+- **异步加载**: 非阻塞的瓦片数据加载，支持并发下载
+- **智能缓存**: 自动管理瓦片缓存，避免重复下载
+- **视锥剔除**: 只渲染摄像机可见范围内的瓦片
+- **按需加载**: 根据摄像机位置和缩放级别智能加载瓦片
+
+### DLOD (Dynamic Level Of Details)
+
+three-tile 采用独特的 DLOD 技术实现高性能渲染：
+
+```typescript
+// 地图更新机制
+class TileMap extends THREE.Object3D {
+	private updateInterval = 200; // 200ms 更新一次
+	private tileSize = 4096; // 瓦片大小
+
+	// 自动计算 LOD 级别
+	private calculateLOD(tile: Tile, camera: Camera): number {
+		const distance = tile.position.distanceTo(camera.position);
+		return Math.floor(Math.log2(distance / this.tileSize));
+	}
+
+	// 动态细分或合并瓦片
+	private updateLOD(): void {
+		// 根据距离决定是否细分或合并瓦片
+		// 实现四叉树结构的动态调整
+	}
+}
+```
+
+## 🛠️ 开发指南
+
+### 构建命令
+
+```bash
+# 开发模式（监听文件变化）
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 类型检查
+npm run build  # 包含 tsc 编译
+```
+
+### 调试模式
+
+```typescript
+// 启用调试信息
+const map = new TileMap({
+	imgSource: source,
+	debug: 1, // 0: 关闭, 1+: 开启调试
+});
+
+// 调试信息包括：
+// - 瓦片加载状态
+// - 性能统计
+// - 网络请求日志
+```
+
+### 贡献指南
+
+1. Fork 项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+### 代码规范
+
+- 使用 TypeScript 严格模式
+- 遵循 ESLint 规则
+- 使用 Prettier 格式化代码
+- 编写 JSDoc 注释
+
+## 🆕 更新日志
+
+### v0.11.10
+
+- 🎉 优化 Martini 地形算法性能，提升地形渲染速度
+- 🐛 修复 Web Worker 内存泄漏问题，提高长时间运行稳定性
+- ✨ 新增投影边界计算功能 `getProjBoundsFromLonLat()`
+- 📚 完善 TypeScript 类型定义文件，提供更好的开发体验
+- 🔧 改进瓦片加载机制，减少重复下载
+
+### v0.11.9
+
+- 🌟 新增地图边界设置功能，支持指定显示范围
+- 🚀 优化瓦片缓存算法，提高内存利用效率
+- 📱 改进移动端触摸交互支持
+- 🛠️ 修复投影转换精度问题
+
+### v0.11.8
+
+- ⚡ Web Workers 优化地形解析，主线程不再阻塞
+- 🎨 新增地形夸张功能，支持动态调整地形高度
+- 🔍 完善调试模式，提供更详细的瓦片加载信息
+- 🐛 修复摄像机碰撞检测的边界情况
+
+### v0.11.7
+
+- 🌍 支持多种投影系统（WGS84、Web Mercator 等）
+- 📦 模块化重构，支持按需导入减少包体积
+- 🎯 新增精确的地面信息获取方法
+- 🛡️ 增强错误处理和异常恢复机制
+
+### v0.11.6
+
+- 🔄 重构加载器系统架构，提升扩展性
+- 🎭 新增自定义着色器支持
+- 📊 改进性能监控和统计功能
+- 🐱 支持瓦片纹理压缩格式
+
+### v0.11.5
+
+- 🎉 首次发布，核心功能完善
+- 🌐 支持标准 WMTS/TMS 瓦片服务
+- 🏔️ 支持 Terrain-RGB、LERC、DEM 地形格式
+- 🚀 实现动态 LOD 渲染算法
+
+查看完整更新日志：[CHANGELOG.md](./CHANGELOG.md)
+
+## 📄 许可证
+
+本项目采用 [MIT 许可证](./LICENSE)。
+
+## 🔗 相关链接
+
+- **📚 官方文档**: [https://sxguojf.github.io/three-tile-doc/](https://sxguojf.github.io/three-tile-doc/)
+  - 完整的 API 文档和详细教程
+  - 38+ 实用示例和应用场景
+  - Vue/React 集成指南
+- **🎮 在线演示**: [https://sxguojf.github.io/mydemo/three-tile/](https://sxguojf.github.io/mydemo/three-tile/)
+
+  - 交互式三维地图演示
+  - 多种数据源和渲染效果
+  - 性能测试和功能展示
+
+- **💻 示例源码**: [https://github.com/sxguojf/three-tile-example](https://github.com/sxguojf/three-tile-example)
+
+  - 完整的示例代码库
+  - 从基础到高级的使用案例
+  - 插件开发示例
+
+- **🐛 问题反馈**: [https://github.com/sxguojf/three-tile/issues](https://github.com/sxguojf/three-tile/issues)
+
+  - Bug 报告和功能请求
+  - 技术问题讨论
+  - 社区支持和帮助
+
+- **🏠 项目主页**: [https://github.com/sxguojf/three-tile](https://github.com/sxguojf/three-tile)
+
+  - 源代码和开发进展
+  - 贡献指南和开发文档
+  - 版本发布和更新日志
+
+- **📖 相关博客**: [https://blog.csdn.net/HZGJF/article/details/140280844](https://blog.csdn.net/HZGJF/article/details/140280844)
+  - 项目介绍和技术原理
+  - 开发心得和最佳实践
+  - 性能优化技巧
+
+## 🎯 常见应用场景
+
+### 🗺️ 地理信息系统 (GIS)
+
+- 数字孪生城市建模
+- 三维地理信息可视化
+- 地形分析和测量
+- 空间数据展示
+
+### 🎮 游戏开发
+
+- 开放世界游戏地图
+- 第一人称/第三人称游戏
+- 地形生成和渲染
+- 场景导航系统
+
+### 🏗️ 建筑和规划
+
+- 城市规划展示
+- 建筑群可视化
+- 地形分析和规划
+- 工程项目管理
+
+### 📊 数据可视化
+
+- 大数据地理展示
+- 实时数据地图
+- 统计信息可视化
+- 航空/气象数据
+
+### 🎓 教育科研
+
+- 地理教学工具
+- 科研数据展示
+- 模拟训练系统
+- 学术研究可视化
+
+## 🎨 特色功能
+
+### 🌍 多数据源支持
+
+- **影像数据**: OpenStreetMap、Google Maps、ArcGIS、高德、腾讯等
+- **地形数据**: Terrain-RGB、LERC、DEM、TIFF 等格式
+- **矢量数据**: GeoJSON、MVT (Mapbox Vector Tiles)
+- **自定义数据**: 支持通过插件扩展任何数据格式
+
+### 🚀 高性能渲染
+
+- **DLOD 算法**: 动态细节层次优化
+- **Web Workers**: 复杂计算异步处理
+- **智能缓存**: 自动瓦片缓存管理
+- **视锥剔除**: 只渲染可见区域
+
+### 🔧 丰富的插件生态
+
+- **地图控制**: 多种控制器模式（飞行、行走、第一人称等）
+- **可视化工具**: 等高线、热力图、粒子效果等
+- **3D 模型**: GLTF/GLB 模型加载和展示
+- **环境效果**: 大气渲染、水体模拟、天空盒等
+
+## 🤝 致谢
+
+感谢以下开源项目的启发和支持：
+
+- **[Three.js](https://threejs.org/)** - 强大的 3D 图形库，本项目的基础
+- **[Mapbox Martini](https://github.com/mapbox/martini)** - 优秀的地形网格算法
+- **[Cesium](https://github.com/CesiumGS/cesium)** - 专业的 3D 地球引擎，提供了很多设计灵感
+- **[Mapbox GL JS](https://github.com/mapbox/mapbox-gl-js)** - 矢量瓦片渲染技术参考
+- **[Leaflet](https://leafletjs.com/)** - 轻量级地图库，API 设计参考
+- **[Geo-three](https://github.com/tentone/geo-three)** - Three.js 地球引擎，架构参考
+
+## 📜 许可证信息
+
+**注意**: 本库不含任何地图数据，示例中使用的地图数据均为第三方服务，使用时请遵守相关法律法规和版权要求。
+
+### 数据源版权声明
+
+- OpenStreetMap 数据遵循 [ODbL 许可证](https://opendatacommons.org/licenses/odbl/)
+- 使用商业地图数据时请遵守相应服务商的条款
+- 自定义数据源的使用请确保拥有合法授权
 
 ---
 
-## 2. 参考
-
-- https://threejs.org/
-- https://github.com/CesiumGS/cesium
-- https://github.com/mapbox/mapbox-gl-js
-- https://leafletjs.com
-- https://github.com/tentone/geo-three
-- https://github.com/ebeaufay/threedtiles
-- https://github.com/NASA-AMMOS/3DTilesRendererJS
-- https://github.com/wlgys8/GPUDrivenTerrainLearn
-- https://github.com/lijundacom/LeoGPUDriven
-- https://github.com/mapbox/martini
-- https://github.com/visgl/loaders.gl/blob/master/modules/terrain/src/lib/helpers/skirt.ts
+**Made with ❤️ by Guo Jiangfeng**
