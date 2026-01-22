@@ -25,11 +25,11 @@ async function prepareAndCopy() {
 		const copyTasks = [
 			{
 				source: path.join(currentDir, "packages/lib/dist"),
-				target: "", // 将拷贝到 dist/lib1
+				target: "", // 将拷贝到 dist/
 			},
 			{
 				source: path.join(currentDir, "packages/plugin/dist"),
-				target: "./plugin", // 将拷贝到 dist/lib2
+				target: "./plugin", // 将拷贝到 dist/plugin
 			},
 			// 可以添加更多拷贝任务
 		];

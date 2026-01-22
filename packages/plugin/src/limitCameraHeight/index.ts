@@ -1,7 +1,6 @@
 import {
 	Box3,
 	Box3Helper,
-	BoxHelper,
 	BufferGeometry,
 	Camera,
 	MathUtils,

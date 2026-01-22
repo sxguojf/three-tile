@@ -17,6 +17,8 @@ export const createCameraGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 		map.autoUpdate = true;
 	};
 
+	let cameraHelper: CameraHelper;
+
 	const vm = {
 		resetCamera: () => {
 			flyToGeo(new Vector3(110, -10, 4000 * 1000), new Vector3(110, 30, 0));
@@ -102,7 +104,7 @@ export const createCameraGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			console.log("-----------------------------------------------------------------------------------------");
 			console.log(code);
 			console.log("-----------------------------------------------------------------------------------------");
-			console.log("Code has copide to clipboard");
+			console.log("Code has copied to clipboard");
 		},
 
 		cameraHelper: () => {
@@ -113,8 +115,6 @@ export const createCameraGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 			viewer.scene.add(cameraHelper);
 		},
 	};
-
-	let cameraHelper: CameraHelper;
 
 	const folder = gui.addFolder("地点（控制摄像机）");
 

@@ -23,7 +23,7 @@
 		// 检查函数是否有返回值
 		"noImplicitReturns": true,
 		// 跳过声明文件的类型检查
-		"skipLibCheck": false,
+		"skipLibCheck": true,
 		// 强制区分大小写
 		"forceConsistentCasingInFileNames": true,
 		// 要包含的类型声明文件

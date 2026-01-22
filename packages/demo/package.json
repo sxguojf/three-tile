@@ -9,9 +9,11 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"@types/crypto-js": "^4.2.2",
 		"crypto-js": "^4.2.0",
 		"three-tile": "../lib",
 		"three-tile-plugin": "../plugin"
+	},
+	"devDependencies": {
+		"@types/crypto-js": "^4.2.2"
 	}
 }

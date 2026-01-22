@@ -5,7 +5,7 @@
  * @date 2025-03-15
  */
 import geojsonvt from "geojson-vt";
-import { CanvasTexture, FileLoader, Texture, TextureLoader } from "three";
+import { CanvasTexture, FileLoader, Texture } from "three";
 import {
 	LoaderFactory,
 	TileLoadClipParamsType,
