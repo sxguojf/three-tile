@@ -27,7 +27,7 @@ export const createLoaderGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 						save(new Blob([gltf], { type: "application/octet-stream" }), "map.glb");
 					}
 				},
-				function (error: Error) {
+				function (error: ErrorEvent) {
 					console.log("An error happened: " + error.message);
 				},
 				{
@@ -49,7 +49,7 @@ export const createLoaderGui = (gui: GUI, viewer: plugin.GLViewer, map: tt.TileM
 	folder.add(vm, "lon90").name("亚洲(中央子午线: 90°)");
 	folder.add(vm, "lon0").name("欧洲(中央子午线: 0°)");
 	folder.add(vm, "lon_90").name("美洲(中央子午线: -90°)");
-	folder.add(vm, "export").name("导出地图模型");
+	folder.add(vm, "export").name("Export").name("导出地图模型");
 
 	return gui;
 };
