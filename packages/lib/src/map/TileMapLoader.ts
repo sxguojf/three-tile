@@ -14,33 +14,33 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 	private _projection: IProjection = new ProjMCT(0);
 
 	public override get imgSource() {
-		return super.imgSource;
+		return this.imgSource;
 	}
 
 	public override set imgSource(source: ISource[]) {
-		super.imgSource = source;
+		this.imgSource = source;
 		// 计算source的投影范围
 		this._updateImgProjBounds();
 	}
 
 	public override get demSource() {
-		return super.demSource;
+		return this.demSource;
 	}
 
 	public override set demSource(source: ISource | undefined) {
-		super.demSource = source;
+		this.demSource = source;
 		// 计算source的投影范围
 		this._updateDemPrjBounds();
 	}
 
 	public override set bounds(value: BoundsType) {
-		super.bounds = value;
+		this.bounds = value;
 		this._updateImgProjBounds();
 		this._updateDemPrjBounds();
 	}
 
 	public override get bounds(): BoundsType {
-		return super.bounds;
+		return this.bounds;
 	}
 
 	private _updateImgProjBounds() {
