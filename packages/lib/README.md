@@ -18,9 +18,9 @@
 ## 📦 安装
 
 ```bash
-npm install @three-tile/lib
+npm i three-tile -S
 # 或
-yarn add @three-tile/lib
+yarn add three-tile -S
 ```
 
 ### 依赖要求
@@ -75,43 +75,6 @@ map.rotateX(-Math.PI / 2);
 map.addEventListener("ready", () => {
 	console.log("地图加载完成");
 });
-```
-
-### 在 Vue/React 中使用
-
-```typescript
-// Vue 3 Composition API
-import { onMounted, ref } from "vue";
-import * as THREE from "three";
-import { TileMap, TileSource } from "@three-tile/lib";
-
-export function useTileMap(container: Ref<HTMLElement>) {
-	const scene = ref<THREE.Scene>();
-	const renderer = ref<THREE.WebGLRenderer>();
-	const map = ref<TileMap>();
-
-	onMounted(() => {
-		// 初始化 Three.js 场景
-		scene.value = new THREE.Scene();
-		renderer.value = new THREE.WebGLRenderer();
-
-		// 创建地图
-		map.value = new TileMap({
-			imgSource: new TileSource({
-				url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-				dataType: "image",
-				attribution: "© OpenStreetMap",
-				minLevel: 0,
-				maxLevel: 18,
-				projectionID: "3857",
-			}),
-		});
-
-		scene.value.add(map.value);
-	});
-
-	return { scene, renderer, map };
-}
 ```
 
 ### 完整示例
@@ -171,43 +134,6 @@ window.addEventListener("mousemove", event => {
 		);
 	}
 });
-```
-
-### 在 Vue/React 中使用
-
-```typescript
-// Vue 3 Composition API
-import { onMounted, ref } from "vue";
-import * as THREE from "three";
-import { TileMap, TileSource } from "@three-tile/lib";
-
-export function useTileMap(container: Ref<HTMLElement>) {
-	const scene = ref<THREE.Scene>();
-	const renderer = ref<THREE.WebGLRenderer>();
-	const map = ref<TileMap>();
-
-	onMounted(() => {
-		// 初始化 Three.js 场景
-		scene.value = new THREE.Scene();
-		renderer.value = new THREE.WebGLRenderer();
-
-		// 创建地图
-		map.value = new TileMap({
-			imgSource: new TileSource({
-				url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-				dataType: "image",
-				attribution: "© OpenStreetMap",
-				minLevel: 0,
-				maxLevel: 18,
-				projectionID: "3857",
-			}),
-		});
-
-		scene.value.add(map.value);
-	});
-
-	return { scene, renderer, map };
-}
 ```
 
 ## 🏗️ 核心概念

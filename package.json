@@ -32,21 +32,22 @@
 		"build:lib": "npm run build --workspace=packages/lib",
 		"build:demo": "npm run build --workspace=packages/demo",
 		"build:plugin": "npm run build --workspace=packages/plugin",
-		"format": "prettier --write \"**/*.{ts,json,md}\""
+		"format": "prettier --write \"**/*.{ts,json,md}\"",
+		"docs": "npm run docs --workspace=packages/lib && npm run docs --workspace=packages/plugin"
 	},
 	"devDependencies": {
-		"@types/node": "^20.17.30",
+		"@types/node": "^22.13.14",
 		"@types/offscreencanvas": "^2019.7.0",
-		"@types/three": "0.171.0",
+		"@types/three": "0.173.0",
 		"fs-extra": "^11.3.0",
-		"prettier": "^3.5.3",
-		"typedoc": "^0.25.13",
-		"typescript": "^5.3.3",
+		"prettier": "^3.8.1",
+		"typedoc": "^0.28.16",
+		"typescript": "^5.7.3",
 		"vite": "^5.4.16",
-		"vite-plugin-dts": "^4.0.3"
+		"vite-plugin-dts": "^4.5.4"
 	},
 	"peerDependencies": {
-		"three": "0.171.0"
+		"three": "0.173.0"
 	},
 	"workspaces": [
 		"packages/*"

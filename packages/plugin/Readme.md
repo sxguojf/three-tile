@@ -7,11 +7,11 @@ hz_gjf@163.com
 ## 1. 安装
 
 ```sh
-npm i three-tile-plugin
+npm i three-tile -S
 ```
 
 ```sh
-yarn i three-tile-plugin
+yarn add three-tile -S
 ```
 
 ## 2. 使用
@@ -20,7 +20,7 @@ yarn i three-tile-plugin
 
 ```ts
 // 引入插件包
-import * as plugin from "three-tile-plugin";
+import * as plugin from "three-tile/plugin";
 
 //================================注册加载器====================================
 // 注册wrieframe加载器
@@ -53,5 +53,3 @@ tt.registerDEMLoader(new plugin.SingleTifDEMLoader());
 - Register imageLoader: 'mvt', Author: 'GuoJF'
 - Register imageLoader: 'single-image', Author: 'GuoJF'
 - Register terrainLoader: 'single-tif', Author: 'GuoJF'
-
-### 插件使用

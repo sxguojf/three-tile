@@ -33,7 +33,7 @@
 	"scripts": {
 		"dev": "vite build --watch",
 		"build": "tsc && vite build",
-		"docs": "typedoc --entryPoints src/index.ts --out docs"
+		"docs": "typedoc --entryPoints src/index.ts --out ../../docs/plugin/"
 	},
 	"dependencies": {
 		"@mapbox/vector-tile": "^2.0.3",

@@ -13,40 +13,45 @@ import { IProjection, ProjMCT } from "./projection";
 export class TileMapLoader extends TileLoader implements ITileMapLoader {
 	private _projection: IProjection = new ProjMCT(0);
 
-	public override get imgSource() {
-		return this.imgSource;
+	constructor() {
+		super();
+		console.log(this);
 	}
 
-	public override set imgSource(source: ISource[]) {
-		this.imgSource = source;
+	public get imgSource() {
+		return super.imgSource;
+	}
+
+	public set imgSource(source: ISource[]) {
+		super.imgSource = source;
 		// 计算source的投影范围
 		this._updateImgProjBounds();
 	}
 
-	public override get demSource() {
-		return this.demSource;
+	public get demSource() {
+		return super.demSource;
 	}
 
-	public override set demSource(source: ISource | undefined) {
-		this.demSource = source;
+	public set demSource(source: ISource | undefined) {
+		super.demSource = source;
 		// 计算source的投影范围
 		this._updateDemPrjBounds();
 	}
 
-	public override set bounds(value: BoundsType) {
+	public set bounds(value: BoundsType) {
 		this.bounds = value;
 		this._updateImgProjBounds();
 		this._updateDemPrjBounds();
 	}
 
-	public override get bounds(): BoundsType {
-		return this.bounds;
+	public get bounds(): BoundsType {
+		return super.bounds;
 	}
 
 	private _updateImgProjBounds() {
 		const proj = this._projection;
 		// 计算数据源投影范围
-		this.imgSource.forEach(source => {
+		super.imgSource.forEach(source => {
 			source._projectionBounds = proj.getProjBoundsFromLonLat(source.bounds || this.bounds);
 		});
 	}
@@ -70,11 +75,11 @@ export class TileMapLoader extends TileLoader implements ITileMapLoader {
 		this._updateDemPrjBounds();
 	}
 
-	public override async load(params: TileLoadParamsType): Promise<TileMesh> {
+	public async load(params: TileLoadParamsType): Promise<TileMesh> {
 		return super.load(this._getTileCoords(params));
 	}
 
-	public override async update(coord: TileLoadParamsType, tileMesh: TileMesh) {
+	public async update(coord: TileLoadParamsType, tileMesh: TileMesh) {
 		super.update(this._getTileCoords(coord), tileMesh);
 	}
 
