@@ -2,9 +2,7 @@
 	"name": "@three-tile/plugin",
 	"version": "0.11.10",
 	"type": "module",
-	"files": [
-		"dist"
-	],
+	"description": "A lightweight tile map using threejs - plugins",
 	"main": "./dist/index.umd.cjs",
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
@@ -15,21 +13,6 @@
 			"types": "./dist/index.d.ts"
 		}
 	},
-	"description": "A lightweight tile map using threejs - plugins",
-	"license": "MIT",
-	"author": {
-		"name": "GuoJF",
-		"email": "hz_gjf@163.com"
-	},
-	"keywords": [
-		"three",
-		"gis",
-		"tile",
-		"map",
-		"3D",
-		"cesium",
-		"mapbox"
-	],
 	"scripts": {
 		"dev": "vite build --watch",
 		"build": "tsc && vite build",
@@ -43,17 +26,5 @@
 	},
 	"devDependencies": {
 		"@types/geojson-vt": "^3.2.5"
-	},
-	"publishConfig": {
-		"registry": "https://registry.npmjs.org/",
-		"access": "public"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/sxguojf/three-tile.git"
-	},
-	"bugs": {
-		"url": "https://github.com/sxguojf/three-tile/issues"
-	},
-	"homepage": "https://github.com/sxguojf/three-tile#readme"
+	}
 }

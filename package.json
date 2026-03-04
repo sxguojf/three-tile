@@ -37,7 +37,6 @@
 	},
 	"devDependencies": {
 		"@types/node": "^22.13.14",
-		"@types/offscreencanvas": "^2019.7.0",
 		"@types/three": "0.173.0",
 		"fs-extra": "^11.3.0",
 		"prettier": "^3.8.1",
