@@ -4,8 +4,6 @@
 
 <p align='right'>hz_gjf@163.com</p>
 
-<img src="./images/wechat.jpg" width = 300 height = 400>
-
 ## 文档、示例：
 
 [![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/)
@@ -25,12 +23,6 @@ Source: https://github.com/sxguojf/three-tile
 demo: https://sxguojf.github.io/mydemo/three-tile/index.html
 
 Document: https://sxguojf.github.io/three-tile-doc/
-
-提供一些开发示例：
-
-Examples Source： https://github.com/sxguojf/three-tile-example
-
-Examples: https://sxguojf.github.io/three-tile-example
 
 使用 vue 开发：
 

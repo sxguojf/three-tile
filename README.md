@@ -4,8 +4,6 @@
 
 <p align='right'>hz_gjf@163.com</p>
 
-<img src="./images/wechat.jpg" width = 300 height = 400>
-
 ## Home（Document、Example...）:
 
 [![home](./images/home.png)](https://sxguojf.github.io/three-tile-doc/)
@@ -25,12 +23,6 @@ Source: [https://github.com/sxguojf/three-tile](https://github.com/sxguojf/three
 Demo: [https://sxguojf.github.io/mydemo/three-tile/index.html](https://sxguojf.github.io/mydemo/three-tile/index.html)
 
 Document: [https://sxguojf.github.io/three-tile-doc/](https://sxguojf.github.io/three-tile-doc/)
-
-Some development examples are provided:
-
-Examples Source: [https://github.com/sxguojf/three-tile-example](https://github.com/sxguojf/three-tile-example)
-
-Examples: [https://sxguojf.github.io/three-tile-example](https://sxguojf.github.io/three-tile-example)
 
 Developed using Vue:
 
