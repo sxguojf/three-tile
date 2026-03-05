@@ -93,7 +93,7 @@ npm run build --workspace=packages/demo    # 检查 demo 包编译
 ### 依赖管理
 
 - Three.js 作为 peerDependency (`"three": "0.171.0"`)
-- 构建工具: Vite + TypeScript
+- 构建工具: Vite 6 + TypeScript
 - 代码格式化: Prettier
 - 类型定义: @types/three
 

@@ -10,14 +10,14 @@
 	"types": "./dist/index.d.ts",
 	"exports": {
 		".": {
+			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js",
-			"require": "./dist/index.umd.cjs",
-			"types": "./dist/index.d.ts"
+			"require": "./dist/index.umd.cjs"
 		},
 		"./plugin": {
+			"types": "./dist/plugin/index.d.ts",
 			"import": "./dist/plugin/index.js",
-			"require": "./dist/plugin/index.js",
-			"types": "./dist/plugin/index.d.ts"
+			"require": "./dist/plugin/index.js"
 		}
 	},
 	"license": "MIT",
@@ -42,7 +42,7 @@
 		"prettier": "^3.8.1",
 		"typedoc": "^0.28.16",
 		"typescript": "^5.7.3",
-		"vite": "^5.4.16",
+		"vite": "6.2.0",
 		"vite-plugin-dts": "^4.5.4"
 	},
 	"peerDependencies": {
