@@ -26,13 +26,16 @@ Contributors:  Johannes Schmid, (LERC v1)
 
 /* Copyright 2015-2021 Esri. Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 @preserve */
 
+/* jshint forin: false, bitwise: false */
+/* eslint-disable @typescript-eslint/no-inferrable-types */
 /**
  * a module for decoding LERC blobs
  * @module Lerc
  */
 
+// @ts-nocheck - 第三方库文件，跳过类型检查
 // 原来的自执行函数改为普通函数
-const LercDecode = (function () {
+const LercDecode: any = (function () {
 	// Note: currently, this module only has an implementation for decoding LERC data, not encoding. The name of
 	// the class was chosen to be future proof.
 

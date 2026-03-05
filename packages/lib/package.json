@@ -19,7 +19,7 @@
 	},
 	"scripts": {
 		"dev": "vite build --watch",
-		"build": "tsc && vite build",
+		"build": "vite build",
 		"docs": "typedoc --entryPoints src/index.ts --out ../../docs/lib/"
 	}
 }

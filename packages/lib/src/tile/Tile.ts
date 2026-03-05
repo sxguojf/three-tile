@@ -285,7 +285,7 @@ export class Tile extends Object3D<TTileEventMap> {
 			// console.log("remove", this.name);
 			if (this.model) {
 				this.showing = true;
-				this.unLoadSubTiles();
+				this.unloadSubTiles();
 			}
 		}
 		return action;
@@ -322,15 +322,19 @@ export class Tile extends Object3D<TTileEventMap> {
 		console.assert(!this.model);
 
 		this._isLoading = true;
-		// load
-		const model = await loader.load(this);
-		this._model = model;
-		model.geometry.computeBoundingBox();
-		this.add(model);
-		this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: true });
-		this.isLeaf && this._checkVisible();
-		this._isLoading = false;
-		this._root.dispatchEvent({ type: "tile-loaded", tile: this });
+		try {
+			const model = await loader.load(this);
+			this._model = model;
+			model.geometry.computeBoundingBox();
+			this.add(model);
+			this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: true });
+			this.isLeaf && this._checkVisible();
+			this._root.dispatchEvent({ type: "tile-loaded", tile: this });
+		} catch (error) {
+			console.error("Failed to load tile:", error);
+		} finally {
+			this._isLoading = false;
+		}
 	}
 
 	/**
@@ -339,16 +343,19 @@ export class Tile extends Object3D<TTileEventMap> {
 	 */
 	private async _startModify(loader: ITileLoader) {
 		console.assert(!!this.model);
+		if (!this.model) return;
 
-		if (this.model) {
-			this._isLoading = true;
-			// load
+		this._isLoading = true;
+		try {
 			await loader.update(this, this.model);
 			this.model.geometry.computeBoundingBox();
 			this._root.dispatchEvent({ type: "tile-visible-changed", tile: this, visible: true });
+			this._root.dispatchEvent({ type: "tile-loaded", tile: this });
+		} catch (error) {
+			console.error("Failed to modify tile:", error);
+		} finally {
 			this._isDirty = false;
 			this._isLoading = false;
-			this._root.dispatchEvent({ type: "tile-loaded", tile: this });
 		}
 	}
 
@@ -359,7 +366,7 @@ export class Tile extends Object3D<TTileEventMap> {
 	 */
 	public reload(dispose = true) {
 		if (dispose) {
-			return this.unLoad();
+			return this.unload();
 		} else {
 			this.traverse(child => {
 				if (child instanceof Tile && (child.model || child._isLoading)) {
@@ -374,18 +381,15 @@ export class Tile extends Object3D<TTileEventMap> {
 	 * 卸载瓦片 (包括瓦片模型和其子瓦片)，释放资源
 	 * @returns this
 	 */
-	public unLoad() {
-		this.unLoadSubTiles();
-		this.unLoadModel();
+	public unload() {
+		this.unloadSubTiles();
+		this.unloadModel();
 		return this;
 	}
 
-	public unLoadModel() {
-		// console.assert(!!this.model);
-
+	public unloadModel() {
 		if (this.model) {
 			this.model.removeFromParent();
-			// loader.unload(this.model);
 			this.model.material.forEach((material: any) => {
 				for (const key in material) {
 					const value = material[key];
@@ -404,11 +408,11 @@ export class Tile extends Object3D<TTileEventMap> {
 		return this;
 	}
 
-	public unLoadSubTiles() {
+	public unloadSubTiles() {
 		this.subTiles?.forEach(child => {
 			child.removeFromParent();
-			child.unLoadModel();
-			child.unLoadSubTiles();
+			child.unloadModel();
+			child.unloadSubTiles();
 		});
 		this._subTiles = undefined;
 		return this;

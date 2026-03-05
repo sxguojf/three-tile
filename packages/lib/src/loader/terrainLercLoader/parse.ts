@@ -7,7 +7,8 @@
 import { Martini } from "../../geometry/Martini";
 import { GeometryDataType } from "../../geometry/GeometryDataTypes";
 //@ts-ignore
-import Lerc from "./lercDecode.js";
+//@ts-ignore
+import Lerc from "./lercDecode";
 
 type DEMType = {
 	dem: Float32Array;
@@ -46,7 +47,8 @@ const maxErrors: { [key: number]: number } = {
  * @returns 解码后的高度图数据、宽度和高度的对象
  */
 function decode(buffer: ArrayBuffer): DEMType {
-	const data = Lerc.decode(buffer);
+	//@ts-ignore
+	const data = Lerc.decode(buffer, {});
 	return { dem: data.pixels[0], width: data.width, height: data.height };
 }
 

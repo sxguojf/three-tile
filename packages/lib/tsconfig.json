@@ -2,7 +2,7 @@
 	"extends": "../../tsconfig.json",
 	"compilerOptions": {
 		"types": ["vite/client"],
-		"noEmit": false
+		"noEmit": true
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["src/**/back/**"]
