@@ -20,6 +20,7 @@ yarn add three-tile -S
 
 ```ts
 // 引入插件包
+import * as tt from "three-tile";
 import * as plugin from "three-tile/plugin";
 
 //================================注册加载器====================================
