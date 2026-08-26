@@ -11,8 +11,6 @@ A lightweight 3D tile map development framework
 
 [Documentation](https://sxguojf.github.io/three-tile-doc/) | [GitHub Repository](https://github.com/sxguojf/three-tile) | [Issues](https://github.com/sxguojf/three-tile/issues)
 
-https://sxguojf.github.io/demo/
-
 
 ## 1. Introduction
 
@@ -23,6 +21,8 @@ three-tile is more like LOD terrain from game development, but it can use data f
 ::: warning Disclaimer
 This framework does not contain any map data. Maps used in examples and demos directly reference third-party data and do not represent the position of this development framework. Developers should comply with relevant regulations and use legal maps.
 :::
+
+https://sxguojf.github.io/demo/
 
 ## 2. Features
 
