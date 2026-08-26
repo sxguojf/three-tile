@@ -11,6 +11,9 @@ A lightweight 3D tile map development framework
 
 [Documentation](https://sxguojf.github.io/three-tile-doc/) | [GitHub Repository](https://github.com/sxguojf/three-tile) | [Issues](https://github.com/sxguojf/three-tile/issues)
 
+https://sxguojf.github.io/demo/
+
+
 ## 1. Introduction
 
 three-tile is an open-source, lightweight frontend 3D tile framework built on Three.js using TypeScript. It provides 3D terrain models and lets you easily add 3D tile maps to your applications. After dozens of iterations, the framework's features and effects meet production environment requirements and have been validated and applied in multiple projects.
